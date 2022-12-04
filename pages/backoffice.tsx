@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Layout } from "../components/layout";
+import { getFamilies } from "../lib/db/dbManager";
 import { TFamily } from "../lib/types/family";
+import axios from 'axios';
+import { TAddFamilyResult } from "./api/family/addFamily";
 
 const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => {
     const [localFamilies, setLocalFamilies] = useState<TFamily[]>(families);
@@ -13,16 +16,23 @@ const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => 
         // call API
     }
 
-    const addFamily = (): void => {
+    const addFamily = async (): Promise<void> => {
         const newFamilyId = localFamilies.length + 1;
         const newFamilies = localFamilies;
 
-        newFamilies.push({ id: newFamilyId, name: newFamilyName });
+        const familyToAdd = { id: newFamilyId, name: newFamilyName };
+        newFamilies.push();
 
-        setLocalFamilies(newFamilies);
-        setNewFamilyName("");
+        const result = await axios.post('/api/family/addFamily', { family: familyToAdd });
+        const data = result.data as TAddFamilyResult;
 
-        // call API
+        console.log(data);
+        if (result.data.success === true) {
+            setLocalFamilies(newFamilies);
+            setNewFamilyName("");
+        } else {
+            window.alert(data.error);
+        }
     }
 
     return (
@@ -66,5 +76,15 @@ const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => 
         </Layout>
     )
 }
+
+export async function getStaticProps() {
+    const families = await getFamilies();
+    
+    return {
+      props: {
+        families,
+      },
+    }
+  }
 
 export default Backoffice;
