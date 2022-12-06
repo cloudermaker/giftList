@@ -10,26 +10,32 @@ const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => 
     const [creatingFamily, setCreatingFamily] = useState<boolean>(false);
     const [newFamilyName, setNewFamilyName] = useState<string>('');
     
-    const removeFamily = (familyId: number): void => {
-        setLocalFamilies(localFamilies.filter((family) => family.id !== familyId));
+    const removeFamily = async (familyId: number): Promise<void> => {
+        const confirmation = window.confirm('Are you sure you want to remove this user ?');
 
-        // call API
+        if (confirmation) {
+            const result = await axios.post('/api/family/removeFamily', { familyId: familyId });
+            const data = result.data as TAddFamilyResult;
+    
+            if (data.success === true) {
+                location.reload();
+            } else {
+                window.alert(data.error);
+            }
+        }
     }
 
     const addFamily = async (): Promise<void> => {
-        const newFamilyId = localFamilies.length + 1;
         const newFamilies = localFamilies;
 
-        const familyToAdd = { id: newFamilyId, name: newFamilyName };
-        newFamilies.push();
+        const familyToAdd = { id: 0, name: newFamilyName };
+        newFamilies.push(familyToAdd);
 
         const result = await axios.post('/api/family/addFamily', { family: familyToAdd });
         const data = result.data as TAddFamilyResult;
 
-        console.log(data);
-        if (result.data.success === true) {
-            setLocalFamilies(newFamilies);
-            setNewFamilyName("");
+        if (data.success === true) {
+            location.reload();
         } else {
             window.alert(data.error);
         }
@@ -77,7 +83,7 @@ const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => 
     )
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
     const families = await getFamilies();
     
     return {
