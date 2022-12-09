@@ -1,10 +1,10 @@
 export type TFamilyUser = {
-    id: number;
+    id: string;
     name: string;
-    familyId: number;
+    familyId: string;
 }
 
 export type TFamily = {
-    id: number;
+    id: string;
     name: string;
 }

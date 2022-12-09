@@ -3,7 +3,7 @@ export type TUserGift = {
     link: string;
     description: string;
 
-    ownerUserId: number;
-    takenUserId: number;
+    ownerUserId: string;
+    takenUserId: string;
 }
 

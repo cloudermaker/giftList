@@ -12,7 +12,7 @@ export const getFamilies = async (): Promise<TFamily[]> => {
 
     let families: TFamily[] = [];
     const query = 'select * from family';
-
+    
     try {
         const res = await connection.query(query, []);
         families = res.rows as TFamily[];
@@ -27,7 +27,7 @@ export const getFamilies = async (): Promise<TFamily[]> => {
     return families;
 }
 
-export const getFamilyFromId = async (familyId: number): Promise<TFamily> => {
+export const getFamilyFromId = async (familyId: string): Promise<TFamily> => {
     const connection = getDbConnection();
 
     connection.connect();
@@ -38,7 +38,7 @@ export const getFamilyFromId = async (familyId: number): Promise<TFamily> => {
     try {
         const res = await connection.query(query, []);
         
-        console.log(res);
+        console.log(query, res);
         if (res.rows.length === 1) {
             family = res.rows[0] as TFamily;
         } else {
@@ -55,7 +55,7 @@ export const getFamilyFromId = async (familyId: number): Promise<TFamily> => {
     return family;
 }
 
-export const getFamilyUsersFromFamilyId = async (familyId: number): Promise<TFamilyUser[]> => {
+export const getFamilyUsersFromFamilyId = async (familyId: string): Promise<TFamilyUser[]> => {
     const connection = getDbConnection();
 
     connection.connect();
@@ -98,12 +98,54 @@ export const addFamily = async (family: TFamily): Promise<boolean> => {
     return true;
 }
 
-export const removeFamily = async (familyId: number): Promise<boolean> => {
+export const removeFamily = async (familyId: string): Promise<boolean> => {
     const connection = new Client(process.env.DATABASE_URL);
 
     connection.connect();
 
-    const query = `DELETE FROM family WHERE ID = ${familyId}`;
+    const query_1 = `DELETE FROM family WHERE ID = ${familyId}`;
+    const query_2 = `DELETE FROM family_user WHERE family_id = ${familyId}`;
+    
+    try {
+        await connection.query(query_1, []);
+        await connection.query(query_2, []);
+    }
+    catch(error) {
+        console.log(error);
+        throw error;
+    }
+    
+    connection.end()
+
+    return true;
+}
+
+export const addUser = async (user: TFamilyUser): Promise<boolean> => {
+    const connection = getDbConnection();
+
+    connection.connect();
+
+    const query = `INSERT INTO family_user (name, family_id) VALUES ('${user.name}', ${user.familyId})`;
+    
+    try {
+        await connection.query(query, []);
+    }
+    catch (error) {
+        console.log(error);
+        throw error;
+    }
+    
+    connection.end()
+
+    return true;
+}
+
+export const removeUser = async (userId: string): Promise<boolean> => {
+    const connection = new Client(process.env.DATABASE_URL);
+
+    connection.connect();
+
+    const query = `DELETE FROM family_user WHERE ID = ${userId}`;
     
     try {
         await connection.query(query, []);

@@ -5,18 +5,19 @@ import { TFamily } from "../lib/types/family";
 import axios from 'axios';
 import { TAddFamilyResult } from "./api/family/addFamily";
 import { EHeader } from "../components/customHeader";
+import { TRemoveFamilyResult } from "./api/family/removeFamily";
 
 const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => {
     const [localFamilies] = useState<TFamily[]>(families);
     const [creatingFamily, setCreatingFamily] = useState<boolean>(false);
     const [newFamilyName, setNewFamilyName] = useState<string>('');
     
-    const removeFamily = async (familyId: number): Promise<void> => {
-        const confirmation = window.confirm('Are you sure you want to remove this user ?');
+    const removeFamily = async (familyId: string): Promise<void> => {
+        const confirmation = window.confirm('Are you sure you want to remove this family ?');
 
         if (confirmation) {
             const result = await axios.post('/api/family/removeFamily', { familyId: familyId });
-            const data = result.data as TAddFamilyResult;
+            const data = result.data as TRemoveFamilyResult;
     
             if (data.success === true) {
                 location.reload();
@@ -29,7 +30,7 @@ const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => 
     const addFamily = async (): Promise<void> => {
         const newFamilies = localFamilies;
 
-        const familyToAdd = { id: 0, name: newFamilyName };
+        const familyToAdd = { id: '0', name: newFamilyName };
         newFamilies.push(familyToAdd);
 
         const result = await axios.post('/api/family/addFamily', { family: familyToAdd });

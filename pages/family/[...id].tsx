@@ -1,28 +1,52 @@
 import { useState } from "react";
 import { Layout } from "../../components/layout";
-import { getFamilies, getFamilyFromId, getFamilyUsersFromFamilyId } from "../../lib/db/dbManager";
-import { TFamilyUser } from "../../lib/types/family";
+import { getFamilyFromId, getFamilyUsersFromFamilyId } from "../../lib/db/dbManager";
+import { TFamily, TFamilyUser } from "../../lib/types/family";
 import axios from 'axios';
-import { AppContext } from "next/app";
-import { GetServerSidePropsResult, NextPageContext } from "next";
 import { EHeader } from "../../components/customHeader";
+import { TRemoveUserResult } from "../api/user/removeUser";
+import { NextPageContext } from "next";
+import { TAddUserResult } from "../api/user/addUser";
 
-const Family = ({ familyName, familyUsers = [] }: { familyName: string, familyUsers: TFamilyUser[] }): JSX.Element => {
+const Family = ({ family, familyUsers = [] }: { family: TFamily, familyUsers: TFamilyUser[] }): JSX.Element => {
     const [localFamilyUsers, setLocalFamilyUsers] = useState<TFamilyUser[]>(familyUsers);
     const [creatingFamilyUser, setCreatingFamilyUser] = useState<boolean>(false);
     const [newFamilyUserName, setNewFamilyUserName] = useState<string>('');
     
-    const removeFamilyUser = (userId: number): void => {
-        //
+    const removeFamilyUser = async (userId: string): Promise<void> => {
+        const confirmation = window.confirm('Are you sure you want to remove this user ?');
+
+        if (confirmation) {
+            const result = await axios.post('/api/user/removeUser', { userId });
+            const data = result.data as TRemoveUserResult;
+    
+            if (data.success === true) {
+                location.reload();
+            } else {
+                window.alert(data.error);
+            }
+        }
     }
 
-    const addFamilyUser = (): void => {
-        //
+    const addFamilyUser = async (): Promise<void> => {
+        const newFamilyUsers: TFamilyUser[] = localFamilyUsers;
+
+        const userToAdd: TFamilyUser = { id: '0', name: newFamilyUserName, familyId: family.id };
+        newFamilyUsers.push(userToAdd);
+
+        const result = await axios.post('/api/user/addUser', { familyUser: userToAdd });
+        const data = result.data as TAddUserResult;
+
+        if (data.success === true) {
+            location.reload();
+        } else {
+            window.alert(data.error);
+        }
     }
 
     return (
         <Layout selectedHeader={EHeader.Family}>
-            <h1>{`This is the family: ${familyName}`}</h1>
+            <h1>{`This is the family: ${family.name}`}</h1>
 
             <h2>Users:</h2>
             <hr />
@@ -33,7 +57,7 @@ const Family = ({ familyName, familyUsers = [] }: { familyName: string, familyUs
                         <span>{`Name: ${user.name}`}</span>
 
                         <div>
-                            <a href={`/family/${user.id}`}>See gift list</a>
+                            <a href={`/giftList/${user.id}`}>See gift list</a>
                             <button onClick={() => removeFamilyUser(user.id)}>Remove user</button>
                         </div>
                     </div>
@@ -65,9 +89,9 @@ const Family = ({ familyName, familyUsers = [] }: { familyName: string, familyUs
 export async function getServerSideProps(context: NextPageContext) {
     const { query } = context;
 
-    const familyId = Number.parseInt(query.id as string);
+    const familyId = query.id as string;
 
-    if (familyId === NaN) {
+    if (Number.isNaN(familyId)) {
         return {
             notFound: true,
         }
@@ -75,12 +99,10 @@ export async function getServerSideProps(context: NextPageContext) {
 
     const family = await getFamilyFromId(familyId);
     const familyUsers = await getFamilyUsersFromFamilyId(familyId);
-
-    console.log(familyUsers);
     
     return {
       props: {
-        familyName: family.name,
+        family,
         familyUsers,
       },
     }

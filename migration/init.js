@@ -48,7 +48,7 @@ async function initDatabase(client) {
 }
 
 (async () => {
-    const connectionString = "postgresql://pharaon3:8tkY9Pwfacz_ZqaVNHDTUQ@hale-titan-6188.8nj.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full";
+    const connectionString = "replaceme";
     const pool = new Pool({
       connectionString,
       application_name: "$ docs_simplecrud_node-postgres",
