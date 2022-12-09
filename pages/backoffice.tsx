@@ -4,9 +4,10 @@ import { getFamilies } from "../lib/db/dbManager";
 import { TFamily } from "../lib/types/family";
 import axios from 'axios';
 import { TAddFamilyResult } from "./api/family/addFamily";
+import { EHeader } from "../components/customHeader";
 
 const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => {
-    const [localFamilies, setLocalFamilies] = useState<TFamily[]>(families);
+    const [localFamilies] = useState<TFamily[]>(families);
     const [creatingFamily, setCreatingFamily] = useState<boolean>(false);
     const [newFamilyName, setNewFamilyName] = useState<string>('');
     
@@ -42,7 +43,7 @@ const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => 
     }
 
     return (
-        <Layout>
+        <Layout selectedHeader={EHeader.Backoffice}>
             <h1>Welcome on backoffice</h1>
 
             <h2>Families:</h2>

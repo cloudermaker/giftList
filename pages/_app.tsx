@@ -1,15 +1,20 @@
 import '../styles/globals.css'
-import type { AppProps } from 'next/app'
-import { useRouter } from 'next/router';
+import type { AppProps } from 'next/app';
 import Head from 'next/head';
 
-export const isSSR = typeof window === 'undefined';
+import Router from 'next/router';
+import NProgress from 'nprogress';
+
+//Route Events. 
+Router.events.on('routeChangeStart', () => NProgress.start()); 
+Router.events.on('routeChangeComplete', () => NProgress.done()); 
+Router.events.on('routeChangeError', () => NProgress.done());
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>Gift List 2</title>
+        <title>Gift List</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       

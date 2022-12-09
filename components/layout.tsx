@@ -1,12 +1,12 @@
 import { ReactNode } from 'react';
 import { CustomFooter } from './customFooter';
-import { CustomHeader } from './customHeader';
+import { CustomHeader, EHeader } from './customHeader';
 
-export const Layout = ({ children, withHeader = true} : { children: ReactNode; withHeader?: boolean }): JSX.Element => {
+export const Layout = ({ children, selectedHeader = EHeader.Homepage, withHeader = true} : { children: ReactNode; selectedHeader?: EHeader; withHeader?: boolean }): JSX.Element => {
     return (
         <>
             <div className='m-10'>
-                {withHeader && <CustomHeader />}
+                {withHeader && <CustomHeader selectedHeader={selectedHeader} />}
 
                 {children}
 

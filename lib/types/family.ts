@@ -1,15 +1,10 @@
-import { TGift } from "./gift";
-
-export type TFamilyMember = {
+export type TFamilyUser = {
     id: number;
     name: string;
-
-    wantedGifts: TGift[];
+    familyId: number;
 }
 
 export type TFamily = {
     id: number;
     name: string;
-
-    familyMembers?: TFamilyMember[];
 }
