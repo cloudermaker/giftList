@@ -35,9 +35,10 @@ async function initDatabase(client) {
   console.log('Creating table user_gift...');
   const createGiftListTableQuery = 
     "CREATE TABLE IF NOT EXISTS user_gift (\
-      user_id INTEGER NOT NULL,\
-      gift_name TEXT NOT NULL,\
-      gift_url TEXT,\
+      id SERIAL PRIMARY KEY,\
+      name TEXT NOT NULL,\
+      url TEXT,\
+      description TEXT,\
       owner_user_id INTEGER NOT NULL,\
       taken_user_id INTEGER\
     );";
@@ -48,7 +49,7 @@ async function initDatabase(client) {
 }
 
 (async () => {
-    const connectionString = "replaceme";
+    const connectionString = "REPLACEME";
     const pool = new Pool({
       connectionString,
       application_name: "$ docs_simplecrud_node-postgres",

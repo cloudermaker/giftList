@@ -1,4 +1,5 @@
 import { TFamily, TFamilyUser } from '../types/family';
+import { TUserGift } from '../types/gift';
 const { Client } = require("pg");
 
 const getDbConnection = () => {
@@ -65,7 +66,6 @@ export const getFamilyUsersFromFamilyId = async (familyId: string): Promise<TFam
 
     try {
         const res = await connection.query(query, []);
-        console.log(res);
         familyUsers = res.rows as TFamilyUser[];
     }
     catch(error) {
@@ -78,22 +78,32 @@ export const getFamilyUsersFromFamilyId = async (familyId: string): Promise<TFam
     return familyUsers;
 }
 
-export const addFamily = async (family: TFamily): Promise<boolean> => {
+export const addOrUpdateFamily = async (family: TFamily): Promise<boolean> => {
     const connection = getDbConnection();
 
     connection.connect();
 
-    const query = `INSERT INTO family (name) VALUES ('${family.name}')`;
-    
+    const existingQuery = `select * from family where id = '${family.id}'`;
+    const insertQuery = `INSERT INTO family (name) VALUES ('${family.name}')`;
+    const updateQuery = `UPDATE family \
+                        SET name = '${family.name}' \
+                        where id = ${family.id}`;
+
     try {
-        await connection.query(query, []);
+        const res = await connection.query(existingQuery, []);
+
+        if (res.rows.length > 0) {
+            await connection.query(updateQuery, []);
+        } else {
+            await connection.query(insertQuery, []);
+        }
     }
     catch (error) {
         console.log(error);
         throw error;
     }
     
-    connection.end()
+    connection.end();
 
     return true;
 }
@@ -115,27 +125,58 @@ export const removeFamily = async (familyId: string): Promise<boolean> => {
         throw error;
     }
     
-    connection.end()
+    connection.end();
 
     return true;
 }
 
-export const addUser = async (user: TFamilyUser): Promise<boolean> => {
+export const getUserFromId = async (userId: string): Promise<TFamilyUser> => {
     const connection = getDbConnection();
 
     connection.connect();
 
-    const query = `INSERT INTO family_user (name, family_id) VALUES ('${user.name}', ${user.familyId})`;
-    
+    const existingQuery = `select * from family_user where id = ${userId}`;
+
     try {
-        await connection.query(query, []);
+        const res = await connection.query(existingQuery, []);
+
+        return res.rows[0] as TFamilyUser;
+    }
+    catch (error) {
+        console.log(error);
+        throw error;
+    }
+    finally {
+        connection.end();
+    }
+}
+
+export const addOrUpdateUser = async (user: TFamilyUser): Promise<boolean> => {
+    const connection = getDbConnection();
+
+    connection.connect();
+
+    const existingQuery = `select * from family_user where id = '${user.id}'`;
+    const insertQuery = `INSERT INTO family_user (name, family_id) VALUES ('${user.name}', ${user.familyId})`;
+    const updateQuery = `UPDATE user_gift \
+                        SET name = '${user.name}' \
+                        where id = ${user.id}`;
+
+    try {
+        const res = await connection.query(existingQuery, []);
+
+        if (res.rows.length > 0) {
+            await connection.query(updateQuery, []);
+        } else {
+            await connection.query(insertQuery, []);
+        }
     }
     catch (error) {
         console.log(error);
         throw error;
     }
     
-    connection.end()
+    connection.end();
 
     return true;
 }
@@ -155,7 +196,81 @@ export const removeUser = async (userId: string): Promise<boolean> => {
         throw error;
     }
     
-    connection.end()
+    connection.end();
+
+    return true;
+}
+
+export const getUserGiftsFromUserId = async (userId: string): Promise<TUserGift[]> => {
+    const connection = getDbConnection();
+
+    connection.connect();
+
+    const selectQuery = `select * from user_gift where owner_user_id = ${userId}`;
+
+    try {
+        const res = await connection.query(selectQuery, []);
+
+        return res.rows as TUserGift[];
+    }
+    catch (error) {
+        console.log(error);
+        throw error;
+    }
+    finally {
+        connection.end();
+    }
+}
+
+export const addOrUpdateGift = async (gift: TUserGift): Promise<boolean> => {
+    const connection = getDbConnection();
+
+    connection.connect();
+
+    const existingGiftQuery = `select * from user_gift where id = '${gift.id}'`;
+    const insertQuery = `INSERT INTO user_gift (name, url, description, owner_user_id, taken_user_id)\
+                   VALUES ('${gift.name}', '${gift.link}', '${gift.description}', ${gift.ownerUserId}, ${gift.takenUserId ?? 'NULL'})`;
+    const updateQuery = `UPDATE user_gift \
+                        SET name = '${gift.name}',\
+                        SET url = '${gift.link}',\
+                        SET description = '${gift.description}' \
+                        where id = ${gift.id}`;
+    try {
+        const res = await connection.query(existingGiftQuery, []);
+
+        if (res.rows.length > 0) {
+            await connection.query(updateQuery, []);
+        } else {
+            await connection.query(insertQuery, []);
+        }
+
+    }
+    catch (error) {
+        console.log(error);
+        throw error;
+    }
+    
+    connection.end();
+
+    return true;
+}
+
+export const removeGift = async (giftId: string): Promise<boolean> => {
+    const connection = new Client(process.env.DATABASE_URL);
+
+    connection.connect();
+
+    const query = `DELETE FROM user_gift WHERE id = ${giftId}`;
+    
+    try {
+        await connection.query(query, []);
+    }
+    catch(error) {
+        console.log(error);
+        throw error;
+    }
+    
+    connection.end();
 
     return true;
 }

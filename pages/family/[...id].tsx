@@ -6,14 +6,14 @@ import axios from 'axios';
 import { EHeader } from "../../components/customHeader";
 import { TRemoveUserResult } from "../api/user/removeUser";
 import { NextPageContext } from "next";
-import { TAddUserResult } from "../api/user/addUser";
+import { TAddUserResult } from "../api/user/addOrUpdateUser";
 
 const Family = ({ family, familyUsers = [] }: { family: TFamily, familyUsers: TFamilyUser[] }): JSX.Element => {
-    const [localFamilyUsers, setLocalFamilyUsers] = useState<TFamilyUser[]>(familyUsers);
-    const [creatingFamilyUser, setCreatingFamilyUser] = useState<boolean>(false);
-    const [newFamilyUserName, setNewFamilyUserName] = useState<string>('');
+    const [localUsers, setLocalUsers] = useState<TFamilyUser[]>(familyUsers);
+    const [creatingUser, setCreatingUser] = useState<boolean>(false);
+    const [newUserName, setNewUserName] = useState<string>('');
     
-    const removeFamilyUser = async (userId: string): Promise<void> => {
+    const removeUser = async (userId: string): Promise<void> => {
         const confirmation = window.confirm('Are you sure you want to remove this user ?');
 
         if (confirmation) {
@@ -28,13 +28,13 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily, familyUsers: TF
         }
     }
 
-    const addFamilyUser = async (): Promise<void> => {
-        const newFamilyUsers: TFamilyUser[] = localFamilyUsers;
+    const addUser = async (): Promise<void> => {
+        const newUsers: TFamilyUser[] = localUsers;
 
-        const userToAdd: TFamilyUser = { id: '0', name: newFamilyUserName, familyId: family.id };
-        newFamilyUsers.push(userToAdd);
+        const userToAdd: TFamilyUser = { id: '0', name: newUserName, familyId: family.id };
+        newUsers.push(userToAdd);
 
-        const result = await axios.post('/api/user/addUser', { familyUser: userToAdd });
+        const result = await axios.post('/api/user/addOrUpdateUser', { familyUser: userToAdd });
         const data = result.data as TAddUserResult;
 
         if (data.success === true) {
@@ -44,6 +44,14 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily, familyUsers: TF
         }
     }
 
+    const onCreatingUserButtonClick = (): void => {
+        setCreatingUser(true);
+        
+        window.setTimeout(function () { 
+            document.getElementById('newUserInputId')?.focus(); 
+        }, 0); 
+    }
+
     return (
         <Layout selectedHeader={EHeader.Family}>
             <h1>{`This is the family: ${family.name}`}</h1>
@@ -51,14 +59,14 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily, familyUsers: TF
             <h2>Users:</h2>
             <hr />
 
-            {localFamilyUsers.map((user) => (
+            {localUsers.map((user) => (
                 <div className="block" key={`family_${user.id}`}>
                     <div className="flex justify-between">
                         <span>{`Name: ${user.name}`}</span>
 
                         <div>
                             <a href={`/giftList/${user.id}`}>See gift list</a>
-                            <button onClick={() => removeFamilyUser(user.id)}>Remove user</button>
+                            <button onClick={() => removeUser(user.id)}>Remove user</button>
                         </div>
                     </div>
 
@@ -66,18 +74,18 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily, familyUsers: TF
                 </div>
             ))}
 
-            {!creatingFamilyUser && <button onClick={() => setCreatingFamilyUser(true)}>Add new user</button>}
+            {!creatingUser && <button onClick={onCreatingUserButtonClick}>Add new user</button>}
 
-            {creatingFamilyUser && 
+            {creatingUser && 
                 <div>
-                    <span>Add new family user:</span>
-                    <input value={newFamilyUserName} onChange={(e) => setNewFamilyUserName(e.target.value)} />
+                    <span>Add new user:</span>
+                    <input id="newUserInputId" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
 
-                    <button onClick={addFamilyUser}>Add</button>
+                    <button onClick={addUser}>Add</button>
 
                     <button onClick={() => {
-                        setNewFamilyUserName("");
-                        setCreatingFamilyUser(false);
+                        setNewUserName("");
+                        setCreatingUser(false);
                     }}>Cancel</button>
                 </div>
             }
