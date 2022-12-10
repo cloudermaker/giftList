@@ -39,11 +39,37 @@ export const getFamilyFromId = async (familyId: string): Promise<TFamily> => {
     try {
         const res = await connection.query(query, []);
         
-        console.log(query, res);
         if (res.rows.length === 1) {
             family = res.rows[0] as TFamily;
         } else {
-            throw new Error(`Unable to find family ${familyId}`);
+            throw new Error(`Unable to find family with id: ${familyId}`);
+        }
+    }
+    catch(error) {
+        console.log(error);
+        throw error;
+    }
+
+    connection.end();
+
+    return family;
+}
+
+export const getFamilyFromName = async (familyName: string): Promise<TFamily | null> => {
+    const connection = getDbConnection();
+
+    connection.connect();
+
+    let family: TFamily | null = null;
+    const query = `select * from family where name = '${familyName}'`;
+
+    try {
+        const res = await connection.query(query, []);
+        
+        if (res.rows.length === 1) {
+            family = res.rows[0] as TFamily;
+        } else if (res.rows.length > 1) {
+            throw new Error(`There are more than one family with name: ${familyName}`);
         }
     }
     catch(error) {
@@ -78,13 +104,14 @@ export const getFamilyUsersFromFamilyId = async (familyId: string): Promise<TFam
     return familyUsers;
 }
 
-export const addOrUpdateFamily = async (family: TFamily): Promise<boolean> => {
+export const addOrUpdateFamily = async (family: TFamily): Promise<string | null> => {
+    let familyId: string | null = null;
     const connection = getDbConnection();
 
     connection.connect();
 
     const existingQuery = `select * from family where id = '${family.id}'`;
-    const insertQuery = `INSERT INTO family (name) VALUES ('${family.name}')`;
+    const insertQuery = `INSERT INTO family (name) VALUES ('${family.name}') RETURNING id`;
     const updateQuery = `UPDATE family \
                         SET name = '${family.name}' \
                         where id = ${family.id}`;
@@ -94,8 +121,12 @@ export const addOrUpdateFamily = async (family: TFamily): Promise<boolean> => {
 
         if (res.rows.length > 0) {
             await connection.query(updateQuery, []);
+
+            familyId = res.rows[0].id;
         } else {
-            await connection.query(insertQuery, []);
+            const resUser = await connection.query(insertQuery, []);
+
+            familyId = resUser.rows[0].id;
         }
     }
     catch (error) {
@@ -105,7 +136,7 @@ export const addOrUpdateFamily = async (family: TFamily): Promise<boolean> => {
     
     connection.end();
 
-    return true;
+    return familyId;
 }
 
 export const removeFamily = async (familyId: string): Promise<boolean> => {
@@ -151,13 +182,41 @@ export const getUserFromId = async (userId: string): Promise<TFamilyUser> => {
     }
 }
 
-export const addOrUpdateUser = async (user: TFamilyUser): Promise<boolean> => {
+export const getUserFromName = async (userName: string): Promise<TFamilyUser | null> => {
+    const connection = getDbConnection();
+
+    connection.connect();
+
+    let user: TFamilyUser | null = null;
+    const query = `select * from family_user where name = '${userName}'`;
+
+    try {
+        const res = await connection.query(query, []);
+        
+        if (res.rows.length === 1) {
+            user = res.rows[0] as TFamilyUser;
+        } else if (res.rows.length > 1) {
+            throw new Error(`There are more than one family with name: ${userName}`);
+        }
+    }
+    catch(error) {
+        console.log(error);
+        throw error;
+    }
+
+    connection.end();
+
+    return user;
+}
+
+export const addOrUpdateUser = async (user: TFamilyUser): Promise<string | null> => {
+    let userId: string | null = null;
     const connection = getDbConnection();
 
     connection.connect();
 
     const existingQuery = `select * from family_user where id = '${user.id}'`;
-    const insertQuery = `INSERT INTO family_user (name, family_id) VALUES ('${user.name}', ${user.familyId})`;
+    const insertQuery = `INSERT INTO family_user (name, family_id) VALUES ('${user.name}', ${user.familyId}) RETURNING id`;
     const updateQuery = `UPDATE user_gift \
                         SET name = '${user.name}' \
                         where id = ${user.id}`;
@@ -167,8 +226,12 @@ export const addOrUpdateUser = async (user: TFamilyUser): Promise<boolean> => {
 
         if (res.rows.length > 0) {
             await connection.query(updateQuery, []);
+
+            userId = res.rows[0].id;
         } else {
-            await connection.query(insertQuery, []);
+            const resUser = await connection.query(insertQuery, []);
+            
+            userId = resUser.rows[0].id;
         }
     }
     catch (error) {
@@ -178,7 +241,7 @@ export const addOrUpdateUser = async (user: TFamilyUser): Promise<boolean> => {
     
     connection.end();
 
-    return true;
+    return userId;
 }
 
 export const removeUser = async (userId: string): Promise<boolean> => {
@@ -222,14 +285,15 @@ export const getUserGiftsFromUserId = async (userId: string): Promise<TUserGift[
     }
 }
 
-export const addOrUpdateGift = async (gift: TUserGift): Promise<boolean> => {
+export const addOrUpdateGift = async (gift: TUserGift): Promise<string | null> => {
+    let giftId: string | null = null;
     const connection = getDbConnection();
 
     connection.connect();
 
     const existingGiftQuery = `select * from user_gift where id = '${gift.id}'`;
     const insertQuery = `INSERT INTO user_gift (name, url, description, owner_user_id, taken_user_id)\
-                   VALUES ('${gift.name}', '${gift.link}', '${gift.description}', ${gift.ownerUserId}, ${gift.takenUserId ?? 'NULL'})`;
+                   VALUES ('${gift.name}', '${gift.link}', '${gift.description}', ${gift.ownerUserId}, ${gift.takenUserId ?? 'NULL'}) RETURNING id`;
     const updateQuery = `UPDATE user_gift \
                         SET name = '${gift.name}',\
                         SET url = '${gift.link}',\
@@ -240,8 +304,12 @@ export const addOrUpdateGift = async (gift: TUserGift): Promise<boolean> => {
 
         if (res.rows.length > 0) {
             await connection.query(updateQuery, []);
+
+            giftId = res.rows[0].id;
         } else {
-            await connection.query(insertQuery, []);
+            const resGift = await connection.query(insertQuery, []);
+
+            giftId = resGift.rows[0].id;
         }
 
     }
@@ -252,7 +320,7 @@ export const addOrUpdateGift = async (gift: TUserGift): Promise<boolean> => {
     
     connection.end();
 
-    return true;
+    return giftId;
 }
 
 export const removeGift = async (giftId: string): Promise<boolean> => {

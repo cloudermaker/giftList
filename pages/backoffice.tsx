@@ -30,7 +30,7 @@ const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => 
     const addOrUpdateFamily = async (): Promise<void> => {
         const newFamilies = localFamilies;
 
-        const familyToAdd = { id: '0', name: newFamilyName };
+        const familyToAdd = { id: '0', name: newFamilyName.replace('\'', '\'\'') };
         newFamilies.push(familyToAdd);
 
         const result = await axios.post('/api/family/addOrUpdateFamily', { family: familyToAdd });
@@ -61,7 +61,7 @@ const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => 
             {localFamilies.map((family) => (
                 <div className="block" key={`family_${family.id}`}>
                     <div className="flex justify-between">
-                        <span>{`Name: ${family.name} (id: ${family.id})`}</span>
+                        <span>{`Name: ${family.name}`}</span>
 
                         <div>
                             <a href={`/family/${family.id}`}>See</a>

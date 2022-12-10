@@ -10,9 +10,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   const { body } = req;
 
   try {
-    const result = await addOrUpdateFamily(body.family);
+    const familyId = await addOrUpdateFamily(body.family);
 
-    res.status(200).json({ success: result, error: '' });
+    res.status(200).json({ success: familyId != null, error: '' });
   } catch (e) {
     res.status(500).json({ success: false, error: e as string });
   }
