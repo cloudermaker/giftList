@@ -1,7 +1,8 @@
 import axios from 'axios';
 import Router from 'next/router';
+import Cookies from 'js-cookie';
 import { useState } from 'react';
-import { Layout } from '../components/layout';
+import { GROUP_ID_COOKIE, Layout, USER_ID_COOKIE } from '../components/layout';
 import { TGetOrCreateGroupAndUserResult } from './api/getOrCreateGroupAndUser';
 
 export default function Index(): JSX.Element {
@@ -25,7 +26,7 @@ export default function Index(): JSX.Element {
 
     window.setTimeout(function () { 
       document.getElementById('groupNameInputId')?.focus(); 
-    }, 0); 
+    }, 0);
   }
 
   const onCancelButtonClick = (): void => {
@@ -46,7 +47,8 @@ export default function Index(): JSX.Element {
       const data = res.data as TGetOrCreateGroupAndUserResult;
       
       if (data.success) {
-        // set cookie here
+        Cookies.set(GROUP_ID_COOKIE, data.groupUser?.groupId, { expires: 7 });
+        Cookies.set(USER_ID_COOKIE, data.groupUser?.userId, { expires: 7 });
 
         Router.push('/home');
       } else {

@@ -1,10 +1,10 @@
 export type TUserGift = {
     id: string;
     name: string;
-    link: string;
+    url: string;
     description: string;
 
-    ownerUserId: string;
-    takenUserId?: string;
+    owner_user_id: string;
+    taken_user_id?: string;
 }
 

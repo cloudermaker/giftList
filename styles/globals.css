@@ -39,6 +39,10 @@ button:hover {
   border-radius: 10px;
 }
 
+button:disabled {
+  background-color: grey;
+}
+
 h1 {
   font-size: x-large;
   padding-bottom: 10px;

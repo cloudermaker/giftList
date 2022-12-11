@@ -166,20 +166,22 @@ export const getUserFromId = async (userId: string): Promise<TFamilyUser> => {
 
     connection.connect();
 
+    let user: TFamilyUser | null = null;
     const existingQuery = `select * from family_user where id = ${userId}`;
 
     try {
         const res = await connection.query(existingQuery, []);
 
-        return res.rows[0] as TFamilyUser;
+        user = res.rows[0] as TFamilyUser;
     }
     catch (error) {
         console.log(error);
         throw error;
     }
-    finally {
-        connection.end();
-    }
+
+    connection.end();
+
+    return user;
 }
 
 export const getUserFromName = async (userName: string): Promise<TFamilyUser | null> => {
@@ -216,7 +218,7 @@ export const addOrUpdateUser = async (user: TFamilyUser): Promise<string | null>
     connection.connect();
 
     const existingQuery = `select * from family_user where id = '${user.id}'`;
-    const insertQuery = `INSERT INTO family_user (name, family_id) VALUES ('${user.name}', ${user.familyId}) RETURNING id`;
+    const insertQuery = `INSERT INTO family_user (name, family_id) VALUES ('${user.name}', ${user.family_id}) RETURNING id`;
     const updateQuery = `UPDATE user_gift \
                         SET name = '${user.name}' \
                         where id = ${user.id}`;
@@ -293,11 +295,12 @@ export const addOrUpdateGift = async (gift: TUserGift): Promise<string | null> =
 
     const existingGiftQuery = `select * from user_gift where id = '${gift.id}'`;
     const insertQuery = `INSERT INTO user_gift (name, url, description, owner_user_id, taken_user_id)\
-                   VALUES ('${gift.name}', '${gift.link}', '${gift.description}', ${gift.ownerUserId}, ${gift.takenUserId ?? 'NULL'}) RETURNING id`;
+                   VALUES ('${gift.name}', '${gift.link}', '${gift.description}', ${gift.owner_user_id}, ${gift.taken_user_id ?? 'NULL'}) RETURNING id`;
     const updateQuery = `UPDATE user_gift \
-                        SET name = '${gift.name}',\
-                        SET url = '${gift.link}',\
-                        SET description = '${gift.description}' \
+                        SET name = '${gift.name}', \
+                        url = '${gift.link}', \
+                        description = '${gift.description}', \
+                        taken_user_id = ${gift.taken_user_id ?? 'NULL'} \
                         where id = ${gift.id}`;
     try {
         const res = await connection.query(existingGiftQuery, []);

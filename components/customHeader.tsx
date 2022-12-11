@@ -1,4 +1,8 @@
 import Link from "next/link"
+import Router from "next/router";
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faRightFromBracket, faHomeUser } from '@fortawesome/free-solid-svg-icons'
 
 export enum EHeader {
     Homepage = 'Homepage',
@@ -7,19 +11,23 @@ export enum EHeader {
     Backoffice = 'Backoffice',
 }
 
-export const CustomHeader = ({ selectedHeader = EHeader.Homepage }: { selectedHeader?: EHeader }): JSX.Element => {
-    const commonStyle = "text-neutral-500 mx-2 hover:text-neutral-800";
+export const CustomHeader = ({ selectedHeader = EHeader.Homepage, groupId, userId, onDisconnectClick }: { selectedHeader?: EHeader; groupId: string; userId: string; onDisconnectClick: () => void }): JSX.Element => {
+    const commonStyle = "text-neutral-500 mx-2 hover:text-neutral-800 hover:cursor-pointer";
 
     return (
         <div className="pb-5">
-            <div className="flex justify-around">
-                <Link href="/home" className={`${commonStyle} ${selectedHeader === EHeader.Homepage ? 'font-bold' : ''}`}>Homepage</Link>
+            <div className="flex justify-between mx-4">
+                <Link href="/home" className={`${commonStyle} ${selectedHeader === EHeader.Homepage ? 'font-bold' : ''}`}>
+                    <FontAwesomeIcon icon={faHomeUser} />
+                </Link>
 
-                <Link href="/family" className={`${commonStyle} ${selectedHeader === EHeader.Family ? 'font-bold' : ''}`}>Family</Link>
+                <span onClick={() => Router.push(`/family/${groupId}`)} className={`${commonStyle} ${selectedHeader === EHeader.Family ? 'font-bold' : ''}`}>My family</span>
 
-                <Link href="/gift_list" className={`${commonStyle} ${selectedHeader === EHeader.GiftList ? 'font-bold' : ''}`}>My gift list</Link>
+                <span onClick={() => Router.push(`/giftList/${userId}`)} className={`${commonStyle} ${selectedHeader === EHeader.GiftList ? 'font-bold' : ''}`}>My gift list</span>
 
-                <Link href="/backoffice" className={`${commonStyle} ${selectedHeader === EHeader.Backoffice ? 'font-bold' : ''}`}>Backoffice</Link>
+                <div className={commonStyle} onClick={onDisconnectClick}>
+                    <FontAwesomeIcon icon={faRightFromBracket} />
+                </div>
             </div>
 
             <hr />

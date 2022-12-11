@@ -1,7 +1,7 @@
 export type TFamilyUser = {
     id: string;
     name: string;
-    familyId: string;
+    family_id: string;
 }
 
 export type TFamily = {
