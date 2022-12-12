@@ -25,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       res.status(200).json({ success: false, error: 'this family already exists.' });
     } else if (isCreating) {
       const familyId = await addOrUpdateFamily({ id: '0', name: groupName }) as string;
-      const userId = await addOrUpdateUser({ id: '0', name: userName, familyId }) as string;
+      const userId = await addOrUpdateUser({ id: '0', name: userName, family_id: familyId }) as string;
 
       res.status(200).json({ success: true, error: '', groupUser: { groupId: familyId, userId } });
     } else if (!isCreating && group == null) {

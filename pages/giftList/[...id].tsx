@@ -22,7 +22,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
     const [newLink, setNewLink] = useState<string>('');
     
     useEffect(() => {
-        setUserCookieId(Cookies.get(USER_ID_COOKIE));
+        setUserCookieId(Cookies.get(USER_ID_COOKIE) ?? '');
     }, []);
 
     const removeGift = async (giftId: string): Promise<void> => {

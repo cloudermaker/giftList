@@ -46,9 +46,9 @@ export default function Index(): JSX.Element {
       const res = await axios.post('api/getOrCreateGroupAndUser', { groupName, userName: name, isCreating: creatingGroup });
       const data = res.data as TGetOrCreateGroupAndUserResult;
       
-      if (data.success) {
-        Cookies.set(GROUP_ID_COOKIE, data.groupUser?.groupId, { expires: 7 });
-        Cookies.set(USER_ID_COOKIE, data.groupUser?.userId, { expires: 7 });
+      if (data.success && data.groupUser) {
+        Cookies.set(GROUP_ID_COOKIE, data.groupUser.groupId, { expires: 7 });
+        Cookies.set(USER_ID_COOKIE, data.groupUser.userId, { expires: 7 });
 
         Router.push('/home');
       } else {

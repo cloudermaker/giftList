@@ -31,7 +31,7 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily, familyUsers: TF
     const addUser = async (): Promise<void> => {
         const newUsers: TFamilyUser[] = localUsers;
 
-        const userToAdd: TFamilyUser = { id: '0', name: newUserName, familyId: family.id };
+        const userToAdd: TFamilyUser = { id: '0', name: newUserName, family_id: family.id };
         newUsers.push(userToAdd);
 
         const result = await axios.post('/api/user/addOrUpdateUser', { familyUser: userToAdd });

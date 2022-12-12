@@ -295,10 +295,10 @@ export const addOrUpdateGift = async (gift: TUserGift): Promise<string | null> =
 
     const existingGiftQuery = `select * from user_gift where id = '${gift.id}'`;
     const insertQuery = `INSERT INTO user_gift (name, url, description, owner_user_id, taken_user_id)\
-                   VALUES ('${gift.name}', '${gift.link}', '${gift.description}', ${gift.owner_user_id}, ${gift.taken_user_id ?? 'NULL'}) RETURNING id`;
+                   VALUES ('${gift.name}', '${gift.url}', '${gift.description}', ${gift.owner_user_id}, ${gift.taken_user_id ?? 'NULL'}) RETURNING id`;
     const updateQuery = `UPDATE user_gift \
                         SET name = '${gift.name}', \
-                        url = '${gift.link}', \
+                        url = '${gift.url}', \
                         description = '${gift.description}', \
                         taken_user_id = ${gift.taken_user_id ?? 'NULL'} \
                         where id = ${gift.id}`;

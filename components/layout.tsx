@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { CustomFooter } from './customFooter';
 import { CustomHeader, EHeader } from './customHeader';
 import Cookies from 'js-cookie';
@@ -8,20 +8,23 @@ export const GROUP_ID_COOKIE = 'giftList_groupName'
 export const USER_ID_COOKIE = 'giftList_name'
 
 export const Layout = ({ children, selectedHeader = EHeader.Homepage, withHeader = true} : { children: ReactNode; selectedHeader?: EHeader; withHeader?: boolean }): JSX.Element => {
-    const groupId = Cookies.get(GROUP_ID_COOKIE);
-    const userId = Cookies.get(USER_ID_COOKIE);
+    const [groupCookieId, setGroupCookieId] = useState<string>('');
+    const [userCookieId, setUserCookieId] = useState<string>('');
 
     useEffect(() => {
+        setGroupCookieId(Cookies.get(GROUP_ID_COOKIE) ?? '');
+        setUserCookieId(Cookies.get(USER_ID_COOKIE) ?? '');
+
         if (withHeader) {
-            if (!groupId || !userId) {
+            if (!groupCookieId || !userCookieId) {
                 Router.push('/');
             }
         }
-    }, [groupId, userId, withHeader]);
+    }, [groupCookieId, userCookieId, withHeader]);
 
     const onDisconnectClick = (): void => {
         Cookies.remove(GROUP_ID_COOKIE);
-        Cookies.remove(userId);
+        Cookies.remove(USER_ID_COOKIE);
 
         Router.push('/');
     }
@@ -29,7 +32,7 @@ export const Layout = ({ children, selectedHeader = EHeader.Homepage, withHeader
     return (
         <>
             <div className='m-10'>
-                {withHeader && <CustomHeader selectedHeader={selectedHeader} groupId={groupId} userId={userId} onDisconnectClick={onDisconnectClick} />}
+                {withHeader && <CustomHeader selectedHeader={selectedHeader} groupId={groupCookieId} userId={userCookieId} onDisconnectClick={onDisconnectClick} />}
 
                 {children}
             </div>
