@@ -53,6 +53,7 @@ export default function Index(): JSX.Element {
     } else if (!name) {
       setError('Name is mandatory');
     } else {
+      console.log(groupName, name);
       const res = await axios.post('api/getOrCreateGroupAndUser', { groupName, userName: name, isCreating: creatingGroup });
       const data = res.data as TGetOrCreateGroupAndUserResult;
       
@@ -75,16 +76,16 @@ export default function Index(): JSX.Element {
 
   return (
     <Layout withHeader={false}>
-      <h1>Welcome on the gift list site</h1>
+      <h1 className=' text-center bg-white'>Bienvenue sur le site de gestion de cadeaux !!</h1>
 
       {!creatingGroup && !joiningGroup &&
         <div className='block text-center'>
-          <h3 className='p-5'>What do you want to do ?</h3>
+          <h3 className='p-5 font-bold'>Que souhaites-tu faire ?</h3>
 
           <div className='block m-3'>
-            <button className='p-3 mx-3' onClick={onCreatingButtonClick}>Create a new group</button>
+            <button className='p-3 mx-3' onClick={onCreatingButtonClick}>Créer ma famille</button>
 
-            <button className='p-3 mx-3' onClick={onJoiningButtonClick}>Join an existing group</button>
+            <button className='p-3 mx-3' onClick={onJoiningButtonClick}>Rejoindre ma famille</button>
           </div>
         </div>
       }
@@ -94,23 +95,26 @@ export default function Index(): JSX.Element {
           <div className='block p-5'>
             {error && <span className='text-red-500'>{`Error: ${error}`}</span>}
 
-            <div className='block'>
-              <span>Enter a group name:</span>
+            {creatingGroup && <p className='font-bold mb-2'>Pour créer ta famille:</p>}
+            {!creatingGroup && <p className='font-bold mb-2'>Pour rejoindre une famille:</p>}
 
-              <input id="groupNameInputId" onChange={(e) => setGroupName(e.target.value)} value={groupName} />
+            <div className='block'>
+              <span>Entre le nom de ta famille:</span>
+
+              <input id="groupNameInputId" className='bg-transparent' onChange={(e) => setGroupName(e.target.value)} value={groupName} />
             </div>
 
             <div className='block'>
-              <span>Enter a name:</span>
+              <span>Entre ton nom:</span>
 
-              <CustomInput id="nameInputId" onChange={setName} value={name} onKeyDown={onInputPressKey} />
+              <CustomInput id="nameInputId" className='bg-transparent' onChange={setName} value={name} onKeyDown={onInputPressKey} />
             </div>
           </div>
 
           <div className='block m-3'>
-            <button className='p-3 mx-3' onClick={onValidateButtonClick}>Validate</button>
+            <button className='p-3 mx-3' onClick={onValidateButtonClick}>{"C'est parti!"}</button>
 
-            <button className='p-3 mx-3' onClick={onCancelButtonClick}>Cancel</button>
+            <button className='p-3 mx-3' onClick={onCancelButtonClick}>{"En fait, non"}</button>
           </div>
         </div>
       }

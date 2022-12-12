@@ -9,6 +9,7 @@ import { TUserGift } from "../../lib/types/gift";
 import { TRemoveGiftResult } from "../api/gift/removeGift";
 import { TAddOrUpdateGiftResult } from "../api/gift/addOrUpdateGift";
 import Cookies from 'js-cookie';
+import { sanitize } from "../../lib/helpers/stringHelper";
 
 const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGift[] }): JSX.Element => {
     const [userCookieId, setUserCookieId] = useState<string>('');
@@ -16,6 +17,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
 
     const [localGifts, setLocalGifts] = useState<TUserGift[]>(giftList);
     const [creatingGift, setCreatingGift] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
 
     const [newGiftName, setNewGiftName] = useState<string>('');
     const [newDescription, setNewDescription] = useState<string>('');
@@ -35,7 +37,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
             if (data.success === true) {
                 location.reload();
             } else {
-                window.alert(data.error);
+                setError(data.error);
             }
         }
     }
@@ -43,7 +45,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
     const addGift = async (): Promise<void> => {
         const newGifts: TUserGift[] = localGifts;
 
-        const giftToAdd: TUserGift = { id: '0', name: newGiftName, description: newDescription, url: newLink, owner_user_id: user.id, taken_user_id: undefined };
+        const giftToAdd: TUserGift = { id: '0', name: sanitize(newGiftName), description: sanitize(newDescription), url: sanitize(newLink), owner_user_id: user.id, taken_user_id: undefined };
         newGifts.push(giftToAdd);
 
         const result = await axios.post('/api/gift/addOrUpdateGift', { userGift: giftToAdd });
@@ -52,7 +54,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
         if (data.success === true) {
             location.reload();
         } else {
-            window.alert(data.error);
+            setError(data.error);
         }
     }
 
@@ -74,7 +76,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
         if (data.success === true) {
             location.reload();
         } else {
-            window.alert(data.error);
+            setError(data.error);
         }
     }
 
@@ -147,20 +149,22 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
 
             {userCanAddGift && creatingGift && 
                 <div className="block">
-                    <span>Add new gift:</span>
+                    <p>Add new gift:</p>
+                    {error && <p>{error}</p>}
+
                     <div className="flex">
                         <span>Name:</span>
-                        <input id="newGiftInputId" value={newGiftName} onChange={(e) => setNewGiftName(e.target.value)} />
+                        <input id="newGiftInputId" className="bg-transparent" value={newGiftName} onChange={(e) => setNewGiftName(e.target.value)} />
                     </div>
 
                     <div className="flex">
                         <span>Description:</span>                                        
-                        <input value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
+                        <input className="bg-transparent"  value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
                     </div>
 
                     <div className="flex">
                         <span>Link:</span>
-                        <input value={newLink} onChange={(e) => setNewLink(e.target.value)} />
+                        <input className="bg-transparent" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
                     </div>
 
                     <div className="py-2">
@@ -171,6 +175,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
                             setNewDescription("");
                             setNewLink("");
                             setCreatingGift(false);
+                            setError("");
                         }}>Cancel</button>
                     </div>
                 </div>

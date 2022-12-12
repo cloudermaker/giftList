@@ -32,14 +32,14 @@ export const Layout = ({ children, selectedHeader = EHeader.Homepage, withHeader
     }
 
     return (
-        <>
-            <div className='m-10 min-h-body'>
+        <div className='bg-noel bg-cover'>
+            <div className='p-10 min-h-body'>
                 {withHeader && <CustomHeader selectedHeader={selectedHeader} groupId={groupCookieId} userId={userCookieId} onDisconnectClick={onDisconnectClick} />}
 
                 {children}
             </div>
 
             <CustomFooter />
-        </>
+        </div>
     )
 }

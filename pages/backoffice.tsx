@@ -6,6 +6,7 @@ import axios from 'axios';
 import { TAddFamilyResult } from "./api/family/addOrUpdateFamily";
 import { EHeader } from "../components/customHeader";
 import { TRemoveFamilyResult } from "./api/family/removeFamily";
+import { sanitize } from "../lib/helpers/stringHelper";
 
 const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => {
     const [localFamilies] = useState<TFamily[]>(families);
@@ -30,7 +31,7 @@ const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => 
     const addOrUpdateFamily = async (): Promise<void> => {
         const newFamilies = localFamilies;
 
-        const familyToAdd = { id: '0', name: newFamilyName.replace('\'', '\'\'') };
+        const familyToAdd = { id: '0', name: sanitize(newFamilyName) };
         newFamilies.push(familyToAdd);
 
         const result = await axios.post('/api/family/addOrUpdateFamily', { family: familyToAdd });

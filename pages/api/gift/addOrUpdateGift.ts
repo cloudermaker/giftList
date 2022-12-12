@@ -1,5 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { addOrUpdateGift } from '../../../lib/db/dbManager'
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { addOrUpdateGift } from '../../../lib/db/dbManager';
+import { TUserGift } from '../../../lib/types/gift';
 
 export type TAddOrUpdateGiftResult = {
   success: boolean,
@@ -10,7 +11,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   const { body } = req;
 
   try {
-    const giftId = await addOrUpdateGift(body.userGift);
+    const gift = body.userGift as TUserGift;
+    const giftId = await addOrUpdateGift(gift);
 
     res.status(200).json({ success: giftId != null, error: '' });
   } catch (e) {

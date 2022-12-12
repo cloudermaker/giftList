@@ -7,6 +7,7 @@ import { EHeader } from "../../components/customHeader";
 import { TRemoveUserResult } from "../api/user/removeUser";
 import { NextPageContext } from "next";
 import { TAddUserResult } from "../api/user/addOrUpdateUser";
+import { sanitize } from "../../lib/helpers/stringHelper";
 
 const Family = ({ family, familyUsers = [] }: { family: TFamily, familyUsers: TFamilyUser[] }): JSX.Element => {
     const [localUsers, setLocalUsers] = useState<TFamilyUser[]>(familyUsers);
@@ -31,7 +32,7 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily, familyUsers: TF
     const addUser = async (): Promise<void> => {
         const newUsers: TFamilyUser[] = localUsers;
 
-        const userToAdd: TFamilyUser = { id: '0', name: newUserName, family_id: family.id };
+        const userToAdd: TFamilyUser = { id: '0', name: sanitize(newUserName), family_id: family.id };
         newUsers.push(userToAdd);
 
         const result = await axios.post('/api/user/addOrUpdateUser', { familyUser: userToAdd });
@@ -79,7 +80,7 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily, familyUsers: TF
             {creatingUser && 
                 <div>
                     <span>Add new user:</span>
-                    <input id="newUserInputId" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
+                    <input id="newUserInputId" className="bg-transparent" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
 
                     <button onClick={addUser}>Add</button>
 

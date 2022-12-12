@@ -1,5 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { addOrUpdateUser } from '../../../lib/db/dbManager'
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { addOrUpdateUser } from '../../../lib/db/dbManager';
+import { TFamilyUser } from '../../../lib/types/family';
 
 export type TAddUserResult = {
   success: boolean,
@@ -10,7 +11,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   const { body } = req;
 
   try {
-    const userId = await addOrUpdateUser(body.familyUser);
+    const user = body.familyUser as TFamilyUser;
+    const userId = await addOrUpdateUser(user);
 
     res.status(200).json({ success: userId != null, error: '' });
   } catch (e) {

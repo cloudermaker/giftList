@@ -29,11 +29,13 @@ button {
   padding: 1px 5px;
   margin: 2px;
   border-radius: 10px;
-  background-color: cornflowerblue;
+  background-color: #E04C4C;
+  color: white;
 }
 
 button:hover {
-  background-color: deepskyblue;
+  background-color: #99E265;
+  color: white;
 }
 
 button:disabled {

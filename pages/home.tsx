@@ -4,7 +4,7 @@ import { Layout } from '../components/layout';
 export const Home = (): JSX.Element => {
     return (
         <Layout  selectedHeader={EHeader.Homepage}>
-            <h1>Welcome on board !!</h1>
+            <h1>Bievenue à bord !!</h1>
         </Layout>
     )
 }
