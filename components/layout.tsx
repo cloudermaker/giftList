@@ -33,7 +33,7 @@ export const Layout = ({ children, selectedHeader = EHeader.Homepage, withHeader
 
     return (
         <>
-            <div className='m-10'>
+            <div className='m-10 min-h-body'>
                 {withHeader && <CustomHeader selectedHeader={selectedHeader} groupId={groupCookieId} userId={userCookieId} onDisconnectClick={onDisconnectClick} />}
 
                 {children}

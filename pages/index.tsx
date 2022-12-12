@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 import { useState, useEffect } from 'react';
 import { GROUP_ID_COOKIE, Layout, USER_ID_COOKIE } from '../components/layout';
 import { TGetOrCreateGroupAndUserResult } from './api/getOrCreateGroupAndUser';
+import { CustomInput } from '../components/atoms/customInput';
 
 export default function Index(): JSX.Element {
   const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
@@ -66,42 +67,50 @@ export default function Index(): JSX.Element {
     }
   }
 
+  const onInputPressKey = async (keyCode: string) => {
+    if (keyCode === 'Enter') {
+      await onValidateButtonClick();
+    }
+  }
+
   return (
     <Layout withHeader={false}>
       <h1>Welcome on the gift list site</h1>
 
       {!creatingGroup && !joiningGroup &&
-        <div className='block'>
-          <h3>What do you want to do ?</h3>
+        <div className='block text-center'>
+          <h3 className='p-5'>What do you want to do ?</h3>
 
-          <div className='flex'>
-            <button onClick={onCreatingButtonClick}>Create a new group</button>
+          <div className='block m-3'>
+            <button className='p-3 mx-3' onClick={onCreatingButtonClick}>Create a new group</button>
 
-            <button onClick={onJoiningButtonClick}>Join an existing group</button>
+            <button className='p-3 mx-3' onClick={onJoiningButtonClick}>Join an existing group</button>
           </div>
         </div>
       }
 
       {(creatingGroup || joiningGroup) &&
-        <div className='block'>
-          {error && <span className='text-red-500'>{`Error: ${error}`}</span>}
+        <div className='block text-center'>
+          <div className='block p-5'>
+            {error && <span className='text-red-500'>{`Error: ${error}`}</span>}
 
-          <div className='flex'>
-            <span>Enter a group name:</span>
+            <div className='block'>
+              <span>Enter a group name:</span>
 
-            <input id="groupNameInputId" onChange={(e) => setGroupName(e.target.value)} value={groupName} />
+              <input id="groupNameInputId" onChange={(e) => setGroupName(e.target.value)} value={groupName} />
+            </div>
+
+            <div className='block'>
+              <span>Enter a name:</span>
+
+              <CustomInput id="nameInputId" onChange={setName} value={name} onKeyDown={onInputPressKey} />
+            </div>
           </div>
 
-          <div className='flex'>
-            <span>Enter a name:</span>
+          <div className='block m-3'>
+            <button className='p-3 mx-3' onClick={onValidateButtonClick}>Validate</button>
 
-            <input id="nameInputId" onChange={(e) => setName(e.target.value)} value={name} />
-          </div>
-
-          <div className='flex'>
-            <button onClick={onValidateButtonClick}>Validate</button>
-
-            <button onClick={onCancelButtonClick}>Cancel</button>
+            <button className='p-3 mx-3' onClick={onCancelButtonClick}>Cancel</button>
           </div>
         </div>
       }

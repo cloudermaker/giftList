@@ -5,7 +5,11 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      minHeight: {
+        'body': 'calc(100vh - 145px)',
+      }      
+    },
   },
   plugins: [],
 }
