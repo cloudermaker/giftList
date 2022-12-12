@@ -90,7 +90,7 @@ export default function Index(): JSX.Element {
           </div>
 
           <div className='flex'>
-            <button onClick={async () => onValidateButtonClick()}>Validate</button>
+            <button onClick={onValidateButtonClick}>Validate</button>
 
             <button onClick={onCancelButtonClick}>Cancel</button>
           </div>
