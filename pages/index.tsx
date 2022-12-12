@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Router from 'next/router';
 import Cookies from 'js-cookie';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GROUP_ID_COOKIE, Layout, USER_ID_COOKIE } from '../components/layout';
 import { TGetOrCreateGroupAndUserResult } from './api/getOrCreateGroupAndUser';
 
@@ -12,6 +12,15 @@ export default function Index(): JSX.Element {
   const [groupName, setGroupName] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    const groupId = Cookies.get(GROUP_ID_COOKIE) ?? '';
+    const userId = Cookies.get(USER_ID_COOKIE) ?? '';
+
+    if (groupId && userId) {
+        Router.push('/home');
+    }
+  }, []);
 
   const onCreatingButtonClick = (): void => {
     setCreatingGroup(true);
