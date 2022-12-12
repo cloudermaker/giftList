@@ -12,15 +12,17 @@ export const Layout = ({ children, selectedHeader = EHeader.Homepage, withHeader
     const [userCookieId, setUserCookieId] = useState<string>('');
 
     useEffect(() => {
-        setGroupCookieId(Cookies.get(GROUP_ID_COOKIE) ?? '');
-        setUserCookieId(Cookies.get(USER_ID_COOKIE) ?? '');
+        const groupId = Cookies.get(GROUP_ID_COOKIE) ?? '';
+        const userId = Cookies.get(USER_ID_COOKIE) ?? '';
+        setGroupCookieId(groupId);
+        setUserCookieId(userId);
 
         if (withHeader) {
-            if (!groupCookieId || !userCookieId) {
+            if (!groupId || !userId) {
                 Router.push('/');
             }
         }
-    }, [groupCookieId, userCookieId, withHeader]);
+    }, [withHeader]);
 
     const onDisconnectClick = (): void => {
         Cookies.remove(GROUP_ID_COOKIE);
