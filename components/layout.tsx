@@ -3,26 +3,46 @@ import { CustomFooter } from './customFooter';
 import { CustomHeader, EHeader } from './customHeader';
 import Cookies from 'js-cookie';
 import Router from 'next/router';
+import axios from 'axios';
+import { TUserInfoResult } from '../pages/api/getUserInfo';
+import CountDown from './countDown';
 
 export const GROUP_ID_COOKIE = 'giftList_groupName'
 export const USER_ID_COOKIE = 'giftList_name'
 
 export const Layout = ({ children, selectedHeader = EHeader.Homepage, withHeader = true} : { children: ReactNode; selectedHeader?: EHeader; withHeader?: boolean }): JSX.Element => {
-    const [groupCookieId, setGroupCookieId] = useState<string>('');
+    const [familyCookieId, setGroupCookieId] = useState<string>('');
     const [userCookieId, setUserCookieId] = useState<string>('');
 
+    const [connectedUserName, setConnectedUserName] = useState<string>('');
+    const [connectedFamilyName, setConnectedFamilyName] = useState<string>('');
+
     useEffect(() => {
-        const groupId = Cookies.get(GROUP_ID_COOKIE) ?? '';
+        const fetchData = async (familyId: string, userId: string): Promise<void> => {
+            const result = await axios.post('/api/getUserInfo', { familyId, userId });
+            const userInfoResult = result.data as TUserInfoResult;
+
+            if (userInfoResult.success && userInfoResult.familyUser) {
+                setConnectedUserName(userInfoResult.familyUser.userName as string);
+                setConnectedFamilyName(userInfoResult.familyUser.familyName as string);
+            } else {
+                onDisconnectClick();
+            }
+        }
+
+        const familyId = Cookies.get(GROUP_ID_COOKIE) ?? '';
         const userId = Cookies.get(USER_ID_COOKIE) ?? '';
-        setGroupCookieId(groupId);
+        setGroupCookieId(familyId);
         setUserCookieId(userId);
 
         if (withHeader) {
-            if (!groupId || !userId) {
-                Router.push('/');
+            if (!familyId || !userId) {
+                onDisconnectClick()
             }
+
+            fetchData(familyId, userId);
         }
-    }, [withHeader]);
+    }, [familyCookieId, userCookieId, withHeader]);
 
     const onDisconnectClick = (): void => {
         Cookies.remove(GROUP_ID_COOKIE);
@@ -33,8 +53,25 @@ export const Layout = ({ children, selectedHeader = EHeader.Homepage, withHeader
 
     return (
         <div className='bg-noel bg-cover'>
-            <div className='p-10 min-h-body'>
-                {withHeader && <CustomHeader selectedHeader={selectedHeader} groupId={groupCookieId} userId={userCookieId} onDisconnectClick={onDisconnectClick} />}
+            <div className='px-10 pb-10 min-h-body'>
+                <div className='pt-5 pb-3 flex justify-between'>
+                        <div className='text-xs'>
+                            {connectedUserName && connectedFamilyName &&
+                                <>
+                                    Connecté en tant que
+                                    <b className='pl-1 text-vertNoel'>{connectedUserName}</b>
+                                    , dans la famille
+                                    <b className='pl-1 text-vertNoel'>{connectedFamilyName}</b>
+                                </>
+                            }
+                        </div>
+
+                    <span className='text-xs'><CountDown /></span>
+                </div>
+
+                <hr />
+
+                {withHeader && <CustomHeader selectedHeader={selectedHeader} groupId={familyCookieId} userId={userCookieId} onDisconnectClick={onDisconnectClick} />}
 
                 {children}
             </div>
