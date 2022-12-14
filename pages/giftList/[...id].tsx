@@ -94,66 +94,71 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
         }
     }    
 
+    const shouldShowIfTaken = (gift: TUserGift): boolean => {
+        return gift.owner_user_id !== userCookieId && gift.taken_user_id != null;
+    }
+
     return (
         <Layout selectedHeader={EHeader.GiftList}>
-            <h1>{`This is the gift list of user: ${user.name}`}</h1>
-
-            <h2>Gifts:</h2>
-            <hr />
+            <h1>{`Voici la liste de cadeaux pour ${user.name}:`}</h1>
 
             {localGifts.map((gift) => (
-                <div className="block" key={`gift_${gift.id}`}>
-                    <div className={`flex justify-between`}>
-                        <div className={`block ${gift.taken_user_id ? 'line-through' : ''}`}>
-                            <p>{`Name: ${gift.name}`}</p>
+                <div className="item flex justify-between items-center" key={`gift_${gift.id}`}>
+                    <div className={`block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
+                        <p>
+                            <b className="pr-2">Nom:</b>
+                            {gift.name}
+                        </p>
 
-                            {gift.description && <p>{`Description: ${gift.description}`}</p>}
+                        {gift.description && 
+                            <p>
+                                <b className="pr-2">Description:</b>
+                                {gift.description}
+                            </p>
+                        }
 
-                            {gift.url && 
-                                <div className="flex">
-                                    <span>{'->'}</span>
-                                    <a href={gift.url}>link</a>
-                                    <span>{'<-'}</span>
-                                </div>
-                            }
-                        </div>
-
-                        {userCanAddGift && (
-                            <div>
-                                <button onClick={() => removeGift(gift.id)}>Remove gift</button>
+                        {gift.url && 
+                            <div className="flex">
+                                <span>{'->'}</span>
+                                <a href={gift.url}>Lien</a>
+                                <span>{'<-'}</span>
                             </div>
-                        )}
-
-                        {!userCanAddGift && gift.taken_user_id === userCookieId && (
-                            <button onClick={() => onUnblockGiftClick(gift)}>
-                                Unblock gift
-                            </button>
-                        )}
-
-                        {!userCanAddGift && gift.taken_user_id && gift.taken_user_id !== userCookieId && (
-                            <span className="text-red-500">This gift is taken</span>
-                        )}                        
-
-                        {!userCanAddGift && !gift.taken_user_id && gift.taken_user_id !== userCookieId && (
-                            <button onClick={() => onblockGiftClick(gift)}>
-                                Block gift
-                            </button>
-                        )}                          
+                        }
                     </div>
 
-                    <hr />
+                    {userCanAddGift && (
+                        <div>
+                            <button onClick={() => removeGift(gift.id)}>Supprimer le cadeau</button>
+                        </div>
+                    )}
+
+                    {!userCanAddGift && gift.taken_user_id === userCookieId && (
+                        <button onClick={() => onUnblockGiftClick(gift)}>
+                            Je ne prends plus ce cadeau
+                        </button>
+                    )}
+
+                    {!userCanAddGift && gift.taken_user_id && gift.taken_user_id !== userCookieId && (
+                        <span className="text-red-500">Ce cadeau est déjà pris</span>
+                    )}                        
+
+                    {!userCanAddGift && !gift.taken_user_id && gift.taken_user_id !== userCookieId && (
+                        <button onClick={() => onblockGiftClick(gift)}>
+                            Je prends ce cadeau
+                        </button>
+                    )}
                 </div>
             ))}
 
-            {userCanAddGift && !creatingGift && <button onClick={onCreatingGiftButtonClick}>Add new gift</button>}
+            {userCanAddGift && !creatingGift && <button onClick={onCreatingGiftButtonClick}>Ajouter un cadeau</button>}
 
             {userCanAddGift && creatingGift && 
-                <div className="block">
-                    <p>Add new gift:</p>
+                <div className="block pt-3">
+                    <b>Ajouter ce nouveau cadeau:</b>
                     {error && <p>{error}</p>}
 
                     <div className="flex">
-                        <span>Name:</span>
+                        <span>Nom:</span>
                         <input id="newGiftInputId" className="bg-transparent" value={newGiftName} onChange={(e) => setNewGiftName(e.target.value)} />
                     </div>
 
@@ -163,7 +168,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
                     </div>
 
                     <div className="flex">
-                        <span>Link:</span>
+                        <span>Lien:</span>
                         <input className="bg-transparent" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
                     </div>
 

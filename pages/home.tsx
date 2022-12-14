@@ -14,6 +14,10 @@ export const Home = (): JSX.Element => {
                 Si tu es ici pour remplir ta lettre du père noël, tu es au bon endroit
                 <FontAwesomeIcon className='pl-1' icon={faWandMagicSparkles} />
             </span>
+
+            <div className='p-10 text-center text-7xl text-orange-700 mt-[10vh]'>
+                <CountDown />
+            </div>
         </Layout>
     )
 }

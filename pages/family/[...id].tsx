@@ -55,39 +55,35 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily, familyUsers: TF
 
     return (
         <Layout selectedHeader={EHeader.Family}>
-            <h1>{`This is the family: ${family.name}`}</h1>
-
-            <h2>Users:</h2>
-            <hr />
+            <h1 className="pb-5">{`Voici la famille: ${family.name}`}</h1>
 
             {localUsers.map((user) => (
-                <div className="block" key={`family_${user.id}`}>
-                    <div className="flex justify-between">
-                        <span>{`Name: ${user.name}`}</span>
+                <div className="item flex justify-between items-center" key={`family_${user.id}`}>
+                    <span>
+                        <b className="pr-2">Nom:</b>
+                        {user.name}
+                    </span>
 
-                        <div>
-                            <a href={`/giftList/${user.id}`}>See gift list</a>
-                            <button onClick={() => removeUser(user.id)}>Remove user</button>
-                        </div>
+                    <div>
+                        <a href={`/giftList/${user.id}`}>Liste de cadeaux</a>
+                        <button onClick={() => removeUser(user.id)}>Supprimer cet utilisateur</button>
                     </div>
-
-                    <hr />
                 </div>
             ))}
 
-            {!creatingUser && <button onClick={onCreatingUserButtonClick}>Add new user</button>}
+            {!creatingUser && <button onClick={onCreatingUserButtonClick}>Ajouter un utilisateur</button>}
 
             {creatingUser && 
-                <div>
-                    <span>Add new user:</span>
+                <div className="pb-5 pl-3">
+                    <b>Nom:</b>
                     <input id="newUserInputId" className="bg-transparent" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
 
-                    <button onClick={addUser}>Add</button>
+                    <button onClick={addUser}>Ajouter</button>
 
                     <button onClick={() => {
                         setNewUserName("");
                         setCreatingUser(false);
-                    }}>Cancel</button>
+                    }}>Annuler</button>
                 </div>
             }
             

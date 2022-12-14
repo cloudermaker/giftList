@@ -12,25 +12,21 @@ export enum EHeader {
 }
 
 export const CustomHeader = ({ selectedHeader = EHeader.Homepage, groupId, userId, onDisconnectClick }: { selectedHeader?: EHeader; groupId: string; userId: string; onDisconnectClick: () => void }): JSX.Element => {
-    const commonStyle = "text-neutral-500 mx-2 hover:text-neutral-800 hover:cursor-pointer";
+    const commonStyle = "text-neutral-500 hover:font-semibold hover:text-neutral-800 hover:cursor-pointer";
 
     return (
-        <div className="pb-5 text-xl">
-            <div className="flex justify-between mx-4">
-                <Link href="/home" className={`${commonStyle} ${selectedHeader === EHeader.Homepage ? 'font-bold' : ''}`}>
-                    <FontAwesomeIcon icon={faHomeUser} />
-                </Link>
+        <div className="header flex justify-between">
+            <Link href="/home" className={`${commonStyle} ${selectedHeader === EHeader.Homepage ? 'font-bold' : ''}`}>
+                <FontAwesomeIcon icon={faHomeUser} />
+            </Link>
 
-                <span onClick={() => Router.push(`/family/${groupId}`)} className={`${commonStyle} ${selectedHeader === EHeader.Family ? 'font-bold' : ''}`}>Ma famille</span>
+            <span onClick={() => Router.push(`/family/${groupId}`)} className={`${commonStyle} ${selectedHeader === EHeader.Family ? 'font-bold' : ''}`}>Ma famille</span>
 
-                <span onClick={() => Router.push(`/giftList/${userId}`)} className={`${commonStyle} ${selectedHeader === EHeader.GiftList ? 'font-bold' : ''}`}>Ma liste de cadeaux</span>
+            <span onClick={() => Router.push(`/giftList/${userId}`)} className={`${commonStyle} ${selectedHeader === EHeader.GiftList ? 'font-bold' : ''}`}>Ma liste de cadeaux</span>
 
-                <div className={commonStyle} onClick={onDisconnectClick}>
-                    <FontAwesomeIcon icon={faRightFromBracket} />
-                </div>
+            <div className={commonStyle} onClick={onDisconnectClick}>
+                <FontAwesomeIcon icon={faRightFromBracket} />
             </div>
-
-            <hr />
         </div>
     )
 }

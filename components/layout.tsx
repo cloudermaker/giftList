@@ -69,8 +69,6 @@ export const Layout = ({ children, selectedHeader = EHeader.Homepage, withHeader
                     <span className='text-xs'><CountDown /></span>
                 </div>
 
-                <hr />
-
                 {withHeader && <CustomHeader selectedHeader={selectedHeader} groupId={familyCookieId} userId={userCookieId} onDisconnectClick={onDisconnectClick} />}
 
                 {children}

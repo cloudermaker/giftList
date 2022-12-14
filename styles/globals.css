@@ -25,8 +25,8 @@ a:hover {
 }
 
 button {
-  border: 1px solid black;
-  padding: 1px 5px;
+  box-shadow: rgb(0 0 0 / 16%) 0px 3px 6px, rgb(0 0 0 / 23%) 0px 3px 6px;
+  padding: 5px 10px;
   margin: 2px;
   border-radius: 10px;
   background-color: #E04C4C;
@@ -36,10 +36,32 @@ button {
 button:hover {
   background-color: #99E265;
   color: white;
+  transform: scale(1.05);
 }
-
+button:active {
+  transform: scale(1);
+}
 button:disabled {
   background-color: grey;
+  transform: none;
+}
+
+.item {
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 10px;
+  border-radius: 20px;
+  border: 1px solid brown;
+  margin-bottom: 10px;
+}
+
+.header {
+  background-color: rgba(255, 255, 255, 0.7);
+  border: 0.5px solid #99E265;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 20px;
+  align-items: center;
+  font-size: x-large;
 }
 
 h1 {
