@@ -10,6 +10,7 @@ import { TRemoveGiftResult } from "../api/gift/removeGift";
 import { TAddOrUpdateGiftResult } from "../api/gift/addOrUpdateGift";
 import Cookies from 'js-cookie';
 import { sanitize } from "../../lib/helpers/stringHelper";
+import { clone, cloneDeep } from 'lodash';
 
 const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGift[] }): JSX.Element => {
     const [userCookieId, setUserCookieId] = useState<string>('');
@@ -27,17 +28,26 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
         setUserCookieId(Cookies.get(USER_ID_COOKIE) ?? '');
     }, []);
 
+    const clearAllFields = (): void => {
+        setCreatingGift(false);
+        setError('');
+        setNewGiftName('');
+        setNewDescription('');
+        setNewLink('');
+    }
+
     const removeGift = async (giftId: string): Promise<void> => {
-        const confirmation = window.confirm('Are you sure you want to remove this gift ?');
+        const confirmation = window.confirm('Es-tu certain de vouloir supprimer ce cadeau ?');
 
         if (confirmation) {
             const result = await axios.post('/api/gift/removeGift', { giftId });
             const data = result.data as TRemoveGiftResult;
     
             if (data.success === true) {
-                location.reload();
+                setLocalGifts(localGifts.filter((gift) => gift.id !== giftId));
+                clearAllFields();
             } else {
-                setError(data.error);
+                alert(data.error);
             }
         }
     }
@@ -46,13 +56,15 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
         const newGifts: TUserGift[] = localGifts;
 
         const giftToAdd: TUserGift = { id: '0', name: sanitize(newGiftName), description: sanitize(newDescription), url: sanitize(newLink), owner_user_id: user.id, taken_user_id: undefined };
-        newGifts.push(giftToAdd);
-
+        
         const result = await axios.post('/api/gift/addOrUpdateGift', { userGift: giftToAdd });
         const data = result.data as TAddOrUpdateGiftResult;
-
+        
         if (data.success === true) {
-            location.reload();
+            giftToAdd.id = data.giftId;
+            newGifts.push(giftToAdd);
+            setLocalGifts(newGifts);
+            clearAllFields();
         } else {
             setError(data.error);
         }
@@ -63,36 +75,30 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
         
         window.setTimeout(function () { 
             document.getElementById('newGiftInputId')?.focus(); 
-        }, 0); 
+        }, 0);
     }
 
-    const onUnblockGiftClick = async (giftToUpdate: TUserGift): Promise<void> => {
-        const userGift = giftToUpdate;
-        userGift.taken_user_id = undefined;
+    const onblockUnclockGiftClick = async (giftToUpdate: TUserGift): Promise<void> => {
+        const userGift = clone(giftToUpdate);
+        userGift.taken_user_id = userGift.taken_user_id != null ? undefined : userCookieId;
 
         const result = await axios.post('/api/gift/addOrUpdateGift', { userGift: userGift });
         const data = result.data as TAddOrUpdateGiftResult;
 
         if (data.success === true) {
-            location.reload();
-        } else {
-            setError(data.error);
-        }
-    }
-
-    const onblockGiftClick = async (giftToUpdate: TUserGift): Promise<void> => {
-        const userGift = giftToUpdate;
-        userGift.taken_user_id = userCookieId;
-
-        const result = await axios.post('/api/gift/addOrUpdateGift', { userGift: userGift });
-        const data = result.data as TAddOrUpdateGiftResult;
-
-        if (data.success === true) {
-            location.reload();
+            const newLocalGifts: TUserGift[] = [];
+            localGifts.forEach((gift) => {
+                if (gift.id !== giftToUpdate.id) {
+                    newLocalGifts.push(gift);
+                } else {
+                    newLocalGifts.push(userGift);
+                }
+            })
+            setLocalGifts(newLocalGifts);
         } else {
             window.alert(data.error);
         }
-    }    
+    }
 
     const shouldShowIfTaken = (gift: TUserGift): boolean => {
         return gift.owner_user_id !== userCookieId && gift.taken_user_id != null;
@@ -104,7 +110,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
 
             {localGifts.map((gift) => (
                 <div className="item flex justify-between items-center" key={`gift_${gift.id}`}>
-                    <div className={`block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
+                    <div className={`block ${shouldShowIfTaken(gift) ?'line-through' : ''}`}>
                         <p>
                             <b className="pr-2">Nom:</b>
                             {gift.name}
@@ -133,7 +139,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
                     )}
 
                     {!userCanAddGift && gift.taken_user_id === userCookieId && (
-                        <button onClick={() => onUnblockGiftClick(gift)}>
+                        <button onClick={() => onblockUnclockGiftClick(gift)}>
                             Je ne prends plus ce cadeau
                         </button>
                     )}
@@ -143,7 +149,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser, giftList: TUserGif
                     )}                        
 
                     {!userCanAddGift && !gift.taken_user_id && gift.taken_user_id !== userCookieId && (
-                        <button onClick={() => onblockGiftClick(gift)}>
+                        <button onClick={() => onblockUnclockGiftClick(gift)}>
                             Je prends ce cadeau
                         </button>
                     )}
