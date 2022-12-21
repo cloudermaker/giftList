@@ -24,6 +24,8 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
     const [newDescription, setNewDescription] = useState<string>('');
     const [newLink, setNewLink] = useState<string>('');
 
+    const [updatingGiftId, setUpdatingGiftId] = useState<string>('');
+
     useEffect(() => {
         setUserCookieId(Cookies.get(USER_ID_COOKIE) ?? '');
     }, []);
@@ -34,6 +36,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
         setNewGiftName('');
         setNewDescription('');
         setNewLink('');
+        setUpdatingGiftId('');
     };
 
     const removeGift = async (giftId: string): Promise<void> => {
@@ -52,11 +55,16 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
         }
     };
 
-    const addGift = async (): Promise<void> => {
-        const newGifts: TUserGift[] = localGifts;
+    const updatingGift = (gift: TUserGift): void => {
+        setNewGiftName(gift.name);
+        setNewDescription(gift.description);
+        setNewLink(gift.url);
+        setUpdatingGiftId(gift.id);
+    };
 
+    const addOrUpdateGift = async (giftId?: string): Promise<void> => {
         const giftToAdd: TUserGift = {
-            id: '0',
+            id: giftId ?? '0',
             name: sanitize(newGiftName),
             description: sanitize(newDescription),
             url: sanitize(newLink),
@@ -70,8 +78,23 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
         const data = result.data as TAddOrUpdateGiftResult;
 
         if (data.success === true) {
-            giftToAdd.id = data.giftId;
-            newGifts.push(giftToAdd);
+            let newGifts: TUserGift[] = localGifts;
+            giftToAdd.id = giftId ?? data.giftId;
+
+            if (giftId) {
+                const tmpGifts: TUserGift[] = [];
+                for (const gift of newGifts) {
+                    if (gift.id === giftId) {
+                        tmpGifts.push(giftToAdd);
+                    } else {
+                        tmpGifts.push(gift);
+                    }
+                }
+                newGifts = tmpGifts;
+            } else {
+                newGifts.push(giftToAdd);
+            }
+
             setLocalGifts(newGifts);
             clearAllFields();
         } else {
@@ -121,31 +144,64 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
 
             {localGifts.map((gift) => (
                 <div className="item flex justify-between items-center" key={`gift_${gift.id}`}>
-                    <div className={`block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
-                        <p>
-                            <b className="pr-2">Nom:</b>
-                            {gift.name}
-                        </p>
-
-                        {gift.description && (
+                    {updatingGiftId !== gift.id && (
+                        <div className={`block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
                             <p>
-                                <b className="pr-2">Description:</b>
-                                {gift.description}
+                                <b className="pr-2">Nom:</b>
+                                {gift.name}
                             </p>
-                        )}
 
-                        {gift.url && (
+                            {gift.description && (
+                                <p>
+                                    <b className="pr-2">Description:</b>
+                                    {gift.description}
+                                </p>
+                            )}
+
+                            {gift.url && (
+                                <div className="flex">
+                                    <span>{'->'}</span>
+                                    <a href={gift.url}>Lien</a>
+                                    <span>{'<-'}</span>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {updatingGiftId === gift.id && (
+                        <div className={`block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
                             <div className="flex">
-                                <span>{'->'}</span>
-                                <a href={gift.url}>Lien</a>
-                                <span>{'<-'}</span>
+                                <b className="pr-2">Nom:</b>
+                                <input
+                                    id="newGiftInputId"
+                                    className="bg-transparent"
+                                    value={newGiftName}
+                                    onChange={(e) => setNewGiftName(e.target.value)}
+                                />
                             </div>
-                        )}
-                    </div>
+
+                            <div className="flex">
+                                <b className="pr-2">Description:</b>
+                                <input className="bg-transparent" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
+                            </div>
+
+                            <div className="flex">
+                                <b className="pr-2">Lien:</b>
+                                <input className="bg-transparent" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
+                            </div>
+                        </div>
+                    )}
 
                     {userCanAddGift && (
                         <div>
-                            <button onClick={() => removeGift(gift.id)}>Supprimer le cadeau</button>
+                            {updatingGiftId === gift.id && <button onClick={clearAllFields}>Annuler</button>}
+                            {updatingGiftId === gift.id && (
+                                <button onClick={() => addOrUpdateGift(gift.id)} disabled={newGiftName == null || newGiftName === ''}>
+                                    Valider
+                                </button>
+                            )}
+                            {updatingGiftId !== gift.id && <button onClick={() => updatingGift(gift)}>Modifier</button>}
+                            <button onClick={() => removeGift(gift.id)}>Supprimer</button>
                         </div>
                     )}
 
@@ -163,9 +219,9 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
                 </div>
             ))}
 
-            {userCanAddGift && !creatingGift && <button onClick={onCreatingGiftButtonClick}>Ajouter un cadeau</button>}
+            {!creatingGift && <button onClick={onCreatingGiftButtonClick}>Ajouter un cadeau</button>}
 
-            {userCanAddGift && creatingGift && (
+            {creatingGift && (
                 <div className="block pt-3">
                     <b>Ajouter ce nouveau cadeau:</b>
                     {error && <p>{error}</p>}
@@ -186,7 +242,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
                     </div>
 
                     <div className="py-2">
-                        <button onClick={addGift} disabled={newGiftName === ''}>
+                        <button onClick={() => addOrUpdateGift()} disabled={newGiftName === ''}>
                             Add
                         </button>
 

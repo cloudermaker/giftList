@@ -10,7 +10,6 @@ import { TAddUserResult } from '../api/user/addOrUpdateUser';
 import { sanitize } from '../../lib/helpers/stringHelper';
 
 const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TFamilyUser[] }): JSX.Element => {
-    //const [, setCreatingUser] = useState<boolean>(false);
     const [localUsers, setLocalUsers] = useState<TFamilyUser[]>(familyUsers);
     const [creatingUser, setCreatingUser] = useState<boolean>(false);
     const [newUserName, setNewUserName] = useState<string>('');
