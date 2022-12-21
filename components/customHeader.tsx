@@ -38,7 +38,10 @@ export const CustomHeader = ({
             </span>
 
             <span
-                onClick={() => Router.push(`/giftList/${userId}`)}
+                onClick={() => {
+                    // Cannot use router / link => force server side rerender (same page)
+                    window.location.href = `/giftList/${userId}`;
+                }}
                 className={`${commonStyle} ${selectedHeader === EHeader.GiftList ? 'font-bold' : ''}`}
             >
                 Ma liste de cadeaux

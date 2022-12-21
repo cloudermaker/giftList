@@ -26,7 +26,7 @@ a:hover {
 button {
     box-shadow: rgb(0 0 0 / 16%) 0px 3px 6px, rgb(0 0 0 / 23%) 0px 3px 6px;
     padding: 5px 10px;
-    margin: 2px;
+    margin: 2px 5px;
     border-radius: 10px;
     background-color: #e04c4c;
     color: white;
@@ -34,7 +34,6 @@ button {
 
 button:hover {
     background-color: #99e265;
-    color: white;
     transform: scale(1.05);
 }
 button:active {
@@ -83,12 +82,10 @@ hr {
 
 input {
     border-bottom: 1px solid grey;
-    margin: 0px 10px;
+    margin: 0px 0px;
 }
 
 input:focus {
-    border-bottom: 1px solid grey;
-    margin: 0px 10px;
     outline-width: 0;
 }
 

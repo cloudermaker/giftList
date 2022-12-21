@@ -227,17 +227,17 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
                     {error && <p>{error}</p>}
 
                     <div className="flex">
-                        <span>Nom:</span>
+                        <b className="pr-2">Nom:</b>
                         <input id="newGiftInputId" className="bg-transparent" value={newGiftName} onChange={(e) => setNewGiftName(e.target.value)} />
                     </div>
 
                     <div className="flex">
-                        <span>Description:</span>
+                        <b className="pr-2">Description:</b>
                         <input className="bg-transparent" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
                     </div>
 
                     <div className="flex">
-                        <span>Lien:</span>
+                        <b className="pr-2">Lien:</b>
                         <input className="bg-transparent" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
                     </div>
 
