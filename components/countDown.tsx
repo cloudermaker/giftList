@@ -1,10 +1,9 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React from 'react';
+import { useState, useEffect } from 'react';
 
-const currentYear = (new Date()).getFullYear();
+const currentYear = new Date().getFullYear();
 
 export default function CountDown() {
-
     const [currentMillisecond, setCurrentMillisecond] = useState<number>(0);
     const [currentMin, setCurrentMin] = useState<number>(0);
     const [currentHours, setCurrentHours] = useState<number>(0);
@@ -18,18 +17,18 @@ export default function CountDown() {
             setCurrentMillisecond(59 - currentDate.getSeconds());
             setCurrentMin(59 - currentDate.getMinutes());
             setCurrentHours(23 - currentDate.getHours());
-            setCurrentDay(24 - currentDate.getDay() - 1);
+            setCurrentDay(24 - currentDate.getDate() - 1);
             setCurrentMonth(11 - currentDate.getMonth());
         }, 300);
 
         return () => {
-        clearInterval(sampleInterval);
+            clearInterval(sampleInterval);
         };
     });
 
     const toStr = (i: number): string => {
         return i < 10 ? `0${i}` : `${i}`;
-    }
+    };
 
     return (
         <>

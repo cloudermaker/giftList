@@ -6,5 +6,4 @@ export type TUserGift = {
 
     owner_user_id: string;
     taken_user_id?: string;
-}
-
+};

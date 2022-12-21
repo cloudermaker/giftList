@@ -1,32 +1,34 @@
-import { useState } from "react";
-import { Layout } from "../components/layout";
-import { getFamilies } from "../lib/db/dbManager";
-import { TFamily } from "../lib/types/family";
+import { useState } from 'react';
+import { Layout } from '../components/layout';
+import { getFamilies } from '../lib/db/dbManager';
+import { TFamily } from '../lib/types/family';
 import axios from 'axios';
-import { TAddFamilyResult } from "./api/family/addOrUpdateFamily";
-import { EHeader } from "../components/customHeader";
-import { TRemoveFamilyResult } from "./api/family/removeFamily";
-import { sanitize } from "../lib/helpers/stringHelper";
+import { TAddFamilyResult } from './api/family/addOrUpdateFamily';
+import { EHeader } from '../components/customHeader';
+import { TRemoveFamilyResult } from './api/family/removeFamily';
+import { sanitize } from '../lib/helpers/stringHelper';
 
 const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => {
     const [localFamilies] = useState<TFamily[]>(families);
     const [creatingFamily, setCreatingFamily] = useState<boolean>(false);
     const [newFamilyName, setNewFamilyName] = useState<string>('');
-    
+
     const removeFamily = async (familyId: string): Promise<void> => {
         const confirmation = window.confirm('Are you sure you want to remove this family ?');
 
         if (confirmation) {
-            const result = await axios.post('/api/family/removeFamily', { familyId: familyId });
+            const result = await axios.post('/api/family/removeFamily', {
+                familyId: familyId
+            });
             const data = result.data as TRemoveFamilyResult;
-    
+
             if (data.success === true) {
                 location.reload();
             } else {
                 window.alert(data.error);
             }
         }
-    }
+    };
 
     const addOrUpdateFamily = async (): Promise<void> => {
         const newFamilies = localFamilies;
@@ -34,7 +36,9 @@ const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => 
         const familyToAdd = { id: '0', name: sanitize(newFamilyName) };
         newFamilies.push(familyToAdd);
 
-        const result = await axios.post('/api/family/addOrUpdateFamily', { family: familyToAdd });
+        const result = await axios.post('/api/family/addOrUpdateFamily', {
+            family: familyToAdd
+        });
         const data = result.data as TAddFamilyResult;
 
         if (data.success === true) {
@@ -42,15 +46,15 @@ const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => 
         } else {
             window.alert(data.error);
         }
-    }
+    };
 
     const onCreatingFamilyButtonClick = (): void => {
         setCreatingFamily(true);
 
-        window.setTimeout(function () { 
-            document.getElementById('newFamilyInputId')?.focus(); 
-        }, 0); 
-    }
+        window.setTimeout(function () {
+            document.getElementById('newFamilyInputId')?.focus();
+        }, 0);
+    };
 
     return (
         <Layout selectedHeader={EHeader.Backoffice}>
@@ -76,32 +80,35 @@ const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => 
 
             {!creatingFamily && <button onClick={onCreatingFamilyButtonClick}>Add new family</button>}
 
-            {creatingFamily && 
+            {creatingFamily && (
                 <div>
                     <span>Add new family:</span>
                     <input id="newFamilyInputId" value={newFamilyName} onChange={(e) => setNewFamilyName(e.target.value)} />
 
                     <button onClick={addOrUpdateFamily}>Add</button>
 
-                    <button onClick={() => {
-                        setNewFamilyName("");
-                        setCreatingFamily(false);
-                    }}>Cancel</button>
+                    <button
+                        onClick={() => {
+                            setNewFamilyName('');
+                            setCreatingFamily(false);
+                        }}
+                    >
+                        Cancel
+                    </button>
                 </div>
-            }
-            
+            )}
         </Layout>
-    )
-}
+    );
+};
 
 export async function getServerSideProps() {
     const families = await getFamilies();
-    
+
     return {
-      props: {
-        families,
-      },
-    }
-  }
+        props: {
+            families
+        }
+    };
+}
 
 export default Backoffice;

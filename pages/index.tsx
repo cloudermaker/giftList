@@ -7,117 +7,138 @@ import { TGetOrCreateGroupAndUserResult } from './api/getOrCreateGroupAndUser';
 import { CustomInput } from '../components/atoms/customInput';
 
 export default function Index(): JSX.Element {
-  const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
-  const [joiningGroup, setJoiningGroup] = useState<boolean>(false);
-  
-  const [groupName, setGroupName] = useState<string>("");
-  const [name, setName] = useState<string>("");
-  const [error, setError] = useState<string>("");
+    const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
+    const [joiningGroup, setJoiningGroup] = useState<boolean>(false);
 
-  useEffect(() => {
-    const groupId = Cookies.get(GROUP_ID_COOKIE) ?? '';
-    const userId = Cookies.get(USER_ID_COOKIE) ?? '';
+    const [groupName, setGroupName] = useState<string>('');
+    const [name, setName] = useState<string>('');
+    const [error, setError] = useState<string>('');
 
-    if (groupId && userId) {
-        Router.push('/home');
-    }
-  }, []);
+    useEffect(() => {
+        const groupId = Cookies.get(GROUP_ID_COOKIE) ?? '';
+        const userId = Cookies.get(USER_ID_COOKIE) ?? '';
 
-  const onCreatingButtonClick = (): void => {
-    setCreatingGroup(true);
+        if (groupId && userId) {
+            Router.push('/home');
+        }
+    }, []);
 
-    window.setTimeout(function () { 
-      document.getElementById('groupNameInputId')?.focus(); 
-    }, 0); 
-  }
+    const onCreatingButtonClick = (): void => {
+        setCreatingGroup(true);
 
-  const onJoiningButtonClick = (): void => {
-    setJoiningGroup(true);
+        window.setTimeout(function () {
+            document.getElementById('groupNameInputId')?.focus();
+        }, 0);
+    };
 
-    window.setTimeout(function () { 
-      document.getElementById('groupNameInputId')?.focus(); 
-    }, 0);
-  }
+    const onJoiningButtonClick = (): void => {
+        setJoiningGroup(true);
 
-  const onCancelButtonClick = (): void => {
-    setCreatingGroup(false);
-    setJoiningGroup(false);
-    setGroupName('');
-    setName('');
-    setError('');
-  }
+        window.setTimeout(function () {
+            document.getElementById('groupNameInputId')?.focus();
+        }, 0);
+    };
 
-  const onValidateButtonClick = async (): Promise<void> => {
-    if (!groupName) {
-      setError('Group name is mandatory.');
-    } else if (!name) {
-      setError('Name is mandatory');
-    } else {
-      console.log(groupName, name);
-      const res = await axios.post('api/getOrCreateGroupAndUser', { groupName, userName: name, isCreating: creatingGroup });
-      const data = res.data as TGetOrCreateGroupAndUserResult;
-      
-      if (data.success) {
-        Cookies.set(GROUP_ID_COOKIE, data.groupUser?.groupId ?? '', { expires: 7 });
-        Cookies.set(USER_ID_COOKIE, data.groupUser?.userId ?? '', { expires: 7 });
+    const onCancelButtonClick = (): void => {
+        setCreatingGroup(false);
+        setJoiningGroup(false);
+        setGroupName('');
+        setName('');
+        setError('');
+    };
 
-        Router.push('/home');
-      } else {
-        setError(data.error);
-      }
-    }
-  }
+    const onValidateButtonClick = async (): Promise<void> => {
+        if (!groupName) {
+            setError('Group name is mandatory.');
+        } else if (!name) {
+            setError('Name is mandatory');
+        } else {
+            console.log(groupName, name);
+            const res = await axios.post('api/getOrCreateGroupAndUser', {
+                groupName,
+                userName: name,
+                isCreating: creatingGroup
+            });
+            const data = res.data as TGetOrCreateGroupAndUserResult;
 
-  const onInputPressKey = async (keyCode: string) => {
-    if (keyCode === 'Enter') {
-      await onValidateButtonClick();
-    }
-  }
+            if (data.success) {
+                Cookies.set(GROUP_ID_COOKIE, data.groupUser?.groupId ?? '', {
+                    expires: 7
+                });
+                Cookies.set(USER_ID_COOKIE, data.groupUser?.userId ?? '', {
+                    expires: 7
+                });
 
-  return (
-    <Layout withHeader={false}>
-      <h1 className=' text-center bg-white'>Bienvenue sur le site de gestion de cadeaux !!</h1>
+                Router.push('/home');
+            } else {
+                setError(data.error);
+            }
+        }
+    };
 
-      {!creatingGroup && !joiningGroup &&
-        <div className='block text-center'>
-          <h3 className='p-5 font-bold'>Que souhaites-tu faire ?</h3>
+    const onInputPressKey = async (keyCode: string) => {
+        if (keyCode === 'Enter') {
+            await onValidateButtonClick();
+        }
+    };
 
-          <div className='block m-3'>
-            <button className='p-3 mx-3' onClick={onCreatingButtonClick}>Créer ma famille</button>
+    return (
+        <Layout withHeader={false}>
+            <h1 className="header text-center bg-white">Bienvenue sur le site de gestion de cadeaux !!</h1>
 
-            <button className='p-3 mx-3' onClick={onJoiningButtonClick}>Rejoindre ma famille</button>
-          </div>
-        </div>
-      }
+            {!creatingGroup && !joiningGroup && (
+                <div className="block text-center">
+                    <h3 className="p-5 font-bold">Que souhaites-tu faire ?</h3>
 
-      {(creatingGroup || joiningGroup) &&
-        <div className='block text-center'>
-          <div className='block p-5'>
-            {error && <span className='text-red-500'>{`Error: ${error}`}</span>}
+                    <div className="block m-3">
+                        <button className="p-3 mx-3" onClick={onCreatingButtonClick}>
+                            Créer ma famille
+                        </button>
 
-            {creatingGroup && <p className='font-bold mb-2'>Pour créer ta famille:</p>}
-            {!creatingGroup && <p className='font-bold mb-2'>Pour rejoindre une famille:</p>}
+                        <button className="p-3 mx-3" onClick={onJoiningButtonClick}>
+                            Rejoindre ma famille
+                        </button>
+                    </div>
+                </div>
+            )}
 
-            <div className='block'>
-              <span>Entre le nom de ta famille:</span>
+            {(creatingGroup || joiningGroup) && (
+                <div className="block text-center">
+                    <div className="block p-5">
+                        {error && <span className="text-red-500">{`Error: ${error}`}</span>}
 
-              <input id="groupNameInputId" className='bg-transparent' onChange={(e) => setGroupName(e.target.value)} value={groupName} />
-            </div>
+                        {creatingGroup && <p className="font-bold mb-2">Pour créer ta famille:</p>}
+                        {!creatingGroup && <p className="font-bold mb-2">Pour rejoindre une famille:</p>}
 
-            <div className='block'>
-              <span>Entre ton nom:</span>
+                        <div className="block">
+                            <span>Entre le nom de ta famille:</span>
 
-              <CustomInput id="nameInputId" className='bg-transparent' onChange={setName} value={name} onKeyDown={onInputPressKey} />
-            </div>
-          </div>
+                            <input
+                                id="groupNameInputId"
+                                className="bg-transparent"
+                                onChange={(e) => setGroupName(e.target.value)}
+                                value={groupName}
+                            />
+                        </div>
 
-          <div className='block m-3'>
-            <button className='p-3 mx-3' onClick={onValidateButtonClick}>{"C'est parti!"}</button>
+                        <div className="block">
+                            <span>Entre ton nom:</span>
 
-            <button className='p-3 mx-3' onClick={onCancelButtonClick}>{"En fait, non"}</button>
-          </div>
-        </div>
-      }
-    </Layout>
-  )
+                            <CustomInput id="nameInputId" className="bg-transparent" onChange={setName} value={name} onKeyDown={onInputPressKey} />
+                        </div>
+                    </div>
+
+                    <div className="block m-3">
+                        <button className="p-3 mx-3" onClick={onValidateButtonClick}>
+                            {"C'est parti!"}
+                        </button>
+
+                        <button className="p-3 mx-3" onClick={onCancelButtonClick}>
+                            {'En fait, non'}
+                        </button>
+                    </div>
+                </div>
+            )}
+        </Layout>
+    );
 }

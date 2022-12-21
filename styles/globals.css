@@ -4,159 +4,156 @@
 
 html,
 body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+    padding: 0;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
 div {
-  display: block;
+    display: block;
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
-  margin: 0px 10px;
-  color: brown
+    color: inherit;
+    text-decoration: none;
+    margin: 0px 10px;
+    color: brown;
 }
 a:hover {
-  text-decoration: underline;;
+    text-decoration: underline;
 }
 
 button {
-  box-shadow: rgb(0 0 0 / 16%) 0px 3px 6px, rgb(0 0 0 / 23%) 0px 3px 6px;
-  padding: 5px 10px;
-  margin: 2px;
-  border-radius: 10px;
-  background-color: #E04C4C;
-  color: white;
+    box-shadow: rgb(0 0 0 / 16%) 0px 3px 6px, rgb(0 0 0 / 23%) 0px 3px 6px;
+    padding: 5px 10px;
+    margin: 2px;
+    border-radius: 10px;
+    background-color: #e04c4c;
+    color: white;
 }
 
 button:hover {
-  background-color: #99E265;
-  color: white;
-  transform: scale(1.05);
+    background-color: #99e265;
+    color: white;
+    transform: scale(1.05);
 }
 button:active {
-  transform: scale(1);
+    transform: scale(1);
 }
 button:disabled {
-  background-color: grey;
-  transform: none;
+    background-color: grey;
+    transform: none;
 }
 
 .item {
-  background-color: rgba(255, 255, 255, 0.7);
-  padding: 10px;
-  border-radius: 20px;
-  border: 1px solid brown;
-  margin-bottom: 10px;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid brown;
+    margin-bottom: 10px;
 }
 
 .header {
-  background-color: rgba(255, 255, 255, 0.7);
-  border: 0.5px solid #99E265;
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 20px;
-  align-items: center;
-  font-size: x-large;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 0.5px solid #99e265;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+    font-size: x-large;
+}
+
+.footer {
+    background-color: rgba(229, 231, 235);
 }
 
 h1 {
-  font-size: x-large;
-  padding-bottom: 10px;
+    font-size: x-large;
+    padding-bottom: 10px;
 }
 
 h2 {
-  font-size: large;
-  padding-bottom: 5px;
+    font-size: large;
+    padding-bottom: 5px;
 }
 
 hr {
-  margin: 5px 0px;
+    margin: 5px 0px;
 }
 
 input {
-  border-bottom: 1px solid grey;
-  margin: 0px 10px;
+    border-bottom: 1px solid grey;
+    margin: 0px 10px;
 }
 
 input:focus {
-  border-bottom: 1px solid grey;
-  margin: 0px 10px;
-  outline-width: 0;
+    border-bottom: 1px solid grey;
+    margin: 0px 10px;
+    outline-width: 0;
 }
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 /* SPINNER */
 .loading {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-  height: 80px;
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
 }
 .loading div {
-  position: absolute;
-  top: 33px;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: #fff;
-  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+    position: absolute;
+    top: 33px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #fff;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
 }
 .loading div:nth-child(1) {
-  left: 8px;
-  animation: lds-ellipsis1 0.6s infinite;
+    left: 8px;
+    animation: lds-ellipsis1 0.6s infinite;
 }
 .loading div:nth-child(2) {
-  left: 8px;
-  animation: lds-ellipsis2 0.6s infinite;
+    left: 8px;
+    animation: lds-ellipsis2 0.6s infinite;
 }
 .loading div:nth-child(3) {
-  left: 32px;
-  animation: lds-ellipsis2 0.6s infinite;
+    left: 32px;
+    animation: lds-ellipsis2 0.6s infinite;
 }
 .loading div:nth-child(4) {
-  left: 56px;
-  animation: lds-ellipsis3 0.6s infinite;
+    left: 56px;
+    animation: lds-ellipsis3 0.6s infinite;
 }
 @keyframes lds-ellipsis1 {
-  0% {
-    transform: scale(0);
-  }
-  100% {
-    transform: scale(1);
-  }
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 @keyframes lds-ellipsis3 {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(0);
-  }
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(0);
+    }
 }
 @keyframes lds-ellipsis2 {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(24px, 0);
-  }
+    0% {
+        transform: translate(0, 0);
+    }
+    100% {
+        transform: translate(24px, 0);
+    }
 }
 /* END OF SPINNER */
 
 @media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-  body {
-    color: white;
-    background: black;
-  }
+
 }

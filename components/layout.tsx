@@ -7,10 +7,18 @@ import axios from 'axios';
 import { TUserInfoResult } from '../pages/api/getUserInfo';
 import CountDown from './countDown';
 
-export const GROUP_ID_COOKIE = 'giftList_groupName'
-export const USER_ID_COOKIE = 'giftList_name'
+export const GROUP_ID_COOKIE = 'giftList_groupName';
+export const USER_ID_COOKIE = 'giftList_name';
 
-export const Layout = ({ children, selectedHeader = EHeader.Homepage, withHeader = true} : { children: ReactNode; selectedHeader?: EHeader; withHeader?: boolean }): JSX.Element => {
+export const Layout = ({
+    children,
+    selectedHeader = EHeader.Homepage,
+    withHeader = true
+}: {
+    children: ReactNode;
+    selectedHeader?: EHeader;
+    withHeader?: boolean;
+}): JSX.Element => {
     const [familyCookieId, setGroupCookieId] = useState<string>('');
     const [userCookieId, setUserCookieId] = useState<string>('');
 
@@ -28,7 +36,7 @@ export const Layout = ({ children, selectedHeader = EHeader.Homepage, withHeader
             } else {
                 onDisconnectClick();
             }
-        }
+        };
 
         const familyId = Cookies.get(GROUP_ID_COOKIE) ?? '';
         const userId = Cookies.get(USER_ID_COOKIE) ?? '';
@@ -37,7 +45,7 @@ export const Layout = ({ children, selectedHeader = EHeader.Homepage, withHeader
 
         if (withHeader) {
             if (!familyId || !userId) {
-                onDisconnectClick()
+                onDisconnectClick();
             }
 
             fetchData(familyId, userId);
@@ -49,32 +57,40 @@ export const Layout = ({ children, selectedHeader = EHeader.Homepage, withHeader
         Cookies.remove(USER_ID_COOKIE);
 
         Router.push('/');
-    }
+    };
 
     return (
-        <div className='bg-noel bg-cover'>
-            <div className='px-10 pb-10 min-h-body'>
-                <div className='pt-5 pb-3 flex justify-between'>
-                        <div className='text-xs'>
-                            {connectedUserName && connectedFamilyName &&
-                                <>
-                                    Connecté en tant que
-                                    <b className='pl-1 text-vertNoel'>{connectedUserName}</b>
-                                    , dans la famille
-                                    <b className='pl-1 text-vertNoel'>{connectedFamilyName}</b>
-                                </>
-                            }
-                        </div>
+        <div className="bg-noel bg-cover">
+            <div className="px-10 pb-10 min-h-body">
+                <div className="pt-5 pb-3 flex justify-between">
+                    <div className="text-xs">
+                        {connectedUserName && connectedFamilyName && (
+                            <>
+                                Connecté en tant que
+                                <b className="pl-1 text-vertNoel">{connectedUserName}</b>, dans la famille
+                                <b className="pl-1 text-vertNoel">{connectedFamilyName}</b>
+                            </>
+                        )}
+                    </div>
 
-                    <span className='text-xs'><CountDown /></span>
+                    <span className="text-xs">
+                        <CountDown />
+                    </span>
                 </div>
 
-                {withHeader && <CustomHeader selectedHeader={selectedHeader} groupId={familyCookieId} userId={userCookieId} onDisconnectClick={onDisconnectClick} />}
+                {withHeader && (
+                    <CustomHeader
+                        selectedHeader={selectedHeader}
+                        groupId={familyCookieId}
+                        userId={userCookieId}
+                        onDisconnectClick={onDisconnectClick}
+                    />
+                )}
 
                 {children}
             </div>
 
             <CustomFooter />
         </div>
-    )
-}
+    );
+};
