@@ -94,6 +94,7 @@ hr {
 input {
     border-bottom: 1px solid grey;
     margin: 0px 0px;
+    background-color: transparent;
 }
 
 input:focus {

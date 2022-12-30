@@ -43,5 +43,14 @@
         "postcss": "^8.4.19",
         "prettier": "2.8.1",
         "tailwindcss": "^3.2.4"
+    },
+    "browser": {
+        "fs": false,
+        "path": false,
+        "os": false,
+        "dns": false,
+        "net": false,
+        "tls": false,
+        "pg-native": false
     }
 }

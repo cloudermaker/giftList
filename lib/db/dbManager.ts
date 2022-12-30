@@ -211,7 +211,7 @@ export const addOrUpdateUser = async (user: TFamilyUser): Promise<string | null>
 
     const existingQuery = `select * from family_user where id = '${user.id}'`;
     const insertQuery = `INSERT INTO family_user (name, family_id) VALUES ('${user.name}', ${user.family_id}) RETURNING id`;
-    const updateQuery = `UPDATE user_gift \
+    const updateQuery = `UPDATE family_user \
                         SET name = '${user.name}' \
                         where id = ${user.id}`;
 

@@ -140,132 +140,139 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
 
     return (
         <Layout selectedHeader={EHeader.GiftList}>
-            <h1>{`Voici la liste de cadeaux pour ${user.name}:`}</h1>
+            <div className="mb-10">
+                <h1>{`Voici la liste de cadeaux pour ${user.name}:`}</h1>
 
-            {localGifts.map((gift) => (
-                <div className="item flex justify-between items-center" key={`gift_${gift.id}`}>
-                    {updatingGiftId !== gift.id && (
-                        <div className={`w-full block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
-                            <p>
-                                <b className="pr-2">Nom:</b>
-                                {gift.name}
-                            </p>
-
-                            {gift.description && (
+                {localGifts.map((gift) => (
+                    <div className="item flex justify-between items-center" key={`gift_${gift.id}`}>
+                        {updatingGiftId !== gift.id && (
+                            <div className={`w-full block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
                                 <p>
-                                    <b className="pr-2">Description:</b>
-                                    {gift.description}
+                                    <b className="pr-2">Nom:</b>
+                                    {gift.name}
                                 </p>
-                            )}
 
-                            {gift.url && (
-                                <div className="flex">
-                                    <span>{'->'}</span>
-                                    <a href={gift.url}>Lien</a>
-                                    <span>{'<-'}</span>
+                                {gift.description && (
+                                    <p>
+                                        <b className="pr-2">Description:</b>
+                                        {gift.description}
+                                    </p>
+                                )}
+
+                                {gift.url && (
+                                    <div className="flex">
+                                        <span>{'->'}</span>
+                                        <a href={gift.url}>Lien</a>
+                                        <span>{'<-'}</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {updatingGiftId === gift.id && (
+                            <div className={`block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
+                                <div className="grid md:flex">
+                                    <b className="pr-2">Nom:</b>
+                                    <input
+                                        id="newGiftInputId"
+                                        className="bg-transparent"
+                                        value={newGiftName}
+                                        onChange={(e) => setNewGiftName(e.target.value)}
+                                    />
                                 </div>
+
+                                <div className="grid md:flex mt-2">
+                                    <b className="pr-2">Description:</b>
+                                    <input className="bg-transparent" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
+                                </div>
+
+                                <div className="grid md:flex mt-2">
+                                    <b className="pr-2">Lien:</b>
+                                    <input className="bg-transparent" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="text-right block md:flex">
+                            {userCanAddGift && (
+                                <>
+                                    {updatingGiftId === gift.id && <button onClick={clearAllFields}>Annuler</button>}
+                                    {updatingGiftId === gift.id && (
+                                        <button onClick={() => addOrUpdateGift(gift.id)} disabled={newGiftName == null || newGiftName === ''}>
+                                            Valider
+                                        </button>
+                                    )}
+                                    {updatingGiftId !== gift.id && (
+                                        <>
+                                            <button onClick={() => updatingGift(gift)}>Modifier</button>
+                                            <button onClick={() => removeGift(gift.id)}>Supprimer</button>
+                                        </>
+                                    )}
+                                </>
+                            )}
+
+                            {!userCanAddGift && gift.taken_user_id === userCookieId && (
+                                <button onClick={() => onblockUnclockGiftClick(gift)}>Je ne prends plus ce cadeau</button>
+                            )}
+
+                            {!userCanAddGift && gift.taken_user_id && gift.taken_user_id !== userCookieId && (
+                                <span className="text-red-500">Ce cadeau est déjà pris</span>
+                            )}
+
+                            {!userCanAddGift && !gift.taken_user_id && gift.taken_user_id !== userCookieId && (
+                                <button onClick={() => onblockUnclockGiftClick(gift)}>Je prends ce cadeau</button>
                             )}
                         </div>
-                    )}
+                    </div>
+                ))}
 
-                    {updatingGiftId === gift.id && (
-                        <div className={`block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
-                            <div className="grid md:flex">
-                                <b className="pr-2">Nom:</b>
-                                <input
-                                    id="newGiftInputId"
-                                    className="bg-transparent"
-                                    value={newGiftName}
-                                    onChange={(e) => setNewGiftName(e.target.value)}
-                                />
-                            </div>
+                {!creatingGift && <button onClick={onCreatingGiftButtonClick}>Ajouter un cadeau</button>}
 
-                            <div className="grid md:flex mt-2">
-                                <b className="pr-2">Description:</b>
-                                <input className="bg-transparent" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
-                            </div>
+                {creatingGift && (
+                    <div className="block pt-3">
+                        <b>Ajouter ce nouveau cadeau:</b>
+                        {error && <p>{error}</p>}
 
-                            <div className="grid md:flex mt-2">
-                                <b className="pr-2">Lien:</b>
-                                <input className="bg-transparent" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
-                            </div>
+                        <div className="flex">
+                            <b className="pr-2">Nom:</b>
+                            <input
+                                id="newGiftInputId"
+                                className="bg-transparent"
+                                value={newGiftName}
+                                onChange={(e) => setNewGiftName(e.target.value)}
+                            />
                         </div>
-                    )}
 
-                    <div className="text-right block md:flex">
-                        {userCanAddGift && (
-                            <>
-                                {updatingGiftId === gift.id && <button onClick={clearAllFields}>Annuler</button>}
-                                {updatingGiftId === gift.id && (
-                                    <button onClick={() => addOrUpdateGift(gift.id)} disabled={newGiftName == null || newGiftName === ''}>
-                                        Valider
-                                    </button>
-                                )}
-                                {updatingGiftId !== gift.id && (
-                                    <>
-                                        <button onClick={() => updatingGift(gift)}>Modifier</button>
-                                        <button onClick={() => removeGift(gift.id)}>Supprimer</button>
-                                    </>
-                                )}
-                            </>
-                        )}
+                        <div className="flex">
+                            <b className="pr-2">Description:</b>
+                            <input className="bg-transparent" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
+                        </div>
 
-                        {!userCanAddGift && gift.taken_user_id === userCookieId && (
-                            <button onClick={() => onblockUnclockGiftClick(gift)}>Je ne prends plus ce cadeau</button>
-                        )}
+                        <div className="flex">
+                            <b className="pr-2">Lien:</b>
+                            <input className="bg-transparent" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
+                        </div>
 
-                        {!userCanAddGift && gift.taken_user_id && gift.taken_user_id !== userCookieId && (
-                            <span className="text-red-500">Ce cadeau est déjà pris</span>
-                        )}
+                        <div className="py-2">
+                            <button onClick={() => addOrUpdateGift()} disabled={newGiftName === ''}>
+                                Add
+                            </button>
 
-                        {!userCanAddGift && !gift.taken_user_id && gift.taken_user_id !== userCookieId && (
-                            <button onClick={() => onblockUnclockGiftClick(gift)}>Je prends ce cadeau</button>
-                        )}
+                            <button
+                                onClick={() => {
+                                    setNewGiftName('');
+                                    setNewDescription('');
+                                    setNewLink('');
+                                    setCreatingGift(false);
+                                    setError('');
+                                }}
+                            >
+                                Cancel
+                            </button>
+                        </div>
                     </div>
-                </div>
-            ))}
-
-            {!creatingGift && <button onClick={onCreatingGiftButtonClick}>Ajouter un cadeau</button>}
-
-            {creatingGift && (
-                <div className="block pt-3">
-                    <b>Ajouter ce nouveau cadeau:</b>
-                    {error && <p>{error}</p>}
-
-                    <div className="flex">
-                        <b className="pr-2">Nom:</b>
-                        <input id="newGiftInputId" className="bg-transparent" value={newGiftName} onChange={(e) => setNewGiftName(e.target.value)} />
-                    </div>
-
-                    <div className="flex">
-                        <b className="pr-2">Description:</b>
-                        <input className="bg-transparent" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
-                    </div>
-
-                    <div className="flex">
-                        <b className="pr-2">Lien:</b>
-                        <input className="bg-transparent" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
-                    </div>
-
-                    <div className="py-2">
-                        <button onClick={() => addOrUpdateGift()} disabled={newGiftName === ''}>
-                            Add
-                        </button>
-
-                        <button
-                            onClick={() => {
-                                setNewGiftName('');
-                                setNewDescription('');
-                                setNewLink('');
-                                setCreatingGift(false);
-                                setError('');
-                            }}
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            )}
+                )}
+            </div>
         </Layout>
     );
 };

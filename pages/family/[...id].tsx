@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Layout } from '../../components/layout';
-import { getFamilyFromId, getFamilyUsersFromFamilyId } from '../../lib/db/dbManager';
+import { addOrUpdateUser, getFamilyFromId, getFamilyUsersFromFamilyId } from '../../lib/db/dbManager';
 import { TFamily, TFamilyUser } from '../../lib/types/family';
 import axios from 'axios';
 import { EHeader } from '../../components/customHeader';
@@ -12,6 +12,7 @@ import { sanitize } from '../../lib/helpers/stringHelper';
 const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TFamilyUser[] }): JSX.Element => {
     const [localUsers, setLocalUsers] = useState<TFamilyUser[]>(familyUsers);
     const [creatingUser, setCreatingUser] = useState<boolean>(false);
+    const [updatingUserId, setUpdatingUserId] = useState<string>('');
     const [newUserName, setNewUserName] = useState<string>('');
     const [addError, setAddError] = useState<string>('');
 
@@ -32,39 +33,46 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TF
         }
     };
 
-    const addUser = async (): Promise<void> => {
-        const newUsers: TFamilyUser[] = localUsers;
+    const addOrUpdateUser = async (userId?: string): Promise<void> => {
+        const userToAdd: TFamilyUser = {
+            id: userId ?? '0',
+            name: sanitize(newUserName),
+            family_id: family.id
+        };
 
-        if (newUserName) {
-            const userToAdd: TFamilyUser = {
-                id: '0',
-                name: sanitize(newUserName),
-                family_id: family.id
-            };
+        const result = await axios.post('/api/user/addOrUpdateUser', {
+            familyUser: userToAdd
+        });
+        const data = result.data as TAddUserResult;
 
-            const result = await axios.post('/api/user/addOrUpdateUser', {
-                familyUser: userToAdd
-            });
-            const data = result.data as TAddUserResult;
+        if (data.success === true) {
+            let newUsers: TFamilyUser[] = localUsers;
+            userToAdd.id = userId ?? data.userId;
 
-            if (data.success === true && data.userId) {
-                newUsers.push({
-                    id: data.userId,
-                    name: sanitize(newUserName),
-                    family_id: family.id
-                });
-
-                setLocalUsers(newUsers);
-                setCreatingUser(false);
-                setNewUserName('');
+            if (userId) {
+                const tmpUsers: TFamilyUser[] = [];
+                for (const user of newUsers) {
+                    if (user.id === userId) {
+                        tmpUsers.push(userToAdd);
+                    } else {
+                        tmpUsers.push(user);
+                    }
+                }
+                newUsers = tmpUsers;
             } else {
-                window.alert(data.error);
+                newUsers.push(userToAdd);
             }
 
-            setAddError('');
+            setLocalUsers(newUsers);
+            clearAllFields();
         } else {
-            setAddError('Il me faut un nom !');
+            window.alert(data.error);
         }
+    };
+
+    const updatingUser = (user: TFamilyUser): void => {
+        setUpdatingUserId(user.id);
+        setNewUserName(user.name);
     };
 
     const onCreatingUserButtonClick = (): void => {
@@ -75,56 +83,91 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TF
         }, 0);
     };
 
+    const clearAllFields = (): void => {
+        setCreatingUser(false);
+        setNewUserName('');
+        setUpdatingUserId('');
+        setAddError('');
+    };
+
     return (
         <Layout selectedHeader={EHeader.Family}>
-            <h1 className="pb-5">{`Voici la famille: ${family.name}`}</h1>
+            <div className="mb-10">
+                <h1 className="pb-5">{`Voici la famille: ${family.name}`}</h1>
 
-            {localUsers.map((user) => (
-                <div className="item flex justify-between items-center" key={`family_${user.id}`}>
-                    <span className="w-full">
-                        <b className="pr-2">Nom:</b>
-                        <span>{user.name}</span>
-                    </span>
+                {localUsers.map((user) => (
+                    <div className="item flex justify-between items-center" key={`family_${user.id}`}>
+                        <span className="w-full md:w-auto">
+                            <b className="pr-2">Nom:</b>
 
-                    <div className="block md:flex items-center text-center">
-                        <a href={`/giftList/${user.id}`}>List de cadeaux</a>
+                            {updatingUserId === user.id && <input value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />}
+                            {updatingUserId !== user.id && <span>{user.name}</span>}
+                        </span>
 
-                        <div className="flex">
-                            <button className="mt-3 md:mt-0">Modifier</button>
+                        <div className="block md:flex items-center text-center">
+                            {updatingUserId !== user.id && (
+                                <>
+                                    <a href={`/giftList/${user.id}`}>Liste de cadeaux</a>
 
-                            <button className="mt-3 md:mt-0" onClick={() => removeUser(user.id)}>
-                                Supprimer
+                                    <div className="flex">
+                                        <button className="mt-3 md:mt-0" onClick={() => updatingUser(user)}>
+                                            Modifier
+                                        </button>
+
+                                        <button className="mt-3 md:mt-0" onClick={() => removeUser(user.id)}>
+                                            Supprimer
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+
+                            {updatingUserId === user.id && (
+                                <>
+                                    <div className="flex">
+                                        <button
+                                            className="mt-3 md:mt-0"
+                                            onClick={() => addOrUpdateUser(user.id)}
+                                            disabled={newUserName == null || newUserName === ''}
+                                        >
+                                            Valider
+                                        </button>
+
+                                        <button className="mt-3 md:mt-0" onClick={clearAllFields}>
+                                            Annuler
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                ))}
+
+                {!creatingUser && <button onClick={onCreatingUserButtonClick}>Ajouter un utilisateur</button>}
+
+                {creatingUser && (
+                    <div className="pb-5 pl-3">
+                        {addError && <div className="text-red-500 font-bold">{addError}</div>}
+
+                        <b className="mr-2">Nom:</b>
+                        <input id="newUserInputId" className="bg-transparent" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
+
+                        <div className="mt-2">
+                            <button onClick={() => addOrUpdateUser()} disabled={newUserName === ''}>
+                                Ajouter
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    setNewUserName('');
+                                    setCreatingUser(false);
+                                }}
+                            >
+                                Annuler
                             </button>
                         </div>
                     </div>
-                </div>
-            ))}
-
-            {!creatingUser && <button onClick={onCreatingUserButtonClick}>Ajouter un utilisateur</button>}
-
-            {creatingUser && (
-                <div className="pb-5 pl-3">
-                    {addError && <div className="text-red-500 font-bold">{addError}</div>}
-
-                    <b className="mr-2">Nom:</b>
-                    <input id="newUserInputId" className="bg-transparent" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
-
-                    <div className="mt-2">
-                        <button onClick={addUser} disabled={newUserName === ''}>
-                            Ajouter
-                        </button>
-
-                        <button
-                            onClick={() => {
-                                setNewUserName('');
-                                setCreatingUser(false);
-                            }}
-                        >
-                            Annuler
-                        </button>
-                    </div>
-                </div>
-            )}
+                )}
+            </div>
         </Layout>
     );
 };
