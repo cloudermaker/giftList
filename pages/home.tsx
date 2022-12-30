@@ -15,8 +15,10 @@ export const Home = (): JSX.Element => {
                 <FontAwesomeIcon className="pl-1" icon={faWandMagicSparkles} />
             </span>
 
-            <div className="p-10 text-center text-7xl text-orange-700 mt-[10vh]">
-                <CountDown />
+            <div className="p-10 text-center text-3xl md:text-7xl text-orange-700 mt-[6vh]">
+                <div className="bg-shadow">
+                    <CountDown />
+                </div>
             </div>
         </Layout>
     );

@@ -17,7 +17,7 @@ export default function CountDown() {
             setCurrentMillisecond(59 - currentDate.getSeconds());
             setCurrentMin(59 - currentDate.getMinutes());
             setCurrentHours(23 - currentDate.getHours());
-            setCurrentDay(24 - currentDate.getDate() - 1);
+            setCurrentDay(24 - currentDate.getDate());
             setCurrentMonth(11 - currentDate.getMonth());
         }, 300);
 
@@ -29,6 +29,10 @@ export default function CountDown() {
     const toStr = (i: number): string => {
         return i < 10 ? `0${i}` : `${i}`;
     };
+
+    if (currentDay < 0 || currentMonth < 0 || currentMin < 0 || currentMillisecond < 0) {
+        return <b className="text-red-500">L&apos;évènement est terminé &#128532;</b>;
+    }
 
     return (
         <>

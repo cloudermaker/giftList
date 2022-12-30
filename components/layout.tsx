@@ -61,19 +61,21 @@ export const Layout = ({
 
     return (
         <div className="bg-noel bg-cover">
-            <div className="px-10 pb-10 min-h-body">
+            <div className="body-padding min-h-body">
                 <div className="pt-5 pb-3 flex justify-between">
-                    <div className="text-xs">
+                    <div className="text-xs md:flex bg-shadow">
                         {connectedUserName && connectedFamilyName && (
                             <>
-                                Connecté en tant que
-                                <b className="pl-1 text-vertNoel">{connectedUserName}</b>, dans la famille
+                                <span className="hidden md:block">Connecté en tant que</span>
+                                <b className="pl-1 text-vertNoel">{connectedUserName}</b>
+                                <span className="hidden md:block">, dans la famille</span>
+                                <br />
                                 <b className="pl-1 text-vertNoel">{connectedFamilyName}</b>
                             </>
                         )}
                     </div>
 
-                    <span className="text-xs">
+                    <span className="text-xs self-center">
                         <CountDown />
                     </span>
                 </div>

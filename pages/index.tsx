@@ -49,11 +49,10 @@ export default function Index(): JSX.Element {
 
     const onValidateButtonClick = async (): Promise<void> => {
         if (!groupName) {
-            setError('Group name is mandatory.');
+            setError('Il faut rentrer une famille.');
         } else if (!name) {
-            setError('Name is mandatory');
+            setError('Il faut rentrer un nom.');
         } else {
-            console.log(groupName, name);
             const res = await axios.post('api/getOrCreateGroupAndUser', {
                 groupName,
                 userName: name,
@@ -88,14 +87,14 @@ export default function Index(): JSX.Element {
 
             {!creatingGroup && !joiningGroup && (
                 <div className="block text-center">
-                    <h3 className="p-5 font-bold">Que souhaites-tu faire ?</h3>
+                    <h3 className="p-5 font-bold bg-shadow">Que souhaites-tu faire ?</h3>
 
                     <div className="block m-3">
                         <button className="p-3 mx-3" onClick={onCreatingButtonClick}>
                             Créer ma famille
                         </button>
 
-                        <button className="p-3 mx-3" onClick={onJoiningButtonClick}>
+                        <button className="p-3 mx-3 mt-3" onClick={onJoiningButtonClick}>
                             Rejoindre ma famille
                         </button>
                     </div>
@@ -104,14 +103,14 @@ export default function Index(): JSX.Element {
 
             {(creatingGroup || joiningGroup) && (
                 <div className="block text-center">
-                    <div className="block p-5">
-                        {error && <span className="text-red-500">{`Error: ${error}`}</span>}
+                    <div className="block m-3 p-2 bg-shadow">
+                        {error && <b className="text-red-500">{`Erreur: ${error}`}</b>}
 
                         {creatingGroup && <p className="font-bold mb-2">Pour créer ta famille:</p>}
                         {!creatingGroup && <p className="font-bold mb-2">Pour rejoindre une famille:</p>}
 
-                        <div className="block">
-                            <span>Entre le nom de ta famille:</span>
+                        <div className="block pt-2">
+                            <span className="pr-2">Entre le nom de ta famille:</span>
 
                             <input
                                 id="groupNameInputId"
@@ -121,8 +120,8 @@ export default function Index(): JSX.Element {
                             />
                         </div>
 
-                        <div className="block">
-                            <span>Entre ton nom:</span>
+                        <div className="block pt-2">
+                            <span className="pr-2">Entre ton nom:</span>
 
                             <CustomInput id="nameInputId" className="bg-transparent" onChange={setName} value={name} onKeyDown={onInputPressKey} />
                         </div>

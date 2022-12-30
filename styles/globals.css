@@ -9,6 +9,10 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
+.body-padding {
+    padding: 0.125rem 2.5rem;
+}
+
 div {
     display: block;
 }
@@ -60,6 +64,13 @@ button:disabled {
     margin-bottom: 20px;
     align-items: center;
     font-size: x-large;
+}
+
+.bg-shadow {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    width: auto;
+    display: inline-block;
 }
 
 .footer {
@@ -151,6 +162,26 @@ input:focus {
 }
 /* END OF SPINNER */
 
-@media (prefers-color-scheme: dark) {
+@media screen and (max-width: 640px) {
+    .body-padding {
+        padding: 0rem 1rem;
+    }
 
+    button {
+        padding: 5px 5px;
+        margin: 5px 5px;
+    }
+
+    .bg-shadow {
+        background-color: rgba(255, 255, 255, 0.5);
+        border-radius: 10px;
+        width: auto;
+        display: block;
+    }
+
+    .header {
+        padding: 5px;
+        font-size: larger;
+        text-align: center;
+    }
 }

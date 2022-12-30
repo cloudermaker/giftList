@@ -81,14 +81,21 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TF
 
             {localUsers.map((user) => (
                 <div className="item flex justify-between items-center" key={`family_${user.id}`}>
-                    <span>
+                    <span className="w-full">
                         <b className="pr-2">Nom:</b>
-                        {user.name}
+                        <span>{user.name}</span>
                     </span>
 
-                    <div>
-                        <a href={`/giftList/${user.id}`}>Liste de cadeaux</a>
-                        <button onClick={() => removeUser(user.id)}>Supprimer cet utilisateur</button>
+                    <div className="block md:flex items-center text-center">
+                        <a href={`/giftList/${user.id}`}>List de cadeaux</a>
+
+                        <div className="flex">
+                            <button className="mt-3 md:mt-0">Modifier</button>
+
+                            <button className="mt-3 md:mt-0" onClick={() => removeUser(user.id)}>
+                                Supprimer
+                            </button>
+                        </div>
                     </div>
                 </div>
             ))}
@@ -99,21 +106,23 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TF
                 <div className="pb-5 pl-3">
                     {addError && <div className="text-red-500 font-bold">{addError}</div>}
 
-                    <b>Nom:</b>
+                    <b className="mr-2">Nom:</b>
                     <input id="newUserInputId" className="bg-transparent" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
 
-                    <button onClick={addUser} disabled={newUserName === ''}>
-                        Ajouter
-                    </button>
+                    <div className="mt-2">
+                        <button onClick={addUser} disabled={newUserName === ''}>
+                            Ajouter
+                        </button>
 
-                    <button
-                        onClick={() => {
-                            setNewUserName('');
-                            setCreatingUser(false);
-                        }}
-                    >
-                        Annuler
-                    </button>
+                        <button
+                            onClick={() => {
+                                setNewUserName('');
+                                setCreatingUser(false);
+                            }}
+                        >
+                            Annuler
+                        </button>
+                    </div>
                 </div>
             )}
         </Layout>
