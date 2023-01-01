@@ -1,3 +1,4 @@
+import { sanitize } from '../helpers/stringHelper';
 import { TFamily, TFamilyUser } from '../types/family';
 import { TUserGift } from '../types/gift';
 const { Client } = require('pg');
@@ -210,9 +211,9 @@ export const addOrUpdateUser = async (user: TFamilyUser): Promise<string | null>
     connection.connect();
 
     const existingQuery = `select * from family_user where id = '${user.id}'`;
-    const insertQuery = `INSERT INTO family_user (name, family_id) VALUES ('${user.name}', ${user.family_id}) RETURNING id`;
+    const insertQuery = `INSERT INTO family_user (name, family_id) VALUES ('${sanitize(user.name)}', ${user.family_id}) RETURNING id`;
     const updateQuery = `UPDATE family_user \
-                        SET name = '${user.name}' \
+                        SET name = '${sanitize(user.name)}' \
                         where id = ${user.id}`;
 
     try {
@@ -283,13 +284,13 @@ export const addOrUpdateGift = async (gift: TUserGift): Promise<string | null> =
 
     const existingGiftQuery = `select * from user_gift where id = '${gift.id}'`;
     const insertQuery = `INSERT INTO user_gift (name, url, description, owner_user_id, taken_user_id)\
-                   VALUES ('${gift.name}', '${gift.url}', '${gift.description}', ${gift.owner_user_id}, ${
+                   VALUES ('${sanitize(gift.name)}', '${gift.url}', '${sanitize(gift.description)}', ${gift.owner_user_id}, ${
         gift.taken_user_id ?? 'NULL'
     }) RETURNING id`;
     const updateQuery = `UPDATE user_gift \
-                        SET name = '${gift.name}', \
+                        SET name = '${sanitize(gift.name)}', \
                         url = '${gift.url}', \
-                        description = '${gift.description}', \
+                        description = '${sanitize(gift.description)}', \
                         taken_user_id = ${gift.taken_user_id ?? 'NULL'} \
                         where id = ${gift.id}`;
     try {
