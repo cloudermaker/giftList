@@ -26,7 +26,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 error: ''
             });
         } else {
-            res.status(404).json({ success: false, error: 'This user or family does not exist.' });
+            res.status(404).json({
+                success: false,
+                error: 'Famille ou nom inconnu.'
+            });
         }
     } catch (e) {
         res.status(500).json({ success: false, error: e as string });
