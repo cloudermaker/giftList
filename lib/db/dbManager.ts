@@ -177,13 +177,13 @@ export const getUserFromId = async (userId: string): Promise<TFamilyUser> => {
     return user;
 };
 
-export const getUserFromName = async (userName: string): Promise<TFamilyUser | null> => {
+export const getUserFromName = async (userName: string, familyId: string): Promise<TFamilyUser | null> => {
     const connection = getDbConnection();
 
     connection.connect();
 
     let user: TFamilyUser | null = null;
-    const query = `select * from family_user where name = '${userName}'`;
+    const query = `select * from family_user where name = '${userName}' and family_id = '${familyId}'`;
 
     try {
         const res = await connection.query(query, []);

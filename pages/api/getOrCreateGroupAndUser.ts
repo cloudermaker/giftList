@@ -17,10 +17,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
     try {
         const group = await getFamilyFromName(groupName);
-        const user = await getUserFromName(userName);
+        const user = await getUserFromName(userName, group?.id ?? '-1');
 
         if (isCreating && group != null) {
-            res.status(201).json({ success: false, error: 'this family already exists.' });
+            res.status(200).json({ success: false, error: 'Ce nom de famille existe déjà.' });
         } else if (isCreating) {
             const familyId = (await addOrUpdateFamily({
                 id: '0',
@@ -38,11 +38,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 groupUser: { groupId: familyId, userId }
             });
         } else if (!isCreating && group == null) {
-            res.status(203).json({ success: false, error: 'this family does not exist.' });
+            res.status(200).json({ success: false, error: "Ce nom de famille n'existe pas." });
         } else if (!isCreating && user == null) {
-            res.status(204).json({
+            res.status(200).json({
                 success: false,
-                error: 'this user does not exist: ask the family to add you inside.'
+                error: "Ce prénom n'existe pas, demande à un membre de la famille de te rajouter dedans."
             });
         } else if (!isCreating) {
             res.status(200).json({
