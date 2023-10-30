@@ -1,8 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 
-const currentYear = new Date().getFullYear();
-
 export default function CountDown() {
     const [currentMillisecond, setCurrentMillisecond] = useState<number>(0);
     const [currentMin, setCurrentMin] = useState<number>(0);
@@ -13,12 +11,14 @@ export default function CountDown() {
     useEffect(() => {
         let sampleInterval = setInterval(() => {
             const currentDate = new Date();
+            const targetDate = new Date(currentDate.getFullYear(), 11, 24, 23);
+            const diffDate = new Date((targetDate as any) - (currentDate as any));
 
-            setCurrentMillisecond(59 - currentDate.getSeconds());
-            setCurrentMin(59 - currentDate.getMinutes());
-            setCurrentHours(23 - currentDate.getHours());
-            setCurrentDay(24 - currentDate.getDate());
-            setCurrentMonth(11 - currentDate.getMonth());
+            setCurrentMillisecond(diffDate.getSeconds());
+            setCurrentMin(diffDate.getMinutes());
+            setCurrentHours(diffDate.getHours());
+            setCurrentDay(diffDate.getDate());
+            setCurrentMonth(diffDate.getMonth());
         }, 300);
 
         return () => {
@@ -30,7 +30,7 @@ export default function CountDown() {
         return i < 10 ? `0${i}` : `${i}`;
     };
 
-    if (currentDay < 0 || currentMonth < 0 || currentMin < 0 || currentMillisecond < 0) {
+    if (currentDay < 0) {
         return <b className="text-red-500">L&apos;évènement est terminé &#128532;</b>;
     }
 
