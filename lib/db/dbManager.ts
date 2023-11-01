@@ -183,7 +183,7 @@ export const getUserFromName = async (userName: string, familyId: string): Promi
     connection.connect();
 
     let user: TFamilyUser | null = null;
-    const query = `select * from family_user where name = '${userName}' and family_id = '${familyId}'`;
+    const query = `select * from family_user where name = '${userName.trim()}' and family_id = '${familyId}'`;
 
     try {
         const res = await connection.query(query, []);
@@ -191,7 +191,7 @@ export const getUserFromName = async (userName: string, familyId: string): Promi
         if (res.rows.length === 1) {
             user = res.rows[0] as TFamilyUser;
         } else if (res.rows.length > 1) {
-            throw new Error(`There are more than one family with name: ${userName}`);
+            throw new Error(`There are more than one family with name: ${userName.trim()}`);
         }
     } catch (error) {
         console.log(error);
@@ -210,9 +210,9 @@ export const addOrUpdateUser = async (user: TFamilyUser): Promise<string | null>
     connection.connect();
 
     const existingQuery = `select * from family_user where id = '${user.id}'`;
-    const insertQuery = `INSERT INTO family_user (name, family_id) VALUES ('${user.name}', ${user.family_id}) RETURNING id`;
+    const insertQuery = `INSERT INTO family_user (name, family_id) VALUES ('${user.name.trim()}', ${user.family_id}) RETURNING id`;
     const updateQuery = `UPDATE family_user \
-                        SET name = '${user.name}' \
+                        SET name = '${user.name.trim()}' \
                         where id = ${user.id}`;
 
     try {
@@ -284,8 +284,8 @@ export const addOrUpdateGift = async (gift: TUserGift): Promise<string | null> =
     const existingGiftQuery = `select * from user_gift where id = '${gift.id}'`;
     const insertQuery = `INSERT INTO user_gift (name, url, description, owner_user_id, taken_user_id)\
                    VALUES ('${gift.name}', '${gift.url}', '${gift.description}', ${gift.owner_user_id}, ${
-        gift.taken_user_id ?? 'NULL'
-    }) RETURNING id`;
+                       gift.taken_user_id ?? 'NULL'
+                   }) RETURNING id`;
     const updateQuery = `UPDATE user_gift \
                         SET name = '${gift.name}', \
                         url = '${gift.url}', \

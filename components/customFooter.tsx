@@ -6,7 +6,7 @@ export const CustomFooter = (): JSX.Element => {
             <div className="flex justify-between h-full items-center">
                 <Link href="mailto:haha@gmail.com">Contact us</Link>
 
-                <span>Copyright © {(new Date()).getFullYear()} PLR. All rights reserved.</span>
+                <span>Copyright © {new Date().getFullYear()} PLR. All rights reserved.</span>
             </div>
         </div>
     );

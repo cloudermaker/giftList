@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { GROUP_ID_COOKIE, Layout, USER_ID_COOKIE } from '../components/layout';
 import { TGetOrCreateGroupAndUserResult } from './api/getOrCreateGroupAndUser';
 import { CustomInput } from '../components/atoms/customInput';
+import CustomButton from '../components/atoms/customButton';
 
 export default function Index(): JSX.Element {
     const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
@@ -90,13 +91,13 @@ export default function Index(): JSX.Element {
                     <h3 className="p-5 font-bold bg-shadow">Que souhaites-tu faire ?</h3>
 
                     <div className="block m-3">
-                        <button className="p-3 mx-3" onClick={onCreatingButtonClick}>
+                        <CustomButton className="p-3 mx-3" onClick={onCreatingButtonClick}>
                             Créer ma famille
-                        </button>
+                        </CustomButton>
 
-                        <button className="p-3 mx-3 mt-3" onClick={onJoiningButtonClick}>
+                        <CustomButton className="p-3 mx-3 mt-3" onClick={onJoiningButtonClick}>
                             Rejoindre ma famille
-                        </button>
+                        </CustomButton>
                     </div>
                 </div>
             )}
@@ -128,13 +129,13 @@ export default function Index(): JSX.Element {
                     </div>
 
                     <div className="block m-3">
-                        <button className="p-3 mx-3" onClick={onValidateButtonClick}>
+                        <CustomButton className="p-3 mx-3" onClick={onValidateButtonClick}>
                             {"C'est parti!"}
-                        </button>
+                        </CustomButton>
 
-                        <button className="p-3 mx-3" onClick={onCancelButtonClick}>
+                        <CustomButton className="p-3 mx-3" onClick={onCancelButtonClick}>
                             {'En fait, non'}
-                        </button>
+                        </CustomButton>
                     </div>
                 </div>
             )}

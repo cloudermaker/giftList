@@ -7,6 +7,7 @@ import { TAddFamilyResult } from './api/family/addOrUpdateFamily';
 import { EHeader } from '../components/customHeader';
 import { TRemoveFamilyResult } from './api/family/removeFamily';
 import { sanitize } from '../lib/helpers/stringHelper';
+import CustomButton from '../components/atoms/customButton';
 
 const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => {
     const [localFamilies] = useState<TFamily[]>(families);
@@ -70,7 +71,7 @@ const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => 
 
                         <div>
                             <a href={`/family/${family.id}`}>See</a>
-                            <button onClick={() => removeFamily(family.id)}>Remove</button>
+                            <CustomButton onClick={() => removeFamily(family.id)}>Remove</CustomButton>
                         </div>
                     </div>
 
@@ -78,23 +79,23 @@ const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => 
                 </div>
             ))}
 
-            {!creatingFamily && <button onClick={onCreatingFamilyButtonClick}>Add new family</button>}
+            {!creatingFamily && <CustomButton onClick={onCreatingFamilyButtonClick}>Add new family</CustomButton>}
 
             {creatingFamily && (
                 <div>
                     <span>Add new family:</span>
                     <input id="newFamilyInputId" value={newFamilyName} onChange={(e) => setNewFamilyName(e.target.value)} />
 
-                    <button onClick={addOrUpdateFamily}>Add</button>
+                    <CustomButton onClick={addOrUpdateFamily}>Add</CustomButton>
 
-                    <button
+                    <CustomButton
                         onClick={() => {
                             setNewFamilyName('');
                             setCreatingFamily(false);
                         }}
                     >
                         Cancel
-                    </button>
+                    </CustomButton>
                 </div>
             )}
         </Layout>

@@ -8,6 +8,7 @@ import { TRemoveUserResult } from '../api/user/removeUser';
 import { NextPageContext } from 'next';
 import { TAddUserResult } from '../api/user/addOrUpdateUser';
 import { sanitize } from '../../lib/helpers/stringHelper';
+import CustomButton from '../../components/atoms/customButton';
 
 const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TFamilyUser[] }): JSX.Element => {
     const [localUsers, setLocalUsers] = useState<TFamilyUser[]>(familyUsers);
@@ -110,13 +111,13 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TF
                                     <a href={`/giftList/${user.id}`}>Liste de cadeaux</a>
 
                                     <div className="flex">
-                                        <button className="mt-3 md:mt-0" onClick={() => updatingUser(user)}>
+                                        <CustomButton className="mt-3 md:mt-0" onClick={() => updatingUser(user)}>
                                             Modifier
-                                        </button>
+                                        </CustomButton>
 
-                                        <button className="mt-3 md:mt-0" onClick={() => removeUser(user.id)}>
+                                        <CustomButton className="mt-3 md:mt-0" onClick={() => removeUser(user.id)}>
                                             Supprimer
-                                        </button>
+                                        </CustomButton>
                                     </div>
                                 </>
                             )}
@@ -124,17 +125,17 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TF
                             {updatingUserId === user.id && (
                                 <>
                                     <div className="flex">
-                                        <button
+                                        <CustomButton
                                             className="mt-3 md:mt-0"
                                             onClick={() => addOrUpdateUser(user.id)}
                                             disabled={newUserName == null || newUserName === ''}
                                         >
                                             Valider
-                                        </button>
+                                        </CustomButton>
 
-                                        <button className="mt-3 md:mt-0" onClick={clearAllFields}>
+                                        <CustomButton className="mt-3 md:mt-0" onClick={clearAllFields}>
                                             Annuler
-                                        </button>
+                                        </CustomButton>
                                     </div>
                                 </>
                             )}
@@ -142,7 +143,7 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TF
                     </div>
                 ))}
 
-                {!creatingUser && <button onClick={onCreatingUserButtonClick}>Ajouter un utilisateur</button>}
+                {!creatingUser && <CustomButton onClick={onCreatingUserButtonClick}>Ajouter un utilisateur</CustomButton>}
 
                 {creatingUser && (
                     <div className="pb-5 pl-3">
@@ -152,18 +153,18 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TF
                         <input id="newUserInputId" className="bg-transparent" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
 
                         <div className="mt-2">
-                            <button onClick={() => addOrUpdateUser()} disabled={newUserName === ''}>
+                            <CustomButton onClick={() => addOrUpdateUser()} disabled={newUserName === ''}>
                                 Ajouter
-                            </button>
+                            </CustomButton>
 
-                            <button
+                            <CustomButton
                                 onClick={() => {
                                     setNewUserName('');
                                     setCreatingUser(false);
                                 }}
                             >
                                 Annuler
-                            </button>
+                            </CustomButton>
                         </div>
                     </div>
                 )}

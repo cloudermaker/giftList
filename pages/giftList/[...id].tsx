@@ -11,6 +11,7 @@ import { TAddOrUpdateGiftResult } from '../api/gift/addOrUpdateGift';
 import Cookies from 'js-cookie';
 import { sanitize } from '../../lib/helpers/stringHelper';
 import { clone } from 'lodash';
+import CustomButton from '../../components/atoms/customButton';
 
 const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGift[] }): JSX.Element => {
     const [userCookieId, setUserCookieId] = useState<string>('');
@@ -196,23 +197,23 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
                         <div className="text-right block md:flex">
                             {userCanAddGift && (
                                 <>
-                                    {updatingGiftId === gift.id && <button onClick={clearAllFields}>Annuler</button>}
+                                    {updatingGiftId === gift.id && <CustomButton onClick={clearAllFields}>Annuler</CustomButton>}
                                     {updatingGiftId === gift.id && (
-                                        <button onClick={() => addOrUpdateGift(gift.id)} disabled={newGiftName == null || newGiftName === ''}>
+                                        <CustomButton onClick={() => addOrUpdateGift(gift.id)} disabled={newGiftName == null || newGiftName === ''}>
                                             Valider
-                                        </button>
+                                        </CustomButton>
                                     )}
                                     {updatingGiftId !== gift.id && (
                                         <>
-                                            <button onClick={() => updatingGift(gift)}>Modifier</button>
-                                            <button onClick={() => removeGift(gift.id)}>Supprimer</button>
+                                            <CustomButton onClick={() => updatingGift(gift)}>Modifier</CustomButton>
+                                            <CustomButton onClick={() => removeGift(gift.id)}>Supprimer</CustomButton>
                                         </>
                                     )}
                                 </>
                             )}
 
                             {!userCanAddGift && gift.taken_user_id === userCookieId && (
-                                <button onClick={() => onblockUnclockGiftClick(gift)}>Je ne prends plus ce cadeau</button>
+                                <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>Je ne prends plus ce cadeau</CustomButton>
                             )}
 
                             {!userCanAddGift && gift.taken_user_id && gift.taken_user_id !== userCookieId && (
@@ -220,13 +221,13 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
                             )}
 
                             {!userCanAddGift && !gift.taken_user_id && gift.taken_user_id !== userCookieId && (
-                                <button onClick={() => onblockUnclockGiftClick(gift)}>Je prends ce cadeau</button>
+                                <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>Je prends ce cadeau</CustomButton>
                             )}
                         </div>
                     </div>
                 ))}
 
-                {!creatingGift && <button onClick={onCreatingGiftButtonClick}>Ajouter un cadeau</button>}
+                {!creatingGift && <CustomButton onClick={onCreatingGiftButtonClick}>Ajouter un cadeau</CustomButton>}
 
                 {creatingGift && (
                     <div className="block pt-3">
@@ -254,11 +255,11 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
                         </div>
 
                         <div className="py-2">
-                            <button onClick={() => addOrUpdateGift()} disabled={newGiftName === ''}>
+                            <CustomButton onClick={() => addOrUpdateGift()} disabled={newGiftName === ''}>
                                 Add
-                            </button>
+                            </CustomButton>
 
-                            <button
+                            <CustomButton
                                 onClick={() => {
                                     setNewGiftName('');
                                     setNewDescription('');
@@ -268,7 +269,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
                                 }}
                             >
                                 Cancel
-                            </button>
+                            </CustomButton>
                         </div>
                     </div>
                 )}
