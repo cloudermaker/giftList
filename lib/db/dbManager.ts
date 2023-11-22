@@ -59,7 +59,7 @@ export const getFamilyFromName = async (familyName: string): Promise<TFamily | n
     connection.connect();
 
     let family: TFamily | null = null;
-    const query = `select * from family where name = '${familyName}'`;
+    const query = `select * from family where trim(lower(name)) = '${familyName.trim().toLowerCase()}'`;
 
     try {
         const res = await connection.query(query, []);
@@ -107,9 +107,9 @@ export const addOrUpdateFamily = async (family: TFamily): Promise<string | null>
     connection.connect();
 
     const existingQuery = `select * from family where id = '${family.id}'`;
-    const insertQuery = `INSERT INTO family (name) VALUES ('${family.name}') RETURNING id`;
+    const insertQuery = `INSERT INTO family (name) VALUES ('${family.name.trim()}') RETURNING id`;
     const updateQuery = `UPDATE family \
-                        SET name = '${family.name}' \
+                        SET name = '${family.name.trim()}' \
                         where id = ${family.id}`;
 
     try {
@@ -183,7 +183,7 @@ export const getUserFromName = async (userName: string, familyId: string): Promi
     connection.connect();
 
     let user: TFamilyUser | null = null;
-    const query = `select * from family_user where name = '${userName.trim()}' and family_id = '${familyId}'`;
+    const query = `select * from family_user where trim(lower(name)) = '${userName.trim().toLowerCase()}' and family_id = '${familyId}'`;
 
     try {
         const res = await connection.query(query, []);

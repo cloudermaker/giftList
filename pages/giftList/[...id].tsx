@@ -144,7 +144,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
             <div className="mb-10">
                 <h1>{`Voici la liste de cadeaux pour ${user.name}:`}</h1>
 
-                {localGifts.map((gift) => (
+                {localGifts.map((gift, idx) => (
                     <div className="item flex justify-between items-center" key={`gift_${gift.id}`}>
                         {updatingGiftId !== gift.id && (
                             <div className={`w-full block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
