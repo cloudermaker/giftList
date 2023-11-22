@@ -12,6 +12,7 @@ import Cookies from 'js-cookie';
 import { sanitize } from '../../lib/helpers/stringHelper';
 import { clone } from 'lodash';
 import CustomButton from '../../components/atoms/customButton';
+import { Medal } from '../../components/icons/medal';
 
 const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGift[] }): JSX.Element => {
     const [userCookieId, setUserCookieId] = useState<string>('');
@@ -139,6 +140,14 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
         return gift.owner_user_id !== userCookieId && gift.taken_user_id != null;
     };
 
+    const buildIdx = (idx: number): JSX.Element => {
+        if (idx <= 3) {
+            const color = idx === 1 ? 'orange' : idx === 2 ? 'silver' : 'brown';
+            return <Medal className="pr-3 h-7" color={color} />;
+        }
+        return <></>;
+    };
+
     return (
         <Layout selectedHeader={EHeader.GiftList}>
             <div className="mb-10">
@@ -146,6 +155,8 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
 
                 {localGifts.map((gift, idx) => (
                     <div className="item flex justify-between items-center" key={`gift_${gift.id}`}>
+                        {buildIdx(idx + 1)}
+
                         {updatingGiftId !== gift.id && (
                             <div className={`w-full block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
                                 <p>
