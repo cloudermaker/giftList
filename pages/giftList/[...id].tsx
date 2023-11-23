@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Layout, USER_ID_COOKIE } from '../../components/layout';
 import { getUserFromId, getUserGiftsFromUserId } from '../../lib/db/dbManager';
 import { TFamilyUser } from '../../lib/types/family';
@@ -13,6 +13,33 @@ import { sanitize } from '../../lib/helpers/stringHelper';
 import { clone } from 'lodash';
 import CustomButton from '../../components/atoms/customButton';
 import { Medal } from '../../components/icons/medal';
+import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { Drag } from '../../components/icons/drag';
+
+function SortableItem({ gift, children, idx }: { gift: TUserGift; children: ReactNode; idx: number }) {
+    const { attributes, listeners, setNodeRef, transform } = useSortable({
+        id: gift.id
+    });
+
+    const style = {
+        transform: CSS.Transform.toString(transform)
+    };
+    const color = idx === 1 ? 'orange' : idx === 2 ? 'silver' : 'brown';
+
+    return (
+        <>
+            <div className="item flex items-center" ref={setNodeRef} style={style}>
+                <div {...attributes} {...listeners}>
+                    {idx <= 3 ? <Medal className="pr-3 w-9" color={color} /> : <Drag className="pr-3 w-9" />}
+                </div>
+
+                {children}
+            </div>
+        </>
+    );
+}
 
 const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGift[] }): JSX.Element => {
     const [userCookieId, setUserCookieId] = useState<string>('');
@@ -140,103 +167,129 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
         return gift.owner_user_id !== userCookieId && gift.taken_user_id != null;
     };
 
-    const buildIdx = (idx: number): JSX.Element => {
-        if (idx <= 3) {
-            const color = idx === 1 ? 'orange' : idx === 2 ? 'silver' : 'brown';
-            return <Medal className="pr-3 h-7" color={color} />;
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates
+        })
+    );
+
+    function handleDragEnd(event: { active: any; over: any }) {
+        const { active, over } = event;
+
+        // TODO: fix, id 0 is never draggable ?!
+        if (active.id !== over.id) {
+            setLocalGifts((prevLocalGifts) => {
+                const oldIndex = active.id;
+                const newIndex = over.id;
+
+                const newImages = arrayMove(prevLocalGifts, oldIndex, newIndex);
+
+                return newImages;
+            });
         }
-        return <></>;
-    };
+    }
 
     return (
         <Layout selectedHeader={EHeader.GiftList}>
             <div className="mb-10">
                 <h1>{`Voici la liste de cadeaux pour ${user.name}:`}</h1>
 
-                {localGifts.map((gift, idx) => (
-                    <div className="item flex justify-between items-center" key={`gift_${gift.id}`}>
-                        {buildIdx(idx + 1)}
-
-                        {updatingGiftId !== gift.id && (
-                            <div className={`w-full block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
-                                <p>
-                                    <b className="pr-2">Nom:</b>
-                                    {gift.name}
-                                </p>
-
-                                {gift.description && (
-                                    <p>
-                                        <b className="pr-2">Description:</b>
-                                        {gift.description}
-                                    </p>
-                                )}
-
-                                {gift.url && (
-                                    <div className="flex">
-                                        <span>{'->'}</span>
-                                        <a href={gift.url}>Lien</a>
-                                        <span>{'<-'}</span>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {updatingGiftId === gift.id && (
-                            <div className={`block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
-                                <div className="grid md:flex">
-                                    <b className="pr-2">Nom:</b>
-                                    <input
-                                        id="newGiftInputId"
-                                        className="bg-transparent"
-                                        value={newGiftName}
-                                        onChange={(e) => setNewGiftName(e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="grid md:flex mt-2">
-                                    <b className="pr-2">Description:</b>
-                                    <input className="bg-transparent" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
-                                </div>
-
-                                <div className="grid md:flex mt-2">
-                                    <b className="pr-2">Lien:</b>
-                                    <input className="bg-transparent" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="text-right block md:flex">
-                            {userCanAddGift && (
-                                <>
-                                    {updatingGiftId === gift.id && <CustomButton onClick={clearAllFields}>Annuler</CustomButton>}
-                                    {updatingGiftId === gift.id && (
-                                        <CustomButton onClick={() => addOrUpdateGift(gift.id)} disabled={newGiftName == null || newGiftName === ''}>
-                                            Valider
-                                        </CustomButton>
-                                    )}
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <SortableContext items={localGifts}>
+                        {localGifts.map((gift, idx) => (
+                            <SortableItem key={`gift_${gift.id}`} gift={gift} idx={idx + 1}>
+                                <div className="flex justify-between items-center w-full">
                                     {updatingGiftId !== gift.id && (
-                                        <>
-                                            <CustomButton onClick={() => updatingGift(gift)}>Modifier</CustomButton>
-                                            <CustomButton onClick={() => removeGift(gift.id)}>Supprimer</CustomButton>
-                                        </>
+                                        <div className={`w-full block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
+                                            <p>
+                                                <b className="pr-2">Nom:</b>
+                                                {gift.name}
+                                            </p>
+
+                                            {gift.description && (
+                                                <p>
+                                                    <b className="pr-2">Description:</b>
+                                                    {gift.description}
+                                                </p>
+                                            )}
+
+                                            {gift.url && (
+                                                <div className="flex">
+                                                    <span>{'->'}</span>
+                                                    <a href={gift.url}>Lien</a>
+                                                    <span>{'<-'}</span>
+                                                </div>
+                                            )}
+                                        </div>
                                     )}
-                                </>
-                            )}
 
-                            {!userCanAddGift && gift.taken_user_id === userCookieId && (
-                                <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>Je ne prends plus ce cadeau</CustomButton>
-                            )}
+                                    {updatingGiftId === gift.id && (
+                                        <div className={`block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
+                                            <div className="grid md:flex">
+                                                <b className="pr-2">Nom:</b>
+                                                <input
+                                                    id="newGiftInputId"
+                                                    className="bg-transparent"
+                                                    value={newGiftName}
+                                                    onChange={(e) => setNewGiftName(e.target.value)}
+                                                />
+                                            </div>
 
-                            {!userCanAddGift && gift.taken_user_id && gift.taken_user_id !== userCookieId && (
-                                <span className="text-red-500">Ce cadeau est déjà pris</span>
-                            )}
+                                            <div className="grid md:flex">
+                                                <b className="pr-2">Description:</b>
+                                                <input
+                                                    className="bg-transparent"
+                                                    value={newDescription}
+                                                    onChange={(e) => setNewDescription(e.target.value)}
+                                                />
+                                            </div>
 
-                            {!userCanAddGift && !gift.taken_user_id && gift.taken_user_id !== userCookieId && (
-                                <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>Je prends ce cadeau</CustomButton>
-                            )}
-                        </div>
-                    </div>
-                ))}
+                                            <div className="grid md:flex">
+                                                <b className="pr-2">Lien:</b>
+                                                <input className="bg-transparent" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="text-right block md:flex">
+                                        {userCanAddGift && (
+                                            <>
+                                                {updatingGiftId === gift.id && <CustomButton onClick={clearAllFields}>Annuler</CustomButton>}
+                                                {updatingGiftId === gift.id && (
+                                                    <CustomButton
+                                                        onClick={() => addOrUpdateGift(gift.id)}
+                                                        disabled={newGiftName == null || newGiftName === ''}
+                                                    >
+                                                        Valider
+                                                    </CustomButton>
+                                                )}
+                                                {updatingGiftId !== gift.id && (
+                                                    <>
+                                                        <CustomButton onClick={() => updatingGift(gift)}>Modifier</CustomButton>
+                                                        <CustomButton onClick={() => removeGift(gift.id)}>Supprimer</CustomButton>
+                                                    </>
+                                                )}
+                                            </>
+                                        )}
+
+                                        {!userCanAddGift && gift.taken_user_id === userCookieId && (
+                                            <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>Je ne prends plus ce cadeau</CustomButton>
+                                        )}
+
+                                        {!userCanAddGift && gift.taken_user_id && gift.taken_user_id !== userCookieId && (
+                                            <span className="text-red-500">Ce cadeau est déjà pris</span>
+                                        )}
+
+                                        {!userCanAddGift && !gift.taken_user_id && gift.taken_user_id !== userCookieId && (
+                                            <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>Je prends ce cadeau</CustomButton>
+                                        )}
+                                    </div>
+                                </div>
+                            </SortableItem>
+                        ))}
+                    </SortableContext>
+                </DndContext>
 
                 {!creatingGift && <CustomButton onClick={onCreatingGiftButtonClick}>Ajouter un cadeau</CustomButton>}
 
