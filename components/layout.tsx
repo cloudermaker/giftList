@@ -50,7 +50,7 @@ export const Layout = ({
 
             fetchData(familyId, userId);
         }
-    }, [familyCookieId, userCookieId, withHeader]);
+    }, [withHeader]);
 
     const onDisconnectClick = (): void => {
         Cookies.remove(GROUP_ID_COOKIE);

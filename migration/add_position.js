@@ -1,6 +1,6 @@
 const { Pool } = require('pg');
 
-async function addPositionColumn(client) {    
+async function addPositionColumn(client) {
     const removeColumn = 'ALTER TABLE user_gift drop column position';
     const addColumn = 'ALTER TABLE user_gift ADD position INTEGER';
 
@@ -11,8 +11,8 @@ async function addPositionColumn(client) {
 }
 
 async function initAllPosition(client) {
-    const getAllIndex = "select * from user_gift";
-    
+    const getAllIndex = 'select * from user_gift';
+
     const res1 = await client.query(getAllIndex);
 
     for (let i = 0; i < res1.rows.length; i++) {
@@ -27,8 +27,8 @@ async function initAllPosition(client) {
 }
 
 async function viewAllGifts(client) {
-    const getAllIndex = "select * from user_gift";
-    
+    const getAllIndex = 'select * from user_gift';
+
     const res1 = await client.query(getAllIndex);
 
     console.log('SUCCESS', res1.rows);

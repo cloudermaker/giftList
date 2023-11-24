@@ -14,7 +14,7 @@ import { clone } from 'lodash';
 import CustomButton from '../../components/atoms/customButton';
 import { Medal } from '../../components/icons/medal';
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, arrayMove, arraySwap, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
+import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Drag } from '../../components/icons/drag';
 
