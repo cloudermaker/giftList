@@ -31,7 +31,7 @@ function SortableItem({ gift, children, idx }: { gift: TUserGift; children: Reac
     return (
         <>
             <div className="item flex items-center" ref={setNodeRef} style={style}>
-                <div {...listeners} style={{ cursor: 'grab' }}>
+                <div {...listeners} style={{ cursor: 'grab', touchAction: 'none' }}>
                     {idx <= 3 ? <Medal className="pr-3 w-9" color={color} /> : <Drag className="pr-3 w-9" />}
                 </div>
 
