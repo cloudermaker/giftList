@@ -14,12 +14,12 @@ import { clone } from 'lodash';
 import CustomButton from '../../components/atoms/customButton';
 import { Medal } from '../../components/icons/medal';
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
+import { SortableContext, arrayMove, arraySwap, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Drag } from '../../components/icons/drag';
 
 function SortableItem({ gift, children, idx }: { gift: TUserGift; children: ReactNode; idx: number }) {
-    const { attributes, listeners, setNodeRef, transform } = useSortable({
+    const { listeners, setNodeRef, transform } = useSortable({
         id: gift.id
     });
 
@@ -31,7 +31,7 @@ function SortableItem({ gift, children, idx }: { gift: TUserGift; children: Reac
     return (
         <>
             <div className="item flex items-center" ref={setNodeRef} style={style}>
-                <div {...attributes} {...listeners}>
+                <div {...listeners} style={{ cursor: 'grab' }}>
                     {idx <= 3 ? <Medal className="pr-3 w-9" color={color} /> : <Drag className="pr-3 w-9" />}
                 </div>
 
@@ -97,6 +97,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
             name: sanitize(newGiftName),
             description: sanitize(newDescription),
             url: sanitize(newLink),
+            position: giftList.length + 1,
             owner_user_id: user.id,
             taken_user_id: undefined
         };
@@ -180,10 +181,19 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
         // TODO: fix, id 0 is never draggable ?!
         if (active.id !== over.id) {
             setLocalGifts((prevLocalGifts) => {
-                const oldIndex = active.id;
-                const newIndex = over.id;
+                const oldIndex = prevLocalGifts.findIndex((gift) => gift.id === active.id);
+                const newIndex = prevLocalGifts.findIndex((gift) => gift.id === over.id);
 
                 const newImages = arrayMove(prevLocalGifts, oldIndex, newIndex);
+
+                // Update position of all gifts
+                for (let i = 0; i < newImages.length; i++) {
+                    newImages[i].position = i + 1;
+                }
+
+                axios.post('/api/gift/updateAllPositionGift', {
+                    newGifts: newImages
+                });
 
                 return newImages;
             });

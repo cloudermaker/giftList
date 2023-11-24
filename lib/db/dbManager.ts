@@ -261,7 +261,7 @@ export const getUserGiftsFromUserId = async (userId: string): Promise<TUserGift[
 
     connection.connect();
 
-    const selectQuery = `select * from user_gift where owner_user_id = ${userId}`;
+    const selectQuery = `select * from user_gift where owner_user_id = ${userId} order by position`;
 
     try {
         const res = await connection.query(selectQuery, []);
@@ -282,14 +282,15 @@ export const addOrUpdateGift = async (gift: TUserGift): Promise<string | null> =
     connection.connect();
 
     const existingGiftQuery = `select * from user_gift where id = '${gift.id}'`;
-    const insertQuery = `INSERT INTO user_gift (name, url, description, owner_user_id, taken_user_id)\
-                   VALUES ('${gift.name}', '${gift.url}', '${gift.description}', ${gift.owner_user_id}, ${
-                       gift.taken_user_id ?? 'NULL'
+    const insertQuery = `INSERT INTO user_gift (name, url, description, owner_user_id, taken_user_id, position)\
+                   VALUES ('${gift.name}', '${gift.url}', '${gift.description}', ${gift.owner_user_id}, ${gift.taken_user_id ?? 'NULL'}, ${
+                       gift.position
                    }) RETURNING id`;
     const updateQuery = `UPDATE user_gift \
                         SET name = '${gift.name}', \
                         url = '${gift.url}', \
                         description = '${gift.description}', \
+                        position = '${gift.position}', \
                         taken_user_id = ${gift.taken_user_id ?? 'NULL'} \
                         where id = ${gift.id}`;
     try {
@@ -303,6 +304,28 @@ export const addOrUpdateGift = async (gift: TUserGift): Promise<string | null> =
             const resGift = await connection.query(insertQuery, []);
 
             giftId = resGift.rows[0].id;
+        }
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+
+    connection.end();
+
+    return giftId;
+};
+
+export const updateAllPositionGift = async (gifts: TUserGift[]): Promise<string | null> => {
+    let giftId: string | null = null;
+    const connection = getDbConnection();
+
+    connection.connect();
+
+    try {
+        for (let gift of gifts) {
+            const updateQuery = `UPDATE user_gift SET position = ${gift.position} where id = ${gift.id}`;
+
+            await connection.query(updateQuery);
         }
     } catch (error) {
         console.log(error);
