@@ -18,7 +18,7 @@ import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable } 
 import { CSS } from '@dnd-kit/utilities';
 import { Drag } from '../../components/icons/drag';
 
-function SortableItem({ gift, children, idx }: { gift: TUserGift; children: ReactNode; idx: number }) {
+function SortableItem({ gift, children, idx, canReorder }: { gift: TUserGift; children: ReactNode; idx: number; canReorder: boolean }) {
     const { listeners, setNodeRef, transform } = useSortable({
         id: gift.id
     });
@@ -27,12 +27,24 @@ function SortableItem({ gift, children, idx }: { gift: TUserGift; children: Reac
         transform: CSS.Transform.toString(transform)
     };
     const color = idx === 1 ? 'orange' : idx === 2 ? 'silver' : 'brown';
+    const localListeners = canReorder ? listeners : null;
+    const localStyle = canReorder ? { cursor: 'grab', touchAction: 'none' } : {};
+
+    const LeftIcon = (): JSX.Element => {
+        if (idx <= 3) {
+            return <Medal className="pr-3 w-9" color={color} />;
+        } else if (canReorder) {
+            return <Drag className="pr-3 w-9" />;
+        }
+
+        return <div className="pr-3 w-9"></div>;
+    };
 
     return (
         <>
             <div className="item flex items-center" ref={setNodeRef} style={style}>
-                <div {...listeners} style={{ cursor: 'grab', touchAction: 'none' }}>
-                    {idx <= 3 ? <Medal className="pr-3 w-9" color={color} /> : <Drag className="pr-3 w-9" />}
+                <div {...localListeners} style={localStyle}>
+                    <LeftIcon />
                 </div>
 
                 {children}
@@ -164,8 +176,12 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
         }
     };
 
-    const shouldShowIfTaken = (gift: TUserGift): boolean => {
-        return gift.owner_user_id !== userCookieId && gift.taken_user_id != null;
+    const buildStyleIfTaken = (gift: TUserGift): string => {
+        if (gift.owner_user_id !== userCookieId && gift.taken_user_id != null) {
+            return 'line-through';
+        }
+
+        return '';
     };
 
     const sensors = useSensors(
@@ -208,10 +224,10 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                     <SortableContext items={localGifts}>
                         {localGifts.map((gift, idx) => (
-                            <SortableItem key={`gift_${gift.id}`} gift={gift} idx={idx + 1}>
+                            <SortableItem key={`gift_${gift.id}`} gift={gift} idx={idx + 1} canReorder={userCanAddGift}>
                                 <div className="flex justify-between items-center w-full">
                                     {updatingGiftId !== gift.id && (
-                                        <div className={`w-full block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
+                                        <div className={`w-full block ${buildStyleIfTaken(gift)}`}>
                                             <p>
                                                 <b className="pr-2">Nom:</b>
                                                 {gift.name}
@@ -235,7 +251,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
                                     )}
 
                                     {updatingGiftId === gift.id && (
-                                        <div className={`block ${shouldShowIfTaken(gift) ? 'line-through' : ''}`}>
+                                        <div className={`block ${buildStyleIfTaken(gift)}`}>
                                             <div className="grid md:flex">
                                                 <b className="pr-2">Nom:</b>
                                                 <input
@@ -330,7 +346,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
 
                         <div className="py-2">
                             <CustomButton onClick={() => addOrUpdateGift()} disabled={newGiftName === ''}>
-                                Add
+                                Ajouter
                             </CustomButton>
 
                             <CustomButton
