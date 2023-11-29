@@ -20,6 +20,47 @@ export const Home = (): JSX.Element => {
                     <CountDown />
                 </div>
             </div>
+
+            <div>
+                <ul>
+                    <li>
+                        <b className="pr-2">Pierre - Claire:</b>
+                        <span className="pr-2">
+                            <u>Arrivée</u>: Ven. 22 déc. 19:20
+                        </span>
+                        <span>
+                            <u>Départ</u>: Mar. 26 déc. 16:05
+                        </span>
+                    </li>
+                    <li>
+                        <b className="pr-2">Alice - JB:</b>
+                        <span className="pr-2">
+                            <u>Arrivée</u>: nuit du 21 au 22
+                        </span>
+                        <span>
+                            <u>Départ</u>: 29 matin
+                        </span>
+                    </li>
+                    <li>
+                        <b className="pr-2">Clément:</b>
+                        <span className="pr-2">
+                            <u>Arrivée</u>: Ven. 22 déc. 23h10
+                        </span>
+                        <span>
+                            <u>Départ</u>: Merc. 27 déc. 12h44
+                        </span>
+                    </li>
+                    <li>
+                        <b className="pr-2">Baptite:</b>
+                        <span className="pr-2">
+                            <u>Arrivée</u>: ??????
+                        </span>
+                        <span>
+                            <u>Départ</u>: ?????!!!
+                        </span>
+                    </li>
+                </ul>
+            </div>
         </Layout>
     );
 };
