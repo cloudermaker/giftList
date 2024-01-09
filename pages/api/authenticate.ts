@@ -1,23 +1,24 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { addOrUpdateFamily, addOrUpdateUser, getFamilyFromName, getUserFromName } from '../../lib/db/dbManager';
+import { getGroupByName } from '@/lib/db/groupManager';
+import { getUserByGroupAndName } from '@/lib/db/userManager';
 
 export type TGroupAndUser = {
     groupId: string;
     userId: string;
 };
 
-export type TGetOrCreateGroupAndUserResult = {
+export type TAuthenticateResult = {
     success: boolean;
     groupUser?: TGroupAndUser;
     error: string;
 };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<TGetOrCreateGroupAndUserResult>) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<TAuthenticateResult>) {
     const { groupName, userName, isCreating } = req.body;
 
     try {
-        const group = await getFamilyFromName(groupName);
-        const user = await getUserFromName(userName, group?.id ?? '-1');
+        const group = await getGroupByName(groupName);
+        const user = await getUserByGroupAndName(userName, group?.id ?? '-1');
 
         if (isCreating && group != null) {
             res.status(200).json({ success: false, error: 'Ce nom de famille existe déjà.' });

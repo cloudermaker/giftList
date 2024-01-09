@@ -3,7 +3,7 @@ import Router from 'next/router';
 import Cookies from 'js-cookie';
 import { useState, useEffect } from 'react';
 import { GROUP_ID_COOKIE, Layout, USER_ID_COOKIE } from '../components/layout';
-import { TGetOrCreateGroupAndUserResult } from './api/getOrCreateGroupAndUser';
+import { TAuthenticateResult } from './api/authenticate';
 import { CustomInput } from '../components/atoms/customInput';
 import CustomButton from '../components/atoms/customButton';
 
@@ -54,12 +54,12 @@ export default function Index(): JSX.Element {
         } else if (!name) {
             setError('Il faut rentrer un nom.');
         } else {
-            const res = await axios.post('api/getOrCreateGroupAndUser', {
+            const res = await axios.post('api/authenticate', {
                 groupName,
                 userName: name,
                 isCreating: creatingGroup
             });
-            const data = res.data as TGetOrCreateGroupAndUserResult;
+            const data = res.data as TAuthenticateResult;
 
             if (data.success) {
                 Cookies.set(GROUP_ID_COOKIE, data.groupUser?.groupId ?? '', {

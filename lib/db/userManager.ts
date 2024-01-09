@@ -6,3 +6,20 @@ export const getUsers = async (): Promise<User[]> => {
 
     return users;
 };
+
+export const getUserByGroupAndName = async (userName: string, groupId: string): Promise<User | null> => {
+    var users = await prisma.user.findFirst({
+        where: {
+            AND: [
+                {
+                    name: userName
+                },
+                {
+                    groupId
+                }
+            ]
+        }
+    });
+
+    return users;
+};

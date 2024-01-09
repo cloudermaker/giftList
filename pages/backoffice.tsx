@@ -3,9 +3,9 @@ import { Layout } from '../components/layout';
 import { getFamilies } from '../lib/db/dbManager';
 import { TFamily } from '../lib/types/family';
 import axios from 'axios';
-import { TAddFamilyResult } from './api/family/addOrUpdateFamily';
+import { TAddFamilyResult } from './api/group/post';
 import { EHeader } from '../components/customHeader';
-import { TRemoveFamilyResult } from './api/family/removeFamily';
+import { TDeleteGroupResult } from './api/group/delete';
 import { sanitize } from '../lib/helpers/stringHelper';
 import CustomButton from '../components/atoms/customButton';
 
@@ -21,7 +21,7 @@ const Backoffice = ({ families = [] }: { families: TFamily[] }): JSX.Element => 
             const result = await axios.post('/api/family/removeFamily', {
                 familyId: familyId
             });
-            const data = result.data as TRemoveFamilyResult;
+            const data = result.data as TDeleteGroupResult;
 
             if (data.success === true) {
                 location.reload();
