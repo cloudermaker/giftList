@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getGroupByName } from '@/lib/db/groupManager';
-import { getUserByGroupAndName } from '@/lib/db/userManager';
+import { createGroup, getGroupByName } from '@/lib/db/groupManager';
+import { createUser, getUserByGroupAndName } from '@/lib/db/userManager';
 
 export type TGroupAndUser = {
     groupId: string;
@@ -21,29 +21,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const user = await getUserByGroupAndName(userName, group?.id ?? '-1');
 
         if (isCreating && group != null) {
-            res.status(200).json({ success: false, error: 'Ce nom de famille existe déjà.' });
+            res.status(200).json({ success: false, error: 'Ce nom de groupe existe déjà.' });
         } else if (isCreating) {
-            const familyId = (await addOrUpdateFamily({
-                id: '0',
-                name: groupName
-            })) as string;
-            const userId = (await addOrUpdateUser({
-                id: '0',
-                name: userName,
-                family_id: familyId
-            })) as string;
+            const group = await createGroup(groupName);
+            const user = await createUser(userName, group.id);
 
             res.status(200).json({
                 success: true,
                 error: '',
-                groupUser: { groupId: familyId, userId }
+                groupUser: { groupId: group.id, userId: user.id }
             });
         } else if (!isCreating && group == null) {
-            res.status(200).json({ success: false, error: "Ce nom de famille n'existe pas." });
+            res.status(200).json({ success: false, error: "Ce nom de groupe n'existe pas." });
         } else if (!isCreating && user == null) {
             res.status(200).json({
                 success: false,
-                error: "Ce prénom n'existe pas, demande à un membre de la famille de te rajouter dedans."
+                error: "Ce prénom n'existe pas, demande à un membre de la groupe de te rajouter dedans."
             });
         } else if (!isCreating) {
             res.status(200).json({

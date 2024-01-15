@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     const { id } = req.query;
 
     try {
-        const result = await getGroupById(id as unknown as number);
+        const result = await getGroupById(id as string);
 
         if (!result) {
             res.status(404).json({ data: null, error: 'Cannot find this group.' });

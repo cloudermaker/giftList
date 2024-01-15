@@ -1,13 +1,10 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { Layout, USER_ID_COOKIE } from '../../components/layout';
-import { getUserFromId, getUserGiftsFromUserId } from '../../lib/db/dbManager';
-import { TFamilyUser } from '../../lib/types/family';
 import axios from 'axios';
 import { EHeader } from '../../components/customHeader';
 import { NextPageContext } from 'next';
-import { TUserGift } from '../../lib/types/gift';
-import { TRemoveGiftResult } from '../api/gift/removeGift';
-import { TAddOrUpdateGiftResult } from '../api/gift/addOrUpdateGift';
+import { TRemoveGiftResult } from '../api/gift/remove';
+import { TCreateGiftInput, TCreateGiftResult } from '../api/gift/create';
 import Cookies from 'js-cookie';
 import { sanitize } from '../../lib/helpers/stringHelper';
 import { clone } from 'lodash';
@@ -17,8 +14,11 @@ import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, us
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Drag } from '../../components/icons/drag';
+import { Gift, User } from '@prisma/client';
+import { getUserFromId } from '@/lib/db/dbManager';
+import { getGiftsFromUserId } from '@/lib/db/giftManager';
 
-function SortableItem({ gift, children, idx, canReorder }: { gift: TUserGift; children: ReactNode; idx: number; canReorder: boolean }) {
+function SortableItem({ gift, children, idx, canReorder }: { gift: Gift; children: ReactNode; idx: number; canReorder: boolean }) {
     const { listeners, setNodeRef, transform } = useSortable({
         id: gift.id
     });
@@ -53,11 +53,11 @@ function SortableItem({ gift, children, idx, canReorder }: { gift: TUserGift; ch
     );
 }
 
-const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGift[] }): JSX.Element => {
+const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JSX.Element => {
     const [userCookieId, setUserCookieId] = useState<string>('');
     const userCanAddGift: boolean = user.id === userCookieId;
 
-    const [localGifts, setLocalGifts] = useState<TUserGift[]>(giftList);
+    const [localGifts, setLocalGifts] = useState<Gift[]>(giftList);
     const [creatingGift, setCreatingGift] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
 
@@ -96,35 +96,57 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
         }
     };
 
-    const updatingGift = (gift: TUserGift): void => {
+    const updatingGift = (gift: Gift): void => {
         setNewGiftName(gift.name);
-        setNewDescription(gift.description);
-        setNewLink(gift.url);
+        setNewDescription(gift.description ?? '');
+        setNewLink(gift.url ?? '');
         setUpdatingGiftId(gift.id);
     };
 
-    const addOrUpdateGift = async (giftId?: string): Promise<void> => {
-        const giftToAdd: TUserGift = {
-            id: giftId ?? '0',
+    const createGift = async (giftId?: string): Promise<void> => {
+        const giftToAdd: TCreateGiftInput = {
             name: sanitize(newGiftName),
             description: sanitize(newDescription),
             url: sanitize(newLink),
-            position: giftList.length + 1,
-            owner_user_id: user.id,
-            taken_user_id: undefined
+            ownerUserId: user.id
         };
 
-        const result = await axios.post('/api/gift/addOrUpdateGift', {
+        const result = await axios.post('/api/gift/create', {
             userGift: giftToAdd
         });
-        const data = result.data as TAddOrUpdateGiftResult;
+        const data = result.data as TCreateGiftResult;
+
+        if (data.success === true && data.gift) {
+            let newGifts: Gift[] = localGifts;
+
+            newGifts.push(data.gift);
+
+            setLocalGifts(newGifts);
+            clearAllFields();
+        } else {
+            setError(data.error);
+        }
+    };
+
+    const updateGift = async (giftId: string): Promise<void> => {
+        const giftToUpdate: TCreateGiftInput = {
+            name: sanitize(newGiftName),
+            description: sanitize(newDescription),
+            url: sanitize(newLink),
+            ownerUserId: user.id
+        };
+
+        const result = await axios.post('/api/gift/create', {
+            userGift: giftToAdd
+        });
+        const data = result.data as TCreateGiftResult;
 
         if (data.success === true) {
-            let newGifts: TUserGift[] = localGifts;
+            let newGifts: Gift[] = localGifts;
             giftToAdd.id = giftId ?? data.giftId;
 
             if (giftId) {
-                const tmpGifts: TUserGift[] = [];
+                const tmpGifts: Gift[] = [];
                 for (const gift of newGifts) {
                     if (gift.id === giftId) {
                         tmpGifts.push(giftToAdd);
@@ -152,9 +174,9 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
         }, 0);
     };
 
-    const onblockUnclockGiftClick = async (giftToUpdate: TUserGift): Promise<void> => {
+    const onblockUnclockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
         const userGift = clone(giftToUpdate);
-        userGift.taken_user_id = userGift.taken_user_id != null ? undefined : userCookieId;
+        userGift.takenUserId = userGift.takenUserId != null ? null : userCookieId;
 
         const result = await axios.post('/api/gift/addOrUpdateGift', {
             userGift: userGift
@@ -162,7 +184,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
         const data = result.data as TAddOrUpdateGiftResult;
 
         if (data.success === true) {
-            const newLocalGifts: TUserGift[] = [];
+            const newLocalGifts: Gift[] = [];
             localGifts.forEach((gift) => {
                 if (gift.id !== giftToUpdate.id) {
                     newLocalGifts.push(gift);
@@ -176,8 +198,8 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
         }
     };
 
-    const buildStyleIfTaken = (gift: TUserGift): string => {
-        if (gift.owner_user_id !== userCookieId && gift.taken_user_id != null) {
+    const buildStyleIfTaken = (gift: Gift): string => {
+        if (gift.userId !== userCookieId && gift.takenUserId != null) {
             return 'line-through';
         }
 
@@ -204,7 +226,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
 
                 // Update position of all gifts
                 for (let i = 0; i < newImages.length; i++) {
-                    newImages[i].position = i + 1;
+                    newImages[i].order = i + 1;
                 }
 
                 axios.post('/api/gift/updateAllPositionGift', {
@@ -299,15 +321,15 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
                                             </>
                                         )}
 
-                                        {!userCanAddGift && gift.taken_user_id === userCookieId && (
+                                        {!userCanAddGift && gift.takenUserId === userCookieId && (
                                             <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>Je ne prends plus ce cadeau</CustomButton>
                                         )}
 
-                                        {!userCanAddGift && gift.taken_user_id && gift.taken_user_id !== userCookieId && (
+                                        {!userCanAddGift && gift.takenUserId && gift.takenUserId !== userCookieId && (
                                             <span className="text-red-500">Ce cadeau est déjà pris</span>
                                         )}
 
-                                        {!userCanAddGift && !gift.taken_user_id && gift.taken_user_id !== userCookieId && (
+                                        {!userCanAddGift && !gift.takenUserId && gift.takenUserId !== userCookieId && (
                                             <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>Je prends ce cadeau</CustomButton>
                                         )}
                                     </div>
@@ -345,7 +367,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
                         </div>
 
                         <div className="py-2">
-                            <CustomButton onClick={() => addOrUpdateGift()} disabled={newGiftName === ''}>
+                            <CustomButton onClick={() => createGift()} disabled={newGiftName === ''}>
                                 Ajouter
                             </CustomButton>
 
@@ -380,7 +402,7 @@ export async function getServerSideProps(context: NextPageContext) {
     }
 
     const user = await getUserFromId(userId);
-    const giftList = await getUserGiftsFromUserId(userId);
+    const giftList = await getGiftsFromUserId(userId);
 
     return {
         props: {
@@ -390,4 +412,4 @@ export async function getServerSideProps(context: NextPageContext) {
     };
 }
 
-export default Family;
+export default GiftPage;

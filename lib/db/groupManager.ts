@@ -36,3 +36,15 @@ export const removeGroup = async (groupId: string): Promise<boolean> => {
 
     return !!groups;
 };
+
+export const createGroup = async (groupName: string, description = '', imageUrl = ''): Promise<Group> => {
+    var group = await prisma.group.create({
+        data: {
+            name: groupName,
+            description,
+            imageUrl
+        }
+    });
+
+    return group;
+};

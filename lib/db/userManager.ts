@@ -23,3 +23,14 @@ export const getUserByGroupAndName = async (userName: string, groupId: string): 
 
     return users;
 };
+
+export const createUser = async (userName: string, userGroupId: string): Promise<User> => {
+    var user = await prisma.user.create({
+        data: {
+            name: userName,
+            groupId: userGroupId
+        }
+    });
+
+    return user;
+};
