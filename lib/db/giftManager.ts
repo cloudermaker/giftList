@@ -57,3 +57,33 @@ export const updateGift = async (
 
     return user;
 };
+
+export const updateManyGifts = async (
+    id: string,
+    name: string,
+    description: string,
+    url: string,
+    order: number,
+    isSuggestedGift = false
+): Promise<Gift> => {
+    var user = await prisma.gift.updateMany({
+        where: {
+            id
+        },
+        data: { name, description, url, order, isSuggestedGift }
+    });
+
+    return user;
+};
+
+export const upsertGift = async (gift: Gift): Promise<Gift> => {
+    var user = await prisma.gift.upsert({
+        where: {
+            id: gift.id
+        },
+        create: { ...gift, id: undefined },
+        update: gift
+    });
+
+    return user;
+};

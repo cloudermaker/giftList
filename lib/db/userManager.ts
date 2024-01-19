@@ -8,7 +8,7 @@ export const getUsers = async (): Promise<User[]> => {
 };
 
 export const getUserByGroupAndName = async (userName: string, groupId: string): Promise<User | null> => {
-    var users = await prisma.user.findFirst({
+    var user = await prisma.user.findFirst({
         where: {
             AND: [
                 {
@@ -21,7 +21,17 @@ export const getUserByGroupAndName = async (userName: string, groupId: string): 
         }
     });
 
-    return users;
+    return user;
+};
+
+export const getUserById = async (userId: string): Promise<User | null> => {
+    var user = await prisma.user.findFirst({
+        where: {
+            id: userId
+        }
+    });
+
+    return user;
 };
 
 export const createUser = async (userName: string, userGroupId: string): Promise<User> => {

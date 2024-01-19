@@ -4,7 +4,6 @@ import axios from 'axios';
 import { EHeader } from '../../components/customHeader';
 import { NextPageContext } from 'next';
 import { TRemoveGiftResult } from '../api/gift/remove';
-import { TCreateGiftInput, TCreateGiftResult } from '../api/gift/create';
 import Cookies from 'js-cookie';
 import { sanitize } from '../../lib/helpers/stringHelper';
 import { clone } from 'lodash';
@@ -17,8 +16,19 @@ import { Drag } from '../../components/icons/drag';
 import { Gift, User } from '@prisma/client';
 import { getUserFromId } from '@/lib/db/dbManager';
 import { getGiftsFromUserId } from '@/lib/db/giftManager';
+import { TPostGiftResult } from '../api/gift/post';
 
-function SortableItem({ gift, children, idx, canReorder }: { gift: Gift; children: ReactNode; idx: number; canReorder: boolean }) {
+function SortableItem({
+    gift,
+    children,
+    idx,
+    canReorder
+}: {
+    gift: Gift;
+    children: ReactNode;
+    idx: number;
+    canReorder: boolean;
+}) {
     const { listeners, setNodeRef, transform } = useSortable({
         id: gift.id
     });
@@ -103,61 +113,32 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         setUpdatingGiftId(gift.id);
     };
 
-    const createGift = async (giftId?: string): Promise<void> => {
-        const giftToAdd: TCreateGiftInput = {
-            name: sanitize(newGiftName),
-            description: sanitize(newDescription),
-            url: sanitize(newLink),
-            ownerUserId: user.id
+    const upsertGift = async (giftId: string | null = null): Promise<void> => {
+        const defaultGift: Gift = {
+            id: '',
+            name: '',
+            description: null,
+            createdAt: null,
+            isSuggestedGift: null,
+            order: localGifts.length,
+            takenUserId: null,
+            updatedAt: null,
+            url: null,
+            userId: null
         };
+        const giftToUpsert: Gift = localGifts.filter((gift) => gift.id === giftId)[0] ?? defaultGift;
+        giftToUpsert.name = sanitize(newGiftName);
+        giftToUpsert.description = sanitize(newDescription);
+        giftToUpsert.url = sanitize(newLink);
 
-        const result = await axios.post('/api/gift/create', {
-            userGift: giftToAdd
+        const result = await axios.post('/api/gift/post', {
+            userGift: giftToUpsert
         });
-        const data = result.data as TCreateGiftResult;
-
-        if (data.success === true && data.gift) {
-            let newGifts: Gift[] = localGifts;
-
-            newGifts.push(data.gift);
-
-            setLocalGifts(newGifts);
-            clearAllFields();
-        } else {
-            setError(data.error);
-        }
-    };
-
-    const updateGift = async (giftId: string): Promise<void> => {
-        const giftToUpdate: TCreateGiftInput = {
-            name: sanitize(newGiftName),
-            description: sanitize(newDescription),
-            url: sanitize(newLink),
-            ownerUserId: user.id
-        };
-
-        const result = await axios.post('/api/gift/create', {
-            userGift: giftToAdd
-        });
-        const data = result.data as TCreateGiftResult;
+        const data = result.data as TPostGiftResult;
 
         if (data.success === true) {
-            let newGifts: Gift[] = localGifts;
-            giftToAdd.id = giftId ?? data.giftId;
-
-            if (giftId) {
-                const tmpGifts: Gift[] = [];
-                for (const gift of newGifts) {
-                    if (gift.id === giftId) {
-                        tmpGifts.push(giftToAdd);
-                    } else {
-                        tmpGifts.push(gift);
-                    }
-                }
-                newGifts = tmpGifts;
-            } else {
-                newGifts.push(giftToAdd);
-            }
+            let newGifts: Gift[] = localGifts.filter((gift) => gift.id !== giftId);
+            newGifts.push(giftToUpsert);
 
             setLocalGifts(newGifts);
             clearAllFields();
@@ -178,10 +159,10 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         const userGift = clone(giftToUpdate);
         userGift.takenUserId = userGift.takenUserId != null ? null : userCookieId;
 
-        const result = await axios.post('/api/gift/addOrUpdateGift', {
+        const result = await axios.post('/api/gift/post', {
             userGift: userGift
         });
-        const data = result.data as TAddOrUpdateGiftResult;
+        const data = result.data as TPostGiftResult;
 
         if (data.success === true) {
             const newLocalGifts: Gift[] = [];
@@ -216,20 +197,19 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
     function handleDragEnd(event: { active: any; over: any }) {
         const { active, over } = event;
 
-        // TODO: fix, id 0 is never draggable ?!
         if (active.id !== over.id) {
             setLocalGifts((prevLocalGifts) => {
                 const oldIndex = prevLocalGifts.findIndex((gift) => gift.id === active.id);
                 const newIndex = prevLocalGifts.findIndex((gift) => gift.id === over.id);
 
-                const newImages = arrayMove(prevLocalGifts, oldIndex, newIndex);
+                const newImages: Gift[] = arrayMove(prevLocalGifts, oldIndex, newIndex);
 
                 // Update position of all gifts
                 for (let i = 0; i < newImages.length; i++) {
                     newImages[i].order = i + 1;
                 }
 
-                axios.post('/api/gift/updateAllPositionGift', {
+                axios.post('/api/gift/post', {
                     newGifts: newImages
                 });
 
@@ -295,7 +275,11 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
 
                                             <div className="grid md:flex">
                                                 <b className="pr-2">Lien:</b>
-                                                <input className="bg-transparent" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
+                                                <input
+                                                    className="bg-transparent"
+                                                    value={newLink}
+                                                    onChange={(e) => setNewLink(e.target.value)}
+                                                />
                                             </div>
                                         </div>
                                     )}
@@ -303,10 +287,12 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                     <div className="text-right block md:flex">
                                         {userCanAddGift && (
                                             <>
-                                                {updatingGiftId === gift.id && <CustomButton onClick={clearAllFields}>Annuler</CustomButton>}
+                                                {updatingGiftId === gift.id && (
+                                                    <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
+                                                )}
                                                 {updatingGiftId === gift.id && (
                                                     <CustomButton
-                                                        onClick={() => addOrUpdateGift(gift.id)}
+                                                        onClick={() => upsertGift(gift.id)}
                                                         disabled={newGiftName == null || newGiftName === ''}
                                                     >
                                                         Valider
@@ -322,7 +308,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                         )}
 
                                         {!userCanAddGift && gift.takenUserId === userCookieId && (
-                                            <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>Je ne prends plus ce cadeau</CustomButton>
+                                            <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>
+                                                Je ne prends plus ce cadeau
+                                            </CustomButton>
                                         )}
 
                                         {!userCanAddGift && gift.takenUserId && gift.takenUserId !== userCookieId && (
@@ -330,7 +318,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                         )}
 
                                         {!userCanAddGift && !gift.takenUserId && gift.takenUserId !== userCookieId && (
-                                            <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>Je prends ce cadeau</CustomButton>
+                                            <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>
+                                                Je prends ce cadeau
+                                            </CustomButton>
                                         )}
                                     </div>
                                 </div>
@@ -358,7 +348,11 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
 
                         <div className="flex">
                             <b className="pr-2">Description:</b>
-                            <input className="bg-transparent" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
+                            <input
+                                className="bg-transparent"
+                                value={newDescription}
+                                onChange={(e) => setNewDescription(e.target.value)}
+                            />
                         </div>
 
                         <div className="flex">
@@ -367,7 +361,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                         </div>
 
                         <div className="py-2">
-                            <CustomButton onClick={() => createGift()} disabled={newGiftName === ''}>
+                            <CustomButton onClick={() => upsertGift()} disabled={newGiftName === ''}>
                                 Ajouter
                             </CustomButton>
 

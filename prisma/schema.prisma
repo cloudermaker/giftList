@@ -36,12 +36,12 @@ model User {
 }
 
 model Gift {
-  id              String  @id @default(uuid())
+  id              String   @id @default(uuid())
   name            String
   description     String?
   url             String?
-  isSuggestedGift Boolean @default(false)
-  order           Int
+  isSuggestedGift Boolean? @default(false)
+  order           Int?
 
   user   User?   @relation(fields: [userId], references: [id], name: "user")
   userId String?
@@ -49,6 +49,6 @@ model Gift {
   takenUser   User?   @relation(fields: [takenUserId], references: [id], name: "takenUser")
   takenUserId String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 }

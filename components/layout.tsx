@@ -4,7 +4,7 @@ import { CustomHeader, EHeader } from './customHeader';
 import Cookies from 'js-cookie';
 import Router from 'next/router';
 import axios from 'axios';
-import { TUserInfoResult } from '../pages/api/getUserInfo';
+import { TUserInfoResult, buildUserInfoUrl } from '../pages/api/groupUser';
 import CountDown from './countDown';
 
 export const GROUP_ID_COOKIE = 'giftList_groupName';
@@ -27,12 +27,12 @@ export const Layout = ({
 
     useEffect(() => {
         const fetchData = async (familyId: string, userId: string): Promise<void> => {
-            const result = await axios.post('/api/getUserInfo', { familyId, userId });
+            const result = await axios.get(buildUserInfoUrl(familyId, userId));
             const userInfoResult = result.data as TUserInfoResult;
 
-            if (userInfoResult.success && userInfoResult.familyUser) {
-                setConnectedUserName(userInfoResult.familyUser.userName as string);
-                setConnectedFamilyName(userInfoResult.familyUser.familyName as string);
+            if (userInfoResult.success && userInfoResult.groupUser) {
+                setConnectedUserName(userInfoResult.groupUser.userName as string);
+                setConnectedFamilyName(userInfoResult.groupUser.groupName as string);
             } else {
                 onDisconnectClick();
             }
