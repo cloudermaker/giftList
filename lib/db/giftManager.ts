@@ -7,6 +7,16 @@ export const getGifts = async (): Promise<Gift[]> => {
     return gifts;
 };
 
+export const getGiftFromId = async (id: string): Promise<Gift | null> => {
+    var gift = await prisma.gift.findFirst({
+        where: {
+            id
+        }
+    });
+
+    return gift;
+};
+
 export const getGiftsFromUserId = async (userId: string): Promise<Gift[]> => {
     var gifts = await prisma.gift.findMany({
         where: {
@@ -40,19 +50,12 @@ export const createGift = async (
     return user;
 };
 
-export const updateGift = async (
-    id: string,
-    name: string,
-    description: string,
-    url: string,
-    order: number,
-    isSuggestedGift = false
-): Promise<Gift> => {
+export const updateGift = async (gift: Gift): Promise<Gift> => {
     var user = await prisma.gift.update({
         where: {
-            id
+            id: gift.id
         },
-        data: { name, description, url, order, isSuggestedGift }
+        data: gift
     });
 
     return user;
@@ -65,15 +68,15 @@ export const updateManyGifts = async (
     url: string,
     order: number,
     isSuggestedGift = false
-): Promise<Gift> => {
-    var user = await prisma.gift.updateMany({
+): Promise<boolean> => {
+    var batch = await prisma.gift.updateMany({
         where: {
             id
         },
         data: { name, description, url, order, isSuggestedGift }
     });
 
-    return user;
+    return batch.count > 0;
 };
 
 export const upsertGift = async (gift: Gift): Promise<Gift> => {
