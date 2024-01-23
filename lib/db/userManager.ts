@@ -44,3 +44,34 @@ export const createUser = async (userName: string, userGroupId: string): Promise
 
     return user;
 };
+
+export const upsertUser = async (user: User): Promise<User> => {
+    var user = await prisma.user.upsert({
+        where: {
+            id: user.id
+        },
+        create: { ...user, id: undefined },
+        update: user
+    });
+
+    return user;
+};
+
+export const updateUser = async (user: User): Promise<User> => {
+    var user = await prisma.user.update({
+        where: {
+            id: user.id
+        },
+        data: user
+    });
+
+    return user;
+};
+
+export const deleteUser = async (userId: string): Promise<void> => {
+    await prisma.user.delete({
+        where: {
+            id: userId
+        }
+    });
+};

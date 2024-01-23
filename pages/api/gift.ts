@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getGiftFromId, updateGift, upsertGift } from '@/lib/db/giftManager';
+import { deleteGift, getGiftFromId, updateGift, upsertGift } from '@/lib/db/giftManager';
 import { Gift } from '@prisma/client';
 import { isString } from 'lodash';
 
@@ -11,10 +11,18 @@ export type TGiftApiResult = {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TGiftApiResult>) {
-    const { body } = req;
+    const { body, query } = req;
 
     try {
-        if (req.method === 'POST' && body.gift) {
+        if (req.method === 'GET' && query.giftId) {
+            const gift = await getGiftFromId(query.giftId as string);
+
+            if (gift) {
+                res.status(200).json({ success: true, gift });
+            }
+
+            res.status(404).json({ success: false });
+        } else if (req.method === 'POST' && body.gift) {
             const gift = await upsertGift(body.gift as Gift);
 
             res.status(200).json({ success: true, gift });
@@ -32,6 +40,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             }
 
             res.status(404).json({ success: false, giftId: req.body.giftId });
+        } else if (req.method === 'DELETE' && query.giftId) {
+            await deleteGift(query.giftId as string);
+
+            res.status(200).json({ success: true });
         } else {
             res.status(400).json({ success: false });
         }

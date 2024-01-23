@@ -51,14 +51,14 @@ export const createGift = async (
 };
 
 export const updateGift = async (gift: Gift): Promise<Gift> => {
-    var user = await prisma.gift.update({
+    var gift = await prisma.gift.update({
         where: {
             id: gift.id
         },
         data: gift
     });
 
-    return user;
+    return gift;
 };
 
 export const updateManyGifts = async (
@@ -89,4 +89,12 @@ export const upsertGift = async (gift: Gift): Promise<Gift> => {
     });
 
     return user;
+};
+
+export const deleteGift = async (giftId: string): Promise<void> => {
+    await prisma.gift.delete({
+        where: {
+            id: giftId
+        }
+    });
 };
