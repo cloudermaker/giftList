@@ -6,7 +6,7 @@ import { faRightFromBracket, faHomeUser } from '@fortawesome/free-solid-svg-icon
 
 export enum EHeader {
     Homepage = 'Homepage',
-    Family = 'My family',
+    Group = 'My group',
     GiftList = 'My gift list',
     Backoffice = 'Backoffice'
 }
@@ -31,10 +31,10 @@ export const CustomHeader = ({
             </Link>
 
             <span
-                onClick={() => Router.push(`/family/${groupId}`)}
-                className={`${commonStyle} ${selectedHeader === EHeader.Family ? 'font-bold' : ''}`}
+                onClick={() => Router.push(`/group/${groupId}`)}
+                className={`${commonStyle} ${selectedHeader === EHeader.Group ? 'font-bold' : ''}`}
             >
-                Ma famille
+                Mon groupe
             </span>
 
             <span

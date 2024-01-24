@@ -1,6 +1,21 @@
 import { Gift } from '@prisma/client';
 import prisma from './dbSingleton';
 
+export const buildDefaultGift = (userId: string, order: number, name?: string, description?: string, url?: string): Gift => {
+    return {
+        id: '',
+        name: name ?? '',
+        description: description ?? '',
+        url: url ?? '',
+        userId,
+        order,
+        takenUserId: null,
+        isSuggestedGift: false,
+        updatedAt: new Date(),
+        createdAt: new Date()
+    };
+};
+
 export const getGifts = async (): Promise<Gift[]> => {
     var gifts = await prisma.gift.findMany();
 
@@ -61,22 +76,19 @@ export const updateGift = async (gift: Gift): Promise<Gift> => {
     return gift;
 };
 
-export const updateManyGifts = async (
-    id: string,
-    name: string,
-    description: string,
-    url: string,
-    order: number,
-    isSuggestedGift = false
-): Promise<boolean> => {
-    var batch = await prisma.gift.updateMany({
-        where: {
-            id
-        },
-        data: { name, description, url, order, isSuggestedGift }
-    });
+export const updateGifts = async (gifts: Gift[]): Promise<Gift[]> => {
+    let updatedGifts: Gift[] = [];
+    for (const gift of gifts) {
+        const updatedGift = await prisma.gift.update({
+            where: {
+                id: gift.id
+            },
+            data: gift
+        });
+        updatedGifts.push(updatedGift);
+    }
 
-    return batch.count > 0;
+    return updatedGifts;
 };
 
 export const upsertGift = async (gift: Gift): Promise<Gift> => {

@@ -1,6 +1,18 @@
 import { User } from '@prisma/client';
 import prisma from './dbSingleton';
 
+export const buildDefaultUser = (name: string, groupId: string): User => {
+    return {
+        id: '',
+        name,
+        groupId,
+        isAdmin: false,
+        acceptSuggestedGift: false,
+        updatedAt: new Date(),
+        createdAt: new Date()
+    };
+};
+
 export const getUsers = async (): Promise<User[]> => {
     var users = await prisma.user.findMany();
 
@@ -32,6 +44,16 @@ export const getUserById = async (userId: string): Promise<User | null> => {
     });
 
     return user;
+};
+
+export const getUsersFromGroupId = async (groupId: string): Promise<User[]> => {
+    var users = await prisma.user.findMany({
+        where: {
+            groupId
+        }
+    });
+
+    return users;
 };
 
 export const createUser = async (userName: string, userGroupId: string): Promise<User> => {

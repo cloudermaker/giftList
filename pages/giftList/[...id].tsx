@@ -1,22 +1,20 @@
 import { ReactNode, useEffect, useState } from 'react';
-import { Layout, USER_ID_COOKIE } from '../../components/layout';
+import { Layout, USER_ID_COOKIE } from '@/components/layout';
 import axios from 'axios';
-import { EHeader } from '../../components/customHeader';
+import { EHeader } from '@/components/customHeader';
 import { NextPageContext } from 'next';
-import { TRemoveGiftResult } from '../api/gift/remove';
 import Cookies from 'js-cookie';
-import { sanitize } from '../../lib/helpers/stringHelper';
-import { clone } from 'lodash';
-import CustomButton from '../../components/atoms/customButton';
-import { Medal } from '../../components/icons/medal';
+import { sanitize } from '@/lib/helpers/stringHelper';
+import CustomButton from '@/components/atoms/customButton';
+import { Medal } from '@/components/icons/medal';
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Drag } from '../../components/icons/drag';
+import { Drag } from '@/components/icons/drag';
 import { Gift, User } from '@prisma/client';
-import { getUserFromId } from '@/lib/db/dbManager';
-import { getGiftsFromUserId } from '@/lib/db/giftManager';
-import { TPostGiftResult } from '../api/gift/post';
+import { buildDefaultGift, getGiftsFromUserId } from '@/lib/db/giftManager';
+import { TGiftApiResult } from '@/pages/api/gift';
+import { getUserById } from '@/lib/db/userManager';
 
 function SortableItem({
     gift,
@@ -94,8 +92,8 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         const confirmation = window.confirm('Es-tu certain de vouloir supprimer ce cadeau ?');
 
         if (confirmation) {
-            const result = await axios.post('/api/gift/removeGift', { giftId });
-            const data = result.data as TRemoveGiftResult;
+            const result = await axios.delete(`/api/gift?giftId=${giftId}`);
+            const data = result.data as TGiftApiResult;
 
             if (data.success === true) {
                 setLocalGifts(localGifts.filter((gift) => gift.id !== giftId));
@@ -114,19 +112,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
     };
 
     const upsertGift = async (giftId: string | null = null): Promise<void> => {
-        const defaultGift: Gift = {
-            id: '',
-            name: '',
-            description: null,
-            createdAt: null,
-            isSuggestedGift: null,
-            order: localGifts.length,
-            takenUserId: null,
-            updatedAt: null,
-            url: null,
-            userId: null
-        };
-        const giftToUpsert: Gift = localGifts.filter((gift) => gift.id === giftId)[0] ?? defaultGift;
+        const currentGift: Gift = localGifts.filter((gift) => gift.id === giftId)[0];
+        const giftToUpsert: Gift = currentGift ?? buildDefaultGift(user.id, localGifts.length);
+
         giftToUpsert.name = sanitize(newGiftName);
         giftToUpsert.description = sanitize(newDescription);
         giftToUpsert.url = sanitize(newLink);
@@ -134,7 +122,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         const result = await axios.post('/api/gift/post', {
             userGift: giftToUpsert
         });
-        const data = result.data as TPostGiftResult;
+        const data = result.data as TGiftApiResult;
 
         if (data.success === true) {
             let newGifts: Gift[] = localGifts.filter((gift) => gift.id !== giftId);
@@ -143,7 +131,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
             setLocalGifts(newGifts);
             clearAllFields();
         } else {
-            setError(data.error);
+            setError(data.error ?? 'An error occured');
         }
     };
 
@@ -155,24 +143,20 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         }, 0);
     };
 
-    const onblockUnclockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
-        const userGift = clone(giftToUpdate);
-        userGift.takenUserId = userGift.takenUserId != null ? null : userCookieId;
-
-        const result = await axios.post('/api/gift/post', {
-            userGift: userGift
+    const onBlockUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
+        const result = await axios.put('/api/gift', {
+            gift: {
+                id: giftToUpdate.id,
+                takenUserId: giftToUpdate.takenUserId != null ? null : userCookieId
+            }
         });
-        const data = result.data as TPostGiftResult;
+        const data = result.data as TGiftApiResult;
 
-        if (data.success === true) {
-            const newLocalGifts: Gift[] = [];
-            localGifts.forEach((gift) => {
-                if (gift.id !== giftToUpdate.id) {
-                    newLocalGifts.push(gift);
-                } else {
-                    newLocalGifts.push(userGift);
-                }
-            });
+        if (data.success && data.gift) {
+            const newLocalGifts = localGifts;
+            const currentGiftToUpdateId: number = newLocalGifts.findIndex((gift) => gift.id === giftToUpdate.id);
+
+            newLocalGifts[currentGiftToUpdateId] = data.gift;
             setLocalGifts(newLocalGifts);
         } else {
             window.alert(data.error);
@@ -202,18 +186,18 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                 const oldIndex = prevLocalGifts.findIndex((gift) => gift.id === active.id);
                 const newIndex = prevLocalGifts.findIndex((gift) => gift.id === over.id);
 
-                const newImages: Gift[] = arrayMove(prevLocalGifts, oldIndex, newIndex);
+                const newGifts: Gift[] = arrayMove(prevLocalGifts, oldIndex, newIndex);
 
                 // Update position of all gifts
-                for (let i = 0; i < newImages.length; i++) {
-                    newImages[i].order = i + 1;
+                for (let i = 0; i < newGifts.length; i++) {
+                    newGifts[i].order = i + 1;
                 }
 
-                axios.post('/api/gift/post', {
-                    newGifts: newImages
+                axios.post('/api/gift', {
+                    gifts: newGifts
                 });
 
-                return newImages;
+                return newGifts;
             });
         }
     }
@@ -308,7 +292,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                         )}
 
                                         {!userCanAddGift && gift.takenUserId === userCookieId && (
-                                            <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>
+                                            <CustomButton onClick={() => onBlockUnBlockGiftClick(gift)}>
                                                 Je ne prends plus ce cadeau
                                             </CustomButton>
                                         )}
@@ -318,7 +302,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                         )}
 
                                         {!userCanAddGift && !gift.takenUserId && gift.takenUserId !== userCookieId && (
-                                            <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>
+                                            <CustomButton onClick={() => onBlockUnBlockGiftClick(gift)}>
                                                 Je prends ce cadeau
                                             </CustomButton>
                                         )}
@@ -395,7 +379,7 @@ export async function getServerSideProps(context: NextPageContext) {
         };
     }
 
-    const user = await getUserFromId(userId);
+    const user = await getUserById(userId);
     const giftList = await getGiftsFromUserId(userId);
 
     return {

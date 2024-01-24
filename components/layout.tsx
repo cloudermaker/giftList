@@ -19,36 +19,36 @@ export const Layout = ({
     selectedHeader?: EHeader;
     withHeader?: boolean;
 }): JSX.Element => {
-    const [familyCookieId, setGroupCookieId] = useState<string>('');
+    const [groupCookieId, setGroupCookieId] = useState<string>('');
     const [userCookieId, setUserCookieId] = useState<string>('');
 
     const [connectedUserName, setConnectedUserName] = useState<string>('');
-    const [connectedFamilyName, setConnectedFamilyName] = useState<string>('');
+    const [connectedGroupName, setConnectedGroupName] = useState<string>('');
 
     useEffect(() => {
-        const fetchData = async (familyId: string, userId: string): Promise<void> => {
-            const result = await axios.get(buildUserInfoUrl(familyId, userId));
+        const fetchData = async (groupId: string, userId: string): Promise<void> => {
+            const result = await axios.get(buildUserInfoUrl(groupId, userId));
             const userInfoResult = result.data as TUserInfoResult;
 
             if (userInfoResult.success && userInfoResult.groupUser) {
                 setConnectedUserName(userInfoResult.groupUser.userName as string);
-                setConnectedFamilyName(userInfoResult.groupUser.groupName as string);
+                setConnectedGroupName(userInfoResult.groupUser.groupName as string);
             } else {
                 onDisconnectClick();
             }
         };
 
-        const familyId = Cookies.get(GROUP_ID_COOKIE) ?? '';
+        const groupId = Cookies.get(GROUP_ID_COOKIE) ?? '';
         const userId = Cookies.get(USER_ID_COOKIE) ?? '';
-        setGroupCookieId(familyId);
+        setGroupCookieId(groupId);
         setUserCookieId(userId);
 
         if (withHeader) {
-            if (!familyId || !userId) {
+            if (!groupId || !userId) {
                 onDisconnectClick();
             }
 
-            fetchData(familyId, userId);
+            fetchData(groupId, userId);
         }
     }, [withHeader]);
 
@@ -64,13 +64,13 @@ export const Layout = ({
             <div className="body-padding min-h-body">
                 <div className="pt-5 pb-3 flex justify-between">
                     <div className="text-xs md:flex bg-shadow">
-                        {connectedUserName && connectedFamilyName && (
+                        {connectedUserName && connectedGroupName && (
                             <>
                                 <span className="hidden md:block">Connecté en tant que</span>
                                 <b className="pl-1 text-vertNoel">{connectedUserName}</b>
                                 <span className="hidden md:block">, dans la famille</span>
                                 <br />
-                                <b className="pl-1 text-vertNoel">{connectedFamilyName}</b>
+                                <b className="pl-1 text-vertNoel">{connectedGroupName}</b>
                             </>
                         )}
                     </div>
@@ -83,7 +83,7 @@ export const Layout = ({
                 {withHeader && (
                     <CustomHeader
                         selectedHeader={selectedHeader}
-                        groupId={familyCookieId}
+                        groupId={groupCookieId}
                         userId={userCookieId}
                         onDisconnectClick={onDisconnectClick}
                     />

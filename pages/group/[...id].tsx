@@ -1,28 +1,30 @@
 import { useState } from 'react';
-import { Layout } from '../../components/layout';
-import { getFamilyFromId, getFamilyUsersFromFamilyId } from '../../lib/db/dbManager';
-import { TFamily, TFamilyUser } from '../../lib/types/family';
+import { Layout } from '@/components/layout';
 import axios from 'axios';
-import { EHeader } from '../../components/customHeader';
-import { TRemoveUserResult } from '../api/user/removeUser';
+import { EHeader } from '@/components/customHeader';
 import { NextPageContext } from 'next';
-import { TAddUserResult } from '../api/user/addOrUpdateUser';
-import { sanitize } from '../../lib/helpers/stringHelper';
-import CustomButton from '../../components/atoms/customButton';
+import { sanitize } from '@/lib/helpers/stringHelper';
+import CustomButton from '@/components/atoms/customButton';
+import { TUserApiResult } from '@/pages/api/user';
+import { getGroupById } from '@/lib/db/groupManager';
+import { buildDefaultUser, getUsersFromGroupId } from '@/lib/db/userManager';
+import { User, Group } from '@prisma/client';
 
-const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TFamilyUser[] }): JSX.Element => {
-    const [localUsers, setLocalUsers] = useState<TFamilyUser[]>(familyUsers);
+const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] }): JSX.Element => {
+    const [localUsers, setLocalUsers] = useState<User[]>(groupUsers);
     const [creatingUser, setCreatingUser] = useState<boolean>(false);
     const [updatingUserId, setUpdatingUserId] = useState<string>('');
     const [newUserName, setNewUserName] = useState<string>('');
     const [addError, setAddError] = useState<string>('');
 
     const removeUser = async (userId: string): Promise<void> => {
-        const confirmation = window.confirm('Tu es sûr de vouloir supprimer cet utilisateur ?\nToute sa liste de cadeau le sera également.');
+        const confirmation = window.confirm(
+            'Tu es sûr de vouloir supprimer cet utilisateur ?\nToute sa liste de cadeau le sera également.'
+        );
 
         if (confirmation) {
-            const result = await axios.post('/api/user/removeUser', { userId });
-            const data = result.data as TRemoveUserResult;
+            const result = await axios.delete(`/api/user?userId=${userId}`, { params: {} });
+            const data = result.data as TUserApiResult;
 
             if (data.success === true) {
                 setLocalUsers(localUsers.filter((user) => user.id !== userId));
@@ -35,23 +37,22 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TF
     };
 
     const addOrUpdateUser = async (userId?: string): Promise<void> => {
-        const userToAdd: TFamilyUser = {
-            id: userId ?? '0',
-            name: sanitize(newUserName),
-            family_id: family.id
-        };
+        const currentUserToAdd = localUsers.filter((user) => user.id === userId)[0];
+        const userToAdd: User =
+            { ...currentUserToAdd, name: sanitize(newUserName) } ?? buildDefaultUser(sanitize(newUserName), group.id);
 
-        const result = await axios.post('/api/user/addOrUpdateUser', {
-            familyUser: userToAdd
+        const result = await axios.post('/api/user', {
+            user: userToAdd
         });
-        const data = result.data as TAddUserResult;
+        const data = result.data as TUserApiResult;
 
-        if (data.success === true) {
-            let newUsers: TFamilyUser[] = localUsers;
+        if (data.success === true && data.userId) {
+            let newUsers: User[] = localUsers;
             userToAdd.id = userId ?? data.userId;
 
             if (userId) {
-                const tmpUsers: TFamilyUser[] = [];
+                // Update
+                const tmpUsers: User[] = [];
                 for (const user of newUsers) {
                     if (user.id === userId) {
                         tmpUsers.push(userToAdd);
@@ -61,17 +62,18 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TF
                 }
                 newUsers = tmpUsers;
             } else {
+                // Create
                 newUsers.push(userToAdd);
             }
 
             setLocalUsers(newUsers);
             clearAllFields();
         } else {
-            window.alert(data.error);
+            window.alert(data.error ?? 'An error occured');
         }
     };
 
-    const updatingUser = (user: TFamilyUser): void => {
+    const updatingUser = (user: User): void => {
         setUpdatingUserId(user.id);
         setNewUserName(user.name);
     };
@@ -92,16 +94,18 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TF
     };
 
     return (
-        <Layout selectedHeader={EHeader.Family}>
+        <Layout selectedHeader={EHeader.Group}>
             <div className="mb-10">
-                <h1 className="pb-5">{`Voici la famille: ${family.name}`}</h1>
+                <h1 className="pb-5">{`Voici le groupe: ${group.name}`}</h1>
 
                 {localUsers.map((user) => (
-                    <div className="item flex justify-between items-center" key={`family_${user.id}`}>
+                    <div className="item flex justify-between items-center" key={`group_${user.id}`}>
                         <span className="w-full md:w-auto">
                             <b className="pr-2">Nom:</b>
 
-                            {updatingUserId === user.id && <input value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />}
+                            {updatingUserId === user.id && (
+                                <input value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
+                            )}
                             {updatingUserId !== user.id && <span>{user.name}</span>}
                         </span>
 
@@ -150,7 +154,12 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TF
                         {addError && <div className="text-red-500 font-bold">{addError}</div>}
 
                         <b className="mr-2">Nom:</b>
-                        <input id="newUserInputId" className="bg-transparent" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
+                        <input
+                            id="newUserInputId"
+                            className="bg-transparent"
+                            value={newUserName}
+                            onChange={(e) => setNewUserName(e.target.value)}
+                        />
 
                         <div className="mt-2">
                             <CustomButton onClick={() => addOrUpdateUser()} disabled={newUserName === ''}>
@@ -176,23 +185,23 @@ const Family = ({ family, familyUsers = [] }: { family: TFamily; familyUsers: TF
 export async function getServerSideProps(context: NextPageContext) {
     const { query } = context;
 
-    const familyId = query.id as string;
+    const groupId = query.id as string;
 
-    if (Number.isNaN(familyId)) {
+    if (Number.isNaN(groupId)) {
         return {
             notFound: true
         };
     }
 
-    const family = await getFamilyFromId(familyId);
-    const familyUsers = await getFamilyUsersFromFamilyId(familyId);
+    const group = await getGroupById(groupId);
+    const groupUsers = await getUsersFromGroupId(groupId);
 
     return {
         props: {
-            family,
-            familyUsers
+            group,
+            groupUsers
         }
     };
 }
 
-export default Family;
+export default Group;

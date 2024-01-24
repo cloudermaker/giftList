@@ -18,13 +18,13 @@ export const getGroupById = async (groupId: string): Promise<Group | null> => {
 };
 
 export const getGroupByName = async (groupName: string): Promise<Group | null> => {
-    var groups = await prisma.group.findFirst({
+    var group = await prisma.group.findFirst({
         where: {
             name: groupName
         }
     });
 
-    return groups;
+    return group;
 };
 
 export const deletgeGroup = async (groupId: string): Promise<boolean> => {
