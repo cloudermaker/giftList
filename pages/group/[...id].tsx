@@ -185,7 +185,7 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
 export async function getServerSideProps(context: NextPageContext) {
     const { query } = context;
 
-    const groupId = query.id as string;
+    const groupId = query.id?.toString() ?? '';
 
     if (Number.isNaN(groupId)) {
         return {
@@ -198,8 +198,16 @@ export async function getServerSideProps(context: NextPageContext) {
 
     return {
         props: {
-            group,
-            groupUsers
+            group: {
+                ...group,
+                updatedAt: group?.updatedAt.toISOString(),
+                createdAt: group?.createdAt.toISOString()
+            },
+            groupUsers: groupUsers.map((groupUser) => ({
+                ...groupUser,
+                updatedAt: groupUser.updatedAt.toISOString(),
+                createdAt: groupUser.createdAt.toISOString()
+            }))
         }
     };
 }

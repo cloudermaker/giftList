@@ -49,8 +49,9 @@ export default function Index(): JSX.Element {
     };
 
     const onValidateButtonClick = async (): Promise<void> => {
+        setError('');
         if (!groupName) {
-            setError('Il faut rentrer une famille.');
+            setError('Il faut rentrer un groupe.');
         } else if (!name) {
             setError('Il faut rentrer un nom.');
         } else {
@@ -92,11 +93,11 @@ export default function Index(): JSX.Element {
 
                     <div className="block m-3">
                         <CustomButton className="p-3 mx-3" onClick={onCreatingButtonClick}>
-                            Créer ma famille
+                            Créer mon groupe
                         </CustomButton>
 
                         <CustomButton className="p-3 mx-3 mt-3" onClick={onJoiningButtonClick}>
-                            Rejoindre ma famille
+                            Rejoindre mon groupe
                         </CustomButton>
                     </div>
                 </div>
@@ -107,11 +108,11 @@ export default function Index(): JSX.Element {
                     <div className="block m-3 p-2 bg-shadow">
                         {error && <b className="text-red-500">{`Erreur: ${error}`}</b>}
 
-                        {creatingGroup && <p className="font-bold mb-2">Pour créer ta famille:</p>}
-                        {!creatingGroup && <p className="font-bold mb-2">Pour rejoindre une famille:</p>}
+                        {creatingGroup && <p className="font-bold mb-2">Pour créer ton groupe:</p>}
+                        {!creatingGroup && <p className="font-bold mb-2">Pour rejoindre un groupe:</p>}
 
                         <div className="block pt-2">
-                            <span className="pr-2">Entre le nom de ta famille:</span>
+                            <span className="pr-2">Entre le nom de ton groupe:</span>
 
                             <input
                                 id="groupNameInputId"
@@ -124,7 +125,13 @@ export default function Index(): JSX.Element {
                         <div className="block pt-2">
                             <span className="pr-2">Entre ton nom:</span>
 
-                            <CustomInput id="nameInputId" className="bg-transparent" onChange={setName} value={name} onKeyDown={onInputPressKey} />
+                            <CustomInput
+                                id="nameInputId"
+                                className="bg-transparent"
+                                onChange={setName}
+                                value={name}
+                                onKeyDown={onInputPressKey}
+                            />
                         </div>
                     </div>
 

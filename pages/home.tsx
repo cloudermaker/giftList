@@ -1,19 +1,50 @@
 import { EHeader } from '../components/customHeader';
-import { Layout } from '../components/layout';
+import { GROUP_ID_COOKIE, Layout } from '../components/layout';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
 import CountDown from '../components/countDown';
+import { useEffect, useState } from 'react';
+import { Group } from '@prisma/client';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import { TGroupApiResult } from './api/group';
+import Image from 'next/image';
 
 export const Home = (): JSX.Element => {
+    const [group, setGroup] = useState<Group>();
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const groupId = Cookies.get(GROUP_ID_COOKIE) ?? '';
+
+            const response = await axios.get(`/api/group?groupId=${groupId}`);
+            const groupInfoResponse = response.data as TGroupApiResult;
+
+            if (groupInfoResponse.success && groupInfoResponse.group) {
+                setGroup(groupInfoResponse.group);
+            } else {
+                console.error(groupInfoResponse.error ?? 'An error occured');
+            }
+        };
+
+        fetchData();
+    }, []);
+
     return (
         <Layout selectedHeader={EHeader.Homepage}>
-            <h1>Bienvenue petit lutin !!</h1>
+            <h1>
+                Bienvenue sur le groupe <b>{group?.name}</b>
+            </h1>
 
-            <span className="text-xl">
-                Si tu es ici pour remplir ta lettre du père noël, tu es au bon endroit
-                <FontAwesomeIcon className="pl-1" icon={faWandMagicSparkles} />
-            </span>
+            {group?.description && <div dangerouslySetInnerHTML={{ __html: group.description }} />}
+
+            {!group?.description && (
+                <span className="text-xl">
+                    Si tu es ici pour remplir ta lettre du père noël, tu es au bon endroit
+                    <FontAwesomeIcon className="pl-1" icon={faWandMagicSparkles} />
+                </span>
+            )}
 
             <div className="p-10 text-center text-3xl md:text-7xl text-orange-700 mt-[6vh]">
                 <div className="bg-shadow">
@@ -21,46 +52,11 @@ export const Home = (): JSX.Element => {
                 </div>
             </div>
 
-            <div>
-                <ul>
-                    <li>
-                        <b className="pr-2">Pierre - Claire:</b>
-                        <span className="pr-2">
-                            <u>Arrivée</u>: Ven. 22 déc. 19:20
-                        </span>
-                        <span>
-                            <u>Départ</u>: Mar. 26 déc. 16:05
-                        </span>
-                    </li>
-                    <li>
-                        <b className="pr-2">Alice - JB:</b>
-                        <span className="pr-2">
-                            <u>Arrivée</u>: nuit du 21 au 22
-                        </span>
-                        <span>
-                            <u>Départ</u>: 29 matin
-                        </span>
-                    </li>
-                    <li>
-                        <b className="pr-2">Clément:</b>
-                        <span className="pr-2">
-                            <u>Arrivée</u>: Ven. 22 déc. 23h10
-                        </span>
-                        <span>
-                            <u>Départ</u>: Merc. 27 déc. 12h44
-                        </span>
-                    </li>
-                    <li>
-                        <b className="pr-2">Baptite:</b>
-                        <span className="pr-2">
-                            <u>Arrivée</u>: ??????
-                        </span>
-                        <span>
-                            <u>Départ</u>: ?????!!!
-                        </span>
-                    </li>
-                </ul>
-            </div>
+            {group?.imageUrl && (
+                <div>
+                    <Image src={group.imageUrl} alt="group_image"></Image>
+                </div>
+            )}
         </Layout>
     );
 };

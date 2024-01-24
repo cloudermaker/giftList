@@ -110,7 +110,11 @@ export async function getServerSideProps() {
 
     return {
         props: {
-            groups
+            groups: groups.map((group) => ({
+                ...group,
+                updatedAt: group.updatedAt?.toISOString(),
+                createdAt: group.createdAt?.toISOString()
+            }))
         }
     };
 }

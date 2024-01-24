@@ -68,7 +68,7 @@ export const Layout = ({
                             <>
                                 <span className="hidden md:block">Connecté en tant que</span>
                                 <b className="pl-1 text-vertNoel">{connectedUserName}</b>
-                                <span className="hidden md:block">, dans la famille</span>
+                                <span className="hidden md:block">, dans le groupe</span>
                                 <br />
                                 <b className="pl-1 text-vertNoel">{connectedGroupName}</b>
                             </>
