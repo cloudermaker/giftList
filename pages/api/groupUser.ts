@@ -13,14 +13,6 @@ export type TUserInfoResult = {
     error: string;
 };
 
-export const buildUserInfoUrl = (groupId: string, userId: string): string => {
-    const url = new URL('/api/groupUser');
-    url.searchParams.append('groupId', groupId);
-    url.searchParams.append('userId', userId);
-
-    return url.toString();
-};
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TUserInfoResult>) {
     const { groupId, userId } = req.query;
 

@@ -4,7 +4,7 @@ import { CustomHeader, EHeader } from './customHeader';
 import Cookies from 'js-cookie';
 import Router from 'next/router';
 import axios from 'axios';
-import { TUserInfoResult, buildUserInfoUrl } from '../pages/api/groupUser';
+import { TUserInfoResult } from '../pages/api/groupUser';
 import CountDown from './countDown';
 
 export const GROUP_ID_COOKIE = 'giftList_groupName';
@@ -27,7 +27,7 @@ export const Layout = ({
 
     useEffect(() => {
         const fetchData = async (groupId: string, userId: string): Promise<void> => {
-            const result = await axios.get(buildUserInfoUrl(groupId, userId));
+            const result = await axios.get(`/api/groupUser?groupId=${groupId}&userId=${userId}`);
             const userInfoResult = result.data as TUserInfoResult;
 
             if (userInfoResult.success && userInfoResult.groupUser) {
