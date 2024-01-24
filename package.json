@@ -9,6 +9,7 @@
         "lint": "next lint",
         "format": "prettier --loglevel warn --write .",
         "export": "npm run build && next export -o _static",
+        "postinstall": "prisma generate",
         "initDb": "node ./migration/init.js"
     },
     "dependencies": {
