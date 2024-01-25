@@ -4,7 +4,7 @@ import axios from 'axios';
 import { EHeader } from '@/components/customHeader';
 import { sanitize } from '@/lib/helpers/stringHelper';
 import CustomButton from '@/components/atoms/customButton';
-import { getGroups } from '@/lib/db/groupManager';
+import { buildDefaultGroup, getGroups } from '@/lib/db/groupManager';
 import { TGroupApiResult } from './api/group';
 import { Group } from '@prisma/client';
 
@@ -29,14 +29,8 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
     };
 
     const addGroup = async (): Promise<void> => {
-        const groupToAdd: Group = {
-            id: '-1',
-            name: sanitize(newGroupName),
-            description: '',
-            imageUrl: '',
-            updatedAt: new Date(),
-            createdAt: new Date()
-        };
+        const groupToAdd: Group = buildDefaultGroup();
+        groupToAdd.name = newGroupName;
 
         const result = await axios.post('/api/group', {
             group: groupToAdd

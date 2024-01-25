@@ -38,32 +38,25 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
 
     const addOrUpdateUser = async (userId?: string): Promise<void> => {
         const currentUserToAdd = localUsers.filter((user) => user.id === userId)[0];
-        const userToAdd: User =
-            { ...currentUserToAdd, name: sanitize(newUserName) } ?? buildDefaultUser(sanitize(newUserName), group.id);
+
+        let userToAdd: User = currentUserToAdd ?? buildDefaultUser(group.id);
+        userToAdd.name = newUserName;
 
         const result = await axios.post('/api/user', {
             user: userToAdd
         });
         const data = result.data as TUserApiResult;
 
-        if (data.success === true && data.userId) {
+        if (data.success === true && data.user) {
             let newUsers: User[] = localUsers;
-            userToAdd.id = userId ?? data.userId;
 
             if (userId) {
                 // Update
-                const tmpUsers: User[] = [];
-                for (const user of newUsers) {
-                    if (user.id === userId) {
-                        tmpUsers.push(userToAdd);
-                    } else {
-                        tmpUsers.push(user);
-                    }
-                }
-                newUsers = tmpUsers;
+                const currentUserToUpdateId = newUsers.findIndex((user) => user.id === userId);
+                newUsers[currentUserToUpdateId] = data.user;
             } else {
                 // Create
-                newUsers.push(userToAdd);
+                newUsers.push(data.user);
             }
 
             setLocalUsers(newUsers);
@@ -200,13 +193,13 @@ export async function getServerSideProps(context: NextPageContext) {
         props: {
             group: {
                 ...group,
-                updatedAt: group?.updatedAt.toISOString(),
-                createdAt: group?.createdAt.toISOString()
+                updatedAt: group?.updatedAt?.toISOString(),
+                createdAt: group?.createdAt?.toISOString()
             },
             groupUsers: groupUsers.map((groupUser) => ({
                 ...groupUser,
-                updatedAt: groupUser.updatedAt.toISOString(),
-                createdAt: groupUser.createdAt.toISOString()
+                updatedAt: groupUser.updatedAt?.toISOString() ?? '',
+                createdAt: groupUser.createdAt?.toISOString() ?? ''
             }))
         }
     };

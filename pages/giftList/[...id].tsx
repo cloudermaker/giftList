@@ -119,14 +119,22 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         giftToUpsert.description = sanitize(newDescription);
         giftToUpsert.url = sanitize(newLink);
 
-        const result = await axios.post('/api/gift/post', {
-            userGift: giftToUpsert
+        const result = await axios.post('/api/gift', {
+            gift: giftToUpsert
         });
         const data = result.data as TGiftApiResult;
 
-        if (data.success === true) {
-            let newGifts: Gift[] = localGifts.filter((gift) => gift.id !== giftId);
-            newGifts.push(giftToUpsert);
+        if (data.success === true && data.gift) {
+            let newGifts: Gift[] = localGifts;
+
+            if (giftId) {
+                // Update
+                const currentUserToUpdateId = newGifts.findIndex((gift) => gift.id === giftId);
+                newGifts[currentUserToUpdateId] = data.gift;
+            } else {
+                // Create
+                newGifts.push(data.gift);
+            }
 
             setLocalGifts(newGifts);
             clearAllFields();
@@ -272,15 +280,15 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                         {userCanAddGift && (
                                             <>
                                                 {updatingGiftId === gift.id && (
-                                                    <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
-                                                )}
-                                                {updatingGiftId === gift.id && (
                                                     <CustomButton
                                                         onClick={() => upsertGift(gift.id)}
                                                         disabled={newGiftName == null || newGiftName === ''}
                                                     >
                                                         Valider
                                                     </CustomButton>
+                                                )}
+                                                {updatingGiftId === gift.id && (
+                                                    <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
                                                 )}
                                                 {updatingGiftId !== gift.id && (
                                                     <>
@@ -386,8 +394,8 @@ export async function getServerSideProps(context: NextPageContext) {
         props: {
             user: {
                 ...user,
-                updatedAt: user?.updatedAt.toISOString(),
-                createdAt: user?.createdAt.toISOString()
+                updatedAt: user?.updatedAt?.toISOString(),
+                createdAt: user?.createdAt?.toISOString()
             },
             giftList: giftList.map((gift) => ({
                 ...gift,

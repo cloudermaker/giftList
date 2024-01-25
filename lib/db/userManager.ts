@@ -1,10 +1,10 @@
 import { User } from '@prisma/client';
 import prisma from './dbSingleton';
 
-export const buildDefaultUser = (name: string, groupId: string): User => {
+export const buildDefaultUser = (groupId: string): User => {
     return {
         id: '',
-        name,
+        name: '',
         groupId,
         isAdmin: false,
         acceptSuggestedGift: false,
@@ -73,7 +73,7 @@ export const upsertUser = async (user: User): Promise<User> => {
             id: user.id
         },
         create: { ...user, id: undefined },
-        update: user
+        update: { ...user, updatedAt: undefined }
     });
 
     return user;
@@ -84,7 +84,7 @@ export const updateUser = async (user: User): Promise<User> => {
         where: {
             id: user.id
         },
-        data: user
+        data: { ...user, updatedAt: undefined }
     });
 
     return user;

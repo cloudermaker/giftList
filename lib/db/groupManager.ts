@@ -1,6 +1,17 @@
 import { Group } from '@prisma/client';
 import prisma from './dbSingleton';
 
+export const buildDefaultGroup = () => {
+    return {
+        id: '-1',
+        name: '',
+        description: '',
+        imageUrl: '',
+        updatedAt: new Date(),
+        createdAt: new Date()
+    };
+};
+
 export const getGroups = async (): Promise<Group[]> => {
     var groups = await prisma.group.findMany();
 
@@ -55,7 +66,7 @@ export const upsertGroup = async (group: Group): Promise<Group> => {
             id: group.id
         },
         create: { ...group, id: undefined },
-        update: group
+        update: { ...group, updatedAt: undefined }
     });
 
     return newGroup;

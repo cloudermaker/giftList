@@ -25,7 +25,7 @@ const CustomButton = ({
     return (
         <button onClick={customOnClick} className={className ?? ''} disabled={disabled ?? false}>
             <div className="flex">
-                {isInProgress && <CircleLoader size="20" color="green" />}
+                {isInProgress && <CircleLoader size="20px" color="green" />}
                 {!isInProgress && children}
             </div>
         </button>
