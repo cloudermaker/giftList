@@ -19,7 +19,9 @@ const CustomButton = ({
 
         await onClick();
 
-        setIsInProgress(false);
+        window.setTimeout(function () {
+            setIsInProgress(false);
+        }, 200);
     };
 
     return (

@@ -33,20 +33,14 @@ export const Layout = ({
             if (userInfoResult.success && userInfoResult.groupUser) {
                 setConnectedUserName(userInfoResult.groupUser.userName as string);
                 setConnectedGroupName(userInfoResult.groupUser.groupName as string);
-            } else {
-                onDisconnectClick();
             }
         };
 
         const groupId = Cookies.get(GROUP_ID_COOKIE) ?? '';
         const userId = Cookies.get(USER_ID_COOKIE) ?? '';
-        setGroupCookieId(groupId);
-        setUserCookieId(userId);
-
-        if (withHeader) {
-            if (!groupId || !userId) {
-                onDisconnectClick();
-            }
+        if (withHeader && groupId && userId) {
+            setGroupCookieId(groupId);
+            setUserCookieId(userId);
 
             fetchData(groupId, userId);
         }
