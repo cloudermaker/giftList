@@ -32,6 +32,16 @@ export const getGiftFromId = async (id: string): Promise<Gift | null> => {
     return gift;
 };
 
+export const getTakenGiftsFromUserId = async (userId: string): Promise<Gift[]> => {
+    var gifts = await prisma.gift.findMany({
+        where: {
+            takenUserId: userId
+        }
+    });
+
+    return gifts;
+};
+
 export const getGiftsFromUserId = async (userId: string): Promise<Gift[]> => {
     var gifts = await prisma.gift.findMany({
         where: {

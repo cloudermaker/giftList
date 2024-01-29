@@ -49,15 +49,13 @@ function SortableItem({
     };
 
     return (
-        <>
-            <div className="item flex items-center" ref={setNodeRef} style={style}>
-                <div {...localListeners} style={localStyle}>
-                    <LeftIcon />
-                </div>
-
-                {children}
+        <div className="item flex items-center" ref={setNodeRef} style={style}>
+            <div {...localListeners} style={localStyle}>
+                <LeftIcon />
             </div>
-        </>
+
+            {children}
+        </div>
     );
 }
 
