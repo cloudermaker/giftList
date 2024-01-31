@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, Suspense, useEffect, useState } from 'react';
 import { Layout, USER_ID_COOKIE } from '@/components/layout';
 import axios from 'axios';
 import { EHeader } from '@/components/customHeader';
@@ -59,9 +59,8 @@ function SortableItem({
 }
 
 const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JSX.Element => {
-    const [isLoaded, setIsLoaded] = useState<boolean>(false);
-    const [userCookieId, setUserCookieId] = useState<string>('');
-    const userCanAddGift: boolean = user.id === userCookieId;
+    const [userCookieId, setUserCookieId] = useState<string>();
+    const [userCanAddGift] = useState<boolean>(user.id === userCookieId);
 
     const [localGifts, setLocalGifts] = useState<Gift[]>(giftList);
     const [creatingGift, setCreatingGift] = useState<boolean>(false);
@@ -76,7 +75,8 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
 
     useEffect(() => {
         setUserCookieId(Cookies.get(USER_ID_COOKIE) ?? '');
-        setIsLoaded(true);
+
+        return () => setUserCookieId('');
     }, []);
 
     const clearAllFields = (): void => {
@@ -232,7 +232,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                     </div>
                 )}
 
-                {isLoaded && (
+                <Suspense fallback="loading...">
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                         <SortableContext items={localGifts}>
                             {localGifts
@@ -297,31 +297,27 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                             )}
 
                                             <div className="text-right block md:flex">
-                                                {userCanAddGift && (
-                                                    <>
-                                                        {updatingGiftId === gift.id && (
+                                                {userCanAddGift &&
+                                                    (updatingGiftId === gift.id ? (
+                                                        <>
                                                             <CustomButton
                                                                 onClick={() => upsertGift(gift.id)}
                                                                 disabled={newGiftName == null || newGiftName === ''}
                                                             >
                                                                 Valider
                                                             </CustomButton>
-                                                        )}
-                                                        {updatingGiftId === gift.id && (
                                                             <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
-                                                        )}
-                                                        {updatingGiftId !== gift.id && (
-                                                            <>
-                                                                <CustomButton onClick={() => updatingGift(gift)}>
-                                                                    Modifier
-                                                                </CustomButton>
-                                                                <CustomButton onClick={() => removeGift(gift.id)}>
-                                                                    Supprimer
-                                                                </CustomButton>
-                                                            </>
-                                                        )}
-                                                    </>
-                                                )}
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <CustomButton onClick={() => updatingGift(gift)}>
+                                                                Modifier
+                                                            </CustomButton>
+                                                            <CustomButton onClick={() => removeGift(gift.id)}>
+                                                                Supprimer
+                                                            </CustomButton>
+                                                        </>
+                                                    ))}
 
                                                 {gift && userCookieId && !userCanAddGift && gift.takenUserId === userCookieId && (
                                                     <CustomButton onClick={() => onBlockUnBlockGiftClick(gift)}>
@@ -352,7 +348,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                 ))}
                         </SortableContext>
                     </DndContext>
-                )}
+                </Suspense>
 
                 {!creatingGift && <CustomButton onClick={onCreatingGiftButtonClick}>Ajouter un cadeau</CustomButton>}
 
