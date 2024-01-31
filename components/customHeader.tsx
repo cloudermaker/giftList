@@ -42,18 +42,21 @@ export const CustomHeader = ({
 
     return (
         <div className="header flex justify-between p-2 px-5 sm:px-3">
-            <Link href="/home" className={commonStyle}>
+            <div onClick={() => Router.push('/home')} className={commonStyle}>
                 <FontAwesomeIcon icon={faHomeUser} />
-            </Link>
+            </div>
 
             {menus.map((menu) => (
-                <span
+                <div
                     key={`menu_${menu.name}`}
-                    onClick={() => Router.push(menu.url)}
+                    onClick={() => {
+                        // Cannot use router / link => force server side rerender (same page)
+                        window.location.href = menu.url;
+                    }}
                     className={`${commonStyle} hidden sm:block ${menu.isSelected ? 'font-bold text-vertNoel' : ''}`}
                 >
                     {menu.name}
-                </span>
+                </div>
             ))}
 
             <div className="flex">
@@ -75,7 +78,7 @@ export const CustomHeader = ({
                                 <span
                                     key={`menu_${menu.name}`}
                                     onClick={() => navigate(menu.url)}
-                                    className={`${commonStyle} block px-4 py-2 text-sm ${
+                                    className={`${commonStyle} block px-4 py-2 text-base ${
                                         menu.isSelected ? 'font-bold text-vertNoel' : ''
                                     }`}
                                     role="menuitem"

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Layout } from '@/components/layout';
 import axios from 'axios';
 import { EHeader } from '@/components/customHeader';
-import { sanitize } from '@/lib/helpers/stringHelper';
 import CustomButton from '@/components/atoms/customButton';
 import { buildDefaultGroup, getGroups } from '@/lib/db/groupManager';
 import { TGroupApiResult } from './api/group';

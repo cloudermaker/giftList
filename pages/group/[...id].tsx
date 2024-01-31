@@ -3,12 +3,12 @@ import { Layout } from '@/components/layout';
 import axios from 'axios';
 import { EHeader } from '@/components/customHeader';
 import { NextPageContext } from 'next';
-import { sanitize } from '@/lib/helpers/stringHelper';
 import CustomButton from '@/components/atoms/customButton';
 import { TUserApiResult } from '@/pages/api/user';
 import { getGroupById } from '@/lib/db/groupManager';
 import { buildDefaultUser, getUsersFromGroupId } from '@/lib/db/userManager';
 import { User, Group } from '@prisma/client';
+import Router from 'next/router';
 
 const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] }): JSX.Element => {
     const [localUsers, setLocalUsers] = useState<User[]>(groupUsers);
@@ -40,7 +40,7 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
         const currentUserToAdd = localUsers.filter((user) => user.id === userId)[0];
 
         let userToAdd: User = currentUserToAdd ?? buildDefaultUser(group.id);
-        userToAdd.name = newUserName;
+        userToAdd.name = newUserName.trim();
 
         const result = await axios.post('/api/user', {
             user: userToAdd
@@ -105,7 +105,9 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
                         <div className="block md:flex items-center text-center">
                             {updatingUserId !== user.id && (
                                 <>
-                                    <a href={`/giftList/${user.id}`}>Liste de cadeaux</a>
+                                    <CustomButton className="mt-3 md:mt-0" onClick={() => Router.push(`/giftList/${user.id}`)}>
+                                        Liste de cadeaux
+                                    </CustomButton>
 
                                     <div className="flex">
                                         <CustomButton className="mt-3 md:mt-0" onClick={() => updatingUser(user)}>

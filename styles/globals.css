@@ -75,6 +75,11 @@ button:disabled {
     margin-bottom: 20px;
     align-items: center;
     font-size: x-large;
+    transition: all 0.3s ease-in-out;
+}
+
+.header div {
+    transition: all 0.3s ease-in-out;
 }
 
 .bg-shadow {

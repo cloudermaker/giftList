@@ -4,7 +4,6 @@ import axios from 'axios';
 import { EHeader } from '@/components/customHeader';
 import { NextPageContext } from 'next';
 import Cookies from 'js-cookie';
-import { sanitize } from '@/lib/helpers/stringHelper';
 import CustomButton from '@/components/atoms/customButton';
 import { Medal } from '@/components/icons/medal';
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
@@ -60,12 +59,14 @@ function SortableItem({
 }
 
 const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JSX.Element => {
+    const [isLoaded, setIsLoaded] = useState<boolean>(false);
     const [userCookieId, setUserCookieId] = useState<string>('');
     const userCanAddGift: boolean = user.id === userCookieId;
 
     const [localGifts, setLocalGifts] = useState<Gift[]>(giftList);
     const [creatingGift, setCreatingGift] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
+    const [filteringTakenGifts, setFilteringTakenGifts] = useState<boolean>(false);
 
     const [newGiftName, setNewGiftName] = useState<string>('');
     const [newDescription, setNewDescription] = useState<string>('');
@@ -75,6 +76,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
 
     useEffect(() => {
         setUserCookieId(Cookies.get(USER_ID_COOKIE) ?? '');
+        setIsLoaded(true);
     }, []);
 
     const clearAllFields = (): void => {
@@ -113,9 +115,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         const currentGift: Gift = localGifts.filter((gift) => gift.id === giftId)[0];
         const giftToUpsert: Gift = currentGift ?? buildDefaultGift(user.id, localGifts.length);
 
-        giftToUpsert.name = sanitize(newGiftName);
-        giftToUpsert.description = sanitize(newDescription);
-        giftToUpsert.url = sanitize(newLink);
+        giftToUpsert.name = newGiftName;
+        giftToUpsert.description = newDescription;
+        giftToUpsert.url = newLink;
 
         const result = await axios.post('/api/gift', {
             gift: giftToUpsert
@@ -159,10 +161,16 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         const data = result.data as TGiftApiResult;
 
         if (data.success && data.gift) {
-            const newLocalGifts = localGifts;
-            const currentGiftToUpdateId: number = newLocalGifts.findIndex((gift) => gift.id === giftToUpdate.id);
+            const newLocalGifts: Gift[] = [];
 
-            newLocalGifts[currentGiftToUpdateId] = data.gift;
+            for (const gift of localGifts) {
+                if (gift.id === giftToUpdate.id) {
+                    newLocalGifts.push(data.gift);
+                } else {
+                    newLocalGifts.push(gift);
+                }
+            }
+
             setLocalGifts(newLocalGifts);
         } else {
             window.alert(data.error);
@@ -213,111 +221,138 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
             <div className="mb-10">
                 <h1>{`Voici la liste de cadeaux pour ${user.name}:`}</h1>
 
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                    <SortableContext items={localGifts}>
-                        {localGifts.map((gift, idx) => (
-                            <SortableItem key={`gift_${gift.id}`} gift={gift} idx={idx + 1} canReorder={userCanAddGift}>
-                                <div className="flex justify-between items-center w-full">
-                                    {updatingGiftId !== gift.id && (
-                                        <div className={`w-full block ${buildStyleIfTaken(gift)}`}>
-                                            <p>
-                                                <b className="pr-2">Nom:</b>
-                                                {gift.name}
-                                            </p>
+                {userCookieId && user.id && userCookieId !== user.id && (
+                    <div className="flex pb-4">
+                        Je veux cacher les cadeaux déja pris:
+                        <input
+                            className="ml-2 cursor-pointer w-6 accent-vertNoel"
+                            type="checkbox"
+                            onChange={() => setFilteringTakenGifts(!filteringTakenGifts)}
+                        />
+                    </div>
+                )}
 
-                                            {gift.description && (
-                                                <p>
-                                                    <b className="pr-2">Description:</b>
-                                                    {gift.description}
-                                                </p>
-                                            )}
+                {isLoaded && (
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                        <SortableContext items={localGifts}>
+                            {localGifts
+                                .filter((gift) => !filteringTakenGifts || !gift.takenUserId)
+                                .map((gift, idx) => (
+                                    <SortableItem key={`gift_${gift.id}`} gift={gift} idx={idx + 1} canReorder={userCanAddGift}>
+                                        <div className="flex justify-between items-center w-full">
+                                            {updatingGiftId !== gift.id && (
+                                                <div className={`w-full block ${buildStyleIfTaken(gift)}`}>
+                                                    <p>
+                                                        <b className="pr-2">Nom:</b>
+                                                        {gift.name}
+                                                    </p>
 
-                                            {gift.url && (
-                                                <div className="flex">
-                                                    <span>{'->'}</span>
-                                                    <a href={gift.url}>Lien</a>
-                                                    <span>{'<-'}</span>
+                                                    {gift.description && (
+                                                        <p>
+                                                            <b className="pr-2">Description:</b>
+                                                            {gift.description}
+                                                        </p>
+                                                    )}
+
+                                                    {gift.url && (
+                                                        <div className="flex">
+                                                            <span>{'->'}</span>
+                                                            <a href={gift.url}>Lien</a>
+                                                            <span>{'<-'}</span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
-                                        </div>
-                                    )}
 
-                                    {updatingGiftId === gift.id && (
-                                        <div className={`block ${buildStyleIfTaken(gift)}`}>
-                                            <div className="grid md:flex">
-                                                <b className="pr-2">Nom:</b>
-                                                <input
-                                                    id="newGiftInputId"
-                                                    className="bg-transparent"
-                                                    value={newGiftName}
-                                                    onChange={(e) => setNewGiftName(e.target.value)}
-                                                />
-                                            </div>
+                                            {updatingGiftId === gift.id && (
+                                                <div className={`block ${buildStyleIfTaken(gift)}`}>
+                                                    <div className="grid md:flex">
+                                                        <b className="pr-2">Nom:</b>
+                                                        <input
+                                                            id="newGiftInputId"
+                                                            className="bg-transparent"
+                                                            value={newGiftName}
+                                                            onChange={(e) => setNewGiftName(e.target.value)}
+                                                        />
+                                                    </div>
 
-                                            <div className="grid md:flex">
-                                                <b className="pr-2">Description:</b>
-                                                <input
-                                                    className="bg-transparent"
-                                                    value={newDescription}
-                                                    onChange={(e) => setNewDescription(e.target.value)}
-                                                />
-                                            </div>
+                                                    <div className="grid md:flex">
+                                                        <b className="pr-2">Description:</b>
+                                                        <input
+                                                            className="bg-transparent"
+                                                            value={newDescription}
+                                                            onChange={(e) => setNewDescription(e.target.value)}
+                                                        />
+                                                    </div>
 
-                                            <div className="grid md:flex">
-                                                <b className="pr-2">Lien:</b>
-                                                <input
-                                                    className="bg-transparent"
-                                                    value={newLink}
-                                                    onChange={(e) => setNewLink(e.target.value)}
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
+                                                    <div className="grid md:flex">
+                                                        <b className="pr-2">Lien:</b>
+                                                        <input
+                                                            className="bg-transparent"
+                                                            value={newLink}
+                                                            onChange={(e) => setNewLink(e.target.value)}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
 
-                                    <div className="text-right block md:flex">
-                                        {userCanAddGift && (
-                                            <>
-                                                {updatingGiftId === gift.id && (
-                                                    <CustomButton
-                                                        onClick={() => upsertGift(gift.id)}
-                                                        disabled={newGiftName == null || newGiftName === ''}
-                                                    >
-                                                        Valider
-                                                    </CustomButton>
-                                                )}
-                                                {updatingGiftId === gift.id && (
-                                                    <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
-                                                )}
-                                                {updatingGiftId !== gift.id && (
+                                            <div className="text-right block md:flex">
+                                                {userCanAddGift && (
                                                     <>
-                                                        <CustomButton onClick={() => updatingGift(gift)}>Modifier</CustomButton>
-                                                        <CustomButton onClick={() => removeGift(gift.id)}>Supprimer</CustomButton>
+                                                        {updatingGiftId === gift.id && (
+                                                            <CustomButton
+                                                                onClick={() => upsertGift(gift.id)}
+                                                                disabled={newGiftName == null || newGiftName === ''}
+                                                            >
+                                                                Valider
+                                                            </CustomButton>
+                                                        )}
+                                                        {updatingGiftId === gift.id && (
+                                                            <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
+                                                        )}
+                                                        {updatingGiftId !== gift.id && (
+                                                            <>
+                                                                <CustomButton onClick={() => updatingGift(gift)}>
+                                                                    Modifier
+                                                                </CustomButton>
+                                                                <CustomButton onClick={() => removeGift(gift.id)}>
+                                                                    Supprimer
+                                                                </CustomButton>
+                                                            </>
+                                                        )}
                                                     </>
                                                 )}
-                                            </>
-                                        )}
 
-                                        {!userCanAddGift && gift.takenUserId === userCookieId && (
-                                            <CustomButton onClick={() => onBlockUnBlockGiftClick(gift)}>
-                                                Je ne prends plus ce cadeau
-                                            </CustomButton>
-                                        )}
+                                                {gift && userCookieId && !userCanAddGift && gift.takenUserId === userCookieId && (
+                                                    <CustomButton onClick={() => onBlockUnBlockGiftClick(gift)}>
+                                                        Je ne prends plus ce cadeau
+                                                    </CustomButton>
+                                                )}
 
-                                        {!userCanAddGift && gift.takenUserId && gift.takenUserId !== userCookieId && (
-                                            <span className="text-red-500">Ce cadeau est déjà pris</span>
-                                        )}
+                                                {gift &&
+                                                    userCookieId &&
+                                                    !userCanAddGift &&
+                                                    gift.takenUserId &&
+                                                    gift.takenUserId !== userCookieId && (
+                                                        <span className="text-red-500">Ce cadeau est déjà pris</span>
+                                                    )}
 
-                                        {!userCanAddGift && !gift.takenUserId && gift.takenUserId !== userCookieId && (
-                                            <CustomButton onClick={() => onBlockUnBlockGiftClick(gift)}>
-                                                Je prends ce cadeau
-                                            </CustomButton>
-                                        )}
-                                    </div>
-                                </div>
-                            </SortableItem>
-                        ))}
-                    </SortableContext>
-                </DndContext>
+                                                {gift &&
+                                                    userCookieId &&
+                                                    !userCanAddGift &&
+                                                    !gift.takenUserId &&
+                                                    gift.takenUserId !== userCookieId && (
+                                                        <CustomButton onClick={() => onBlockUnBlockGiftClick(gift)}>
+                                                            Je prends ce cadeau
+                                                        </CustomButton>
+                                                    )}
+                                            </div>
+                                        </div>
+                                    </SortableItem>
+                                ))}
+                        </SortableContext>
+                    </DndContext>
+                )}
 
                 {!creatingGift && <CustomButton onClick={onCreatingGiftButtonClick}>Ajouter un cadeau</CustomButton>}
 

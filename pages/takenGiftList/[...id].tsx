@@ -1,16 +1,38 @@
+import CustomButton from '@/components/atoms/customButton';
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
 import { getTakenGiftsFromUserId } from '@/lib/db/giftManager';
 import { Gift } from '@prisma/client';
+import axios from 'axios';
 import { NextPageContext } from 'next';
+import { useState } from 'react';
+import { TGiftApiResult } from '../api/gift';
 
 const TakenGiftList = ({ takenGifts }: { takenGifts: Gift[] }): JSX.Element => {
+    const [localTakenGifts, setLocalTakenGifts] = useState<Gift[]>(takenGifts);
+
+    const onUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
+        const result = await axios.put('/api/gift', {
+            gift: {
+                id: giftToUpdate.id,
+                takenUserId: null
+            }
+        });
+        const data = result.data as TGiftApiResult;
+
+        if (data.success && data.gift) {
+            setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftToUpdate.id));
+        } else {
+            window.alert(data.error);
+        }
+    };
+
     return (
         <Layout selectedHeader={EHeader.TakenGiftList}>
             <div className="mb-10">
                 <h1>{`Voici la liste des cadeaux que je prends:`}</h1>
 
-                {takenGifts.map((gift, idx) => (
+                {localTakenGifts.map((gift, idx) => (
                     <div key={`takenGift_${idx}`} className="item flex justify-between items-center w-full">
                         <div className={`w-full block`}>
                             <p>
@@ -32,6 +54,10 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: Gift[] }): JSX.Element => {
                                     <span>{'<-'}</span>
                                 </div>
                             )}
+                        </div>
+
+                        <div>
+                            <CustomButton onClick={() => onUnBlockGiftClick(gift)}>Je ne prends plus ce cadeau</CustomButton>
                         </div>
                     </div>
                 ))}

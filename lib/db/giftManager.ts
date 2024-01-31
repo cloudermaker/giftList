@@ -63,7 +63,7 @@ export const createGift = async (
 
     var user = await prisma.gift.create({
         data: {
-            name: giftName,
+            name: giftName.trim(),
             userId: ownerUserId,
             description,
             url,
@@ -80,7 +80,7 @@ export const updateGift = async (gift: Gift): Promise<Gift> => {
         where: {
             id: gift.id
         },
-        data: gift
+        data: { ...gift, name: gift.name.trim() }
     });
 
     return gift;
@@ -93,7 +93,7 @@ export const updateGifts = async (gifts: Gift[]): Promise<Gift[]> => {
             where: {
                 id: gift.id
             },
-            data: gift
+            data: { ...gift, name: gift.name.trim() }
         });
         updatedGifts.push(updatedGift);
     }
@@ -107,7 +107,7 @@ export const upsertGift = async (gift: Gift): Promise<Gift> => {
             id: gift.id
         },
         create: { ...gift, id: undefined },
-        update: gift
+        update: { ...gift, name: gift.name.trim() }
     });
 
     return user;
