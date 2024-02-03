@@ -112,19 +112,21 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
                                         Liste de cadeaux
                                     </CustomButton>
 
-                                    <div className="flex">
-                                        <CustomButton className="mt-3 md:mt-0" onClick={() => updatingUser(user)}>
-                                            Modifier
-                                        </CustomButton>
+                                    {connectedUser?.isAdmin && (
+                                        <div className="flex">
+                                            <CustomButton className="mt-3 md:mt-0" onClick={() => updatingUser(user)}>
+                                                Modifier
+                                            </CustomButton>
 
-                                        <CustomButton className="mt-3 md:mt-0" onClick={() => removeUser(user.id)}>
-                                            Supprimer
-                                        </CustomButton>
-                                    </div>
+                                            <CustomButton className="mt-3 md:mt-0" onClick={() => removeUser(user.id)}>
+                                                Supprimer
+                                            </CustomButton>
+                                        </div>
+                                    )}
                                 </>
                             )}
 
-                            {updatingUserId === user.id && (
+                            {connectedUser?.isAdmin && updatingUserId === user.id && (
                                 <>
                                     <div className="flex">
                                         <CustomButton
@@ -145,35 +147,39 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
                     </div>
                 ))}
 
-                {!creatingUser && <CustomButton onClick={onCreatingUserButtonClick}>Ajouter un utilisateur</CustomButton>}
+                {connectedUser?.isAdmin && (
+                    <>
+                        {!creatingUser && <CustomButton onClick={onCreatingUserButtonClick}>Ajouter un utilisateur</CustomButton>}
 
-                {creatingUser && (
-                    <div className="pb-5 pl-3">
-                        {addError && <div className="text-red-500 font-bold">{addError}</div>}
+                        {creatingUser && (
+                            <div className="pb-5 pl-3">
+                                {addError && <div className="text-red-500 font-bold">{addError}</div>}
 
-                        <b className="mr-2">Nom:</b>
-                        <input
-                            id="newUserInputId"
-                            className="bg-transparent"
-                            value={newUserName}
-                            onChange={(e) => setNewUserName(e.target.value)}
-                        />
+                                <b className="mr-2">Nom:</b>
+                                <input
+                                    id="newUserInputId"
+                                    className="bg-transparent"
+                                    value={newUserName}
+                                    onChange={(e) => setNewUserName(e.target.value)}
+                                />
 
-                        <div className="mt-2">
-                            <CustomButton onClick={() => addOrUpdateUser()} disabled={newUserName === ''}>
-                                Ajouter
-                            </CustomButton>
+                                <div className="mt-2">
+                                    <CustomButton onClick={() => addOrUpdateUser()} disabled={newUserName === ''}>
+                                        Ajouter
+                                    </CustomButton>
 
-                            <CustomButton
-                                onClick={() => {
-                                    setNewUserName('');
-                                    setCreatingUser(false);
-                                }}
-                            >
-                                Annuler
-                            </CustomButton>
-                        </div>
-                    </div>
+                                    <CustomButton
+                                        onClick={() => {
+                                            setNewUserName('');
+                                            setCreatingUser(false);
+                                        }}
+                                    >
+                                        Annuler
+                                    </CustomButton>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </Layout>
