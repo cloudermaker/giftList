@@ -1,5 +1,5 @@
 import { ReactNode, Suspense, useEffect, useState } from 'react';
-import { Layout, USER_ID_COOKIE } from '@/components/layout';
+import { Layout } from '@/components/layout';
 import axios from 'axios';
 import { EHeader } from '@/components/customHeader';
 import { NextPageContext } from 'next';
@@ -14,6 +14,7 @@ import { Gift, User } from '@prisma/client';
 import { buildDefaultGift, getGiftsFromUserId } from '@/lib/db/giftManager';
 import { TGiftApiResult } from '@/pages/api/gift';
 import { getUserById } from '@/lib/db/userManager';
+import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 
 function SortableItem({
     gift,
@@ -59,8 +60,9 @@ function SortableItem({
 }
 
 const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JSX.Element => {
-    const [userCookieId, setUserCookieId] = useState<string>();
-    const [userCanAddGift] = useState<boolean>(user.id === userCookieId);
+    const { connectedUser } = useCurrentUser();
+
+    const userCanAddGift: boolean = user.id === connectedUser?.userId;
 
     const [localGifts, setLocalGifts] = useState<Gift[]>(giftList);
     const [creatingGift, setCreatingGift] = useState<boolean>(false);
@@ -72,12 +74,6 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
     const [newLink, setNewLink] = useState<string>('');
 
     const [updatingGiftId, setUpdatingGiftId] = useState<string>('');
-
-    useEffect(() => {
-        setUserCookieId(Cookies.get(USER_ID_COOKIE) ?? '');
-
-        return () => setUserCookieId('');
-    }, []);
 
     const clearAllFields = (): void => {
         setCreatingGift(false);
@@ -155,7 +151,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         const result = await axios.put('/api/gift', {
             gift: {
                 id: giftToUpdate.id,
-                takenUserId: giftToUpdate.takenUserId != null ? null : userCookieId
+                takenUserId: giftToUpdate.takenUserId != null ? null : connectedUser?.userId
             }
         });
         const data = result.data as TGiftApiResult;
@@ -178,7 +174,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
     };
 
     const buildStyleIfTaken = (gift: Gift): string => {
-        if (gift.userId !== userCookieId && gift.takenUserId != null) {
+        if (gift.userId !== connectedUser?.userId && gift.takenUserId != null) {
             return 'line-through';
         }
 
@@ -221,7 +217,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
             <div className="mb-10">
                 <h1>{`Voici la liste de cadeaux pour ${user.name}:`}</h1>
 
-                {userCookieId && user.id && userCookieId !== user.id && (
+                {connectedUser?.userId !== user.id && (
                     <div className="flex pb-4">
                         Je veux cacher les cadeaux déja pris:
                         <input
@@ -319,25 +315,21 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                                         </>
                                                     ))}
 
-                                                {gift && userCookieId && !userCanAddGift && gift.takenUserId === userCookieId && (
+                                                {!userCanAddGift && gift.takenUserId === connectedUser?.userId && (
                                                     <CustomButton onClick={() => onBlockUnBlockGiftClick(gift)}>
                                                         Je ne prends plus ce cadeau
                                                     </CustomButton>
                                                 )}
 
-                                                {gift &&
-                                                    userCookieId &&
-                                                    !userCanAddGift &&
+                                                {!userCanAddGift &&
                                                     gift.takenUserId &&
-                                                    gift.takenUserId !== userCookieId && (
+                                                    gift.takenUserId !== connectedUser?.userId && (
                                                         <span className="text-red-500">Ce cadeau est déjà pris</span>
                                                     )}
 
-                                                {gift &&
-                                                    userCookieId &&
-                                                    !userCanAddGift &&
+                                                {!userCanAddGift &&
                                                     !gift.takenUserId &&
-                                                    gift.takenUserId !== userCookieId && (
+                                                    gift.takenUserId !== connectedUser?.userId && (
                                                         <CustomButton onClick={() => onBlockUnBlockGiftClick(gift)}>
                                                             Je prends ce cadeau
                                                         </CustomButton>

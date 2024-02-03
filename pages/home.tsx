@@ -1,5 +1,5 @@
-import { EHeader } from '../components/customHeader';
-import { GROUP_ID_COOKIE, Layout } from '../components/layout';
+import { EHeader } from '@/components/customHeader';
+import { Layout } from '@/components/layout';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
@@ -7,29 +7,30 @@ import CountDown from '../components/countDown';
 import { useEffect, useState } from 'react';
 import { Group } from '@prisma/client';
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { TGroupApiResult } from './api/group';
 import Image from 'next/image';
+import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 
 export const Home = (): JSX.Element => {
+    const { connectedUser } = useCurrentUser();
     const [group, setGroup] = useState<Group>();
 
     useEffect(() => {
         const fetchData = async () => {
-            const groupId = Cookies.get(GROUP_ID_COOKIE) ?? '';
+            if (connectedUser) {
+                const response = await axios.get(`/api/group?groupId=${connectedUser?.groupId}`);
+                const groupInfoResponse = response.data as TGroupApiResult;
 
-            const response = await axios.get(`/api/group?groupId=${groupId}`);
-            const groupInfoResponse = response.data as TGroupApiResult;
-
-            if (groupInfoResponse.success && groupInfoResponse.group) {
-                setGroup(groupInfoResponse.group);
-            } else {
-                console.error(groupInfoResponse.error ?? 'An error occured');
+                if (groupInfoResponse.success && groupInfoResponse.group) {
+                    setGroup(groupInfoResponse.group);
+                } else {
+                    console.error(groupInfoResponse.error ?? 'An error occured');
+                }
             }
         };
 
         fetchData();
-    }, []);
+    }, [connectedUser]);
 
     return (
         <Layout selectedHeader={EHeader.Homepage}>

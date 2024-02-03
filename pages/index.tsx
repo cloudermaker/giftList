@@ -1,28 +1,19 @@
-import axios from 'axios';
 import Router from 'next/router';
-import Cookies from 'js-cookie';
-import { useState, useEffect } from 'react';
-import { GROUP_ID_COOKIE, Layout, USER_ID_COOKIE } from '../components/layout';
-import { TAuthenticateResult } from './api/authenticate';
+import { useState } from 'react';
+import { Layout } from '../components/layout';
 import { CustomInput } from '../components/atoms/customInput';
 import CustomButton from '../components/atoms/customButton';
+import { useLogin } from '@/lib/hooks/useLogin';
 
 export default function Index(): JSX.Element {
+    const { login } = useLogin();
+
     const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
     const [joiningGroup, setJoiningGroup] = useState<boolean>(false);
 
     const [groupName, setGroupName] = useState<string>('');
     const [name, setName] = useState<string>('');
     const [error, setError] = useState<string>('');
-
-    useEffect(() => {
-        const groupId = Cookies.get(GROUP_ID_COOKIE) ?? '';
-        const userId = Cookies.get(USER_ID_COOKIE) ?? '';
-
-        if (groupId && userId) {
-            Router.push('/home');
-        }
-    }, []);
 
     const onCreatingButtonClick = (): void => {
         setCreatingGroup(true);
@@ -55,21 +46,9 @@ export default function Index(): JSX.Element {
         } else if (!name) {
             setError('Il faut rentrer un nom.');
         } else {
-            const res = await axios.post('api/authenticate', {
-                groupName,
-                userName: name,
-                isCreating: creatingGroup
-            });
-            const data = res.data as TAuthenticateResult;
+            const data = await login(name, groupName);
 
             if (data.success) {
-                Cookies.set(GROUP_ID_COOKIE, data.groupUser?.groupId ?? '', {
-                    expires: 7
-                });
-                Cookies.set(USER_ID_COOKIE, data.groupUser?.userId ?? '', {
-                    expires: 7
-                });
-
                 Router.push('/home');
             } else {
                 setError(data.error);

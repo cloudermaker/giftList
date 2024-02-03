@@ -3,8 +3,11 @@ import { createGroup, getGroupByName } from '@/lib/db/groupManager';
 import { createUser, getUserByGroupAndName } from '@/lib/db/userManager';
 
 export type TGroupAndUser = {
+    groupName: string;
     groupId: string;
+    userName: string;
     userId: string;
+    isAdmin: boolean;
 };
 
 export type TAuthenticateResult = {
@@ -29,7 +32,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             res.status(200).json({
                 success: true,
                 error: '',
-                groupUser: { groupId: group.id, userId: user.id }
+                groupUser: {
+                    groupId: group.id,
+                    groupName: group.name,
+                    userId: user.id,
+                    userName: user.name,
+                    isAdmin: user.isAdmin
+                }
             });
         } else if (!isCreating && group == null) {
             res.status(200).json({ success: false, error: "Ce nom de groupe n'existe pas." });
@@ -38,13 +47,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 success: false,
                 error: "Ce prénom n'existe pas, demande à un membre de la groupe de te rajouter dedans."
             });
-        } else if (!isCreating) {
+        } else if (!isCreating && group && user) {
             res.status(200).json({
                 success: true,
                 error: '',
                 groupUser: {
-                    groupId: group?.id as string,
-                    userId: user?.id as string
+                    groupId: group.id,
+                    groupName: group.name,
+                    userId: user.id,
+                    userName: user.name,
+                    isAdmin: user.isAdmin
                 }
             });
         }

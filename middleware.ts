@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GROUP_ID_COOKIE, USER_ID_COOKIE } from './components/layout';
+import { COOKIE_NAME } from './lib/auth/authService';
 
-export function middleware(request: NextRequest) {
-    let groupIdCookie = request.cookies.get(GROUP_ID_COOKIE);
-    let userIdCookie = request.cookies.get(USER_ID_COOKIE);
+export async function middleware(request: NextRequest) {
+    const encryptedCurrentUser = request.cookies.get(COOKIE_NAME)?.value ?? '';
+    const currentUser = atob(encryptedCurrentUser);
 
-    if (groupIdCookie && userIdCookie) {
+    if (currentUser) {
         return NextResponse.next();
     }
 

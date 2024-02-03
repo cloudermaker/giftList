@@ -9,8 +9,11 @@ import { getGroupById } from '@/lib/db/groupManager';
 import { buildDefaultUser, getUsersFromGroupId } from '@/lib/db/userManager';
 import { User, Group } from '@prisma/client';
 import Router from 'next/router';
+import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 
 const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] }): JSX.Element => {
+    const { connectedUser } = useCurrentUser();
+
     const [localUsers, setLocalUsers] = useState<User[]>(groupUsers);
     const [creatingUser, setCreatingUser] = useState<boolean>(false);
     const [updatingUserId, setUpdatingUserId] = useState<string>('');
@@ -23,7 +26,7 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
         );
 
         if (confirmation) {
-            const result = await axios.delete(`/api/user?userId=${userId}`, { params: {} });
+            const result = await axios.delete(`/api/user?userId=${userId}`);
             const data = result.data as TUserApiResult;
 
             if (data.success === true) {
