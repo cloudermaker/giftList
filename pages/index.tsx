@@ -46,7 +46,7 @@ export default function Index(): JSX.Element {
         } else if (!name) {
             setError('Il faut rentrer un nom.');
         } else {
-            const data = await login(name, groupName);
+            const data = await login(name, groupName, creatingGroup);
 
             if (data.success) {
                 Router.push('/home');

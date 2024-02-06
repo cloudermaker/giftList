@@ -4,11 +4,11 @@ import Cookies from 'js-cookie';
 import { COOKIE_NAME } from '../auth/authService';
 
 export const useLogin = () => {
-    const login = async (userName: string, groupName: string): Promise<TAuthenticateResult> => {
+    const login = async (userName: string, groupName: string, isCreating: boolean): Promise<TAuthenticateResult> => {
         const res = await axios.post('api/authenticate', {
             groupName,
             userName,
-            isCreating: false
+            isCreating
         });
         const data = res.data as TAuthenticateResult;
 
