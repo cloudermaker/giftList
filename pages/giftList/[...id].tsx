@@ -88,7 +88,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         const confirmation = window.confirm('Es-tu certain de vouloir supprimer ce cadeau ?');
 
         if (confirmation) {
-            const result = await axios.delete(`/api/gift?giftId=${giftId}`);
+            const result = await axios.delete(
+                `/api/gift?giftId=${giftId}&initiatorUserId=${connectedUser?.userId}&userGiftId=${user.id}`
+            );
             const data = result.data as TGiftApiResult;
 
             if (data.success === true) {
@@ -116,7 +118,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         giftToUpsert.url = newLink;
 
         const result = await axios.post('/api/gift', {
-            gift: giftToUpsert
+            gift: giftToUpsert,
+            initiatorUserId: connectedUser?.userId,
+            userGiftId: user.id
         });
         const data = result.data as TGiftApiResult;
 
@@ -151,7 +155,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         const result = await axios.put('/api/gift', {
             gift: {
                 id: giftToUpdate.id,
-                takenUserId: giftToUpdate.takenUserId != null ? null : connectedUser?.userId
+                takenUserId: giftToUpdate.takenUserId != null ? null : connectedUser?.userId,
+                initiatorUserId: connectedUser?.userId,
+                userGiftId: user.id
             }
         });
         const data = result.data as TGiftApiResult;
@@ -204,7 +210,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                 }
 
                 axios.post('/api/gift', {
-                    gifts: newGifts
+                    gifts: newGifts,
+                    initiatorUserId: connectedUser?.userId,
+                    userGiftId: user.id
                 });
 
                 return newGifts;

@@ -10,10 +10,28 @@ export type TUserApiResult = {
     error?: string;
 };
 
+const verbsWithAuthorization = ['POST', 'PATCH', 'PUT', 'DELETE'];
+const isAuthorized = async (req: NextApiRequest) => {
+    if (!verbsWithAuthorization.includes(req.method as string)) {
+        return true;
+    }
+
+    const connectedUser = await getUserById(req.body?.initiatorUserId ?? req.query?.initiatorUserId ?? '');
+
+    return connectedUser?.isAdmin ?? false;
+};
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TUserApiResult>) {
     const { body, query } = req;
 
     try {
+        const isAuthorizedRequest = await isAuthorized(req);
+
+        if (!isAuthorizedRequest) {
+            res.status(403).json({ success: false });
+            return;
+        }
+
         if (req.method === 'GET' && query.userId) {
             const user = await getUserById(query.userId as string);
 

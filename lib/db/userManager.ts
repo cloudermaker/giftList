@@ -60,7 +60,8 @@ export const createUser = async (userName: string, userGroupId: string): Promise
     var user = await prisma.user.create({
         data: {
             name: userName.trim(),
-            groupId: userGroupId
+            groupId: userGroupId,
+            isAdmin: true
         }
     });
 

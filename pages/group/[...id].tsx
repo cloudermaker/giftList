@@ -10,6 +10,7 @@ import { buildDefaultUser, getUsersFromGroupId } from '@/lib/db/userManager';
 import { User, Group } from '@prisma/client';
 import Router from 'next/router';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
+import { Toaster } from '@/components/atoms/toaster';
 
 const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] }): JSX.Element => {
     const { connectedUser } = useCurrentUser();
@@ -19,6 +20,7 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
     const [updatingUserId, setUpdatingUserId] = useState<string>('');
     const [newUserName, setNewUserName] = useState<string>('');
     const [addError, setAddError] = useState<string>('');
+    const [showToaster, setShowToaster] = useState<boolean>(false);
 
     const removeUser = async (userId: string): Promise<void> => {
         const confirmation = window.confirm(
@@ -26,7 +28,7 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
         );
 
         if (confirmation) {
-            const result = await axios.delete(`/api/user?userId=${userId}`);
+            const result = await axios.delete(`/api/user?userId=${userId}&initiatorUserId=${connectedUser?.userId ?? ''}`);
             const data = result.data as TUserApiResult;
 
             if (data.success === true) {
@@ -45,28 +47,36 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
         let userToAdd: User = currentUserToAdd ?? buildDefaultUser(group.id);
         userToAdd.name = newUserName.trim();
 
-        const result = await axios.post('/api/user', {
-            user: userToAdd
-        });
-        const data = result.data as TUserApiResult;
+        axios
+            .post('/api/user', {
+                user: userToAdd,
+                initiatorUserId: connectedUser?.userId ?? ''
+            })
+            .catch((error) => {
+                console.log(error);
+                setShowToaster(true);
+            })
+            .then((response) => {
+                const data = response.data as TUserApiResult;
 
-        if (data.success === true && data.user) {
-            let newUsers: User[] = localUsers;
+                if (data.success === true && data.user) {
+                    let newUsers: User[] = localUsers;
 
-            if (userId) {
-                // Update
-                const currentUserToUpdateId = newUsers.findIndex((user) => user.id === userId);
-                newUsers[currentUserToUpdateId] = data.user;
-            } else {
-                // Create
-                newUsers.push(data.user);
-            }
+                    if (userId) {
+                        // Update
+                        const currentUserToUpdateId = newUsers.findIndex((user) => user.id === userId);
+                        newUsers[currentUserToUpdateId] = data.user;
+                    } else {
+                        // Create
+                        newUsers.push(data.user);
+                    }
 
-            setLocalUsers(newUsers);
-            clearAllFields();
-        } else {
-            window.alert(data.error ?? 'An error occured');
-        }
+                    setLocalUsers(newUsers);
+                    clearAllFields();
+                } else {
+                    window.alert(data.error ?? 'An error occured');
+                }
+            });
     };
 
     const updatingUser = (user: User): void => {
@@ -91,6 +101,8 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
 
     return (
         <Layout selectedHeader={EHeader.Group}>
+            <Toaster isShown={showToaster} onClose={() => setShowToaster(false)} />
+
             <div className="mb-10">
                 <h1 className="pb-5">{`Voici le groupe: ${group.name}`}</h1>
 
@@ -147,7 +159,7 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
                     </div>
                 ))}
 
-                {connectedUser?.isAdmin && (
+                {!connectedUser?.isAdmin && (
                     <>
                         {!creatingUser && <CustomButton onClick={onCreatingUserButtonClick}>Ajouter un utilisateur</CustomButton>}
 

@@ -2,20 +2,25 @@ import CustomButton from '@/components/atoms/customButton';
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
 import { getTakenGiftsFromUserId } from '@/lib/db/giftManager';
-import { Gift } from '@prisma/client';
+import { Gift, User } from '@prisma/client';
 import axios from 'axios';
 import { NextPageContext } from 'next';
 import { useState } from 'react';
-import { TGiftApiResult } from '../api/gift';
+import { TGiftApiResult } from '@/pages/api/gift';
+import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
+import { getUserById } from '@/lib/db/userManager';
 
-const TakenGiftList = ({ takenGifts }: { takenGifts: Gift[] }): JSX.Element => {
+const TakenGiftList = ({ takenGifts, user }: { takenGifts: Gift[]; user: User }): JSX.Element => {
+    const { connectedUser } = useCurrentUser();
     const [localTakenGifts, setLocalTakenGifts] = useState<Gift[]>(takenGifts);
 
     const onUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
         const result = await axios.put('/api/gift', {
             gift: {
                 id: giftToUpdate.id,
-                takenUserId: null
+                takenUserId: null,
+                initiatorUserId: connectedUser?.userId,
+                userGiftId: user.id
             }
         });
         const data = result.data as TGiftApiResult;
@@ -78,6 +83,7 @@ export async function getServerSideProps(context: NextPageContext) {
     }
 
     const takenGifts = await getTakenGiftsFromUserId(userId);
+    const user = await getUserById(userId);
 
     return {
         props: {
@@ -85,7 +91,8 @@ export async function getServerSideProps(context: NextPageContext) {
                 ...takenGift,
                 updatedAt: takenGift.updatedAt?.toISOString() ?? '',
                 createdAt: takenGift.createdAt?.toISOString() ?? ''
-            }))
+            })),
+            user
         }
     };
 }
