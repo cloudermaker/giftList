@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { User } from '@prisma/client';
 import { isString } from 'lodash';
 import { deleteUser, getUserById, updateUser, upsertUser } from '@/lib/db/userManager';
+import { error } from 'console';
 
 export type TUserApiResult = {
     success: boolean;
@@ -28,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const isAuthorizedRequest = await isAuthorized(req);
 
         if (!isAuthorizedRequest) {
-            res.status(403).json({ success: false });
+            res.status(403).json({ success: false, error: "Vous n'avez pas les droits pour effectuer cette action." });
             return;
         }
 

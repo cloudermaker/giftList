@@ -2,7 +2,7 @@ import Router from 'next/router';
 import { useState } from 'react';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRightFromBracket, faHomeUser, faAlignJustify, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faRightFromBracket, faHomeUser, faAlignJustify } from '@fortawesome/free-solid-svg-icons';
 import { useClickOutside } from './atoms/clickOutsideHook';
 
 export enum EHeader {

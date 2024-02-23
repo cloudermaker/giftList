@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Layout } from '@/components/layout';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { EHeader } from '@/components/customHeader';
 import { NextPageContext } from 'next';
 import CustomButton from '@/components/atoms/customButton';
@@ -10,7 +10,8 @@ import { buildDefaultUser, getUsersFromGroupId } from '@/lib/db/userManager';
 import { User, Group } from '@prisma/client';
 import Router from 'next/router';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
-import { Toaster } from '@/components/atoms/toaster';
+import { useAtom } from 'jotai';
+import { toasterAtom } from '@/lib/jotai/toasterAtom';
 
 const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] }): JSX.Element => {
     const { connectedUser } = useCurrentUser();
@@ -20,12 +21,17 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
     const [updatingUserId, setUpdatingUserId] = useState<string>('');
     const [newUserName, setNewUserName] = useState<string>('');
     const [addError, setAddError] = useState<string>('');
-    const [showToaster, setShowToaster] = useState<boolean>(false);
+    const [toaster, setToaster] = useAtom(toasterAtom);
 
     const removeUser = async (userId: string): Promise<void> => {
-        const confirmation = window.confirm(
-            'Tu es sûr de vouloir supprimer cet utilisateur ?\nToute sa liste de cadeau le sera également.'
-        );
+        setToaster({
+            message: 'Tu es sûr de vouloir supprimer cet utilisateur ?\nToute sa liste de cadeau le sera également.',
+            type: 'warning',
+            show: true,
+            response: false
+        });
+
+        const confirmation = toaster.response;
 
         if (confirmation) {
             const result = await axios.delete(`/api/user?userId=${userId}&initiatorUserId=${connectedUser?.userId ?? ''}`);
@@ -52,12 +58,8 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
                 user: userToAdd,
                 initiatorUserId: connectedUser?.userId ?? ''
             })
-            .catch((error) => {
-                console.log(error);
-                setShowToaster(true);
-            })
             .then((response) => {
-                const data = response.data as TUserApiResult;
+                const data = (response as AxiosResponse).data as TUserApiResult;
 
                 if (data.success === true && data.user) {
                     let newUsers: User[] = localUsers;
@@ -76,6 +78,10 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
                 } else {
                     window.alert(data.error ?? 'An error occured');
                 }
+            })
+            .catch((error) => {
+                console.log('pierre', { error });
+                setToaster({ message: error.response.data.error, type: 'error', show: true });
             });
     };
 
@@ -101,8 +107,6 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
 
     return (
         <Layout selectedHeader={EHeader.Group}>
-            <Toaster isShown={showToaster} onClose={() => setShowToaster(false)} />
-
             <div className="mb-10">
                 <h1 className="pb-5">{`Voici le groupe: ${group.name}`}</h1>
 

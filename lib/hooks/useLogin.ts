@@ -13,7 +13,7 @@ export const useLogin = () => {
         const data = res.data as TAuthenticateResult;
 
         if (data?.success && data.groupUser) {
-            Cookies.set(COOKIE_NAME, btoa(JSON.stringify(data.groupUser)));
+            Cookies.set(COOKIE_NAME, btoa(JSON.stringify(data.groupUser)), { sameSite: 'Strict' });
         }
 
         return data;

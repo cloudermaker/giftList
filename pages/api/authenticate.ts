@@ -22,6 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     try {
         const group = await getGroupByName(groupName);
         const user = await getUserByGroupAndName(userName, group?.id ?? '-1');
+        console.log({ group, user });
 
         if (isCreating && group != null) {
             res.status(200).json({ success: false, error: 'Ce nom de groupe existe déjà.' });

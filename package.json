@@ -23,6 +23,7 @@
         "@typescript-eslint/eslint-plugin": "^6.9.0",
         "@typescript-eslint/parser": "^6.9.0",
         "axios": "^1.2.1",
+        "jotai": "^2.6.5",
         "js-cookie": "^3.0.1",
         "mysql": "github:mysqljs/mysql",
         "next": "^14.0.0",
