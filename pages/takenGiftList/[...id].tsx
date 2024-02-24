@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { TGiftApiResult } from '@/pages/api/gift';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import { getUserById } from '@/lib/db/userManager';
+import Swal from 'sweetalert2';
 
 const TakenGiftList = ({ takenGifts, user }: { takenGifts: Gift[]; user: User }): JSX.Element => {
     const { connectedUser } = useCurrentUser();
@@ -28,7 +29,11 @@ const TakenGiftList = ({ takenGifts, user }: { takenGifts: Gift[]; user: User })
         if (data.success && data.gift) {
             setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftToUpdate.id));
         } else {
-            window.alert(data.error);
+            Swal.fire({
+                title: 'Erreur',
+                text: `Mince, ça n'a pas fonctionné: ${data.error ?? '...'}`,
+                icon: 'error'
+            });
         }
     };
 

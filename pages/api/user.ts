@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { User } from '@prisma/client';
 import { isString } from 'lodash';
 import { deleteUser, getUserById, updateUser, upsertUser } from '@/lib/db/userManager';
-import { error } from 'console';
 
 export type TUserApiResult = {
     success: boolean;

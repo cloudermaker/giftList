@@ -6,6 +6,7 @@ import CustomButton from '@/components/atoms/customButton';
 import { buildDefaultGroup, getGroups } from '@/lib/db/groupManager';
 import { TGroupApiResult } from './api/group';
 import { Group } from '@prisma/client';
+import Swal from 'sweetalert2';
 
 const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
     const [localGroups, setLocalGroups] = useState<Group[]>(groups);
@@ -13,18 +14,42 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
     const [newGroupName, setNewGroupName] = useState<string>('');
 
     const removeGroup = async (groupId: string): Promise<void> => {
-        const confirmation = window.confirm('Es tu certain de vouloir supprimer ce groupe ?');
+        const swalWithBootstrapButtons = Swal.mixin({
+            buttonsStyling: true
+        });
 
-        if (confirmation) {
-            const result = await axios.delete(`/api/group?groupId=${groupId}`);
-            const data = result.data as TGroupApiResult;
+        swalWithBootstrapButtons
+            .fire({
+                title: 'Es-tu certain de vous supprimer tout le groupe?',
+                text: 'Il ne sera pas possible de revenir en arrière!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Oui!',
+                cancelButtonText: 'Non!',
+                reverseButtons: true
+            })
+            .then(async (result) => {
+                if (result.isConfirmed) {
+                    const apiResult = await axios.delete(`/api/group?groupId=${groupId}`);
+                    const data = apiResult.data as TGroupApiResult;
 
-            if (data.success) {
-                setLocalGroups((groups) => groups.filter((group) => group.id !== groupId));
-            } else {
-                window.alert(data.error);
-            }
-        }
+                    if (data.success) {
+                        setLocalGroups((groups) => groups.filter((group) => group.id !== groupId));
+                    } else {
+                        swalWithBootstrapButtons.fire({
+                            title: 'Erreur',
+                            text: `Mince, ça n'a pas fonctionné: ${data.error ?? '...'}`,
+                            icon: 'error'
+                        });
+                    }
+
+                    swalWithBootstrapButtons.fire({
+                        title: 'Supprimé!',
+                        text: 'Le groupe a été supprimé.',
+                        icon: 'success'
+                    });
+                }
+            });
     };
 
     const addGroup = async (): Promise<void> => {
@@ -41,7 +66,11 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
             newGroups.push(data.group);
             setLocalGroups(newGroups);
         } else {
-            window.alert(data.error);
+            Swal.fire({
+                title: 'Erreur',
+                text: `Mince, ça n'a pas fonctionné: ${data.error ?? '...'}`,
+                icon: 'error'
+            });
         }
     };
 

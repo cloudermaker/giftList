@@ -10,8 +10,7 @@ import { buildDefaultUser, getUsersFromGroupId } from '@/lib/db/userManager';
 import { User, Group } from '@prisma/client';
 import Router from 'next/router';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
-import { useAtom } from 'jotai';
-import { toasterAtom } from '@/lib/jotai/toasterAtom';
+import Swal from 'sweetalert2';
 
 const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] }): JSX.Element => {
     const { connectedUser } = useCurrentUser();
@@ -21,30 +20,48 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
     const [updatingUserId, setUpdatingUserId] = useState<string>('');
     const [newUserName, setNewUserName] = useState<string>('');
     const [addError, setAddError] = useState<string>('');
-    const [toaster, setToaster] = useAtom(toasterAtom);
 
     const removeUser = async (userId: string): Promise<void> => {
-        setToaster({
-            message: 'Tu es sûr de vouloir supprimer cet utilisateur ?\nToute sa liste de cadeau le sera également.',
-            type: 'warning',
-            show: true,
-            response: false
+        const swalWithBootstrapButtons = Swal.mixin({
+            buttonsStyling: true
         });
 
-        const confirmation = toaster.response;
+        swalWithBootstrapButtons
+            .fire({
+                title: 'Es-tu certain de vouloir supprimer cet utilisateur?',
+                text: 'Il ne sera pas possible de revenir en arrière!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Oui!',
+                cancelButtonText: 'Non!',
+                reverseButtons: true
+            })
+            .then(async (result) => {
+                if (result.isConfirmed) {
+                    const apiResult = await axios.delete(
+                        `/api/user?userId=${userId}&initiatorUserId=${connectedUser?.userId ?? ''}`
+                    );
+                    const data = apiResult.data as TUserApiResult;
 
-        if (confirmation) {
-            const result = await axios.delete(`/api/user?userId=${userId}&initiatorUserId=${connectedUser?.userId ?? ''}`);
-            const data = result.data as TUserApiResult;
+                    if (data.success === true) {
+                        setLocalUsers(localUsers.filter((user) => user.id !== userId));
+                        setCreatingUser(false);
+                        setNewUserName('');
+                    } else {
+                        swalWithBootstrapButtons.fire({
+                            title: 'Erreur',
+                            text: `Mince, ça n'a pas fonctionné: ${data.error ?? '...'}`,
+                            icon: 'error'
+                        });
+                    }
 
-            if (data.success === true) {
-                setLocalUsers(localUsers.filter((user) => user.id !== userId));
-                setCreatingUser(false);
-                setNewUserName('');
-            } else {
-                window.alert(data.error);
-            }
-        }
+                    swalWithBootstrapButtons.fire({
+                        title: 'Supprimé!',
+                        text: "L'utilisateur a été supprimé.",
+                        icon: 'success'
+                    });
+                }
+            });
     };
 
     const addOrUpdateUser = async (userId?: string): Promise<void> => {
@@ -76,12 +93,19 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
                     setLocalUsers(newUsers);
                     clearAllFields();
                 } else {
-                    window.alert(data.error ?? 'An error occured');
+                    Swal.fire({
+                        title: 'Erreur',
+                        text: `Mince, ça n'a pas fonctionné: ${data.error ?? '...'}`,
+                        icon: 'error'
+                    });
                 }
             })
             .catch((error) => {
-                console.log('pierre', { error });
-                setToaster({ message: error.response.data.error, type: 'error', show: true });
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Oops...',
+                    text: error.response.data.error
+                });
             });
     };
 

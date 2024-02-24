@@ -24,7 +24,7 @@ export const getUserByGroupAndName = async (userName: string, groupId: string): 
         where: {
             AND: [
                 {
-                    name: userName.trim()
+                    name: userName.toLowerCase().trim()
                 },
                 {
                     groupId
@@ -59,7 +59,7 @@ export const getUsersFromGroupId = async (groupId: string): Promise<User[]> => {
 export const createUser = async (userName: string, userGroupId: string): Promise<User> => {
     var user = await prisma.user.create({
         data: {
-            name: userName.trim(),
+            name: userName.toLowerCase().trim(),
             groupId: userGroupId,
             isAdmin: true
         }
@@ -73,8 +73,8 @@ export const upsertUser = async (user: User): Promise<User> => {
         where: {
             id: user.id
         },
-        create: { ...user, name: user.name.trim(), id: undefined },
-        update: { ...user, name: user.name.trim(), updatedAt: undefined }
+        create: { ...user, name: user.name.toLowerCase().trim(), id: undefined },
+        update: { ...user, name: user.name.toLowerCase().trim(), updatedAt: undefined }
     });
 
     return user;
@@ -85,7 +85,7 @@ export const updateUser = async (user: User): Promise<User> => {
         where: {
             id: user.id
         },
-        data: { ...user, name: user.name.trim(), updatedAt: undefined }
+        data: { ...user, name: user.name.toLowerCase().trim(), updatedAt: undefined }
     });
 
     return user;

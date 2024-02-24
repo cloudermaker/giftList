@@ -15,6 +15,7 @@ import { buildDefaultGift, getGiftsFromUserId } from '@/lib/db/giftManager';
 import { TGiftApiResult } from '@/pages/api/gift';
 import { getUserById } from '@/lib/db/userManager';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
+import Swal from 'sweetalert2';
 
 function SortableItem({
     gift,
@@ -85,21 +86,45 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
     };
 
     const removeGift = async (giftId: string): Promise<void> => {
-        const confirmation = window.confirm('Es-tu certain de vouloir supprimer ce cadeau ?');
+        const swalWithBootstrapButtons = Swal.mixin({
+            buttonsStyling: true
+        });
 
-        if (confirmation) {
-            const result = await axios.delete(
-                `/api/gift?giftId=${giftId}&initiatorUserId=${connectedUser?.userId}&userGiftId=${user.id}`
-            );
-            const data = result.data as TGiftApiResult;
+        swalWithBootstrapButtons
+            .fire({
+                title: 'Es-tu certain de vouloir supprimer ce cadeau ?',
+                text: 'Il ne sera pas possible de revenir en arrière!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Oui!',
+                cancelButtonText: 'Non!',
+                reverseButtons: true
+            })
+            .then(async (result) => {
+                if (result.isConfirmed) {
+                    const result = await axios.delete(
+                        `/api/gift?giftId=${giftId}&initiatorUserId=${connectedUser?.userId}&userGiftId=${user.id}`
+                    );
+                    const data = result.data as TGiftApiResult;
 
-            if (data.success === true) {
-                setLocalGifts(localGifts.filter((gift) => gift.id !== giftId));
-                clearAllFields();
-            } else {
-                alert(data.error);
-            }
-        }
+                    if (data.success === true) {
+                        setLocalGifts(localGifts.filter((gift) => gift.id !== giftId));
+                        clearAllFields();
+                    } else {
+                        swalWithBootstrapButtons.fire({
+                            title: 'Erreur',
+                            text: `Mince, ça n'a pas fonctionné: ${data.error ?? '...'}`,
+                            icon: 'error'
+                        });
+                    }
+
+                    swalWithBootstrapButtons.fire({
+                        title: 'Supprimé!',
+                        text: 'Le cadeau a été supprimé.',
+                        icon: 'success'
+                    });
+                }
+            });
     };
 
     const updatingGift = (gift: Gift): void => {
@@ -175,7 +200,11 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
 
             setLocalGifts(newLocalGifts);
         } else {
-            window.alert(data.error);
+            Swal.fire({
+                title: 'Erreur',
+                text: `Mince, ça n'a pas fonctionné: ${data.error ?? '...'}`,
+                icon: 'error'
+            });
         }
     };
 

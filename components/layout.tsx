@@ -5,7 +5,6 @@ import Router from 'next/router';
 import CountDown from './countDown';
 import { useLogout } from '@/lib/hooks/useLogout';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
-import { Toaster } from './atoms/toaster';
 
 export const Layout = ({
     children,
@@ -27,8 +26,6 @@ export const Layout = ({
 
     return (
         <div className="bg-noel bg-cover">
-            <Toaster />
-
             <div className="body-padding min-h-body">
                 <div className="pt-5 pb-3 flex justify-between">
                     <div className="text-xs md:flex bg-shadow">

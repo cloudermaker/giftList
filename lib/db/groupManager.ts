@@ -31,7 +31,7 @@ export const getGroupById = async (groupId: string): Promise<Group | null> => {
 export const getGroupByName = async (groupName: string): Promise<Group | null> => {
     var group = await prisma.group.findFirst({
         where: {
-            name: groupName.trim()
+            name: groupName.toLowerCase().trim()
         }
     });
 
@@ -51,7 +51,7 @@ export const deletgeGroup = async (groupId: string): Promise<boolean> => {
 export const createGroup = async (groupName: string, description = '', imageUrl = ''): Promise<Group> => {
     var group = await prisma.group.create({
         data: {
-            name: groupName.trim(),
+            name: groupName.toLowerCase().trim(),
             description,
             imageUrl
         }
@@ -65,8 +65,8 @@ export const upsertGroup = async (group: Group): Promise<Group> => {
         where: {
             id: group.id
         },
-        create: { ...group, name: group.name.trim(), id: undefined },
-        update: { ...group, name: group.name.trim(), updatedAt: undefined }
+        create: { ...group, name: group.name.toLowerCase().trim(), id: undefined },
+        update: { ...group, name: group.name.toLowerCase().trim(), updatedAt: undefined }
     });
 
     return newGroup;
@@ -77,7 +77,7 @@ export const updateGroup = async (group: Group): Promise<Group> => {
         where: {
             id: group.id
         },
-        data: { ...group, name: group.name.trim() }
+        data: { ...group, name: group.name.toLowerCase().trim() }
     });
 
     return newGroup;
