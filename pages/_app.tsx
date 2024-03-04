@@ -19,8 +19,8 @@ export default function App({ Component, pageProps }: AppProps) {
     return (
         <>
             <Head>
-                <title>Gift List</title>
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <title>Ma Liste de cadeaux</title>
             </Head>
 
             <Component {...pageProps} />
