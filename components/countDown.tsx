@@ -36,7 +36,8 @@ export default function CountDown() {
 
     return (
         <>
-            {toStr(currentMonth)} Months, {toStr(currentDay)} days - {toStr(currentHours)}:{toStr(currentMin)}:{toStr(currentMillisecond)}
+            {toStr(currentMonth)} Mois, {toStr(currentDay)} Jours - {toStr(currentHours)}:{toStr(currentMin)}:
+            {toStr(currentMillisecond)}
         </>
     );
 }

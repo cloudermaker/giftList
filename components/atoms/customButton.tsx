@@ -19,13 +19,15 @@ const CustomButton = ({
 
         await onClick();
 
-        setIsInProgress(false);
+        window.setTimeout(function () {
+            setIsInProgress(false);
+        }, 200);
     };
 
     return (
-        <button onClick={customOnClick} className={className ?? ''} disabled={disabled ?? false}>
+        <button onClick={customOnClick} className={className} disabled={disabled ?? false}>
             <div className="flex">
-                {isInProgress && <CircleLoader size="20" color="green" />}
+                {isInProgress && <CircleLoader size="20px" color="green" />}
                 {!isInProgress && children}
             </div>
         </button>
