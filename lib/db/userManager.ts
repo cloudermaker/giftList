@@ -24,7 +24,10 @@ export const getUserByGroupAndName = async (userName: string, groupId: string): 
         where: {
             AND: [
                 {
-                    name: userName.toLowerCase().trim()
+                    name: {
+                        equals: userName.trim(),
+                        mode: 'insensitive'
+                    }
                 },
                 {
                     groupId

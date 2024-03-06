@@ -97,7 +97,11 @@ export async function getServerSideProps(context: NextPageContext) {
                 updatedAt: takenGift.updatedAt?.toISOString() ?? '',
                 createdAt: takenGift.createdAt?.toISOString() ?? ''
             })),
-            user
+            user: {
+                ...user,
+                updatedAt: user?.updatedAt?.toISOString() ?? '',
+                createdAt: user?.createdAt?.toISOString() ?? ''
+            }
         }
     };
 }

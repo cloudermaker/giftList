@@ -244,8 +244,8 @@ export async function getServerSideProps(context: NextPageContext) {
         props: {
             group: {
                 ...group,
-                updatedAt: group?.updatedAt?.toISOString(),
-                createdAt: group?.createdAt?.toISOString()
+                updatedAt: group?.updatedAt?.toISOString() ?? '',
+                createdAt: group?.createdAt?.toISOString() ?? ''
             },
             groupUsers: groupUsers.map((groupUser) => ({
                 ...groupUser,

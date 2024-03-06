@@ -452,13 +452,13 @@ export async function getServerSideProps(context: NextPageContext) {
         props: {
             user: {
                 ...user,
-                updatedAt: user?.updatedAt?.toISOString(),
-                createdAt: user?.createdAt?.toISOString()
+                updatedAt: user?.updatedAt?.toISOString() ?? '',
+                createdAt: user?.createdAt?.toISOString() ?? ''
             },
             giftList: giftList.map((gift) => ({
                 ...gift,
-                updatedAt: gift.updatedAt?.toISOString(),
-                createdAt: gift.createdAt?.toISOString()
+                updatedAt: gift.updatedAt?.toISOString() ?? '',
+                createdAt: gift.createdAt?.toISOString() ?? ''
             }))
         }
     };
