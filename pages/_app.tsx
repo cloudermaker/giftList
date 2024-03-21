@@ -20,6 +20,10 @@ export default function App({ Component, pageProps }: AppProps) {
         <>
             <Head>
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta
+                    name="description"
+                    content="Créé ta liste de cadeaux en famille ou entre amis facilement et gratuitement. Indique les cadeaux que tu prends sans que le concerné soit au courant!"
+                />
                 <title>Ma Liste de cadeaux</title>
             </Head>
 

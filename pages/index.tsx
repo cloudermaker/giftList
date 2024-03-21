@@ -64,7 +64,7 @@ export default function Index(): JSX.Element {
 
     return (
         <Layout withHeader={false}>
-            <h1 className="header text-center bg-white">Bienvenue sur le site de gestion de cadeaux !!</h1>
+            <h1 className="header text-center bg-white">Bienvenue sur le site de gestion de cadeaux</h1>
 
             {!creatingGroup && !joiningGroup && (
                 <div className="block text-center">
