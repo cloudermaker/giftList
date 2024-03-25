@@ -180,9 +180,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         const result = await axios.put('/api/gift', {
             gift: {
                 id: giftToUpdate.id,
-                takenUserId: giftToUpdate.takenUserId != null ? null : connectedUser?.userId,
-                initiatorUserId: connectedUser?.userId,
-                userGiftId: user.id
+                takenUserId: giftToUpdate.takenUserId != null ? null : connectedUser?.userId
             }
         });
         const data = result.data as TGiftApiResult;

@@ -36,6 +36,9 @@ export const getTakenGiftsFromUserId = async (userId: string): Promise<Gift[]> =
     var gifts = await prisma.gift.findMany({
         where: {
             takenUserId: userId
+        },
+        include: {
+            takenUser: true
         }
     });
 
@@ -80,7 +83,7 @@ export const updateGift = async (gift: Gift): Promise<Gift> => {
         where: {
             id: gift.id
         },
-        data: { ...gift, name: gift.name.trim() }
+        data: { ...gift, name: gift.name.trim(), updatedAt: new Date().toISOString() }
     });
 
     return gift;
@@ -93,7 +96,7 @@ export const updateGifts = async (gifts: Gift[]): Promise<Gift[]> => {
             where: {
                 id: gift.id
             },
-            data: { ...gift, name: gift.name.trim() }
+            data: { ...gift, name: gift.name.trim(), updatedAt: new Date().toISOString() }
         });
         updatedGifts.push(updatedGift);
     }
@@ -106,8 +109,8 @@ export const upsertGift = async (gift: Gift): Promise<Gift> => {
         where: {
             id: gift.id
         },
-        create: { ...gift, id: undefined },
-        update: { ...gift, name: gift.name.trim() }
+        create: { ...gift, id: undefined, updatedAt: new Date().toISOString() },
+        update: { ...gift, name: gift.name.trim(), updatedAt: new Date().toISOString() }
     });
 
     return user;

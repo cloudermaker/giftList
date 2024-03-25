@@ -12,7 +12,7 @@ export type TGiftApiResult = {
     error?: string;
 };
 
-const verbsWithAuthorization = ['POST', 'PATCH', 'PUT', 'DELETE'];
+const verbsWithAuthorization = ['POST', 'PATCH', 'DELETE'];
 const isAuthorized = async (req: NextApiRequest) => {
     if (!verbsWithAuthorization.includes(req.method as string)) {
         return true;
@@ -45,6 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             res.status(404).json({ success: false });
         } else if (req.method === 'POST' && body.gift) {
+            console.log(body.gift);
             const gift = await upsertGift(body.gift as Gift);
 
             res.status(200).json({ success: true, gift });
@@ -63,6 +64,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 const gift = await updateGift({ ...giftToUpdate, ...body.gift });
 
                 res.status(200).json({ success: true, gift });
+            } else {
+                res.status(404).json({ success: false });
             }
 
             res.status(404).json({ success: false, giftId: req.body.giftId });
@@ -74,6 +77,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             res.status(400).json({ success: false });
         }
     } catch (e) {
+        console.log(e);
         res.status(500).json({ success: false, error: e as string });
     }
 }
