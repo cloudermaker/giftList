@@ -2,16 +2,17 @@ import CustomButton from '@/components/atoms/customButton';
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
 import { getTakenGiftsFromUserId } from '@/lib/db/giftManager';
-import { Gift } from '@prisma/client';
+import { Gift, User } from '@prisma/client';
 import axios from 'axios';
 import { NextPageContext } from 'next';
 import { useState } from 'react';
 import { TGiftApiResult } from '@/pages/api/gift';
 import { getUserById } from '@/lib/db/userManager';
 import Swal from 'sweetalert2';
+import { GiftIcon } from '@/components/icons/gift';
 
-const TakenGiftList = ({ takenGifts }: { takenGifts: Gift[] }): JSX.Element => {
-    const [localTakenGifts, setLocalTakenGifts] = useState<Gift[]>(takenGifts);
+const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null })[] }): JSX.Element => {
+    const [localTakenGifts, setLocalTakenGifts] = useState<(Gift & { user: User | null })[]>(takenGifts);
 
     const onUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
         const result = await axios.put('/api/gift', {
@@ -40,7 +41,12 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: Gift[] }): JSX.Element => {
 
                 {localTakenGifts.map((gift, idx) => (
                     <div key={`takenGift_${idx}`} className="item flex justify-between items-center w-full">
-                        <div className={`w-full block`}>
+                        <div className="w-full block">
+                            <p className="mb-2 text-xl flex">
+                                <GiftIcon className="pr-3 w-9" />
+                                <b className="pr-2">Pour:</b>
+                                {gift.user?.name ?? 'Inconnu'}
+                            </p>
                             <p>
                                 <b className="pr-2">Nom:</b>
                                 {gift.name}
@@ -84,19 +90,19 @@ export async function getServerSideProps(context: NextPageContext) {
     }
 
     const takenGifts = await getTakenGiftsFromUserId(userId);
-    const user = await getUserById(userId);
 
     return {
         props: {
             takenGifts: takenGifts.map((takenGift) => ({
+                ...takenGift,
+                user: {
+                    ...takenGift.user,
+                    updatedAt: takenGift.user?.updatedAt?.toISOString() ?? '',
+                    createdAt: takenGift.user?.createdAt?.toISOString() ?? ''
+                },
                 updatedAt: takenGift.updatedAt?.toISOString() ?? '',
                 createdAt: takenGift.createdAt?.toISOString() ?? ''
-            })),
-            user: {
-                ...user,
-                updatedAt: user?.updatedAt?.toISOString() ?? '',
-                createdAt: user?.createdAt?.toISOString() ?? ''
-            }
+            }))
         }
     };
 }

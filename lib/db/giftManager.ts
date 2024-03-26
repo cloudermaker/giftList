@@ -1,4 +1,4 @@
-import { Gift } from '@prisma/client';
+import { Gift, User } from '@prisma/client';
 import prisma from './dbSingleton';
 
 export const buildDefaultGift = (userId: string, order: number, name?: string, description?: string, url?: string): Gift => {
@@ -32,13 +32,13 @@ export const getGiftFromId = async (id: string): Promise<Gift | null> => {
     return gift;
 };
 
-export const getTakenGiftsFromUserId = async (userId: string): Promise<Gift[]> => {
+export const getTakenGiftsFromUserId = async (userId: string): Promise<(Gift & { user: User | null })[]> => {
     var gifts = await prisma.gift.findMany({
         where: {
             takenUserId: userId
         },
         include: {
-            takenUser: true
+            user: true
         }
     });
 

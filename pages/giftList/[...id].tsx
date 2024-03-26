@@ -1,9 +1,8 @@
-import { ReactNode, Suspense, useEffect, useState } from 'react';
+import { ReactNode, Suspense, useState } from 'react';
 import { Layout } from '@/components/layout';
 import axios from 'axios';
 import { EHeader } from '@/components/customHeader';
 import { NextPageContext } from 'next';
-import Cookies from 'js-cookie';
 import CustomButton from '@/components/atoms/customButton';
 import { Medal } from '@/components/icons/medal';
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
