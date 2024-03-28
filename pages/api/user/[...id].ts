@@ -20,9 +20,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             if (user) {
                 res.status(200).json({ success: true, user });
+            } else {
+                res.status(404).json({ success: false });
             }
-
-            res.status(404).json({ success: false });
         } else if (method === 'DELETE' && userId && cookies[COOKIE_NAME]) {
             await deleteUser(userId);
 
@@ -38,9 +38,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 const user = await updateUser(userId, { ...userToUpdate, ...body.user });
 
                 res.status(200).json({ success: true, user });
+            } else {
+                res.status(404).json({ success: false, userId });
             }
-
-            res.status(404).json({ success: false, userId });
         } else {
             res.status(400).json({ success: false });
         }

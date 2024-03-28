@@ -15,17 +15,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     const groupId = query.id?.toString();
 
     try {
-        console.log(1);
         if (method === 'GET' && groupId) {
-            console.log(2);
             const group = await getGroupById(groupId);
-            console.log(3, group);
 
             if (group) {
                 res.status(200).json({ success: true, group });
+            } else {
+                res.status(404).json({ success: false });
             }
-
-            res.status(404).json({ success: false });
         } else if (method === 'DELETE' && groupId && cookies[COOKIE_NAME]) {
             await deleteGroup(groupId);
 
@@ -41,9 +38,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 const group = await updateGroup(groupId, { ...groupToUpdate, ...(body.group as Group) });
 
                 res.status(200).json({ success: true, group });
+            } else {
+                res.status(404).json({ success: false, groupId: body.groupId });
             }
-
-            res.status(404).json({ success: false, groupId: body.groupId });
         } else {
             res.status(400).json({ success: false });
         }

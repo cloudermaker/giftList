@@ -21,9 +21,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             if (gift) {
                 res.status(200).json({ success: true, gift });
+            } else {
+                res.status(404).json({ success: false });
             }
-
-            res.status(404).json({ success: false });
         } else if (method === 'DELETE' && giftId && cookies[COOKIE_NAME]) {
             await deleteGift(giftId);
 
@@ -39,9 +39,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 const gift = await updateGift(giftId, { ...giftToUpdate, ...body.gift });
 
                 res.status(200).json({ success: true, gift });
+            } else {
+                res.status(404).json({ success: false, giftId });
             }
-
-            res.status(404).json({ success: false, giftId });
         } else {
             res.status(400).json({ success: false });
         }
