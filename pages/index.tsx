@@ -130,6 +130,7 @@ export default function Index(): JSX.Element {
                                         onChange={setPassword}
                                         value={password}
                                         onKeyDown={onInputPressKey}
+                                        type="password"
                                     />
                                 </div>
                             </>
