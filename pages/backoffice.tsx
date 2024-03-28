@@ -33,12 +33,12 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
                     const apiResult = await AxiosWrapper.delete(`/api/group/${groupId}`);
                     const data = apiResult?.data as TGroupApiResult;
 
-                    if (data.success) {
+                    if (!!data?.success) {
                         setLocalGroups((groups) => groups.filter((group) => group.id !== groupId));
                     } else {
                         swalWithBootstrapButtons.fire({
                             title: 'Erreur',
-                            text: `Mince, ça n'a pas fonctionné: ${data.error ?? '...'}`,
+                            text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
                             icon: 'error'
                         });
                     }
@@ -61,14 +61,14 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
         });
         const data = result?.data as TGroupApiResult;
 
-        if (data.success && data.group) {
+        if (data && data.success && data.group) {
             const newGroups = localGroups;
             newGroups.push(data.group);
             setLocalGroups(newGroups);
         } else {
             Swal.fire({
                 title: 'Erreur',
-                text: `Mince, ça n'a pas fonctionné: ${data.error ?? '...'}`,
+                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
                 icon: 'error'
             });
         }

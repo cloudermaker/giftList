@@ -3,6 +3,7 @@ import { User } from '@prisma/client';
 import { isString } from 'lodash';
 import { deleteUser, getUserById, updateUser, upsertUser } from '@/lib/db/userManager';
 import { COOKIE_NAME } from '@/lib/auth/authService';
+import { TGroupAndUser } from '../authenticate';
 
 export type TUserApiResult = {
     success: boolean;
@@ -17,18 +18,18 @@ const isAuthorized = async (req: NextApiRequest) => {
         return true;
     }
 
-    const connectedUser = await getUserById(req.body?.initiatorUserId ?? req.query?.initiatorUserId ?? '');
+    const connectedUser = JSON.parse(atob(req.cookies[COOKIE_NAME] as string)) as TGroupAndUser;
 
     return connectedUser?.isAdmin ?? false;
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TUserApiResult>) {
-    const { body, cookies } = req;
+    const { body } = req;
 
     try {
         const isAuthorizedRequest = await isAuthorized(req);
 
-        if (!isAuthorizedRequest && cookies[COOKIE_NAME]) {
+        if (!isAuthorizedRequest) {
             res.status(403).json({ success: false, error: "Vous n'avez pas les droits pour effectuer cette action." });
             return;
         }

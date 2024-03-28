@@ -49,15 +49,15 @@ export default function Index(): JSX.Element {
             setError('Il faut rentrer un groupe.');
         } else if (!name) {
             setError('Il faut rentrer un nom.');
+        } else if (connectingAsAdmin && !password) {
+            setError('Il faut rentrer un mot de passe.');
         } else {
-            const data = await login(name, groupName, creatingGroup);
+            const data = await login(name, groupName, creatingGroup, password);
 
-            if (data.success && data.needPassword === true) {
-                setConnectingAsAdmin(true);
-            } else if (data.success) {
+            if (data?.success) {
                 Router.push('/home');
-            } else {
-                setError(data.error);
+            } else if (data) {
+                setError(data?.error ?? 'Erreur');
             }
         }
     };
@@ -119,10 +119,21 @@ export default function Index(): JSX.Element {
                             />
                         </div>
 
-                        {connectingAsAdmin && (
+                        {joiningGroup && (
+                            <div className="flex py-4">
+                                Je veux me connecter comme admin:
+                                <input
+                                    className="ml-2 cursor-pointer w-6 accent-vertNoel"
+                                    type="checkbox"
+                                    onChange={() => setConnectingAsAdmin((value) => !value)}
+                                />
+                            </div>
+                        )}
+
+                        {(connectingAsAdmin || creatingGroup) && (
                             <>
                                 <div className="block pt-2">
-                                    <span className="pr-2">Mot de passe:</span>
+                                    <span className="pr-2">Mot de passe admin:</span>
 
                                     <CustomInput
                                         id="passwordInputId"

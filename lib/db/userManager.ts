@@ -19,7 +19,7 @@ export const getUsers = async (): Promise<User[]> => {
     return users;
 };
 
-export const getUserByGroupAndName = async (userName: string, groupId: string, password?: string): Promise<User | null> => {
+export const getUserByGroupAndName = async (userName: string, groupId: string): Promise<User | null> => {
     var user = await prisma.user.findFirst({
         where: {
             AND: [
@@ -31,9 +31,6 @@ export const getUserByGroupAndName = async (userName: string, groupId: string, p
                 },
                 {
                     groupId
-                },
-                {
-                    adminPassword: password
                 }
             ]
         }
@@ -79,7 +76,7 @@ export const upsertUser = async (user: User): Promise<User> => {
         where: {
             id: user.id
         },
-        create: { ...user, name: user.name.toLowerCase().trim(), id: new Date().toISOString() },
+        create: { ...user, name: user.name.toLowerCase().trim(), id: undefined },
         update: { ...user, name: user.name.toLowerCase().trim(), updatedAt: new Date().toISOString() }
     });
 

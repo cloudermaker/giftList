@@ -18,7 +18,7 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
 
     const [localUsers, setLocalUsers] = useState<User[]>(groupUsers);
     const [creatingUser, setCreatingUser] = useState<boolean>(false);
-    const [updatingUserId, setUpdatingUserId] = useState<string>('');
+    const [updatingUserId, setUpdatingUserId] = useState<string | undefined>(undefined);
     const [newUserName, setNewUserName] = useState<string>('');
     const [addError, setAddError] = useState<string>('');
 
@@ -39,26 +39,25 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
             })
             .then(async (result) => {
                 if (result.isConfirmed) {
-                    const apiResult = await AxiosWrapper.delete(`/api/user/${userId}`);
+                    console.log({ userId });
+                    const apiResult = await AxiosWrapper.delete(`/api/user/${userId ?? 'toto'}`);
                     const data = apiResult?.data as TUserApiResult;
 
-                    if (data.success === true) {
+                    if (data?.success === true) {
                         setLocalUsers(localUsers.filter((user) => user.id !== userId));
-                        setCreatingUser(false);
-                        setNewUserName('');
+
+                        swalWithBootstrapButtons.fire({
+                            title: 'Supprimé!',
+                            text: "L'utilisateur a été supprimé.",
+                            icon: 'success'
+                        });
                     } else {
                         swalWithBootstrapButtons.fire({
                             title: 'Erreur',
-                            text: `Mince, ça n'a pas fonctionné: ${data.error ?? '...'}`,
+                            text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
                             icon: 'error'
                         });
                     }
-
-                    swalWithBootstrapButtons.fire({
-                        title: 'Supprimé!',
-                        text: "L'utilisateur a été supprimé.",
-                        icon: 'success'
-                    });
                 }
             });
     };
@@ -69,43 +68,34 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
         let userToAdd: User = currentUserToAdd ?? buildDefaultUser(group.id);
         userToAdd.name = newUserName.trim();
 
-        axios
-            .post('/api/user', {
-                user: userToAdd,
-                initiatorUserId: connectedUser?.userId ?? ''
-            })
-            .then((response) => {
-                const data = (response as AxiosResponse).data as TUserApiResult;
+        const response = await AxiosWrapper.post('/api/user', {
+            user: userToAdd,
+            initiatorUserId: connectedUser?.userId ?? ''
+        });
+        const data = response?.data as TUserApiResult;
 
-                if (data.success === true && data.user) {
-                    let newUsers: User[] = localUsers;
+        if (data?.success === true && data?.user) {
+            let newUsers: User[] = localUsers;
 
-                    if (userId) {
-                        // Update
-                        const currentUserToUpdateId = newUsers.findIndex((user) => user.id === userId);
-                        newUsers[currentUserToUpdateId] = data.user;
-                    } else {
-                        // Create
-                        newUsers.push(data.user);
-                    }
+            if (userId) {
+                // Update
+                const currentUserToUpdateId = newUsers.findIndex((user) => user.id === userId);
+                newUsers[currentUserToUpdateId] = data.user;
+            } else {
+                // Create
+                newUsers.push(data.user);
+            }
 
-                    setLocalUsers(newUsers);
-                    clearAllFields();
-                } else {
-                    Swal.fire({
-                        title: 'Erreur',
-                        text: `Mince, ça n'a pas fonctionné: ${data.error ?? '...'}`,
-                        icon: 'error'
-                    });
-                }
-            })
-            .catch((error) => {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Oops...',
-                    text: error.response.data.error
-                });
+            setLocalUsers(newUsers);
+        } else {
+            Swal.fire({
+                title: 'Erreur',
+                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? 'erreur technique'}`,
+                icon: 'error'
             });
+        }
+
+        clearAllFields();
     };
 
     const updatingUser = (user: User): void => {
@@ -124,7 +114,7 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
     const clearAllFields = (): void => {
         setCreatingUser(false);
         setNewUserName('');
-        setUpdatingUserId('');
+        setUpdatingUserId(undefined);
         setAddError('');
     };
 
@@ -186,7 +176,7 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
                     </div>
                 ))}
 
-                {!connectedUser?.isAdmin && (
+                {connectedUser?.isAdmin && (
                     <>
                         {!creatingUser && <CustomButton onClick={onCreatingUserButtonClick}>Ajouter un utilisateur</CustomButton>}
 
@@ -207,14 +197,7 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
                                         Ajouter
                                     </CustomButton>
 
-                                    <CustomButton
-                                        onClick={() => {
-                                            setNewUserName('');
-                                            setCreatingUser(false);
-                                        }}
-                                    >
-                                        Annuler
-                                    </CustomButton>
+                                    <CustomButton onClick={() => clearAllFields()}>Annuler</CustomButton>
                                 </div>
                             </div>
                         )}

@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Group } from '@prisma/client';
-import { deleteGroup, getGroupById, updateGroup, upsertGroup } from '@/lib/db/groupManager';
+import { deleteGroup, getGroupById, updateGroup } from '@/lib/db/groupManager';
 import { COOKIE_NAME } from '@/lib/auth/authService';
 
 export type TGroupApiResult = {
@@ -32,14 +32,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             res.status(200).json({ success: true, group });
         } else if (method === 'PUT' && groupId && body.group && cookies[COOKIE_NAME]) {
-            const groupToUpdate = await getGroupById(body.groupId);
+            const groupToUpdate = await getGroupById(groupId);
 
             if (groupToUpdate) {
                 const group = await updateGroup(groupId, { ...groupToUpdate, ...(body.group as Group) });
 
                 res.status(200).json({ success: true, group });
             } else {
-                res.status(404).json({ success: false, groupId: body.groupId });
+                res.status(404).json({ success: false, groupId: groupId });
             }
         } else {
             res.status(400).json({ success: false });

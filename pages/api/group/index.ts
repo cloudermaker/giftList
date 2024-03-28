@@ -1,9 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Group } from '@prisma/client';
-import { isString } from 'lodash';
-import { deleteGroup, getGroupById, updateGroup, upsertGroup } from '@/lib/db/groupManager';
-import { getUserById } from '@/lib/db/userManager';
+import { upsertGroup } from '@/lib/db/groupManager';
 import { COOKIE_NAME } from '@/lib/auth/authService';
+import { TGroupAndUser } from '../authenticate';
 
 export type TGroupApiResult = {
     success: boolean;
@@ -18,7 +17,7 @@ const isAuthorized = async (req: NextApiRequest) => {
         return true;
     }
 
-    const connectedUser = await getUserById(req.body?.initiatorUserId ?? req.query?.initiatorUserId ?? '');
+    const connectedUser = JSON.parse(atob(req.cookies[COOKIE_NAME] as string)) as TGroupAndUser;
 
     return connectedUser?.isAdmin ?? false;
 };

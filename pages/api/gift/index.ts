@@ -3,6 +3,8 @@ import { getGiftFromId, updateGifts, upsertGift } from '@/lib/db/giftManager';
 import { Gift } from '@prisma/client';
 import { getUserById } from '@/lib/db/userManager';
 import { COOKIE_NAME } from '@/lib/auth/authService';
+import Cookies from 'js-cookie';
+import { TGroupAndUser } from '../authenticate';
 
 export type TGiftApiResult = {
     success: boolean;
@@ -18,20 +20,20 @@ const isAuthorized = async (req: NextApiRequest) => {
         return true;
     }
 
-    const connectedUser = await getUserById(req.body?.initiatorUserId ?? req.query?.initiatorUserId ?? 'None');
+    const connectedUser = JSON.parse(atob(req.cookies[COOKIE_NAME] as string)) as TGroupAndUser;
     const userGiftId = req.body?.userGiftId ?? req.query?.userGiftId ?? 'None';
-    const isGiftAdmin = connectedUser?.isAdmin || connectedUser?.id === userGiftId;
+    const isGiftAdmin = connectedUser?.isAdmin || connectedUser?.userId === userGiftId;
 
     return isGiftAdmin;
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TGiftApiResult>) {
-    const { body, query, cookies } = req;
+    const { body, query } = req;
 
     try {
         const isAuthorizedRequest = await isAuthorized(req);
 
-        if (!isAuthorizedRequest || !cookies[COOKIE_NAME]) {
+        if (!isAuthorizedRequest) {
             res.status(403).json({ success: false });
             return;
         }

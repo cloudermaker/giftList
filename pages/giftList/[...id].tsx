@@ -105,13 +105,13 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                     const result = await AxiosWrapper.delete(`/api/gift/${giftId}`);
                     const data = result?.data as TGiftApiResult;
 
-                    if (data.success === true) {
+                    if (data && data.success === true) {
                         setLocalGifts(localGifts.filter((gift) => gift.id !== giftId));
                         clearAllFields();
                     } else {
                         swalWithBootstrapButtons.fire({
                             title: 'Erreur',
-                            text: `Mince, ça n'a pas fonctionné: ${data.error ?? '...'}`,
+                            text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
                             icon: 'error'
                         });
                     }
@@ -193,7 +193,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         });
         const data = result?.data as TGiftApiResult;
 
-        if (data.success && data.gift) {
+        if (data && data.success && data.gift) {
             const newLocalGifts: Gift[] = [];
 
             for (const gift of localGifts) {
@@ -208,7 +208,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         } else {
             Swal.fire({
                 title: 'Erreur',
-                text: `Mince, ça n'a pas fonctionné: ${data.error ?? '...'}`,
+                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
                 icon: 'error'
             });
         }

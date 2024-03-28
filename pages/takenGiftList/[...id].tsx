@@ -22,12 +22,12 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
         });
         const data = result?.data as TGiftApiResult;
 
-        if (data.success && data.gift) {
+        if (data && data.success && data.gift) {
             setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftToUpdate.id));
         } else {
             Swal.fire({
                 title: 'Erreur',
-                text: `Mince, ça n'a pas fonctionné: ${data.error ?? '...'}`,
+                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
                 icon: 'error'
             });
         }

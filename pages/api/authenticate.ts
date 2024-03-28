@@ -13,7 +13,6 @@ export type TGroupAndUser = {
 export type TAuthenticateResult = {
     success: boolean;
     groupUser?: TGroupAndUser;
-    needPassword?: boolean;
     error: string;
 };
 
@@ -22,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
     try {
         const group = await getGroupByName(groupName);
-        const user = await getUserByGroupAndName(userName, group?.id ?? '-1', password);
+        const user = await getUserByGroupAndName(userName, group?.id ?? '-1');
 
         if (isCreating && group != null) {
             res.status(200).json({ success: false, error: 'Ce nom de groupe existe déjà.' });
@@ -49,11 +48,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 error: "Ce prénom n'existe pas."
             });
         } else if (!isCreating && group && user) {
-            if (user.isAdmin && !password) {
+            if (password && group.adminPassword === password) {
                 res.status(200).json({
                     success: true,
                     error: '',
-                    needPassword: true
+                    groupUser: {
+                        groupId: group.id,
+                        groupName: group.name,
+                        userId: user.id,
+                        userName: user.name,
+                        isAdmin: true
+                    }
+                });
+            } else if (password && group.adminPassword !== password) {
+                res.status(200).json({
+                    success: false,
+                    error: 'Mauvais mot de passe'
                 });
             } else {
                 res.status(200).json({
@@ -64,7 +74,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                         groupName: group.name,
                         userId: user.id,
                         userName: user.name,
-                        isAdmin: user.isAdmin
+                        isAdmin: false
                     }
                 });
             }

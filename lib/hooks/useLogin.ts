@@ -4,11 +4,17 @@ import { COOKIE_NAME } from '../auth/authService';
 import AxiosWrapper from '../wrappers/axiosWrapper';
 
 export const useLogin = () => {
-    const login = async (userName: string, groupName: string, isCreating: boolean): Promise<TAuthenticateResult> => {
+    const login = async (
+        userName: string,
+        groupName: string,
+        isCreating: boolean,
+        password?: string
+    ): Promise<TAuthenticateResult> => {
         const res = await AxiosWrapper.post('api/authenticate', {
             groupName,
             userName,
-            isCreating
+            isCreating,
+            password
         });
         const data = res?.data as TAuthenticateResult;
 
