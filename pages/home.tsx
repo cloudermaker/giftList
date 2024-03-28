@@ -1,15 +1,15 @@
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
 import CountDown from '../components/countDown';
 import { useEffect, useState } from 'react';
 import { Group } from '@prisma/client';
-import axios from 'axios';
 import { TGroupApiResult } from './api/group';
 import Image from 'next/image';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
+import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
+import Swal from 'sweetalert2';
 
 export const Home = (): JSX.Element => {
     const { connectedUser } = useCurrentUser();
@@ -18,13 +18,18 @@ export const Home = (): JSX.Element => {
     useEffect(() => {
         const fetchData = async () => {
             if (connectedUser) {
-                const response = await axios.get(`/api/group?groupId=${connectedUser?.groupId}`);
-                const groupInfoResponse = response.data as TGroupApiResult;
+                const response = await AxiosWrapper.get(`/api/group/${connectedUser?.groupId}`);
+                const groupInfoResponse = response?.data as TGroupApiResult;
 
                 if (groupInfoResponse.success && groupInfoResponse.group) {
                     setGroup(groupInfoResponse.group);
                 } else {
                     console.error(groupInfoResponse.error ?? 'An error occured');
+                    Swal.fire(
+                        'Erreur',
+                        "Désolé, une erreur imprévue est arrivée lors de la récupération du groupe.\r\nVeuillez prévenir l'équipe de développement.",
+                        'error'
+                    );
                 }
             }
         };

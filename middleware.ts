@@ -12,6 +12,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url));
 }
 
+// List secured path to check
 export const config = {
     matcher: ['/home', '/group/:path*', '/giftList/:path*', '/backoffice', '/takenGiftList/:path*']
 };

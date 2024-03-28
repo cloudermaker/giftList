@@ -1,6 +1,5 @@
 import { ReactNode, Suspense, useState } from 'react';
 import { Layout } from '@/components/layout';
-import axios from 'axios';
 import { EHeader } from '@/components/customHeader';
 import { NextPageContext } from 'next';
 import CustomButton from '@/components/atoms/customButton';
@@ -15,6 +14,8 @@ import { TGiftApiResult } from '@/pages/api/gift';
 import { getUserById } from '@/lib/db/userManager';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Swal from 'sweetalert2';
+import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
+import { cloneDeep } from 'lodash';
 
 function SortableItem({
     gift,
@@ -101,10 +102,8 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
             })
             .then(async (result) => {
                 if (result.isConfirmed) {
-                    const result = await axios.delete(
-                        `/api/gift?giftId=${giftId}&initiatorUserId=${connectedUser?.userId}&userGiftId=${user.id}`
-                    );
-                    const data = result.data as TGiftApiResult;
+                    const result = await AxiosWrapper.delete(`/api/gift/${giftId}`);
+                    const data = result?.data as TGiftApiResult;
 
                     if (data.success === true) {
                         setLocalGifts(localGifts.filter((gift) => gift.id !== giftId));
@@ -134,37 +133,47 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
     };
 
     const upsertGift = async (giftId: string | null = null): Promise<void> => {
-        const currentGift: Gift = localGifts.filter((gift) => gift.id === giftId)[0];
+        const currentGift: Gift = cloneDeep(localGifts.filter((gift) => gift.id === giftId)[0]);
         const giftToUpsert: Gift = currentGift ?? buildDefaultGift(user.id, localGifts.length);
 
         giftToUpsert.name = newGiftName;
         giftToUpsert.description = newDescription;
         giftToUpsert.url = newLink;
 
-        const result = await axios.post('/api/gift', {
-            gift: giftToUpsert,
-            initiatorUserId: connectedUser?.userId,
-            userGiftId: user.id
-        });
-        const data = result.data as TGiftApiResult;
+        let newGifts: Gift[] = localGifts;
+        if (giftId) {
+            // Update
+            const result = await AxiosWrapper.patch(`/api/gift/${giftId}`, {
+                gift: giftToUpsert
+            });
+            const data = result?.data as TGiftApiResult;
 
-        if (data.success === true && data.gift) {
-            let newGifts: Gift[] = localGifts;
-
-            if (giftId) {
-                // Update
+            if (data && data.success === true && data.gift) {
                 const currentUserToUpdateId = newGifts.findIndex((gift) => gift.id === giftId);
                 newGifts[currentUserToUpdateId] = data.gift;
             } else {
-                // Create
-                newGifts.push(data.gift);
+                newGifts = localGifts;
+                clearAllFields();
             }
-
-            setLocalGifts(newGifts);
-            clearAllFields();
         } else {
-            setError(data.error ?? 'An error occured');
+            // Create
+            const result = await AxiosWrapper.post('/api/gift', {
+                gift: giftToUpsert,
+                initiatorUserId: connectedUser?.userId,
+                userGiftId: user.id
+            });
+            const data = result?.data as TGiftApiResult;
+
+            if (data && data.success === true && data.gift) {
+                newGifts.push(data.gift);
+            } else {
+                newGifts = localGifts;
+                clearAllFields();
+            }
         }
+
+        setLocalGifts(newGifts);
+        clearAllFields();
     };
 
     const onCreatingGiftButtonClick = (): void => {
@@ -176,13 +185,13 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
     };
 
     const onBlockUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
-        const result = await axios.put('/api/gift', {
+        const result = await AxiosWrapper.put(`/api/gift/${giftToUpdate.id}`, {
             gift: {
                 id: giftToUpdate.id,
                 takenUserId: giftToUpdate.takenUserId != null ? null : connectedUser?.userId
             }
         });
-        const data = result.data as TGiftApiResult;
+        const data = result?.data as TGiftApiResult;
 
         if (data.success && data.gift) {
             const newLocalGifts: Gift[] = [];
@@ -235,7 +244,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                     newGifts[i].order = i + 1;
                 }
 
-                axios.post('/api/gift', {
+                AxiosWrapper.post('/api/gift', {
                     gifts: newGifts,
                     initiatorUserId: connectedUser?.userId,
                     userGiftId: user.id

@@ -78,10 +78,10 @@ export const createGift = async (
     return user;
 };
 
-export const updateGift = async (gift: Gift): Promise<Gift> => {
+export const updateGift = async (giftId: string, gift: Gift): Promise<Gift> => {
     var gift = await prisma.gift.update({
         where: {
-            id: gift.id
+            id: giftId
         },
         data: { ...gift, name: gift.name.trim(), updatedAt: new Date().toISOString() }
     });

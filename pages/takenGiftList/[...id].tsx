@@ -3,25 +3,24 @@ import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
 import { getTakenGiftsFromUserId } from '@/lib/db/giftManager';
 import { Gift, User } from '@prisma/client';
-import axios from 'axios';
 import { NextPageContext } from 'next';
 import { useState } from 'react';
 import { TGiftApiResult } from '@/pages/api/gift';
-import { getUserById } from '@/lib/db/userManager';
 import Swal from 'sweetalert2';
 import { GiftIcon } from '@/components/icons/gift';
+import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 
 const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null })[] }): JSX.Element => {
     const [localTakenGifts, setLocalTakenGifts] = useState<(Gift & { user: User | null })[]>(takenGifts);
 
     const onUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
-        const result = await axios.put('/api/gift', {
+        const result = await AxiosWrapper.put(`/api/gift/${giftToUpdate.id}`, {
             gift: {
                 id: giftToUpdate.id,
                 takenUserId: null
             }
         });
-        const data = result.data as TGiftApiResult;
+        const data = result?.data as TGiftApiResult;
 
         if (data.success && data.gift) {
             setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftToUpdate.id));

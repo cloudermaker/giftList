@@ -41,7 +41,7 @@ export const getGroupByName = async (groupName: string): Promise<Group | null> =
     return group;
 };
 
-export const deletgeGroup = async (groupId: string): Promise<boolean> => {
+export const deleteGroup = async (groupId: string): Promise<boolean> => {
     var groups = await prisma.group.delete({
         where: {
             id: groupId
@@ -75,10 +75,10 @@ export const upsertGroup = async (group: Group): Promise<Group> => {
     return newGroup;
 };
 
-export const updateGroup = async (group: Group): Promise<Group> => {
+export const updateGroup = async (groupId: string, group: Group): Promise<Group> => {
     var newGroup = await prisma.group.update({
         where: {
-            id: group.id
+            id: groupId
         },
         data: { ...group, name: group.name.trim() }
     });

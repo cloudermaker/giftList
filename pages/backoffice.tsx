@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Layout } from '@/components/layout';
-import axios from 'axios';
 import { EHeader } from '@/components/customHeader';
 import CustomButton from '@/components/atoms/customButton';
 import { buildDefaultGroup, getGroups } from '@/lib/db/groupManager';
 import { TGroupApiResult } from './api/group';
 import { Group } from '@prisma/client';
 import Swal from 'sweetalert2';
+import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 
 const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
     const [localGroups, setLocalGroups] = useState<Group[]>(groups);
@@ -30,8 +30,8 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
             })
             .then(async (result) => {
                 if (result.isConfirmed) {
-                    const apiResult = await axios.delete(`/api/group?groupId=${groupId}`);
-                    const data = apiResult.data as TGroupApiResult;
+                    const apiResult = await AxiosWrapper.delete(`/api/group/${groupId}`);
+                    const data = apiResult?.data as TGroupApiResult;
 
                     if (data.success) {
                         setLocalGroups((groups) => groups.filter((group) => group.id !== groupId));
@@ -56,10 +56,10 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
         const groupToAdd: Group = buildDefaultGroup();
         groupToAdd.name = newGroupName;
 
-        const result = await axios.post('/api/group', {
+        const result = await AxiosWrapper.post('/api/group', {
             group: groupToAdd
         });
-        const data = result.data as TGroupApiResult;
+        const data = result?.data as TGroupApiResult;
 
         if (data.success && data.group) {
             const newGroups = localGroups;

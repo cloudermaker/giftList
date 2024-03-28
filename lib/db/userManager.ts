@@ -76,19 +76,19 @@ export const upsertUser = async (user: User): Promise<User> => {
         where: {
             id: user.id
         },
-        create: { ...user, name: user.name.toLowerCase().trim(), id: undefined },
-        update: { ...user, name: user.name.toLowerCase().trim(), updatedAt: undefined }
+        create: { ...user, name: user.name.toLowerCase().trim(), id: new Date().toISOString() },
+        update: { ...user, name: user.name.toLowerCase().trim(), updatedAt: new Date().toISOString() }
     });
 
     return user;
 };
 
-export const updateUser = async (user: User): Promise<User> => {
+export const updateUser = async (userId: string, user: User): Promise<User> => {
     var user = await prisma.user.update({
         where: {
-            id: user.id
+            id: userId
         },
-        data: { ...user, name: user.name.toLowerCase().trim(), updatedAt: undefined }
+        data: { ...user, name: user.name.toLowerCase().trim(), updatedAt: new Date().toISOString() }
     });
 
     return user;

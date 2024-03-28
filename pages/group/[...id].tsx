@@ -11,6 +11,7 @@ import { User, Group } from '@prisma/client';
 import Router from 'next/router';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Swal from 'sweetalert2';
+import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 
 const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] }): JSX.Element => {
     const { connectedUser } = useCurrentUser();
@@ -38,10 +39,8 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
             })
             .then(async (result) => {
                 if (result.isConfirmed) {
-                    const apiResult = await axios.delete(
-                        `/api/user?userId=${userId}&initiatorUserId=${connectedUser?.userId ?? ''}`
-                    );
-                    const data = apiResult.data as TUserApiResult;
+                    const apiResult = await AxiosWrapper.delete(`/api/user/${userId}`);
+                    const data = apiResult?.data as TUserApiResult;
 
                     if (data.success === true) {
                         setLocalUsers(localUsers.filter((user) => user.id !== userId));
