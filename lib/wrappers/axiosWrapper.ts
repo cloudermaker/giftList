@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 export default class AxiosWrapper {
     static async get(url: string): Promise<AxiosResponse<any, any> | undefined> {
         try {
-            return await axios.get(url, { withCredentials: true });
+            return await axios.get(url);
         } catch (ex) {
             console.log(`get: ${(ex as any).message}`);
             Swal.fire(
