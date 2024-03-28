@@ -10,9 +10,11 @@ export default function Index(): JSX.Element {
 
     const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
     const [joiningGroup, setJoiningGroup] = useState<boolean>(false);
+    const [connectingAsAdmin, setConnectingAsAdmin] = useState<boolean>(false);
 
     const [groupName, setGroupName] = useState<string>('');
     const [name, setName] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string>('');
 
     const onCreatingButtonClick = (): void => {
@@ -34,8 +36,10 @@ export default function Index(): JSX.Element {
     const onCancelButtonClick = (): void => {
         setCreatingGroup(false);
         setJoiningGroup(false);
+        setConnectingAsAdmin(false);
         setGroupName('');
         setName('');
+        setPassword('');
         setError('');
     };
 
@@ -48,7 +52,9 @@ export default function Index(): JSX.Element {
         } else {
             const data = await login(name, groupName, creatingGroup);
 
-            if (data.success) {
+            if (data.success && data.needPassword === true) {
+                setConnectingAsAdmin(true);
+            } else if (data.success) {
                 Router.push('/home');
             } else {
                 setError(data.error);
@@ -112,6 +118,22 @@ export default function Index(): JSX.Element {
                                 onKeyDown={onInputPressKey}
                             />
                         </div>
+
+                        {connectingAsAdmin && (
+                            <>
+                                <div className="block pt-2">
+                                    <span className="pr-2">Mot de passe:</span>
+
+                                    <CustomInput
+                                        id="passwordInputId"
+                                        className="bg-transparent"
+                                        onChange={setPassword}
+                                        value={password}
+                                        onKeyDown={onInputPressKey}
+                                    />
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     <div className="block m-3">
