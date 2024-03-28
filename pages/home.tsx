@@ -22,8 +22,6 @@ export const Home = (): JSX.Element => {
 
                 if (groupInfoResponse && groupInfoResponse.success && groupInfoResponse.group) {
                     setGroup(groupInfoResponse.group);
-                } else {
-                    console.error(groupInfoResponse.error ?? 'An error occured');
                 }
             }
         };

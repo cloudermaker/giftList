@@ -15,8 +15,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     const groupId = query.id?.toString();
 
     try {
+        console.log(1);
         if (method === 'GET' && groupId) {
+            console.log(2);
             const group = await getGroupById(groupId);
+            console.log(3, group);
 
             if (group) {
                 res.status(200).json({ success: true, group });
