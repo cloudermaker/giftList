@@ -26,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         if (isCreating && group != null) {
             res.status(200).json({ success: false, error: 'Ce nom de groupe existe déjà.' });
         } else if (isCreating) {
-            const group = await createGroup(groupName);
+            const group = await createGroup(groupName, password);
             const user = await createUser(userName, group.id);
 
             res.status(200).json({

@@ -7,6 +7,7 @@ export const buildDefaultGroup = () => {
         name: '',
         description: '',
         imageUrl: '',
+        adminPassword: '',
         updatedAt: new Date(),
         createdAt: new Date()
     };
@@ -51,10 +52,11 @@ export const deleteGroup = async (groupId: string): Promise<boolean> => {
     return !!groups;
 };
 
-export const createGroup = async (groupName: string, description = '', imageUrl = ''): Promise<Group> => {
+export const createGroup = async (groupName: string, password: string, description = '', imageUrl = ''): Promise<Group> => {
     var group = await prisma.group.create({
         data: {
             name: groupName.trim(),
+            adminPassword: password,
             description,
             imageUrl
         }

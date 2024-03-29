@@ -11,7 +11,9 @@ import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
     const [localGroups, setLocalGroups] = useState<Group[]>(groups);
     const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
+
     const [newGroupName, setNewGroupName] = useState<string>('');
+    const [newPassword, setNewPassword] = useState<string>('');
 
     const removeGroup = async (groupId: string): Promise<void> => {
         const swalWithBootstrapButtons = Swal.mixin({
@@ -55,6 +57,7 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
     const addGroup = async (): Promise<void> => {
         const groupToAdd: Group = buildDefaultGroup();
         groupToAdd.name = newGroupName;
+        groupToAdd.adminPassword = newPassword;
 
         const result = await AxiosWrapper.post('/api/group', {
             group: groupToAdd
@@ -62,9 +65,8 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
         const data = result?.data as TGroupApiResult;
 
         if (data && data.success && data.group) {
-            const newGroups = localGroups;
-            newGroups.push(data.group);
-            setLocalGroups(newGroups);
+            setLocalGroups((value) => [...value, data.group!]);
+            clearAllFields();
         } else {
             Swal.fire({
                 title: 'Erreur',
@@ -80,6 +82,12 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
         window.setTimeout(function () {
             document.getElementById('newGroupInputId')?.focus();
         }, 0);
+    };
+
+    const clearAllFields = () => {
+        setNewGroupName('');
+        setNewPassword('');
+        setCreatingGroup(false);
     };
 
     return (
@@ -108,19 +116,18 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
 
             {creatingGroup && (
                 <div>
-                    <span>Ajouter un nouveau groupe:</span>
-                    <input id="newGroupInputId" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} />
+                    <span>
+                        Nom du groupe:
+                        <input id="newGroupInputId" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} />
+                    </span>
+                    <span>
+                        Mot de passe:
+                        <input id="newPasswordInputId" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                    </span>
 
                     <CustomButton onClick={addGroup}>Add</CustomButton>
 
-                    <CustomButton
-                        onClick={() => {
-                            setNewGroupName('');
-                            setCreatingGroup(false);
-                        }}
-                    >
-                        Cancel
-                    </CustomButton>
+                    <CustomButton onClick={clearAllFields}>Cancel</CustomButton>
                 </div>
             )}
         </Layout>
@@ -134,8 +141,8 @@ export async function getServerSideProps() {
         props: {
             groups: groups.map((group) => ({
                 ...group,
-                updatedAt: group.updatedAt?.toISOString(),
-                createdAt: group.createdAt?.toISOString()
+                updatedAt: group.updatedAt?.toISOString() ?? '',
+                createdAt: group.createdAt?.toISOString() ?? ''
             }))
         }
     };
