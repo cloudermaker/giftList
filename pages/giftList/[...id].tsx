@@ -1,24 +1,33 @@
-import { ReactNode, useEffect, useState } from 'react';
-import { Layout, USER_ID_COOKIE } from '../../components/layout';
-import { getUserFromId, getUserGiftsFromUserId } from '../../lib/db/dbManager';
-import { TFamilyUser } from '../../lib/types/family';
-import axios from 'axios';
-import { EHeader } from '../../components/customHeader';
+import { ReactNode, Suspense, useState } from 'react';
+import { Layout } from '@/components/layout';
+import { EHeader } from '@/components/customHeader';
 import { NextPageContext } from 'next';
-import { TUserGift } from '../../lib/types/gift';
-import { TRemoveGiftResult } from '../api/gift/removeGift';
-import { TAddOrUpdateGiftResult } from '../api/gift/addOrUpdateGift';
-import Cookies from 'js-cookie';
-import { sanitize } from '../../lib/helpers/stringHelper';
-import { clone } from 'lodash';
-import CustomButton from '../../components/atoms/customButton';
-import { Medal } from '../../components/icons/medal';
+import CustomButton from '@/components/atoms/customButton';
+import { Medal } from '@/components/icons/medal';
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Drag } from '../../components/icons/drag';
+import { Drag } from '@/components/icons/drag';
+import { Gift, User } from '@prisma/client';
+import { buildDefaultGift, getGiftsFromUserId } from '@/lib/db/giftManager';
+import { TGiftApiResult } from '@/pages/api/gift';
+import { getUserById } from '@/lib/db/userManager';
+import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
+import Swal from 'sweetalert2';
+import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
+import { cloneDeep } from 'lodash';
 
-function SortableItem({ gift, children, idx, canReorder }: { gift: TUserGift; children: ReactNode; idx: number; canReorder: boolean }) {
+function SortableItem({
+    gift,
+    children,
+    idx,
+    canReorder
+}: {
+    gift: Gift;
+    children: ReactNode;
+    idx: number;
+    canReorder: boolean;
+}) {
     const { listeners, setNodeRef, transform } = useSortable({
         id: gift.id
     });
@@ -41,35 +50,31 @@ function SortableItem({ gift, children, idx, canReorder }: { gift: TUserGift; ch
     };
 
     return (
-        <>
-            <div className="item flex items-center" ref={setNodeRef} style={style}>
-                <div {...localListeners} style={localStyle}>
-                    <LeftIcon />
-                </div>
-
-                {children}
+        <div className="item flex items-center" ref={setNodeRef} style={style}>
+            <div {...localListeners} style={localStyle}>
+                <LeftIcon />
             </div>
-        </>
+
+            {children}
+        </div>
     );
 }
 
-const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGift[] }): JSX.Element => {
-    const [userCookieId, setUserCookieId] = useState<string>('');
-    const userCanAddGift: boolean = user.id === userCookieId;
+const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JSX.Element => {
+    const { connectedUser } = useCurrentUser();
 
-    const [localGifts, setLocalGifts] = useState<TUserGift[]>(giftList);
+    const userCanAddGift: boolean = user.id === connectedUser?.userId;
+
+    const [localGifts, setLocalGifts] = useState<Gift[]>(giftList);
     const [creatingGift, setCreatingGift] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
+    const [filteringTakenGifts, setFilteringTakenGifts] = useState<boolean>(false);
 
     const [newGiftName, setNewGiftName] = useState<string>('');
     const [newDescription, setNewDescription] = useState<string>('');
     const [newLink, setNewLink] = useState<string>('');
 
     const [updatingGiftId, setUpdatingGiftId] = useState<string>('');
-
-    useEffect(() => {
-        setUserCookieId(Cookies.get(USER_ID_COOKIE) ?? '');
-    }, []);
 
     const clearAllFields = (): void => {
         setCreatingGift(false);
@@ -81,67 +86,94 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
     };
 
     const removeGift = async (giftId: string): Promise<void> => {
-        const confirmation = window.confirm('Es-tu certain de vouloir supprimer ce cadeau ?');
+        const swalWithBootstrapButtons = Swal.mixin({
+            buttonsStyling: true
+        });
 
-        if (confirmation) {
-            const result = await axios.post('/api/gift/removeGift', { giftId });
-            const data = result.data as TRemoveGiftResult;
+        swalWithBootstrapButtons
+            .fire({
+                title: 'Es-tu certain de vouloir supprimer ce cadeau ?',
+                text: 'Il ne sera pas possible de revenir en arrière!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Oui!',
+                cancelButtonText: 'Non!',
+                reverseButtons: true
+            })
+            .then(async (result) => {
+                if (result.isConfirmed) {
+                    const result = await AxiosWrapper.delete(`/api/gift/${giftId}`);
+                    const data = result?.data as TGiftApiResult;
 
-            if (data.success === true) {
-                setLocalGifts(localGifts.filter((gift) => gift.id !== giftId));
-                clearAllFields();
-            } else {
-                alert(data.error);
-            }
-        }
+                    if (data && data.success === true) {
+                        setLocalGifts(localGifts.filter((gift) => gift.id !== giftId));
+                        clearAllFields();
+                    } else {
+                        swalWithBootstrapButtons.fire({
+                            title: 'Erreur',
+                            text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
+                            icon: 'error'
+                        });
+                    }
+
+                    swalWithBootstrapButtons.fire({
+                        title: 'Supprimé!',
+                        text: 'Le cadeau a été supprimé.',
+                        icon: 'success'
+                    });
+                }
+            });
     };
 
-    const updatingGift = (gift: TUserGift): void => {
+    const updatingGift = (gift: Gift): void => {
         setNewGiftName(gift.name);
-        setNewDescription(gift.description);
-        setNewLink(gift.url);
+        setNewDescription(gift.description ?? '');
+        setNewLink(gift.url ?? '');
         setUpdatingGiftId(gift.id);
     };
 
-    const addOrUpdateGift = async (giftId?: string): Promise<void> => {
-        const giftToAdd: TUserGift = {
-            id: giftId ?? '0',
-            name: sanitize(newGiftName),
-            description: sanitize(newDescription),
-            url: sanitize(newLink),
-            position: giftList.length + 1,
-            owner_user_id: user.id,
-            taken_user_id: undefined
-        };
+    const upsertGift = async (giftId: string | null = null): Promise<void> => {
+        const currentGift: Gift = cloneDeep(localGifts.filter((gift) => gift.id === giftId)[0]);
+        const giftToUpsert: Gift = currentGift ?? buildDefaultGift(user.id, localGifts.length);
 
-        const result = await axios.post('/api/gift/addOrUpdateGift', {
-            userGift: giftToAdd
-        });
-        const data = result.data as TAddOrUpdateGiftResult;
+        giftToUpsert.name = newGiftName;
+        giftToUpsert.description = newDescription;
+        giftToUpsert.url = newLink;
 
-        if (data.success === true) {
-            let newGifts: TUserGift[] = localGifts;
-            giftToAdd.id = giftId ?? data.giftId;
+        let newGifts: Gift[] = localGifts;
+        if (giftId) {
+            // Update
+            const result = await AxiosWrapper.patch(`/api/gift/${giftId}`, {
+                gift: giftToUpsert
+            });
+            const data = result?.data as TGiftApiResult;
 
-            if (giftId) {
-                const tmpGifts: TUserGift[] = [];
-                for (const gift of newGifts) {
-                    if (gift.id === giftId) {
-                        tmpGifts.push(giftToAdd);
-                    } else {
-                        tmpGifts.push(gift);
-                    }
-                }
-                newGifts = tmpGifts;
+            if (data && data.success === true && data.gift) {
+                const currentUserToUpdateId = newGifts.findIndex((gift) => gift.id === giftId);
+                newGifts[currentUserToUpdateId] = data.gift;
             } else {
-                newGifts.push(giftToAdd);
+                newGifts = localGifts;
+                clearAllFields();
             }
-
-            setLocalGifts(newGifts);
-            clearAllFields();
         } else {
-            setError(data.error);
+            // Create
+            const result = await AxiosWrapper.post('/api/gift', {
+                gift: giftToUpsert,
+                initiatorUserId: connectedUser?.userId,
+                userGiftId: user.id
+            });
+            const data = result?.data as TGiftApiResult;
+
+            if (data && data.success === true && data.gift) {
+                newGifts.push(data.gift);
+            } else {
+                newGifts = localGifts;
+                clearAllFields();
+            }
         }
+
+        setLocalGifts(newGifts);
+        clearAllFields();
     };
 
     const onCreatingGiftButtonClick = (): void => {
@@ -152,32 +184,38 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
         }, 0);
     };
 
-    const onblockUnclockGiftClick = async (giftToUpdate: TUserGift): Promise<void> => {
-        const userGift = clone(giftToUpdate);
-        userGift.taken_user_id = userGift.taken_user_id != null ? undefined : userCookieId;
-
-        const result = await axios.post('/api/gift/addOrUpdateGift', {
-            userGift: userGift
+    const onBlockUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
+        const result = await AxiosWrapper.put(`/api/gift/${giftToUpdate.id}`, {
+            gift: {
+                id: giftToUpdate.id,
+                takenUserId: giftToUpdate.takenUserId != null ? null : connectedUser?.userId
+            }
         });
-        const data = result.data as TAddOrUpdateGiftResult;
+        const data = result?.data as TGiftApiResult;
 
-        if (data.success === true) {
-            const newLocalGifts: TUserGift[] = [];
-            localGifts.forEach((gift) => {
-                if (gift.id !== giftToUpdate.id) {
-                    newLocalGifts.push(gift);
+        if (data && data.success && data.gift) {
+            const newLocalGifts: Gift[] = [];
+
+            for (const gift of localGifts) {
+                if (gift.id === giftToUpdate.id) {
+                    newLocalGifts.push(data.gift);
                 } else {
-                    newLocalGifts.push(userGift);
+                    newLocalGifts.push(gift);
                 }
-            });
+            }
+
             setLocalGifts(newLocalGifts);
         } else {
-            window.alert(data.error);
+            Swal.fire({
+                title: 'Erreur',
+                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
+                icon: 'error'
+            });
         }
     };
 
-    const buildStyleIfTaken = (gift: TUserGift): string => {
-        if (gift.owner_user_id !== userCookieId && gift.taken_user_id != null) {
+    const buildStyleIfTaken = (gift: Gift): string => {
+        if (gift.userId !== connectedUser?.userId && gift.takenUserId != null) {
             return 'line-through';
         }
 
@@ -194,24 +232,25 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
     function handleDragEnd(event: { active: any; over: any }) {
         const { active, over } = event;
 
-        // TODO: fix, id 0 is never draggable ?!
         if (active.id !== over.id) {
             setLocalGifts((prevLocalGifts) => {
                 const oldIndex = prevLocalGifts.findIndex((gift) => gift.id === active.id);
                 const newIndex = prevLocalGifts.findIndex((gift) => gift.id === over.id);
 
-                const newImages = arrayMove(prevLocalGifts, oldIndex, newIndex);
+                const newGifts: Gift[] = arrayMove(prevLocalGifts, oldIndex, newIndex);
 
                 // Update position of all gifts
-                for (let i = 0; i < newImages.length; i++) {
-                    newImages[i].position = i + 1;
+                for (let i = 0; i < newGifts.length; i++) {
+                    newGifts[i].order = i + 1;
                 }
 
-                axios.post('/api/gift/updateAllPositionGift', {
-                    newGifts: newImages
+                AxiosWrapper.post('/api/gift', {
+                    gifts: newGifts,
+                    initiatorUserId: connectedUser?.userId,
+                    userGiftId: user.id
                 });
 
-                return newImages;
+                return newGifts;
             });
         }
     }
@@ -221,101 +260,130 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
             <div className="mb-10">
                 <h1>{`Voici la liste de cadeaux pour ${user.name}:`}</h1>
 
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                    <SortableContext items={localGifts}>
-                        {localGifts.map((gift, idx) => (
-                            <SortableItem key={`gift_${gift.id}`} gift={gift} idx={idx + 1} canReorder={userCanAddGift}>
-                                <div className="flex justify-between items-center w-full">
-                                    {updatingGiftId !== gift.id && (
-                                        <div className={`w-full block ${buildStyleIfTaken(gift)}`}>
-                                            <p>
-                                                <b className="pr-2">Nom:</b>
-                                                {gift.name}
-                                            </p>
+                {connectedUser?.userId !== user.id && (
+                    <div className="flex pb-4">
+                        Je veux cacher les cadeaux déja pris:
+                        <input
+                            className="ml-2 cursor-pointer w-6 accent-vertNoel"
+                            type="checkbox"
+                            onChange={() => setFilteringTakenGifts(!filteringTakenGifts)}
+                        />
+                    </div>
+                )}
 
-                                            {gift.description && (
-                                                <p>
-                                                    <b className="pr-2">Description:</b>
-                                                    {gift.description}
-                                                </p>
-                                            )}
+                <Suspense fallback="loading...">
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                        <SortableContext items={localGifts}>
+                            {localGifts
+                                .filter((gift) => !filteringTakenGifts || !gift.takenUserId)
+                                .map((gift, idx) => (
+                                    <SortableItem key={`gift_${gift.id}`} gift={gift} idx={idx + 1} canReorder={userCanAddGift}>
+                                        <div className="flex justify-between items-center w-full">
+                                            {updatingGiftId !== gift.id && (
+                                                <div className={`w-full block ${buildStyleIfTaken(gift)}`}>
+                                                    <p>
+                                                        <b className="pr-2">Nom:</b>
+                                                        {gift.name}
+                                                    </p>
 
-                                            {gift.url && (
-                                                <div className="flex">
-                                                    <span>{'->'}</span>
-                                                    <a href={gift.url}>Lien</a>
-                                                    <span>{'<-'}</span>
+                                                    {gift.description && (
+                                                        <p>
+                                                            <b className="pr-2">Description:</b>
+                                                            {gift.description}
+                                                        </p>
+                                                    )}
+
+                                                    {gift.url && (
+                                                        <div className="flex">
+                                                            <span>{'->'}</span>
+                                                            <a href={gift.url}>Lien</a>
+                                                            <span>{'<-'}</span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
-                                        </div>
-                                    )}
 
-                                    {updatingGiftId === gift.id && (
-                                        <div className={`block ${buildStyleIfTaken(gift)}`}>
-                                            <div className="grid md:flex">
-                                                <b className="pr-2">Nom:</b>
-                                                <input
-                                                    id="newGiftInputId"
-                                                    className="bg-transparent"
-                                                    value={newGiftName}
-                                                    onChange={(e) => setNewGiftName(e.target.value)}
-                                                />
-                                            </div>
+                                            {updatingGiftId === gift.id && (
+                                                <div className={`block ${buildStyleIfTaken(gift)}`}>
+                                                    <div className="grid md:flex">
+                                                        <b className="pr-2">Nom:</b>
+                                                        <input
+                                                            id="newGiftInputId"
+                                                            className="bg-transparent"
+                                                            value={newGiftName}
+                                                            onChange={(e) => setNewGiftName(e.target.value)}
+                                                        />
+                                                    </div>
 
-                                            <div className="grid md:flex">
-                                                <b className="pr-2">Description:</b>
-                                                <input
-                                                    className="bg-transparent"
-                                                    value={newDescription}
-                                                    onChange={(e) => setNewDescription(e.target.value)}
-                                                />
-                                            </div>
+                                                    <div className="grid md:flex">
+                                                        <b className="pr-2">Description:</b>
+                                                        <input
+                                                            className="bg-transparent"
+                                                            value={newDescription}
+                                                            onChange={(e) => setNewDescription(e.target.value)}
+                                                        />
+                                                    </div>
 
-                                            <div className="grid md:flex">
-                                                <b className="pr-2">Lien:</b>
-                                                <input className="bg-transparent" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
-                                            </div>
-                                        </div>
-                                    )}
+                                                    <div className="grid md:flex">
+                                                        <b className="pr-2">Lien:</b>
+                                                        <input
+                                                            className="bg-transparent"
+                                                            value={newLink}
+                                                            onChange={(e) => setNewLink(e.target.value)}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
 
-                                    <div className="text-right block md:flex">
-                                        {userCanAddGift && (
-                                            <>
-                                                {updatingGiftId === gift.id && <CustomButton onClick={clearAllFields}>Annuler</CustomButton>}
-                                                {updatingGiftId === gift.id && (
-                                                    <CustomButton
-                                                        onClick={() => addOrUpdateGift(gift.id)}
-                                                        disabled={newGiftName == null || newGiftName === ''}
-                                                    >
-                                                        Valider
+                                            <div className="text-right block md:flex">
+                                                {userCanAddGift &&
+                                                    (updatingGiftId === gift.id ? (
+                                                        <>
+                                                            <CustomButton
+                                                                onClick={() => upsertGift(gift.id)}
+                                                                disabled={newGiftName == null || newGiftName === ''}
+                                                            >
+                                                                Valider
+                                                            </CustomButton>
+                                                            <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <CustomButton onClick={() => updatingGift(gift)}>
+                                                                Modifier
+                                                            </CustomButton>
+                                                            <CustomButton onClick={() => removeGift(gift.id)}>
+                                                                Supprimer
+                                                            </CustomButton>
+                                                        </>
+                                                    ))}
+
+                                                {!userCanAddGift && gift.takenUserId === connectedUser?.userId && (
+                                                    <CustomButton onClick={() => onBlockUnBlockGiftClick(gift)}>
+                                                        Je ne prends plus ce cadeau
                                                     </CustomButton>
                                                 )}
-                                                {updatingGiftId !== gift.id && (
-                                                    <>
-                                                        <CustomButton onClick={() => updatingGift(gift)}>Modifier</CustomButton>
-                                                        <CustomButton onClick={() => removeGift(gift.id)}>Supprimer</CustomButton>
-                                                    </>
-                                                )}
-                                            </>
-                                        )}
 
-                                        {!userCanAddGift && gift.taken_user_id === userCookieId && (
-                                            <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>Je ne prends plus ce cadeau</CustomButton>
-                                        )}
+                                                {!userCanAddGift &&
+                                                    gift.takenUserId &&
+                                                    gift.takenUserId !== connectedUser?.userId && (
+                                                        <span className="text-red-500">Ce cadeau est déjà pris</span>
+                                                    )}
 
-                                        {!userCanAddGift && gift.taken_user_id && gift.taken_user_id !== userCookieId && (
-                                            <span className="text-red-500">Ce cadeau est déjà pris</span>
-                                        )}
-
-                                        {!userCanAddGift && !gift.taken_user_id && gift.taken_user_id !== userCookieId && (
-                                            <CustomButton onClick={() => onblockUnclockGiftClick(gift)}>Je prends ce cadeau</CustomButton>
-                                        )}
-                                    </div>
-                                </div>
-                            </SortableItem>
-                        ))}
-                    </SortableContext>
-                </DndContext>
+                                                {!userCanAddGift &&
+                                                    !gift.takenUserId &&
+                                                    gift.takenUserId !== connectedUser?.userId && (
+                                                        <CustomButton onClick={() => onBlockUnBlockGiftClick(gift)}>
+                                                            Je prends ce cadeau
+                                                        </CustomButton>
+                                                    )}
+                                            </div>
+                                        </div>
+                                    </SortableItem>
+                                ))}
+                        </SortableContext>
+                    </DndContext>
+                </Suspense>
 
                 {!creatingGift && <CustomButton onClick={onCreatingGiftButtonClick}>Ajouter un cadeau</CustomButton>}
 
@@ -336,7 +404,11 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
 
                         <div className="flex">
                             <b className="pr-2">Description:</b>
-                            <input className="bg-transparent" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
+                            <input
+                                className="bg-transparent"
+                                value={newDescription}
+                                onChange={(e) => setNewDescription(e.target.value)}
+                            />
                         </div>
 
                         <div className="flex">
@@ -345,7 +417,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
                         </div>
 
                         <div className="py-2">
-                            <CustomButton onClick={() => addOrUpdateGift()} disabled={newGiftName === ''}>
+                            <CustomButton onClick={() => upsertGift()} disabled={newGiftName === ''}>
                                 Ajouter
                             </CustomButton>
 
@@ -371,7 +443,7 @@ const Family = ({ user, giftList = [] }: { user: TFamilyUser; giftList: TUserGif
 export async function getServerSideProps(context: NextPageContext) {
     const { query } = context;
 
-    const userId = query.id as string;
+    const userId = query.id?.toString() ?? '';
 
     if (Number.isNaN(userId)) {
         return {
@@ -379,15 +451,23 @@ export async function getServerSideProps(context: NextPageContext) {
         };
     }
 
-    const user = await getUserFromId(userId);
-    const giftList = await getUserGiftsFromUserId(userId);
+    const user = await getUserById(userId);
+    const giftList = await getGiftsFromUserId(userId);
 
     return {
         props: {
-            user,
-            giftList
+            user: {
+                ...user,
+                updatedAt: user?.updatedAt?.toISOString() ?? '',
+                createdAt: user?.createdAt?.toISOString() ?? ''
+            },
+            giftList: giftList.map((gift) => ({
+                ...gift,
+                updatedAt: gift.updatedAt?.toISOString() ?? '',
+                createdAt: gift.createdAt?.toISOString() ?? ''
+            }))
         }
     };
 }
 
-export default Family;
+export default GiftPage;

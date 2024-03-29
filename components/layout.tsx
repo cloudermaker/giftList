@@ -1,14 +1,10 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode } from 'react';
 import { CustomFooter } from './customFooter';
 import { CustomHeader, EHeader } from './customHeader';
-import Cookies from 'js-cookie';
 import Router from 'next/router';
-import axios from 'axios';
-import { TUserInfoResult } from '../pages/api/getUserInfo';
 import CountDown from './countDown';
-
-export const GROUP_ID_COOKIE = 'giftList_groupName';
-export const USER_ID_COOKIE = 'giftList_name';
+import { useLogout } from '@/lib/hooks/useLogout';
+import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 
 export const Layout = ({
     children,
@@ -19,42 +15,11 @@ export const Layout = ({
     selectedHeader?: EHeader;
     withHeader?: boolean;
 }): JSX.Element => {
-    const [familyCookieId, setGroupCookieId] = useState<string>('');
-    const [userCookieId, setUserCookieId] = useState<string>('');
-
-    const [connectedUserName, setConnectedUserName] = useState<string>('');
-    const [connectedFamilyName, setConnectedFamilyName] = useState<string>('');
-
-    useEffect(() => {
-        const fetchData = async (familyId: string, userId: string): Promise<void> => {
-            const result = await axios.post('/api/getUserInfo', { familyId, userId });
-            const userInfoResult = result.data as TUserInfoResult;
-
-            if (userInfoResult.success && userInfoResult.familyUser) {
-                setConnectedUserName(userInfoResult.familyUser.userName as string);
-                setConnectedFamilyName(userInfoResult.familyUser.familyName as string);
-            } else {
-                onDisconnectClick();
-            }
-        };
-
-        const familyId = Cookies.get(GROUP_ID_COOKIE) ?? '';
-        const userId = Cookies.get(USER_ID_COOKIE) ?? '';
-        setGroupCookieId(familyId);
-        setUserCookieId(userId);
-
-        if (withHeader) {
-            if (!familyId || !userId) {
-                onDisconnectClick();
-            }
-
-            fetchData(familyId, userId);
-        }
-    }, [withHeader]);
+    const { logout } = useLogout();
+    const { connectedUser } = useCurrentUser();
 
     const onDisconnectClick = (): void => {
-        Cookies.remove(GROUP_ID_COOKIE);
-        Cookies.remove(USER_ID_COOKIE);
+        logout();
 
         Router.push('/');
     };
@@ -64,13 +29,13 @@ export const Layout = ({
             <div className="body-padding min-h-body">
                 <div className="pt-5 pb-3 flex justify-between">
                     <div className="text-xs md:flex bg-shadow">
-                        {connectedUserName && connectedFamilyName && (
+                        {connectedUser && (
                             <>
                                 <span className="hidden md:block">Connecté en tant que</span>
-                                <b className="pl-1 text-vertNoel">{connectedUserName}</b>
-                                <span className="hidden md:block">, dans la famille</span>
+                                <b className="pl-1 text-vertNoel">{connectedUser.userName}</b>
+                                <span className="hidden md:block">, dans le groupe</span>
                                 <br />
-                                <b className="pl-1 text-vertNoel">{connectedFamilyName}</b>
+                                <b className="pl-1 text-vertNoel">{connectedUser.groupName}</b>
                             </>
                         )}
                     </div>
@@ -80,11 +45,11 @@ export const Layout = ({
                     </span>
                 </div>
 
-                {withHeader && (
+                {withHeader && connectedUser && (
                     <CustomHeader
                         selectedHeader={selectedHeader}
-                        groupId={familyCookieId}
-                        userId={userCookieId}
+                        groupId={connectedUser.groupId}
+                        userId={connectedUser.userId}
                         onDisconnectClick={onDisconnectClick}
                     />
                 )}

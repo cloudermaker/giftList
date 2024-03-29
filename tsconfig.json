@@ -13,8 +13,12 @@
         "resolveJsonModule": true,
         "isolatedModules": true,
         "jsx": "preserve",
-        "incremental": true
+        "incremental": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./*"]
+        }
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "lib/types", "migration/init.js"],
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "migration/init.js"],
     "exclude": ["node_modules"]
 }

@@ -1,28 +1,21 @@
-import axios from 'axios';
 import Router from 'next/router';
-import Cookies from 'js-cookie';
-import { useState, useEffect } from 'react';
-import { GROUP_ID_COOKIE, Layout, USER_ID_COOKIE } from '../components/layout';
-import { TGetOrCreateGroupAndUserResult } from './api/getOrCreateGroupAndUser';
+import { useState } from 'react';
+import { Layout } from '../components/layout';
 import { CustomInput } from '../components/atoms/customInput';
 import CustomButton from '../components/atoms/customButton';
+import { useLogin } from '@/lib/hooks/useLogin';
 
 export default function Index(): JSX.Element {
+    const { login } = useLogin();
+
     const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
     const [joiningGroup, setJoiningGroup] = useState<boolean>(false);
+    const [connectingAsAdmin, setConnectingAsAdmin] = useState<boolean>(false);
 
     const [groupName, setGroupName] = useState<string>('');
     const [name, setName] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string>('');
-
-    useEffect(() => {
-        const groupId = Cookies.get(GROUP_ID_COOKIE) ?? '';
-        const userId = Cookies.get(USER_ID_COOKIE) ?? '';
-
-        if (groupId && userId) {
-            Router.push('/home');
-        }
-    }, []);
 
     const onCreatingButtonClick = (): void => {
         setCreatingGroup(true);
@@ -43,35 +36,28 @@ export default function Index(): JSX.Element {
     const onCancelButtonClick = (): void => {
         setCreatingGroup(false);
         setJoiningGroup(false);
+        setConnectingAsAdmin(false);
         setGroupName('');
         setName('');
+        setPassword('');
         setError('');
     };
 
     const onValidateButtonClick = async (): Promise<void> => {
+        setError('');
         if (!groupName) {
-            setError('Il faut rentrer une famille.');
+            setError('Il faut rentrer un groupe.');
         } else if (!name) {
             setError('Il faut rentrer un nom.');
+        } else if (connectingAsAdmin && !password) {
+            setError('Il faut rentrer un mot de passe.');
         } else {
-            const res = await axios.post('api/getOrCreateGroupAndUser', {
-                groupName,
-                userName: name,
-                isCreating: creatingGroup
-            });
-            const data = res.data as TGetOrCreateGroupAndUserResult;
+            const data = await login(name, groupName, creatingGroup, password);
 
-            if (data.success) {
-                Cookies.set(GROUP_ID_COOKIE, data.groupUser?.groupId ?? '', {
-                    expires: 7
-                });
-                Cookies.set(USER_ID_COOKIE, data.groupUser?.userId ?? '', {
-                    expires: 7
-                });
-
+            if (data?.success) {
                 Router.push('/home');
-            } else {
-                setError(data.error);
+            } else if (data) {
+                setError(data?.error ?? 'Erreur');
             }
         }
     };
@@ -84,7 +70,7 @@ export default function Index(): JSX.Element {
 
     return (
         <Layout withHeader={false}>
-            <h1 className="header text-center bg-white">Bienvenue sur le site de gestion de cadeaux !!</h1>
+            <h1 className="header text-center bg-white">Bienvenue sur le site de gestion de cadeaux</h1>
 
             {!creatingGroup && !joiningGroup && (
                 <div className="block text-center">
@@ -92,11 +78,11 @@ export default function Index(): JSX.Element {
 
                     <div className="block m-3">
                         <CustomButton className="p-3 mx-3" onClick={onCreatingButtonClick}>
-                            Créer ma famille
+                            Créer mon groupe
                         </CustomButton>
 
                         <CustomButton className="p-3 mx-3 mt-3" onClick={onJoiningButtonClick}>
-                            Rejoindre ma famille
+                            Rejoindre mon groupe
                         </CustomButton>
                     </div>
                 </div>
@@ -107,11 +93,11 @@ export default function Index(): JSX.Element {
                     <div className="block m-3 p-2 bg-shadow">
                         {error && <b className="text-red-500">{`Erreur: ${error}`}</b>}
 
-                        {creatingGroup && <p className="font-bold mb-2">Pour créer ta famille:</p>}
-                        {!creatingGroup && <p className="font-bold mb-2">Pour rejoindre une famille:</p>}
+                        {creatingGroup && <p className="font-bold mb-2">Pour créer ton groupe:</p>}
+                        {!creatingGroup && <p className="font-bold mb-2">Pour rejoindre un groupe:</p>}
 
                         <div className="block pt-2">
-                            <span className="pr-2">Entre le nom de ta famille:</span>
+                            <span className="pr-2">Entre le nom de ton groupe:</span>
 
                             <input
                                 id="groupNameInputId"
@@ -124,8 +110,42 @@ export default function Index(): JSX.Element {
                         <div className="block pt-2">
                             <span className="pr-2">Entre ton nom:</span>
 
-                            <CustomInput id="nameInputId" className="bg-transparent" onChange={setName} value={name} onKeyDown={onInputPressKey} />
+                            <CustomInput
+                                id="nameInputId"
+                                className="bg-transparent"
+                                onChange={setName}
+                                value={name}
+                                onKeyDown={onInputPressKey}
+                            />
                         </div>
+
+                        {joiningGroup && (
+                            <div className="flex py-4">
+                                Je veux me connecter comme admin:
+                                <input
+                                    className="ml-2 cursor-pointer w-6 accent-vertNoel"
+                                    type="checkbox"
+                                    onChange={() => setConnectingAsAdmin((value) => !value)}
+                                />
+                            </div>
+                        )}
+
+                        {(connectingAsAdmin || creatingGroup) && (
+                            <>
+                                <div className="block pt-2">
+                                    <span className="pr-2">Mot de passe admin:</span>
+
+                                    <CustomInput
+                                        id="passwordInputId"
+                                        className="bg-transparent"
+                                        onChange={setPassword}
+                                        value={password}
+                                        onKeyDown={onInputPressKey}
+                                        type="password"
+                                    />
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     <div className="block m-3">
