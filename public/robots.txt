@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Disallow: /home
+Disallow: /giftList
+Disallow: /group
+Disallow: /takenGiftList
+Disallow: /backoffice
+
+Sitemap: https://www.malistedecadeaux.fr/sitemap.xml

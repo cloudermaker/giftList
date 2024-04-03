@@ -5,6 +5,11 @@ export async function middleware(request: NextRequest) {
     const encryptedCurrentUser = request.cookies.get(COOKIE_NAME)?.value ?? '';
     const currentUser = atob(encryptedCurrentUser);
 
+    // This page is only to debug the groups => very touchy page
+    if (request.nextUrl.pathname === '/backoffice' && request.headers.get('host') !== 'localhost:3000') {
+        return NextResponse.error();
+    }
+
     if (currentUser) {
         return NextResponse.next();
     }
