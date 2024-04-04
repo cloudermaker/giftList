@@ -7,6 +7,7 @@ import { useLogin } from '@/lib/hooks/useLogin';
 import { GiftIcon } from '@/components/icons/gift';
 import { QuestionMarkIcon } from '@/components/icons/questionMark';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowRight, faArrowsLeftRightToLine } from '@fortawesome/free-solid-svg-icons';
 
 export default function Index(): JSX.Element {
     const { login } = useLogin();
@@ -163,36 +164,42 @@ export default function Index(): JSX.Element {
                 </div>
             )}
 
-            <div className="pt-8 flex justify-center">
-                <div className="bg-white w-fit h-fit rounded p-5 place-center border-vertNoel border-solid border-2 absolute">
-                    <GiftIcon className="absolute -top-5 -left-5 -rotate-45 w-9 fill-vertNoel" />
-                    <div className="absolute -top-5 -right-10 rotate-45 flex">
-                        <QuestionMarkIcon className="w-9 fill-vertNoel" />
-                        <QuestionMarkIcon className="w-9 fill-rougeNoel" />
+            <div className="py-8 flex justify-center relative">
+                <div className="bg-white w-fit h-fit rounded p-5 place-center border-vertNoel border-solid border-2">
+                    <div className="flex justify-around">
+                        <QuestionMarkIcon className="-rotate-45 w-9 fill-vertNoel absolute top-0 left-0 md:relative" />
+                        <div className="bg-vertNoel/25 rounded-lg p-2 self-center text-center text-lg font-bold">
+                            Ma liste de cadeaux en famille ou entre amis
+                        </div>
+                        <GiftIcon className="rotate-45 w-9 fill-rougeNoel absolute top-0 right-0 md:relative" />
                     </div>
 
-                    <h2 className="font-bold text-center">
-                        Ma liste de cadeaux en famille ou entre amis 100% gratuite et 100% facile !
-                    </h2>
-
-                    <h3 className="pt-5 font-bold text-vertNoel">Pour commencer, rien de plus simple. Il te suffit de:</h3>
+                    <h3 className="pt-5 font-bold">Pour commencer, rien de plus simple. Il te suffit de:</h3>
                     <ul className="pl-5">
-                        <li className="list-decimal">
-                            Créer un nouveau groupe avec un mot de passe pour l&apos;administrateur du groupe
+                        <li className="py-2">
+                            <span className="bg-vertNoel/25 rounded-full mr-3 px-2 py-1">1</span>
+                            Créer un nouveau groupe
                         </li>
-                        <li className="list-decimal">Une fois connecté, tu pourras ajouter des nouveaux utilisateurs</li>
-                        <li className="list-decimal">Chaque utilisateur pourra se connecter avec son nom de groupe et son nom</li>
+                        <li className="py-2">
+                            <span className="bg-vertNoel/25 rounded-full mr-3 px-2 py-1">2</span>
+                            Une fois connecté, tu pourras ajouter de nouveaux utilisateurs
+                        </li>
+                        <li className="py-2">
+                            <span className="bg-vertNoel/25 rounded-full mr-3 px-2 py-1">3</span>
+                            <span>Chaque utilisateur pourra se connecter avec son nom de groupe et son nom</span>
+                        </li>
                     </ul>
 
-                    <br />
-
-                    <h3 className="pt-5 font-bold text-vertNoel">Une fois connecté, tu pourras:</h3>
+                    <h3 className="pt-5 font-bold">Une fois connecté, tu pourras:</h3>
                     <ul className="pl-5">
                         <li className="list-disc">Ajouter les cadeaux que tu souhaites</li>
                         <li className="list-disc">Indiquer aux autres utilisateurs quel(s) cadeau(x) tu prends...</li>
                         <li className="text-center italic">... Mais sans que la personne ne soit au courant !</li>
                         <li className="list-disc">Classer tes cadeaux dans un ordre de préférence</li>
                         <li className="list-disc">Enfin, une page te résume tous les cadeaux que tu dois prendre et pour qui</li>
+                        <i className="w-full block text-xs text-right">
+                            Pratique pour faire les courses, tout est sur la même page!
+                        </i>
                     </ul>
                 </div>
             </div>
