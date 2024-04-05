@@ -6,8 +6,6 @@ import CustomButton from '../components/atoms/customButton';
 import { useLogin } from '@/lib/hooks/useLogin';
 import { GiftIcon } from '@/components/icons/gift';
 import { QuestionMarkIcon } from '@/components/icons/questionMark';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight, faArrowsLeftRightToLine } from '@fortawesome/free-solid-svg-icons';
 
 export default function Index(): JSX.Element {
     const { login } = useLogin();
@@ -78,7 +76,7 @@ export default function Index(): JSX.Element {
 
             {!creatingGroup && !joiningGroup && (
                 <div className="block text-center">
-                    <h3 className="p-5 font-bold bg-shadow">Que souhaites-tu faire ?</h3>
+                    <h2 className="p-5 font-bold bg-shadow">Que souhaites-tu faire ?</h2>
 
                     <div className="block m-3">
                         <CustomButton className="p-3 mx-3" onClick={onCreatingButtonClick}>
