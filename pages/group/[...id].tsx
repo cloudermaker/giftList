@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Layout } from '@/components/layout';
-import axios, { AxiosResponse } from 'axios';
 import { EHeader } from '@/components/customHeader';
 import { NextPageContext } from 'next';
 import CustomButton from '@/components/atoms/customButton';

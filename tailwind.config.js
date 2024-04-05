@@ -4,7 +4,7 @@ module.exports = {
     theme: {
         extend: {
             minHeight: {
-                body: 'calc(100vh - 64px)'
+                body: 'calc(100vh - 80px)'
             },
             backgroundImage: {
                 noel: "url('/BG_3.png')"
@@ -12,7 +12,10 @@ module.exports = {
             colors: {
                 vertNoel: '#99E265',
                 rougeNoel: '#E04C4C'
-            }
+            },
+            maxWidth: {
+                'mid': '50%',
+              }
         }
     },
     plugins: []
