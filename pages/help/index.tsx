@@ -1,6 +1,8 @@
+import CustomButton from '@/components/atoms/customButton';
 import { QuestionMarkIcon } from '@/components/icons/questionMark';
 import { Layout } from '@/components/layout';
 import Link from 'next/link';
+import Router from 'next/router';
 
 export default function Help(): JSX.Element {
     return (
@@ -55,8 +57,12 @@ export default function Help(): JSX.Element {
                         .
                     </p>
 
-                    <h3 className="pt-5 font-bold">C&apos;est quoi l&apos:heure en haut à droite ?</h3>
+                    <h3 className="pt-5 font-bold">C&apos;est quoi l&apos;heure en haut à droite ?</h3>
                     <p>C&apos;est un décompte avant ... noël!</p>
+
+                    <CustomButton className="mt-5" onClick={() => Router.push('/')}>
+                        Aller à l&apos;accueil
+                    </CustomButton>
                 </div>
             </div>
         </Layout>
