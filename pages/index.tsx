@@ -168,9 +168,9 @@ export default function Index(): JSX.Element {
                 <div className="bg-white w-fit h-fit rounded p-5 place-center border-vertNoel border-solid border-2">
                     <div className="flex justify-around">
                         <QuestionMarkIcon className="-rotate-45 w-9 fill-vertNoel absolute top-0 left-0 md:relative" />
-                        <div className="bg-vertNoel/25 rounded-lg p-2 self-center text-center text-lg font-bold">
+                        <h2 className="bg-vertNoel/25 rounded-lg p-2 self-center text-center text-lg font-bold">
                             Ma liste de cadeaux en famille ou entre amis
-                        </div>
+                        </h2>
                         <GiftIcon className="rotate-45 w-9 fill-rougeNoel absolute top-0 right-0 md:relative" />
                     </div>
 
