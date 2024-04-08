@@ -67,7 +67,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 />
 
                 <title>Ma liste de cadeaux</title>
-                <link rel="icon" type="image/x-icon" href="/icon.ico" />
+                <link rel="icon" type="image/x-icon" href="/favicon.ico" />
                 <link rel="canonical" href="https://malistedecadeaux.fr/" />
                 <script type="application/ld+json" dangerouslySetInnerHTML={addJsonLd()} key="item-jsonld" />
             </Head>
