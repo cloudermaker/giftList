@@ -13,6 +13,32 @@ Router.events.on('routeChangeStart', () => {
 Router.events.on('routeChangeComplete', () => NProgress.done());
 Router.events.on('routeChangeError', () => NProgress.done());
 
+const addJsonLd = () => {
+    return {
+        __html: `
+        {
+            "@context": "http://schema.org/",
+            "@type": "Organization",
+            "name": "MLDC",
+            "url": "https://www.malistedecadeaux.fr/",
+            "foundingDate": "2022",
+            "founders": [
+                {
+                    "@type": "Person",
+                    "name": "Pierre Le Rendu"
+                }
+            ],
+            "address": {
+                "@type": "PostalAddress",
+                "postalCode": "75000",
+                "addressCountry": "FR"
+            },
+            "keywords": "liste de cadeaux", 
+          }
+      `
+    };
+};
+
 export default function App({ Component, pageProps }: AppProps) {
     NProgress.configure({ showSpinner: true });
 
@@ -26,8 +52,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 <meta
                     name="description"
                     content="Créé ta liste de cadeaux en famille ou entre amis facilement et gratuitement. 
-                    Indique les cadeaux que tu prends sans que le concerné soit au courant!
-                    Tu peux également voir la liste des cadeaux que tu dois acheter et pour qui."
+                    Indique les cadeaux que tu prends sans que le concerné soit au courant!"
                 />
 
                 <meta property="og:locale" content="fr" />
@@ -38,11 +63,13 @@ export default function App({ Component, pageProps }: AppProps) {
                 <meta
                     property="og:description"
                     content="Créé ta liste de cadeaux en famille ou entre amis facilement et gratuitement. 
-                    Indique les cadeaux que tu prends sans que le concerné soit au courant!
-                    Tu peux également voir la liste des cadeaux que tu dois acheter et pour qui."
+                    Indique les cadeaux que tu prends sans que le concerné soit au courant!"
                 />
 
                 <title>Ma liste de cadeaux</title>
+                <link rel="icon" type="image/x-icon" href="/icon.ico" />
+                <link rel="canonical" href="https://malistedecadeaux.fr/" />
+                <script type="application/ld+json" dangerouslySetInnerHTML={addJsonLd()} key="item-jsonld" />
             </Head>
 
             <Component {...pageProps} />
