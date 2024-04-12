@@ -5,12 +5,14 @@ const CustomButton = ({
     onClick,
     children,
     disabled,
-    className
+    className,
+    type
 }: {
     onClick: () => void;
     children: ReactNode;
     disabled?: boolean;
     className?: string;
+    type?: 'button' | 'submit' | 'reset' | undefined;
 }): JSX.Element => {
     const [isInProgress, setIsInProgress] = useState<boolean>(false);
 
@@ -25,11 +27,9 @@ const CustomButton = ({
     };
 
     return (
-        <button onClick={customOnClick} className={className} disabled={disabled ?? false}>
-            <div className="flex">
-                {isInProgress && <CircleLoader size="20px" color="green" />}
-                {!isInProgress && children}
-            </div>
+        <button onClick={customOnClick} className={className} disabled={disabled ?? false} type={type}>
+            {isInProgress && <CircleLoader size="20px" color="green" />}
+            {!isInProgress && children}
         </button>
     );
 };

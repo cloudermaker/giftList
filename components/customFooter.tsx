@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { FacebookIcon } from './icons/facebook';
 import { TwitterIcon } from './icons/twitter';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
+import jsonPackage from '@/package.json';
 
 export const CustomFooter = (): JSX.Element => {
     const { connectedUser } = useCurrentUser();
@@ -41,8 +42,9 @@ export const CustomFooter = (): JSX.Element => {
                         </Link>
                     </div>
 
-                    <span className="text-end content-center">
+                    <span className="text-end self-center tooltip-container">
                         Copyright © {new Date().getFullYear()} PLR. All rights reserved.
+                        <span className="tooltip">v{jsonPackage.version}</span>
                     </span>
                 </div>
             </div>

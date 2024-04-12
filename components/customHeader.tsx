@@ -42,7 +42,7 @@ export const CustomHeader = ({
     return (
         <div className="header flex justify-between p-2 px-5 sm:px-3">
             <div onClick={() => Router.push('/home')} className={commonStyle}>
-                <FontAwesomeIcon icon={faHomeUser} />
+                <FontAwesomeIcon icon={faHomeUser} className="w-7" />
             </div>
 
             {menus.map((menu) => (
@@ -92,7 +92,7 @@ export const CustomHeader = ({
                 <hr className="sm:hidden px-3 self-center border-1 border-vertNoel rotate-90" />
 
                 <div className={commonStyle} onClick={onDisconnectClick}>
-                    <FontAwesomeIcon icon={faRightFromBracket} />
+                    <FontAwesomeIcon icon={faRightFromBracket} className="w-7" />
                 </div>
             </div>
         </div>

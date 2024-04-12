@@ -11,10 +11,6 @@ export async function middleware(request: NextRequest) {
     }
 
     if (currentUser) {
-        if (request.nextUrl.pathname === '/') {
-            return NextResponse.redirect('/');
-        }
-
         return NextResponse.next();
     }
 

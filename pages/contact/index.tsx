@@ -1,6 +1,7 @@
 import CustomButton from '@/components/atoms/customButton';
 import { QuestionMarkIcon } from '@/components/icons/questionMark';
 import { Layout } from '@/components/layout';
+import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Router from 'next/router';
@@ -10,9 +11,10 @@ export default function Help(): JSX.Element {
     const [email, setEmail] = useState<string>();
     const [message, setMessage] = useState<string>();
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+    const { connectedUser } = useCurrentUser();
 
     const onSubmit = () => {
-        // todo here
+        // todo here => call API to send email
 
         setIsSubmitted(true);
     };
@@ -36,46 +38,52 @@ export default function Help(): JSX.Element {
                     <i className="py-5 block">Vous avez besoin d&apos;aide ? Des idées d&apos;amélioration du site ?</i>
 
                     {!isSubmitted && (
-                        <>
+                        <form onSubmit={onSubmit}>
                             <div className="block pt-2">
-                                <span className="pr-2">Votre email:</span>
-
+                                <label className="pr-2" htmlFor="email">
+                                    Votre email:
+                                </label>
                                 <input
-                                    id="emailInputId"
+                                    id="email"
                                     className="bg-transparent"
+                                    type="email"
+                                    placeholder="Ton email"
                                     onChange={(e) => setEmail(e.target.value)}
                                     value={email}
+                                    name="email"
+                                    required
                                 />
                             </div>
 
                             <div className="block pt-2">
-                                <span className="pr-2">Votre message:</span>
-
+                                <label className="pr-2" htmlFor="message">
+                                    Votre message:
+                                </label>
                                 <textarea
-                                    id="messageInputId"
+                                    id="message"
                                     className="border-2 block w-full"
                                     onChange={(e) => setMessage(e.target.value)}
+                                    placeholder="Ton message"
                                     value={message}
+                                    name="message"
+                                    required
                                 />
                             </div>
 
-                            <div className="pt-5 float-right">
-                                <CustomButton className="p-3 mx-3" onClick={onSubmit}>
-                                    Envoyer
-                                </CustomButton>
-                            </div>
-                        </>
+                            <button type="submit" className="mt-5 float-right">
+                                Envoyer
+                            </button>
+                        </form>
                     )}
 
                     {isSubmitted && (
                         <div className="text-center">
-                            <p className="py-2">
-                                Ton message a bien été envoyé! <FontAwesomeIcon icon={faCheck} />
-                            </p>
+                            <p className="py-2">Ton message a bien été envoyé!</p>
+                            <FontAwesomeIcon icon={faCheck} className="h-6 inline" />
 
                             <p className="py-2">Nous te répondrons dés que possible.</p>
 
-                            <CustomButton className="mt-5" onClick={() => Router.push('/')}>
+                            <CustomButton className="mt-5" onClick={() => Router.push(connectedUser ? '/home' : '/')}>
                                 Revenir à la page principale
                             </CustomButton>
                         </div>
