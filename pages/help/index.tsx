@@ -47,16 +47,6 @@ export default function Help(): JSX.Element {
                         .
                     </p>
 
-                    <h3 className="pt-5 font-bold">Comment rajouter des utilisateurs ?</h3>
-                    <p>
-                        Il faut être administrateur pour avoir le droit d&apos;ajouter des utilisateurs. Si tu as un soucis,
-                        n&apos;hésites pas à nous
-                        <Link href={'/contact'} className="pl-2">
-                            contacter
-                        </Link>
-                        .
-                    </p>
-
                     <h3 className="pt-5 font-bold">C&apos;est quoi l&apos;heure en haut à droite ?</h3>
                     <p>C&apos;est un décompte avant ... noël!</p>
 
