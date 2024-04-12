@@ -6,7 +6,6 @@ import CountDown from '../components/countDown';
 import { useEffect, useState } from 'react';
 import { Group } from '@prisma/client';
 import { TGroupApiResult } from './api/group';
-import Image from 'next/image';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import CustomButton from '@/components/atoms/customButton';
@@ -104,24 +103,28 @@ export const Home = (): JSX.Element => {
 
     return (
         <Layout selectedHeader={EHeader.Homepage}>
-            <h1>
+            <h1 className="bg-shadow">
                 Bienvenue sur le groupe <b>{group?.name}</b>
             </h1>
 
             {!group?.description && (
-                <div className="text-xl">
-                    Si tu es ici pour remplir ta lettre du père noël, tu es au bon endroit
-                    <FontAwesomeIcon className="pl-1" icon={faWandMagicSparkles} />
+                <div className="text-xl bg-shadow">
+                    Si tu es ici pour remplir ta list de cadeaux (pour noel par exemple), tu es au bon endroit
+                    <FontAwesomeIcon className="pl-1 w-5" icon={faWandMagicSparkles} />
                 </div>
             )}
 
-            {group?.description && !updatingDescription && <div dangerouslySetInnerHTML={{ __html: group.description }} />}
+            {group?.description && !updatingDescription && (
+                <div>
+                    <div dangerouslySetInnerHTML={{ __html: group.description }} className="bg-shadow p-2" />
+                </div>
+            )}
 
             {!updatingDescription && !!connectedUser?.isAdmin && (
                 <CustomButton onClick={onUpdateDescriptionClick}>Modifier la description</CustomButton>
             )}
             {updatingDescription && !!connectedUser?.isAdmin && (
-                <>
+                <div className="bg-shadow">
                     <textarea
                         id="newDescriptionInputId"
                         className="h-96 w-96"
@@ -134,7 +137,7 @@ export const Home = (): JSX.Element => {
 
                         <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
                     </div>
-                </>
+                </div>
             )}
 
             <div className="p-10 text-center text-3xl md:text-7xl text-orange-700 mt-[6vh]">
@@ -147,7 +150,7 @@ export const Home = (): JSX.Element => {
                 {group?.imageUrl && <img src={group.imageUrl} alt="group_image" className="w-96" />}
             </div>
 
-            <div className="text-center pt-4">
+            <div className="text-center pt-4 bg-shadow">
                 {!updatingImageUrl && !!connectedUser?.isAdmin && (
                     <CustomButton onClick={onUpdateImageUrlClick}>Modifier la photo</CustomButton>
                 )}

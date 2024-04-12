@@ -1,10 +1,13 @@
 import CustomButton from '@/components/atoms/customButton';
 import { QuestionMarkIcon } from '@/components/icons/questionMark';
 import { Layout } from '@/components/layout';
+import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Link from 'next/link';
 import Router from 'next/router';
 
 export default function Help(): JSX.Element {
+    const { connectedUser } = useCurrentUser();
+
     return (
         <Layout withHeader={false}>
             <title>Page d&apos;aide</title>
@@ -47,20 +50,10 @@ export default function Help(): JSX.Element {
                         .
                     </p>
 
-                    <h3 className="pt-5 font-bold">Comment rajouter des utilisateurs ?</h3>
-                    <p>
-                        Il faut être administrateur pour avoir le droit d&apos;ajouter des utilisateurs. Si tu as un soucis,
-                        n&apos;hésites pas à nous
-                        <Link href={'/contact'} className="pl-2">
-                            contacter
-                        </Link>
-                        .
-                    </p>
-
                     <h3 className="pt-5 font-bold">C&apos;est quoi l&apos;heure en haut à droite ?</h3>
                     <p>C&apos;est un décompte avant ... noël!</p>
 
-                    <CustomButton className="mt-5" onClick={() => Router.push('/')}>
+                    <CustomButton className="mt-5" onClick={() => Router.push(connectedUser ? '/home' : '/')}>
                         Aller à l&apos;accueil
                     </CustomButton>
                 </div>
