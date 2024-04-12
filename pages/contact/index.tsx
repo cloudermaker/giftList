@@ -38,7 +38,7 @@ export default function Help(): JSX.Element {
                     {!isSubmitted && (
                         <>
                             <div className="block pt-2">
-                                <span className="pr-2">Vote email:</span>
+                                <span className="pr-2">Votre email:</span>
 
                                 <input
                                     id="emailInputId"
@@ -49,11 +49,11 @@ export default function Help(): JSX.Element {
                             </div>
 
                             <div className="block pt-2">
-                                <span className="pr-2">Vote message:</span>
+                                <span className="pr-2">Votre message:</span>
 
-                                <input
+                                <textarea
                                     id="messageInputId"
-                                    className="bg-transparent"
+                                    className="border-2 block w-full"
                                     onChange={(e) => setMessage(e.target.value)}
                                     value={message}
                                 />
