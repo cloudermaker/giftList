@@ -45,6 +45,8 @@ button, button[type=submit] {
     border-radius: 10px;
     background-color: #e04c4c;
     color: white;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 button:hover {
