@@ -59,9 +59,9 @@ export const CustomHeader = ({
             ))}
 
             <div className="flex">
-                <div className="relative inline-block text-left">
+                <div className="relative inline-block text-left self-center">
                     <div className={`sm:hidden ${commonStyle}`} onClick={() => setIsResponsiveMenuOpen((value) => !value)}>
-                        <FontAwesomeIcon icon={faAlignJustify} />
+                        <FontAwesomeIcon icon={faAlignJustify} className="w-5" />
                     </div>
 
                     <div
