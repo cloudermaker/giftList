@@ -1,7 +1,8 @@
-import { faCat } from '@fortawesome/free-solid-svg-icons';
+import { faCat, faHouse } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { cloneDeep, random } from 'lodash';
 import { useEffect, useState } from 'react';
+import { inherits } from 'util';
 
 enum CellBackgroundTypes {
     Grass,
@@ -15,29 +16,57 @@ enum CellContentTypes {
     Empty
 }
 
+interface ICellContent {
+    Id: number;
+    Type: CellContentTypes;
+    LastPositionId: number;
+    GetNextMove(cells: Cell[]): number;
+}
+
+class Cat implements ICellContent {
+    Id: number;
+    LastPositionId: number = -1;
+    Type: CellContentTypes = CellContentTypes.Cat;
+
+    constructor(id: number) {
+        this.Id = id;
+    }
+
+    GetNextMove(cells: Cell[]): number {
+        return 0;
+    }
+}
+
 class Cell {
     id: number;
     background: CellBackgroundTypes;
-    content: CellContentTypes = CellContentTypes.Empty;
+    content: ICellContent[] = [];
     lastSeenStep: number = 0;
+    isHouse: boolean = false;
 
-    constructor(lineSize: number, cellId: number) {
+    constructor(lineSize: number, cellId: number, isHouse: boolean) {
         this.id = cellId;
-        this.background = this.GetType(lineSize);
-
-        this.InitContent(cellId);
+        this.background = CellBackgroundTypes.Grass;
+        this.isHouse = isHouse;
     }
 
     Print() {
-        if (this.content === CellContentTypes.Cat) {
+        const catCount = this.content.filter((c) => c.Type === CellContentTypes.Cat).length;
+
+        if (this.isHouse) {
+            return <FontAwesomeIcon className="w-5" icon={faHouse} />;
+        } else if (catCount > 1) {
+            return (
+                <>
+                    <FontAwesomeIcon className="w-2" icon={faCat} />
+                    {catCount}
+                </>
+            );
+        } else if (catCount === 1) {
             return <FontAwesomeIcon className="w-5" icon={faCat} />;
         }
 
-        return '.';
-    }
-
-    GetType(lineSize: number) {
-        return CellBackgroundTypes.Grass;
+        return ' ';
     }
 
     GetBackgroundColor(currentStep: number) {
@@ -53,12 +82,6 @@ class Cell {
         }
 
         return 'bg-white';
-    }
-
-    InitContent(cellId: number) {
-        if (cellId == 0) {
-            this.content = CellContentTypes.Cat;
-        }
     }
 
     ToolTip() {
@@ -112,13 +135,18 @@ const Game = (): JSX.Element => {
     useEffect(() => {
         const MoveCats = () => {
             const newMaps = cloneDeep(maps);
-            for (let catCell of maps.filter((cell) => cell.content === CellContentTypes.Cat)) {
-                const availableCells: number[] = getAvailableCells(catCell.id);
-                const nextCellId = Math.floor(Math.random() * availableCells.length);
+            for (let catCell of maps.filter((cell) => cell.content.filter((c) => c.Type === CellContentTypes.Cat).length > 0)) {
+                for (let catContent of catCell.content.filter((c) => c.Type === CellContentTypes.Cat)) {
+                    const availableCells: number[] = getAvailableCells(catCell.id).filter((a) => a !== catContent.LastPositionId);
 
-                newMaps[availableCells[nextCellId]].content = CellContentTypes.Cat;
-                newMaps[catCell.id].content = CellContentTypes.Empty;
-                newMaps[catCell.id].lastSeenStep = stepNb;
+                    const nextCellId = Math.floor(Math.random() * availableCells.length);
+
+                    catContent.LastPositionId = catCell.id;
+
+                    newMaps[availableCells[nextCellId]].content.push(catContent);
+                    newMaps[catCell.id].content = newMaps[catCell.id].content.filter((c) => c.Id !== catContent.Id);
+                    newMaps[catCell.id].lastSeenStep = stepNb;
+                }
             }
 
             setMaps(newMaps);
@@ -134,13 +162,14 @@ const Game = (): JSX.Element => {
 
     const initMap = (): void => {
         setIsStarted(false);
-        const cells = new Array(size * size).fill(0).map((_, idx) => new Cell(size, idx));
+        const cells = new Array(size * size).fill(0).map((_, idx) => new Cell(size, idx, idx === 0));
 
         for (let i = 0; i < catCount; i++) {
             const randX = Math.floor(Math.random() * size);
             const randY = Math.floor(Math.random() * size);
 
-            cells[randX * size + randY].content = CellContentTypes.Cat;
+            //cells[randX * size + randY].content.push(new Cat(i));
+            cells[0].content.push(new Cat(i));
         }
 
         setMaps(cells);
@@ -187,7 +216,7 @@ const Game = (): JSX.Element => {
                                         <li
                                             key={`cell_${idx1 * size + idx2}`}
                                             id={`cell_${idx1 * size + idx2}`}
-                                            className={`cursor-pointer tooltip-container h-4 w-4 border-1 border-black text-center flex justify-center ${
+                                            className={`cursor-pointer tooltip-container h-4 w-4 border-1 border-black text-center flex justify-center text-xs ${
                                                 maps[idx1 * size + idx2]?.GetBackgroundColor(stepNb) ?? ''
                                             }`}
                                         >
