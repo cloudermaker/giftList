@@ -1,7 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
 html,
 body {
     padding: 0;
@@ -19,6 +17,7 @@ body {
         Helvetica Neue,
         sans-serif;
 }
+@import 'tailwindcss/utilities';
 
 .body-padding {
     padding: 0.125rem 2.5rem;
@@ -37,7 +36,8 @@ a:hover {
     text-decoration: underline;
 }
 
-button, button[type=submit] {
+button,
+button[type='submit'] {
     box-shadow:
         rgb(0 0 0 / 16%) 0px 3px 6px,
         rgb(0 0 0 / 23%) 0px 3px 6px;
@@ -184,10 +184,10 @@ input:focus {
 /* TOOLTIP */
 .tooltip-container {
     position: relative;
-  }
-  
-  /* Tooltip text */
-  .tooltip-container .tooltip {
+}
+
+/* Tooltip text */
+.tooltip-container .tooltip {
     visibility: hidden;
     width: 120px;
     background-color: #99e265;
@@ -195,22 +195,22 @@ input:focus {
     text-align: center;
     padding: 5px 0;
     border-radius: 6px;
-  
+
     /* Position the tooltip text */
     position: absolute;
     z-index: 1;
     bottom: 125%;
     left: 50%;
     margin-left: -60px;
-  
+
     /* Fade in tooltip */
     opacity: 0;
     transition: opacity 0.3s;
-  }
-  
-  /* Tooltip arrow */
-  .tooltip-container .tooltip::after {
-    content: "";
+}
+
+/* Tooltip arrow */
+.tooltip-container .tooltip::after {
+    content: '';
     position: absolute;
     top: 100%;
     left: 50%;
@@ -218,14 +218,14 @@ input:focus {
     border-width: 5px;
     border-style: solid;
     border-color: #555 transparent transparent transparent;
-  }
-  /* END OF TOOLTIP */
-  
-  /* Show the tooltip text when you mouse over the tooltip container */
-  .tooltip-container:hover .tooltip {
+}
+/* END OF TOOLTIP */
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip-container:hover .tooltip {
     visibility: visible;
     opacity: 1;
-  }
+}
 
 @media screen and (max-width: 640px) {
     .body-padding {
