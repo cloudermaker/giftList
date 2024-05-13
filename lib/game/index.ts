@@ -24,7 +24,30 @@ export class Game {
         return this.cells;
     }
 
-    getAvailableCells = (cellId: number): number[] => {
+    getAvailableCells = (cellId: number, depth = 1): number[] => {
+        /*
+        let availableCells2 = [];
+
+        for(let pivotId = cellId - this.mapSize * depth; pivotId <= cellId - this.mapSize; pivotId++) {
+            for (let j = pivotId - depth; j <= pivotId + depth; j++) {
+                if (pivotId % this.mapSize === 0) {
+                    // border left
+                }
+                availableCells2.push(j);
+            }
+        }
+        for (let j = cellId - depth; j <= cellId + depth; j++) {
+            availableCells2.push(j);
+        }
+        for(let pivotId = cellId + this.mapSize; pivotId <= cellId + this.mapSize * depth; pivotId++) {
+            for (let j = pivotId - depth; j <= pivotId + depth; j++) {
+                availableCells2.push(j);
+            }
+        }
+
+        return availableCells2.filter((id) => id >= 0 && id !== cellId && id < this.mapSize * this.mapSize);
+        */
+
         const canGoLeft = cellId % this.mapSize !== 0;
         const canGoRight = cellId % this.mapSize !== this.mapSize - 1;
         const canGoUp = cellId > this.mapSize;

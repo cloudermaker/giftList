@@ -5,7 +5,7 @@ import { Cell } from '@/lib/game/cell';
 import { useEffect, useState } from 'react';
 
 const GAME_SIZE = 50;
-const game: Game = new CatGame(10, GAME_SIZE);
+const game: Game = new CatGame(10, 20, GAME_SIZE);
 
 const GameComponent = (): JSX.Element => {
     const [isStarted, setIsStarted] = useState<boolean>(false);
