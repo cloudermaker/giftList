@@ -6,9 +6,13 @@ import { buildDefaultGroup, getGroups } from '@/lib/db/groupManager';
 import { TGroupApiResult } from './api/group';
 import { Group } from '@prisma/client';
 import Swal from 'sweetalert2';
+import Router from 'next/router';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
+import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 
 const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
+    const { connectedUser } = useCurrentUser();
+
     const [localGroups, setLocalGroups] = useState<Group[]>(groups);
     const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
 
@@ -92,44 +96,56 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
 
     return (
         <Layout selectedHeader={EHeader.Backoffice}>
-            <h1>Bienvenue sur le Backoffice</h1>
+            <div className="mb-10">
+                <h1 className="pb-5">Backoffice</h1>
 
-            <h2>Groupes:</h2>
-            <hr />
+                <h2>Groupes:</h2>
 
-            {localGroups.map((group) => (
-                <div className="block" key={`group_${group.id}`}>
-                    <div className="flex justify-between">
-                        <span>{`Name: ${group.name}`}</span>
+                {localGroups.map((group) => (
+                    <div className="item flex justify-between items-center" key={`group_${group.id}`}>
+                        <span className="w-full md:w-auto">
+                            <b className="pr-2">Nom:</b> {group.name}
+                            {connectedUser?.isAdmin && (
+                                <i>
+                                    <div className="flex">
+                                        <span className="pr-2">Créé:</span>
+                                        {group.createdAt?.toLocaleString()}
+                                    </div>
+                                </i>
+                            )}
+                        </span>
 
-                        <div>
-                            <a href={`/group/${group.id}`}>See</a>
-                            <CustomButton onClick={() => removeGroup(group.id)}>Remove</CustomButton>
+                        <div className="block md:flex items-center text-center">
+                            <>
+                                <CustomButton className="mt-3 md:mt-0" onClick={() => Router.push(`/group/${group.id}`)}>
+                                    Voir
+                                </CustomButton>
+
+                                <CustomButton onClick={() => removeGroup(group.id)}>Remove</CustomButton>
+                            </>
                         </div>
                     </div>
+                ))}
 
-                    <hr />
-                </div>
-            ))}
+                {!creatingGroup && <CustomButton onClick={onCreatingGroupButtonClick}>Ajouter</CustomButton>}
 
-            {!creatingGroup && <CustomButton onClick={onCreatingGroupButtonClick}>Ajouter</CustomButton>}
+                {creatingGroup && (
+                    <div>
+                        <span>
+                            Nom du groupe:
+                            <input id="newGroupInputId" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} />
+                        </span>
+                        <span>
+                            Mot de passe:
+                            <input id="newPasswordInputId" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                        </span>
 
-            {creatingGroup && (
-                <div>
-                    <span>
-                        Nom du groupe:
-                        <input id="newGroupInputId" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} />
-                    </span>
-                    <span>
-                        Mot de passe:
-                        <input id="newPasswordInputId" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-                    </span>
+                        <CustomButton onClick={addGroup}>Add</CustomButton>
 
-                    <CustomButton onClick={addGroup}>Add</CustomButton>
-
-                    <CustomButton onClick={clearAllFields}>Cancel</CustomButton>
-                </div>
-            )}
+                        <CustomButton onClick={clearAllFields}>Cancel</CustomButton>
+                    </div>
+                )}
+            </div>
         </Layout>
     );
 };

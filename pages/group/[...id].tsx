@@ -12,7 +12,7 @@ import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Swal from 'sweetalert2';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 
-const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] }): JSX.Element => {
+const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] }): JSX.Element => {
     const { connectedUser } = useCurrentUser();
 
     const [localUsers, setLocalUsers] = useState<User[]>(groupUsers);
@@ -131,6 +131,15 @@ const Group = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] })
                                 <input value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
                             )}
                             {updatingUserId !== user.id && <span>{user.name}</span>}
+
+                            {connectedUser?.isAdmin && (
+                                <i>
+                                    <div className="flex">
+                                        <span className="pr-2">Créé:</span>
+                                        {user.createdAt?.toLocaleString()}
+                                    </div>
+                                </i>
+                            )}
                         </span>
 
                         <div className="block md:flex items-center text-center">
@@ -237,4 +246,4 @@ export async function getServerSideProps(context: NextPageContext) {
     };
 }
 
-export default Group;
+export default GroupComponent;

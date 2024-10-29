@@ -300,6 +300,20 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                                             <span>{'<-'}</span>
                                                         </div>
                                                     )}
+
+                                                    {connectedUser?.isAdmin && (
+                                                        <i>
+                                                            <div className="flex">
+                                                                <span className="pr-2">Créé:</span>
+                                                                {gift.createdAt?.toLocaleString()}
+                                                            </div>
+
+                                                            <div className="flex">
+                                                                <span className="pr-2">Mis à jour:</span>
+                                                                {gift.updatedAt?.toString()}
+                                                            </div>
+                                                        </i>
+                                                    )}
                                                 </div>
                                             )}
 
