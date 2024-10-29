@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { COOKIE_NAME } from './lib/auth/authService';
-import { isEmpty } from 'lodash';
 
 export async function middleware(request: NextRequest) {
     const encryptedCurrentUser = request.cookies.get(COOKIE_NAME)?.value ?? '';
@@ -11,23 +10,19 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/', request.url));
     }
 
-    console.log({ currentUser, pathname: request.nextUrl });
-
-    if (isEmpty(currentUser) && request.nextUrl.pathname === '/') {
-        return NextResponse.next();
+    if (currentUser === '') {
+        if (request.nextUrl.pathname === '/') {
+            return NextResponse.next();
+        } else {
+            return NextResponse.redirect(new URL('/', request.url));
+        }
+    } else {
+        if (request.nextUrl.pathname === '/') {
+            return NextResponse.redirect(new URL('/home', request.url));
+        } else {
+            return NextResponse.next();
+        }
     }
-    if (isEmpty(currentUser)) {
-        return NextResponse.redirect(new URL('/', request.url));
-    }
-
-    if (!isEmpty(currentUser) && request.nextUrl.pathname === '/') {
-        return NextResponse.redirect(new URL('/home', request.url));
-    }
-    if (!isEmpty(currentUser)) {
-        return NextResponse.next();
-    }
-
-    return NextResponse.next();
 }
 
 // List secured path to check
