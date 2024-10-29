@@ -7,17 +7,25 @@ export async function middleware(request: NextRequest) {
 
     // This page is only to debug the groups => very touchy page
     if (request.nextUrl.pathname === '/backoffice' && request.headers.get('host') !== 'localhost:3000') {
-        return NextResponse.error();
+        return NextResponse.redirect(new URL('/', request.url));
     }
 
-    if (currentUser) {
-        return NextResponse.next();
+    if (currentUser === '') {
+        if (request.nextUrl.pathname === '/') {
+            return NextResponse.next();
+        } else {
+            return NextResponse.redirect(new URL('/', request.url));
+        }
+    } else {
+        if (request.nextUrl.pathname === '/') {
+            return NextResponse.redirect(new URL('/home', request.url));
+        } else {
+            return NextResponse.next();
+        }
     }
-
-    return NextResponse.redirect(new URL('/', request.url));
 }
 
 // List secured path to check
 export const config = {
-    matcher: ['/home', '/group/:path*', '/giftList/:path*', '/backoffice', '/takenGiftList/:path*']
+    matcher: ['/', '/home', '/group/:path*', '/giftList/:path*', '/backoffice', '/takenGiftList/:path*']
 };

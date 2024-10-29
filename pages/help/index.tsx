@@ -36,7 +36,7 @@ export default function Help(): JSX.Element {
                     <p>
                         Ah mince,
                         <Link href={'/contact'} className="px-2">
-                            contactes
+                            contacte
                         </Link>
                         nous rapidement pour pouvoir être débloqué!
                     </p>
