@@ -6,16 +6,40 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Router from 'next/router';
 import { useState } from 'react';
+import { TSendEmailResult } from '../api/sendEmail';
+import Swal from 'sweetalert2';
+import axios from 'axios';
 
-export default function Help(): JSX.Element {
+export default function Contact(): JSX.Element {
     const [email, setEmail] = useState<string>();
     const [message, setMessage] = useState<string>();
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const { connectedUser } = useCurrentUser();
 
-    const onSubmit = () => {
-        // todo here => call API to send email
+    const onSubmit = async (): Promise<void> => {
+        setIsLoading(true);
+        const response = await axios.post('/api/sendEmail', {
+            senderEmail: email,
+            subject: 'Message de contact',
+            message: message
+        });
+        const data = response?.data as TSendEmailResult;
 
+        if (data?.success === false) {
+            Swal.fire({
+                title: 'Erreur',
+                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? 'erreur technique'}`,
+                icon: 'error'
+            });
+        } else {
+            Swal.fire({
+                title: 'Envoyé !',
+                icon: 'success'
+            });
+        }
+
+        setIsLoading(false);
         setIsSubmitted(true);
     };
 
@@ -38,7 +62,12 @@ export default function Help(): JSX.Element {
                     <i className="py-5 block">Vous avez besoin d&apos;aide ? Des idées d&apos;amélioration du site ?</i>
 
                     {!isSubmitted && (
-                        <form onSubmit={onSubmit}>
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                onSubmit();
+                            }}
+                        >
                             <div className="block pt-2">
                                 <label className="pr-2" htmlFor="email">
                                     Votre email:
@@ -61,7 +90,7 @@ export default function Help(): JSX.Element {
                                 </label>
                                 <textarea
                                     id="message"
-                                    className="border-2 block w-full"
+                                    className="border-2 h-32 w-full"
                                     onChange={(e) => setMessage(e.target.value)}
                                     placeholder="Ton message"
                                     value={message}
