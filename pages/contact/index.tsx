@@ -8,39 +8,36 @@ import Router from 'next/router';
 import { useState } from 'react';
 import { TSendEmailResult } from '../api/sendEmail';
 import Swal from 'sweetalert2';
-import axios from 'axios';
+import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 
 export default function Contact(): JSX.Element {
     const [email, setEmail] = useState<string>();
     const [message, setMessage] = useState<string>();
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const { connectedUser } = useCurrentUser();
 
     const onSubmit = async (): Promise<void> => {
-        setIsLoading(true);
-        const response = await axios.post('/api/sendEmail', {
+        const response = await AxiosWrapper.post('/api/sendEmail', {
             senderEmail: email,
             subject: 'Message de contact',
             message: message
         });
         const data = response?.data as TSendEmailResult;
 
-        if (data?.success === false) {
+        console.log(response);
+        if (data?.success) {
+            Swal.fire({
+                title: 'Envoyé !',
+                icon: 'success'
+            });
+            setIsSubmitted(true);
+        } else {
             Swal.fire({
                 title: 'Erreur',
                 text: `Mince, ça n'a pas fonctionné: ${data?.error ?? 'erreur technique'}`,
                 icon: 'error'
             });
-        } else {
-            Swal.fire({
-                title: 'Envoyé !',
-                icon: 'success'
-            });
         }
-
-        setIsLoading(false);
-        setIsSubmitted(true);
     };
 
     return (
