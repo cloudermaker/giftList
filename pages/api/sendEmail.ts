@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             const emailToSend = {
                 to: 'malistedecadeaux.contact@gmail.com',
-                from: 'malistedecadeaux.contact@gmail.com',
+                from: 'malistedecadeaux.contact+website@gmail.com',
                 subject: subject,
                 message: subject,
                 html: `

@@ -24,7 +24,6 @@ export default function Contact(): JSX.Element {
         });
         const data = response?.data as TSendEmailResult;
 
-        console.log(response);
         if (data?.success) {
             Swal.fire({
                 title: 'Envoyé !',
