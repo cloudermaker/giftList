@@ -17,5 +17,13 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 We are using prisma as ORM.
 
--   npx prisma format
--   npx prisma db push (no rollback)
+- npx prisma format
+- npx prisma db push (no rollback)
+
+## Todo
+
+- Add a proxy to hide easily the api calls (can be used for caching ? And with bearer)
+- Ajouter anniversaire en base + quand créé
+- Afficher anniversaire sur page principale
+- Ajouter calendrier sur la page
+- Changer la couleur des boutons + fond d'écran
