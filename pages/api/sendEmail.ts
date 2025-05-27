@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { MailService } from '@sendgrid/mail';
+import { text } from 'stream/consumers';
 
 export type TSendEmailResult = {
     success: boolean;
@@ -23,14 +24,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             const emailToSend = {
                 to: 'malistedecadeaux.contact@gmail.com',
-                from: 'malistedecadeaux.contact+website@gmail.com',
-                subject: subject,
-                message: subject,
+                from: {
+                    email: 'malistedecadeaux.contact@gmail.com',
+                    name: 'Ma Liste de Cadeaux'
+                },
+                subject: `[Contact Form] ${subject}`,
+                text: `Message from "${senderEmail}": ${message}`,
+                replyTo: senderEmail,
                 html: `
-                        <div>
-                        <h1>Message from "${senderEmail}"</h1>
-                        <i>${message.replaceAll('\n', '<br/>')}</i>
-                        </div>`
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #444;">New Contact Form Submission</h2>
+                        <p><strong>From:</strong> ${senderEmail}</p>
+                        <p><strong>Subject:</strong> ${subject}</p>
+                        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px;">
+                            <p>${message.replace(/\n/g, '<br/>')}</p>
+                        </div>
+                        <p style="color: #777; margin-top: 20px; font-size: 12px;">
+                            This email was sent from the contact form on Ma Liste de Cadeaux website.
+                        </p>
+                    </div>`,
+                trackingSettings: {
+                    clickTracking: {
+                        enable: false
+                    },
+                    openTracking: {
+                        enable: true
+                    }
+                }
             };
 
             await mailService.send(emailToSend, false);
