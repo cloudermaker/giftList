@@ -323,7 +323,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                                         <b className="pr-2">Nom:</b>
                                                         <input
                                                             id="newGiftInputId"
-                                                            className="bg-transparent"
+                                                            className="px-3 py-1.5 bg-white/50 border border-neutral-200 rounded-lg focus:outline-none focus:border-vertNoel focus:ring-1 focus:ring-vertNoel transition-all duration-200"
                                                             value={newGiftName}
                                                             onChange={(e) => setNewGiftName(e.target.value)}
                                                         />
@@ -332,7 +332,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                                     <div className="grid md:flex">
                                                         <b className="pr-2">Description:</b>
                                                         <input
-                                                            className="bg-transparent"
+                                                            className="px-3 py-1.5 bg-white/50 border border-neutral-200 rounded-lg focus:outline-none focus:border-vertNoel focus:ring-1 focus:ring-vertNoel transition-all duration-200"
                                                             value={newDescription}
                                                             onChange={(e) => setNewDescription(e.target.value)}
                                                         />
@@ -341,7 +341,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                                     <div className="grid md:flex">
                                                         <b className="pr-2">Lien:</b>
                                                         <input
-                                                            className="bg-transparent"
+                                                            className="px-3 py-1.5 bg-white/50 border border-neutral-200 rounded-lg focus:outline-none focus:border-vertNoel focus:ring-1 focus:ring-vertNoel transition-all duration-200"
                                                             value={newLink}
                                                             onChange={(e) => setNewLink(e.target.value)}
                                                         />
@@ -356,6 +356,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                                             <CustomButton
                                                                 onClick={() => upsertGift(gift.id)}
                                                                 disabled={newGiftName == null || newGiftName === ''}
+                                                                className="green-button"
                                                             >
                                                                 Valider
                                                             </CustomButton>
@@ -363,7 +364,10 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <CustomButton onClick={() => updatingGift(gift)}>
+                                                            <CustomButton
+                                                                className="green-button"
+                                                                onClick={() => updatingGift(gift)}
+                                                            >
                                                                 Modifier
                                                             </CustomButton>
                                                             <CustomButton onClick={() => removeGift(gift.id)}>
@@ -387,7 +391,10 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                                 {!userCanAddGift &&
                                                     !gift.takenUserId &&
                                                     gift.takenUserId !== connectedUser?.userId && (
-                                                        <CustomButton onClick={() => onBlockUnBlockGiftClick(gift)}>
+                                                        <CustomButton
+                                                            className="green-button"
+                                                            onClick={() => onBlockUnBlockGiftClick(gift)}
+                                                        >
                                                             Je prends ce cadeau
                                                         </CustomButton>
                                                     )}
@@ -399,39 +406,43 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                     </DndContext>
                 </Suspense>
 
-                {!creatingGift && <CustomButton onClick={onCreatingGiftButtonClick}>Ajouter un cadeau</CustomButton>}
+                {!creatingGift && (
+                    <CustomButton className="green-button" onClick={onCreatingGiftButtonClick}>
+                        Ajouter un cadeau
+                    </CustomButton>
+                )}
 
                 {creatingGift && (
                     <div className="block pt-3">
                         <b>Ajouter ce nouveau cadeau:</b>
                         {error && <p>{error}</p>}
 
-                        <div className="flex">
-                            <b className="pr-2">Nom:</b>
+                        <div className="input-group pt-3">
+                            <label className="input-label">Nom:</label>
                             <input
                                 id="newGiftInputId"
-                                className="bg-transparent"
+                                className="input-field"
                                 value={newGiftName}
                                 onChange={(e) => setNewGiftName(e.target.value)}
                             />
                         </div>
 
-                        <div className="flex">
-                            <b className="pr-2">Description:</b>
+                        <div className="input-group">
+                            <label className="input-label">Description:</label>
                             <input
-                                className="bg-transparent"
+                                className="input-field"
                                 value={newDescription}
                                 onChange={(e) => setNewDescription(e.target.value)}
                             />
                         </div>
 
-                        <div className="flex">
-                            <b className="pr-2">Lien:</b>
-                            <input className="bg-transparent" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
+                        <div className="input-group">
+                            <label className="input-label">Lien:</label>
+                            <input className="input-field" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
                         </div>
 
                         <div className="py-2">
-                            <CustomButton onClick={() => upsertGift()} disabled={newGiftName === ''}>
+                            <CustomButton className="green-button" onClick={() => upsertGift()} disabled={newGiftName === ''}>
                                 Ajouter
                             </CustomButton>
 

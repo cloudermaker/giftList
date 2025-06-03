@@ -1,8 +1,5 @@
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
-import CountDown from '../components/countDown';
 import { useEffect, useState } from 'react';
 import { Group } from '@prisma/client';
 import { TGroupApiResult } from './api/group';
@@ -14,12 +11,8 @@ import Swal from 'sweetalert2';
 export const Home = (): JSX.Element => {
     const { connectedUser } = useCurrentUser();
     const [group, setGroup] = useState<Group>();
-
-    const [updatingDescription, setUpdatingDescription] = useState<boolean>(false);
     const [description, setDescription] = useState<string | null>();
-
-    const [updatingImageUrl, setUpdatingImageurl] = useState<boolean>(false);
-    const [imageUrl, setImageUrl] = useState<string | null>();
+    const [updatingDescription, setUpdatingDescription] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -38,18 +31,7 @@ export const Home = (): JSX.Element => {
 
     const onUpdateDescriptionClick = (): void => {
         setUpdatingDescription(true);
-
-        window.setTimeout(function () {
-            document.getElementById('newDescriptionInputId')?.focus();
-        }, 0);
-    };
-
-    const onUpdateImageUrlClick = (): void => {
-        setUpdatingImageurl(true);
-
-        window.setTimeout(function () {
-            document.getElementById('newImageUrlId')?.focus();
-        }, 0);
+        window.setTimeout(() => document.getElementById('newDescriptionInputId')?.focus(), 0);
     };
 
     const updateDescription = async (): Promise<void> => {
@@ -59,7 +41,7 @@ export const Home = (): JSX.Element => {
         const data = response?.data as TGroupApiResult;
 
         if (data && data.success) {
-            setGroup((value) => ({
+            setGroup((value: Group | undefined) => ({
                 ...value!,
                 description: description ?? ''
             }));
@@ -74,103 +56,70 @@ export const Home = (): JSX.Element => {
         clearAllFields();
     };
 
-    const updateImageUrl = async (): Promise<void> => {
-        const response = await AxiosWrapper.put(`/api/group/${group?.id}`, {
-            group: { imageUrl }
-        });
-        const data = response?.data as TGroupApiResult;
-
-        if (data && data.success) {
-            setGroup((value) => ({
-                ...value!,
-                imageUrl: imageUrl ?? ''
-            }));
-        } else {
-            Swal.fire({
-                title: 'Erreur',
-                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
-                icon: 'error'
-            });
-        }
-
-        clearAllFields();
-    };
-
     const clearAllFields = (): void => {
         setUpdatingDescription(false);
-        setUpdatingImageurl(false);
     };
 
     return (
         <Layout selectedHeader={EHeader.Homepage}>
-            <h1 className="bg-shadow">
-                Bienvenue sur le groupe <b>{group?.name}</b>
-            </h1>
-
-            {!group?.description && (
-                <div className="text-xl bg-shadow">
-                    Si tu es ici pour remplir ta list de cadeaux (pour noel par exemple), tu es au bon endroit
-                    <FontAwesomeIcon className="pl-1 w-5" icon={faWandMagicSparkles} />
-                </div>
-            )}
-
-            {group?.description && !updatingDescription && (
-                <div>
-                    <div dangerouslySetInnerHTML={{ __html: group.description }} className="bg-shadow p-2" />
-                </div>
-            )}
-
-            {!updatingDescription && !!connectedUser?.isAdmin && (
-                <CustomButton onClick={onUpdateDescriptionClick}>Modifier la description</CustomButton>
-            )}
-            {updatingDescription && !!connectedUser?.isAdmin && (
-                <div className="bg-shadow">
-                    <textarea
-                        id="newDescriptionInputId"
-                        className="h-96 w-96"
-                        value={description ?? group?.description ?? ''}
-                        onChange={(e) => setDescription(e.target.value)}
-                    />
-
-                    <div className="flex">
-                        <CustomButton onClick={updateDescription}>Valider</CustomButton>
-
-                        <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
+            <div className="max-w-6xl mx-auto px-4">
+                {/* Header Section with Group Name */}
+                <div className="bg-white rounded-xl shadow-sm p-8 mb-8 flex items-center justify-center">
+                    <div className="max-w-2xl w-full">
+                        <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-2">Bienvenue sur le groupe</h1>
+                        <p className="text-2xl text-center text-rose-500 font-medium">{group?.name}</p>
                     </div>
                 </div>
-            )}
 
-            <div className="p-10 text-center text-3xl md:text-7xl text-orange-700 mt-[6vh]">
-                <div className="bg-shadow">
-                    <CountDown />
-                </div>
-            </div>
-
-            <div className="justify-center flex">
-                {group?.imageUrl && <img src={group.imageUrl} alt="group_image" className="w-96" />}
-            </div>
-
-            <div className="text-center pt-4 bg-shadow">
-                {!updatingImageUrl && !!connectedUser?.isAdmin && (
-                    <CustomButton onClick={onUpdateImageUrlClick}>Modifier la photo</CustomButton>
-                )}
-
-                {updatingImageUrl && !!connectedUser?.isAdmin && (
-                    <>
-                        <input
-                            id="newImageUrlId"
-                            className="w-xl"
-                            value={imageUrl ?? group?.imageUrl ?? ''}
-                            onChange={(e) => setImageUrl(e.target.value)}
-                        />
-
-                        <div className="flex justify-center pt-4">
-                            <CustomButton onClick={updateImageUrl}>Valider</CustomButton>
-
-                            <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
+                {/* Description Section */}
+                <div className="mb-8">
+                    {!group?.description && !updatingDescription && (
+                        <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+                            <p className="text-xl text-gray-600">
+                                Si tu es ici pour remplir ta liste de cadeaux, tu es au bon endroit
+                            </p>
                         </div>
-                    </>
-                )}
+                    )}
+
+                    {group?.description && !updatingDescription && (
+                        <div className="bg-white rounded-xl shadow-sm p-8">
+                            <div
+                                dangerouslySetInnerHTML={{ __html: group.description }}
+                                className="prose max-w-none text-gray-600"
+                            />
+                            {connectedUser?.isAdmin && (
+                                <div className="mt-6 text-center">
+                                    <CustomButton onClick={onUpdateDescriptionClick} className="green-button">
+                                        Modifier la description
+                                    </CustomButton>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {updatingDescription && (
+                        <div className="bg-white rounded-xl shadow-sm p-8">
+                            <textarea
+                                id="newDescriptionInputId"
+                                className="w-full min-h-[200px] p-4 text-gray-700 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 transition-all duration-200"
+                                value={description ?? group?.description ?? ''}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="Entrez votre description ici..."
+                            />
+                            <div className="flex justify-end space-x-4 mt-6">
+                                <CustomButton
+                                    onClick={clearAllFields}
+                                    className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200"
+                                >
+                                    Annuler
+                                </CustomButton>
+                                <CustomButton onClick={updateDescription} className="green-button px-6 py-2.5">
+                                    Valider
+                                </CustomButton>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </Layout>
     );

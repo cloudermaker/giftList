@@ -2,11 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 html,
 body {
     padding: 0;
     margin: 0;
     font-family:
+        'Inter',
         -apple-system,
         BlinkMacSystemFont,
         Segoe UI,
@@ -18,10 +21,72 @@ body {
         Droid Sans,
         Helvetica Neue,
         sans-serif;
+    position: relative;
+    background-color: #FFF1F2;
+    min-height: 100vh;
+}
+
+.prose {
+    max-width: 65ch;
+    color: #4B5563;
+}
+
+.prose p {
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+}
+
+.prose strong {
+    color: #111827;
+    font-weight: 600;
+}
+
+/* Birthday card effect */
+.birthday-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 
+        0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.birthday-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Balloon animation */
+@keyframes float {
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+}
+
+.balloon {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Gift icon animation */
+.gift-icon {
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.gift-icon:hover {
+    transform: scale(1.2);
+    animation: gift-bounce 0.5s ease infinite;
+}
+
+@keyframes gift-bounce {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-5px) rotate(5deg); }
 }
 
 .body-padding {
-    padding: 0.125rem 2.5rem;
+    padding: 0.5rem 2.5rem;
 }
 
 div {
@@ -29,54 +94,174 @@ div {
 }
 
 a {
-    color: inherit;
+    color: #4F46E5;
     text-decoration: none;
-    color: brown;
 }
 a:hover {
     text-decoration: underline;
+    color: rgba(79, 70, 229, 0.8);
+    transition: all 0.2s ease-in-out;
 }
 
 button, button[type=submit] {
-    box-shadow:
-        rgb(0 0 0 / 16%) 0px 3px 6px,
-        rgb(0 0 0 / 23%) 0px 3px 6px;
-    padding: 5px 10px;
-    border-radius: 10px;
-    background-color: #e04c4c;
+    box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.08);
+    padding: 10px 18px;
+    border-radius: 0.75rem;
+    background-color: var(--button-color, #E63946);
+    background-image: linear-gradient(45deg, #E63946, #FF5A5F);
     color: white;
-    margin-left: 5px;
-    margin-right: 5px;
+    margin-left: 8px;
+    margin-right: 8px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+button.green-button {
+    background-color: var(--button-color, #39A667);
+    background-image: linear-gradient(45deg, #39A667, #4EB883);
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: all 0.6s;
 }
 
 button:hover {
-    background-color: #99e265;
-    transform: scale(1.05);
+    background-image: linear-gradient(45deg, #D42A37, #FF7A7F);
+    transform: translateY(-3px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.07);
 }
+
+button.green-button:hover {
+    background-image: linear-gradient(45deg, #36C07D, #70D6A3);
+    transform: translateY(-3px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.07);
+}
+
+button:hover::before {
+    left: 100%;
+}
+
 button:active {
-    transform: scale(1);
+    transform: translateY(0);
 }
+
 button:disabled {
-    background-color: grey;
+    background-color: #9CA3AF;
+    background-image: none;
     transform: none;
+    opacity: 0.7;
+    cursor: not-allowed;
 }
 
 .item {
-    background-color: rgba(255, 255, 255, 0.7);
-    padding: 10px;
-    border-radius: 20px;
-    border: 1px solid brown;
-    margin-bottom: 10px;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 18px;
+    border-radius: 1rem;
+    border: 1px solid #E5E7EB;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.07);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    background-image: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.8) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    background-position: 100% 0;
+}
+
+.item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.07);
+    border-color: #FFD700;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.item::after {
+    content: "🎁";
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    font-size: 40px;
+    opacity: 0.1;
+    transform: rotate(-15deg);
+    transition: all 0.3s ease;
+}
+
+.item:hover::after {
+    opacity: 0.2;
+    transform: rotate(0deg) scale(1.1);
+    animation: gift-float 3s ease-in-out infinite;
+}
+
+@keyframes gift-float {
+    0%, 100% {
+        transform: rotate(0deg) translateY(0);
+    }
+    50% {
+        transform: rotate(5deg) translateY(-5px);
+    }
 }
 
 .header {
-    background-color: rgba(255, 255, 255, 0.7);
-    border: 0.5px solid #99e265;
-    border-radius: 10px;
-    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(230, 57, 70, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1.25rem;
     align-items: center;
-    font-size: x-large;
-    transition: all 0.3s ease-in-out;
+    font-size: 1.25rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.header::before {
+    content: "🎀";
+    position: absolute;
+    top: -15px;
+    left: -10px;
+    font-size: 30px;
+    opacity: 0.1;
+    transform: rotate(-15deg);
+}
+
+.header::after {
+    content: "🎄";
+    position: absolute;
+    bottom: -15px;
+    right: -10px;
+    font-size: 30px;
+    opacity: 0.1;
+    transform: rotate(15deg);
+}
+
+.header:hover::before, .header:hover::after {
+    opacity: 0.3;
+    transition: opacity 0.5s ease;
 }
 
 .header div {
@@ -84,14 +269,21 @@ button:disabled {
 }
 
 .bg-shadow {
-    background-color: rgba(255, 255, 255, 0.5);
-    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 0.75rem;
     width: auto;
     display: inline-block;
+    box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+    border-left: 3px solid #E63946;
+    padding: 0.5rem 2rem;
 }
 
 .footer {
-    background-color: rgba(229, 231, 235);
+    background-color: white;
+    border-top: 1px solid #F3F4F6;
+    box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05);
 }
 
 h1 {
@@ -108,15 +300,54 @@ hr {
     margin: 5px 0px;
 }
 
+/* Base input reset */
 input {
-    border-bottom: 1px solid grey;
-    margin: 0px 0px;
-    background-color: transparent;
+    margin: 0;
+    font-family: inherit;
 }
 
-input:focus {
-    outline-width: 0;
+/* Custom input styling */
+.birthday-input {
+    background-color: white;
+    border: 2px solid #FFE4E6;
+    border-radius: 1rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+    font-family: inherit;
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.05),
+        0 0 0 2px rgba(255, 228, 230, 0.1);
+}
+
+.birthday-input:hover {
+    border-color: #FDA4AF;
+    box-shadow: 
+        0 4px 6px rgba(0, 0, 0, 0.05),
+        0 0 0 3px rgba(255, 228, 230, 0.2);
+}
+
+.birthday-input:focus {
     outline: none;
+    border-color: #FB7185;
+    box-shadow: 
+        0 4px 6px rgba(0, 0, 0, 0.05),
+        0 0 0 4px rgba(251, 113, 133, 0.2);
+}
+
+.birthday-input::placeholder {
+    color: #FDA4AF;
+    opacity: 0.7;
+}
+
+/* Birthday textarea specific styles */
+.birthday-textarea {
+    min-height: 12rem;
+    resize: vertical;
+    line-height: 1.5;
+    background-image: linear-gradient(to bottom, transparent, transparent 29px, #FFE4E6 30px);
+    background-size: 100% 30px;
+    padding-top: 4px;
 }
 
 * {
@@ -184,17 +415,19 @@ input:focus {
 /* TOOLTIP */
 .tooltip-container {
     position: relative;
-  }
+    cursor: pointer;
+}
   
-  /* Tooltip text */
-  .tooltip-container .tooltip {
+/* Tooltip text */
+.tooltip-container .tooltip {
     visibility: hidden;
     width: 120px;
-    background-color: #99e265;
+    background-color: #E63946;
+    background-image: linear-gradient(45deg, #D42A37, #FF5A5F);
     color: #fff;
     text-align: center;
-    padding: 5px 0;
-    border-radius: 6px;
+    padding: 10px;
+    border-radius: 8px;
   
     /* Position the tooltip text */
     position: absolute;
@@ -205,11 +438,14 @@ input:focus {
   
     /* Fade in tooltip */
     opacity: 0;
-    transition: opacity 0.3s;
-  }
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    font-weight: 500;
+    transform: translateY(10px);
+}
   
-  /* Tooltip arrow */
-  .tooltip-container .tooltip::after {
+/* Tooltip arrow */
+.tooltip-container .tooltip::after {
     content: "";
     position: absolute;
     top: 100%;
@@ -217,30 +453,85 @@ input:focus {
     margin-left: -5px;
     border-width: 5px;
     border-style: solid;
-    border-color: #555 transparent transparent transparent;
-  }
-  /* END OF TOOLTIP */
+    border-color: #E63946 transparent transparent transparent;
+}
+/* END OF TOOLTIP */
   
   /* Show the tooltip text when you mouse over the tooltip container */
   .tooltip-container:hover .tooltip {
     visibility: visible;
     opacity: 1;
+    transform: translateY(0);
   }
+
+/* Form input styling */
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.input-label {
+    min-width: 140px;
+    margin-right: 1rem;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 600;
+}
+
+.input-field {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.75rem 1rem;
+    background-color: rgba(255, 255, 255, 0.75);
+    border: 1px solid #E5E7EB;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #39A667;
+    box-shadow: 0 0 0 2px rgba(57, 166, 103, 0.2);
+}
 
 @media screen and (max-width: 640px) {
     .body-padding {
-        padding: 0rem 1rem;
+        padding: 0.5rem 1rem;
     }
 
     button {
-        padding: 5px 5px;
-        margin: 5px 5px;
+        padding: 6px 12px;
+        margin: 4px 4px;
+        font-size: 0.9rem;
     }
 
     .bg-shadow {
-        background-color: rgba(255, 255, 255, 0.5);
-        border-radius: 10px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 0.75rem;
         width: auto;
         display: block;
+    }
+    
+    .header {
+        padding: 0.75rem;
+        font-size: 1rem;
+    }
+    
+    .item {
+        padding: 12px;
+    }
+
+    .input-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .input-label {
+        margin-bottom: 0.5rem;
+    }
+
+    .input-field {
+        width: 100%;
     }
 }

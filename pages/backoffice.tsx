@@ -117,7 +117,10 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
 
                         <div className="block md:flex items-center text-center">
                             <>
-                                <CustomButton className="mt-3 md:mt-0" onClick={() => Router.push(`/group/${group.id}`)}>
+                                <CustomButton
+                                    className="green-button mt-3 md:mt-0"
+                                    onClick={() => Router.push(`/group/${group.id}`)}
+                                >
                                     Voir
                                 </CustomButton>
 
@@ -127,18 +130,33 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
                     </div>
                 ))}
 
-                {!creatingGroup && <CustomButton onClick={onCreatingGroupButtonClick}>Ajouter</CustomButton>}
+                {!creatingGroup && (
+                    <CustomButton className="green-button" onClick={onCreatingGroupButtonClick}>
+                        Ajouter
+                    </CustomButton>
+                )}
 
                 {creatingGroup && (
                     <div>
-                        <span>
-                            Nom du groupe:
-                            <input id="newGroupInputId" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} />
-                        </span>
-                        <span>
-                            Mot de passe:
-                            <input id="newPasswordInputId" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-                        </span>
+                        <div className="input-group">
+                            <label className="input-label">Nom du groupe:</label>
+                            <input
+                                id="newGroupInputId"
+                                className="input-field"
+                                value={newGroupName}
+                                onChange={(e) => setNewGroupName(e.target.value)}
+                            />
+                        </div>
+                        <div className="input-group">
+                            <label className="input-label">Mot de passe:</label>
+                            <input
+                                id="newPasswordInputId"
+                                className="input-field"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                type="password"
+                            />
+                        </div>
 
                         <CustomButton onClick={addGroup}>Add</CustomButton>
 
