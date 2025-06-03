@@ -58,7 +58,7 @@ export const CustomHeader = ({
                     key={`menu_${menu.name}`}
                     onClick={() => {
                         // Cannot use router / link => force server side rerender (same page)
-                        window.location.href = menu.url;
+                        Router.push(menu.url);
                     }}
                     className={`${commonStyle} hidden sm:flex items-center ${
                         menu.isSelected

@@ -4,11 +4,12 @@ import Head from 'next/head';
 
 import Router from 'next/router';
 import NProgress from 'nprogress';
+// Import NProgress CSS for styling the loading bar
+import 'nprogress/nprogress.css';
 
-//Route Events.
+//Route Events for NProgress loading indicator
 Router.events.on('routeChangeStart', () => {
     NProgress.start();
-    NProgress.set(0.4);
 });
 Router.events.on('routeChangeComplete', () => NProgress.done());
 Router.events.on('routeChangeError', () => NProgress.done());
@@ -46,7 +47,14 @@ const addJsonLd = () => {
 };
 
 export default function App({ Component, pageProps }: AppProps) {
-    NProgress.configure({ showSpinner: true });
+    // Configure NProgress options
+    NProgress.configure({
+        showSpinner: false,
+        trickleSpeed: 200,
+        minimum: 0.1,
+        easing: 'ease',
+        speed: 300
+    });
 
     return (
         <>

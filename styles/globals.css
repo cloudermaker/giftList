@@ -547,3 +547,18 @@ input {
         width: 100%;
     }
 }
+
+/* Custom NProgress styling to match website color scheme */
+#nprogress .bar {
+    background: #D42A37 !important; /* Red color to match your rouge Noel theme */
+    height: 3px !important;
+}
+
+#nprogress .peg {
+    box-shadow: 0 0 10px #D42A37, 0 0 5px #D42A37 !important;
+}
+
+#nprogress .spinner-icon {
+    border-top-color: #D42A37 !important;
+    border-left-color: #D42A37 !important;
+}
