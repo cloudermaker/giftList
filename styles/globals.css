@@ -24,6 +24,18 @@ body {
     position: relative;
     background-color: #FFF1F2;
     min-height: 100vh;
+    height: 100%;
+}
+
+/* Layout structure to ensure footer is visible */
+.min-h-body {
+    min-height: calc(100vh - 80px); /* Subtract footer height */
+    padding-bottom: 1rem;
+}
+
+/* Make sure content doesn't push footer off the screen on short pages */
+.flex-grow {
+    flex: 1 0 auto;
 }
 
 .prose {

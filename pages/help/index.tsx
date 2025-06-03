@@ -4,13 +4,41 @@ import { Layout } from '@/components/layout';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Link from 'next/link';
 import Router from 'next/router';
+import SEO from '@/components/SEO';
+import { generateFAQSchema } from '@/lib/schema/schemaGenerators';
 
 export default function Help(): JSX.Element {
     const { connectedUser } = useCurrentUser();
 
+    // Define FAQ items for rich results
+    const faqItems = [
+        {
+            question: 'Combien ça coûte?',
+            answer: 'Le site est entièrement gratuit.'
+        },
+        {
+            question: "Ai-je besoin d'un mail ?",
+            answer: 'Non! Nous avons souhaité faire un site simple. Tu as juste besoin de connaitre ton nom de groupe, et ton nom.'
+        },
+        {
+            question: "J'ai oublié mon mot de passe administrateur!",
+            answer: 'Contacte-nous rapidement pour pouvoir être débloqué!'
+        },
+        {
+            question: 'Comment rajouter/supprimer des utilisateurs ?',
+            answer: "Il faut être administrateur pour avoir ce droit. Si tu as un soucis, n'hésite pas à nous contacter."
+        }
+    ];
+
     return (
         <Layout withHeader={false}>
-            <title>Page d&apos;aide</title>
+            <SEO
+                title="Aide et FAQ - Créer une liste de cadeaux"
+                description="Questions fréquentes sur l'utilisation de Ma liste de cadeaux - Comment créer une liste, ajouter des membres, gérer les cadeaux et plus encore."
+                keywords="aide,faq,questions,liste cadeaux,comment utiliser,tutoriel"
+                canonicalPath="/help"
+            />
+            <script type="application/ld+json" dangerouslySetInnerHTML={generateFAQSchema(faqItems)} />
             <h1 className="header text-center bg-white mt-8">Page d&apos;aide</h1>
 
             <div className="py-8 flex justify-center relative">

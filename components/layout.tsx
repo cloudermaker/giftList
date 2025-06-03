@@ -24,8 +24,8 @@ export const Layout = ({
     };
 
     return (
-        <div className="min-h-screen">
-            <div className="body-padding min-h-body">
+        <div className="flex flex-col min-h-screen">
+            <div className="body-padding flex-grow">
                 {connectedUser && (
                     <div className="pt-5 pb-3 flex justify-between">
                         <div className="text-xs flex bg-shadow">

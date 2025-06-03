@@ -9,7 +9,7 @@ export const CustomFooter = (): JSX.Element => {
     const { connectedUser } = useCurrentUser();
 
     return (
-        <div className="body-padding footer inset-x-0 bottom-0 h-20 text-xs md:text-base">
+        <footer className="body-padding footer mt-auto inset-x-0 bottom-0 h-20 text-xs md:text-base bg-white/60">
             <div className="flex justify-between h-full items-center">
                 <div>
                     <Link
@@ -57,6 +57,6 @@ export const CustomFooter = (): JSX.Element => {
                     </span>
                 </div>
             </div>
-        </div>
+        </footer>
     );
 };

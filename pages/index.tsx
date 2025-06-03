@@ -4,6 +4,8 @@ import { Layout } from '../components/layout';
 import { CustomInput } from '../components/atoms/customInput';
 import CustomButton from '../components/atoms/customButton';
 import { useLogin } from '@/lib/hooks/useLogin';
+import SEO from '@/components/SEO';
+import { generatePageSchema } from '@/lib/schema/schemaGenerators';
 
 export default function Index(): JSX.Element {
     const { login } = useLogin();
@@ -11,6 +13,10 @@ export default function Index(): JSX.Element {
     const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
     const [joiningGroup, setJoiningGroup] = useState<boolean>(false);
     const [connectingAsAdmin, setConnectingAsAdmin] = useState<boolean>(false);
+
+    const pageTitle = 'Créez votre liste de cadeaux en ligne gratuitement';
+    const pageDescription =
+        'Créez et partagez facilement une liste de cadeaux en famille ou entre amis. Service 100% gratuit, sans inscription par email. Idéal pour les fêtes, anniversaires et événements spéciaux.';
 
     const [groupName, setGroupName] = useState<string>('');
     const [name, setName] = useState<string>('');
@@ -70,6 +76,18 @@ export default function Index(): JSX.Element {
 
     return (
         <Layout withHeader={false}>
+            <SEO
+                title={pageTitle}
+                description={pageDescription}
+                keywords="liste de cadeaux,famille,groupe,cadeaux,gratuit,anniversaire,noël,mariage,naissance,secret"
+                canonicalPath="/"
+                ogImage="/BG_1.png"
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={generatePageSchema('WebPage', pageTitle, '/', pageDescription)}
+            />
+
             <h1 className="header text-center bg-white mt-8">Bienvenue sur le site de gestion de cadeaux</h1>
 
             {!creatingGroup && !joiningGroup && (

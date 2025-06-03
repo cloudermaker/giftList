@@ -9,12 +9,35 @@ import { useState } from 'react';
 import { TSendEmailResult } from '../api/sendEmail';
 import Swal from 'sweetalert2';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
+import SEO from '@/components/SEO';
 
 export default function Contact(): JSX.Element {
     const [email, setEmail] = useState<string>();
     const [message, setMessage] = useState<string>();
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
     const { connectedUser } = useCurrentUser();
+
+    // Define contact schema data
+    const contactSchemaData = {
+        __html: `{
+            "@context": "https://schema.org",
+            "@type": "ContactPage",
+            "name": "Contactez-nous - Ma liste de cadeaux",
+            "description": "Contactez-nous pour toute question concernant le service Ma liste de cadeaux ou pour obtenir de l'aide.",
+            "url": "https://www.malistedecadeaux.fr/contact",
+            "mainEntity": {
+                "@type": "Organization",
+                "name": "Ma liste de cadeaux",
+                "email": "contact@malistedecadeaux.fr",
+                "url": "https://www.malistedecadeaux.fr",
+                "contactPoint": {
+                    "@type": "ContactPoint",
+                    "contactType": "customer service",
+                    "availableLanguage": "French"
+                }
+            }
+        }`
+    };
 
     const onSubmit = async (): Promise<void> => {
         const response = await AxiosWrapper.post('/api/sendEmail', {
@@ -38,10 +61,15 @@ export default function Contact(): JSX.Element {
             });
         }
     };
-
     return (
         <Layout withHeader={false}>
-            <title>Page de contact</title>
+            <SEO
+                title="Contactez-nous - Ma liste de cadeaux"
+                description="Vous avez des questions sur l'utilisation de Ma liste de cadeaux? Besoin d'aide ou avez des suggestions? Contactez-nous facilement via notre formulaire."
+                keywords="contact,aide,questions,suggestions,liste cadeaux"
+                canonicalPath="/contact"
+            />
+            <script type="application/ld+json" dangerouslySetInnerHTML={contactSchemaData} />
             <h1 className="header text-center bg-white mt-8">Page de contact</h1>
 
             <div className="py-8 flex justify-center relative">
