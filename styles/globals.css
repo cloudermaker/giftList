@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    a {
+        @apply no-underline text-current;
+    }
+    a:hover {
+        @apply no-underline text-current;
+    }
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 html,
@@ -244,7 +253,6 @@ button:disabled {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     padding: 1rem 2rem;
     border-radius: 0.75rem;
-    margin-bottom: 1.25rem;
     align-items: center;
     font-size: 1.25rem;
     position: relative;

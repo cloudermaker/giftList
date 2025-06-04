@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { CustomFooter } from './customFooter';
+import { CustomFooter } from './atoms/CustomFooter';
 import { CustomHeader, EHeader } from './customHeader';
 import Router from 'next/router';
 import { useLogout } from '@/lib/hooks/useLogout';

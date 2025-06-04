@@ -88,7 +88,7 @@ export default function Index(): JSX.Element {
                 dangerouslySetInnerHTML={generatePageSchema('WebPage', pageTitle, '/', pageDescription)}
             />
 
-            <h1 className="header text-center bg-white mt-8">Bienvenue sur le site de gestion de cadeaux</h1>
+            <h1 className="header text-center bg-white my-8">Bienvenue sur le site de gestion de cadeaux</h1>
 
             {!creatingGroup && !joiningGroup && (
                 <div className="block text-center">

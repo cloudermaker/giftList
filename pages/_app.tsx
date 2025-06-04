@@ -97,7 +97,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 {/* PWA Support */}
                 <meta name="theme-color" content="#D42A37" />
                 <link rel="manifest" href="/manifest.json" />
-                <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+                <link rel="apple-touch-icon" href="/favicon.ico" />
 
                 <title>Ma liste de cadeaux</title>
                 <link rel="icon" type="image/x-icon" href="/favicon.ico" />

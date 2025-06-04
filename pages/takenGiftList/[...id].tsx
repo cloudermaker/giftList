@@ -9,6 +9,7 @@ import { TGiftApiResult } from '@/pages/api/gift';
 import Swal from 'sweetalert2';
 import { GiftIcon } from '@/components/icons/gift';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
+import ModernLink from '@/components/atoms/ModernLink';
 
 const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null })[] }): JSX.Element => {
     const [localTakenGifts, setLocalTakenGifts] = useState<(Gift & { user: User | null })[]>(takenGifts);
@@ -59,10 +60,8 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
                             )}
 
                             {gift.url && (
-                                <div className="flex">
-                                    <span>{'->'}</span>
-                                    <a href={gift.url}>Lien</a>
-                                    <span>{'<-'}</span>
+                                <div className="mt-2">
+                                    <ModernLink href={gift.url} />
                                 </div>
                             )}
                         </div>

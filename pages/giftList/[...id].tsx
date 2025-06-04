@@ -1,6 +1,7 @@
 import { ReactNode, Suspense, useState } from 'react';
 import { Layout } from '@/components/layout';
 import { EHeader } from '@/components/customHeader';
+import ModernLink from '@/components/atoms/ModernLink';
 import { NextPageContext } from 'next';
 import CustomButton from '@/components/atoms/customButton';
 import { Medal } from '@/components/icons/medal';
@@ -294,10 +295,8 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                                     )}
 
                                                     {gift.url && (
-                                                        <div className="flex">
-                                                            <span>{'->'}</span>
-                                                            <a href={gift.url}>Lien</a>
-                                                            <span>{'<-'}</span>
+                                                        <div className="mt-2">
+                                                            <ModernLink href={gift.url} />
                                                         </div>
                                                     )}
 
