@@ -128,7 +128,11 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
                             <b className="pr-2">Nom:</b>
 
                             {updatingUserId === user.id && (
-                                <input value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
+                                <input
+                                    className="px-3 py-1.5 bg-white/50 border border-neutral-200 rounded-lg focus:outline-none focus:border-vertNoel focus:ring-1 focus:ring-vertNoel transition-all duration-200"
+                                    value={newUserName}
+                                    onChange={(e) => setNewUserName(e.target.value)}
+                                />
                             )}
                             {updatingUserId !== user.id && <span>{user.name}</span>}
 
@@ -145,13 +149,19 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
                         <div className="block md:flex items-center text-center">
                             {updatingUserId !== user.id && (
                                 <>
-                                    <CustomButton className="mt-3 md:mt-0" onClick={() => Router.push(`/giftList/${user.id}`)}>
+                                    <CustomButton
+                                        className="green-button mt-3 md:mt-0"
+                                        onClick={() => Router.push(`/giftList/${user.id}`)}
+                                    >
                                         Liste de cadeaux
                                     </CustomButton>
 
                                     {connectedUser?.isAdmin && (
                                         <div className="flex">
-                                            <CustomButton className="mt-3 md:mt-0" onClick={() => updatingUser(user)}>
+                                            <CustomButton
+                                                className="green-button mt-3 md:mt-0"
+                                                onClick={() => updatingUser(user)}
+                                            >
                                                 Modifier
                                             </CustomButton>
 
@@ -167,7 +177,7 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
                                 <>
                                     <div className="flex">
                                         <CustomButton
-                                            className="mt-3 md:mt-0"
+                                            className="green-button mt-3 md:mt-0"
                                             onClick={() => addOrUpdateUser(user.id)}
                                             disabled={newUserName == null || newUserName === ''}
                                         >
@@ -186,22 +196,32 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
 
                 {connectedUser?.isAdmin && (
                     <>
-                        {!creatingUser && <CustomButton onClick={onCreatingUserButtonClick}>Ajouter un utilisateur</CustomButton>}
+                        {!creatingUser && (
+                            <CustomButton className="green-button" onClick={onCreatingUserButtonClick}>
+                                Ajouter un utilisateur
+                            </CustomButton>
+                        )}
 
                         {creatingUser && (
                             <div className="pb-5 pl-3">
                                 {addError && <div className="text-red-500 font-bold">{addError}</div>}
 
-                                <b className="mr-2">Nom:</b>
-                                <input
-                                    id="newUserInputId"
-                                    className="bg-transparent"
-                                    value={newUserName}
-                                    onChange={(e) => setNewUserName(e.target.value)}
-                                />
+                                <div className="input-group">
+                                    <label className="input-label">Nom:</label>
+                                    <input
+                                        id="newUserInputId"
+                                        className="input-field"
+                                        value={newUserName}
+                                        onChange={(e) => setNewUserName(e.target.value)}
+                                    />
+                                </div>
 
                                 <div className="mt-2">
-                                    <CustomButton onClick={() => addOrUpdateUser()} disabled={newUserName === ''}>
+                                    <CustomButton
+                                        className="green-button"
+                                        onClick={() => addOrUpdateUser()}
+                                        disabled={newUserName === ''}
+                                    >
                                         Ajouter
                                     </CustomButton>
 

@@ -1,12 +1,22 @@
+# Robot instructions for search engines
 User-agent: *
 Allow: /
 Allow: /contact
 Allow: /help
+Allow: /sitemap.xml
+Allow: /favicon.ico
 
+# Protected/private pages - no need to index
 Disallow: /home
 Disallow: /giftList
 Disallow: /group
 Disallow: /takenGiftList
 Disallow: /backoffice
+Disallow: /api/
 
+# For Google's image indexing
+User-agent: Googlebot-Image
+Allow: /
+
+# Sitemap location
 Sitemap: https://www.malistedecadeaux.fr/sitemap.xml

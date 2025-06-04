@@ -27,6 +27,7 @@
         "pg": "^8.8.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
+        "react-select": "^5.10.1",
         "react-spinners": "^0.13.7",
         "sweetalert2": "^11.10.5",
         "typescript": "^5.2.0",

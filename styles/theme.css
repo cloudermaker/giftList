@@ -1,0 +1,209 @@
+/* Modern Gift Website Theme */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Base Styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #F9FAFB;
+  color: #374151;
+  background-image: radial-gradient(rgba(249, 250, 251, 0.9) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.75rem;
+}
+
+h1 {
+  font-size: 1.5rem;
+  padding-bottom: 0.5rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Links */
+a {
+  color: #4F46E5;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  color: #EC4899;
+  text-decoration: underline;
+}
+
+/* Buttons */
+button, 
+button[type=submit] {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  background-color: #4F46E5;
+  color: white;
+  margin: 0 0.5rem;
+  transition: all 0.2s;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #EC4899;
+  transform: scale(1.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+button:active {
+  transform: scale(1);
+}
+
+button:disabled {
+  background-color: #9CA3AF;
+  transform: none;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Cards & Items */
+.item {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid #E5E7EB;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease-in-out;
+}
+
+.item:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+/* Header */
+.header {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  border-radius: 1rem;
+  margin-bottom: 1.25rem;
+  align-items: center;
+  font-size: 1.25rem;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(8px);
+}
+
+.header div {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Text highlighting for active elements */
+.text-highlight {
+  color: #4F46E5;
+  font-weight: 500;
+}
+
+/* Background Shadows */
+.bg-shadow {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 1rem;
+  width: auto;
+  display: inline-block;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(4px);
+}
+
+/* Footer */
+.footer {
+  background-color: white;
+  border-top: 1px solid #F3F4F6;
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Form Elements */
+input {
+  border: none;
+  border-bottom: 2px solid #D1D5DB;
+  padding: 0.5rem 0.25rem;
+  background-color: transparent;
+  transition: all 0.2s;
+}
+
+input:focus {
+  outline: none;
+  border-bottom-color: #4F46E5;
+}
+
+/* Tooltips */
+.tooltip-container {
+  position: relative;
+}
+
+.tooltip-container .tooltip {
+  visibility: hidden;
+  width: 120px;
+  background-color: #4F46E5;
+  color: white;
+  text-align: center;
+  padding: 0.5rem 0;
+  border-radius: 0.5rem;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.875rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.tooltip-container .tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #4F46E5 transparent transparent transparent;
+}
+
+.tooltip-container:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 640px) {
+  .body-padding {
+    padding: 0.5rem 1rem;
+  }
+
+  button {
+    padding: 0.35rem 0.75rem;
+    margin: 0.25rem;
+    font-size: 0.9rem;
+  }
+
+  .bg-shadow {
+    border-radius: 0.75rem;
+    width: auto;
+    display: block;
+  }
+  
+  .header {
+    padding: 0.75rem 1rem;
+  }
+  
+  .item {
+    padding: 0.75rem;
+  }
+}

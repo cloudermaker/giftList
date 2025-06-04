@@ -1,0 +1,4 @@
+// This is just a placeholder instruction for creating an image
+// You'll need to create an actual image file (og-image.jpg) for social sharing
+// Size recommendation: 1200x630 pixels
+// Place this file in the public directory
