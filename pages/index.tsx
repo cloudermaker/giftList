@@ -4,8 +4,8 @@ import { Layout } from '../components/layout';
 import { CustomInput } from '../components/atoms/customInput';
 import CustomButton from '../components/atoms/customButton';
 import { useLogin } from '@/lib/hooks/useLogin';
-import { GiftIcon } from '@/components/icons/gift';
-import { QuestionMarkIcon } from '@/components/icons/questionMark';
+import SEO from '@/components/SEO';
+import { generatePageSchema } from '@/lib/schema/schemaGenerators';
 
 export default function Index(): JSX.Element {
     const { login } = useLogin();
@@ -13,6 +13,10 @@ export default function Index(): JSX.Element {
     const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
     const [joiningGroup, setJoiningGroup] = useState<boolean>(false);
     const [connectingAsAdmin, setConnectingAsAdmin] = useState<boolean>(false);
+
+    const pageTitle = 'Créez votre liste de cadeaux en ligne gratuitement';
+    const pageDescription =
+        'Créez et partagez facilement une liste de cadeaux en famille ou entre amis. Service 100% gratuit, sans inscription par email. Idéal pour les fêtes, anniversaires et événements spéciaux.';
 
     const [groupName, setGroupName] = useState<string>('');
     const [name, setName] = useState<string>('');
@@ -72,18 +76,30 @@ export default function Index(): JSX.Element {
 
     return (
         <Layout withHeader={false}>
-            <h1 className="header text-center bg-white">Bienvenue sur le site de gestion de cadeaux</h1>
+            <SEO
+                title={pageTitle}
+                description={pageDescription}
+                keywords="liste de cadeaux,famille,groupe,cadeaux,gratuit,anniversaire,noël,mariage,naissance,secret"
+                canonicalPath="/"
+                ogImage="/BG_1.png"
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={generatePageSchema('WebPage', pageTitle, '/', pageDescription)}
+            />
+
+            <h1 className="header text-center bg-white my-8">Bienvenue sur le site de gestion de cadeaux</h1>
 
             {!creatingGroup && !joiningGroup && (
                 <div className="block text-center">
                     <h2 className="p-5 font-bold bg-shadow">Que souhaites-tu faire ?</h2>
 
                     <div className="block m-3">
-                        <CustomButton className="p-3 mx-3" onClick={onCreatingButtonClick}>
+                        <CustomButton className="green-button p-3 mx-3" onClick={onCreatingButtonClick}>
                             Créer mon groupe
                         </CustomButton>
 
-                        <CustomButton className="p-3 mx-3 mt-3" onClick={onJoiningButtonClick}>
+                        <CustomButton className="green-button p-3 mx-3 mt-3" onClick={onJoiningButtonClick}>
                             Rejoindre mon groupe
                         </CustomButton>
                     </div>
@@ -92,29 +108,27 @@ export default function Index(): JSX.Element {
 
             {(creatingGroup || joiningGroup) && (
                 <div className="block text-center">
-                    <div className="block m-3 p-2 bg-shadow">
+                    <div className="block m-5 p-2 bg-shadow">
                         {error && <b className="text-red-500">{`Erreur: ${error}`}</b>}
 
                         {creatingGroup && <p className="font-bold mb-2">Pour créer ton groupe:</p>}
                         {!creatingGroup && <p className="font-bold mb-2">Pour rejoindre un groupe:</p>}
 
-                        <div className="block pt-2">
-                            <span className="pr-2">Entre le nom de ton groupe:</span>
-
+                        <div className="input-group">
+                            <label className="input-label">Entre le nom de ton groupe:</label>
                             <input
                                 id="groupNameInputId"
-                                className="bg-transparent"
+                                className="input-field"
                                 onChange={(e) => setGroupName(e.target.value)}
                                 value={groupName}
                             />
                         </div>
 
-                        <div className="block pt-2">
-                            <span className="pr-2">Entre ton nom:</span>
-
+                        <div className="input-group">
+                            <label className="input-label">Entre ton nom:</label>
                             <CustomInput
                                 id="nameInputId"
-                                className="bg-transparent"
+                                className="input-field bg-transparent"
                                 onChange={setName}
                                 value={name}
                                 onKeyDown={onInputPressKey}
@@ -134,12 +148,11 @@ export default function Index(): JSX.Element {
 
                         {(connectingAsAdmin || creatingGroup) && (
                             <>
-                                <div className="block pt-2">
-                                    <span className="pr-2">Mot de passe admin:</span>
-
+                                <div className="input-group">
+                                    <label className="input-label">Mot de passe admin:</label>
                                     <CustomInput
                                         id="passwordInputId"
-                                        className="bg-transparent"
+                                        className="input-field bg-transparent"
                                         onChange={setPassword}
                                         value={password}
                                         onKeyDown={onInputPressKey}
@@ -151,7 +164,7 @@ export default function Index(): JSX.Element {
                     </div>
 
                     <div className="block m-3">
-                        <CustomButton className="p-3 mx-3" onClick={onValidateButtonClick}>
+                        <CustomButton className="p-3 mx-3 green-button" onClick={onValidateButtonClick}>
                             {"C'est parti!"}
                         </CustomButton>
 
@@ -165,11 +178,11 @@ export default function Index(): JSX.Element {
             <div className="py-8 flex justify-center relative">
                 <div className="bg-white w-fit h-fit rounded p-5 place-center border-vertNoel border-solid border-2">
                     <div className="flex justify-around">
-                        <QuestionMarkIcon className="-rotate-45 w-9 fill-vertNoel absolute top-0 left-0 md:relative" />
+                        <span className="text-4xl absolute top-0 left-0 md:relative">🎂</span>
                         <h2 className="bg-vertNoel/25 rounded-lg p-2 self-center text-center text-lg font-bold">
                             Ma liste de cadeaux en famille ou entre amis
                         </h2>
-                        <GiftIcon className="rotate-45 w-9 fill-rougeNoel absolute top-0 right-0 md:relative" />
+                        <span className="text-4xl absolute top-0 right-0 md:relative">🎁</span>
                     </div>
 
                     <h3 className="pt-5 font-bold">Pour commencer, rien de plus simple. Il te suffit de:</h3>
