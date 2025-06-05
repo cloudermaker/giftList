@@ -279,25 +279,25 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                 .filter((gift) => !filteringTakenGifts || !gift.takenUserId)
                                 .map((gift, idx) => (
                                     <SortableItem key={`gift_${gift.id}`} gift={gift} idx={idx + 1} canReorder={userCanAddGift}>
-                                        <div className="flex justify-between items-center w-full">
+                                        <div className="block md:flex justify-between items-center w-full">
                                             {updatingGiftId !== gift.id && (
                                                 <div className={`w-full block ${buildStyleIfTaken(gift)}`}>
-                                                    <p>
+                                                    <p className="py-1">
                                                         <b className="pr-2">Nom:</b>
-                                                        {gift.name}
+                                                        <span>{gift.name}</span>
                                                     </p>
 
                                                     {gift.description && (
-                                                        <p>
+                                                        <p className="py-1">
                                                             <b className="pr-2">Description:</b>
-                                                            {gift.description}
+                                                            <span>{gift.description}</span>
                                                         </p>
                                                     )}
 
                                                     {gift.url && (
-                                                        <div className="mt-2">
+                                                        <p className="py-1">
                                                             <ModernLink href={gift.url} />
-                                                        </div>
+                                                        </p>
                                                     )}
 
                                                     {connectedUser?.isAdmin && (
@@ -317,30 +317,30 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                             )}
 
                                             {updatingGiftId === gift.id && (
-                                                <div className={`block ${buildStyleIfTaken(gift)}`}>
-                                                    <div className="grid md:flex">
-                                                        <b className="pr-2">Nom:</b>
-                                                        <input
+                                                <div className={`w-full pr-4 block ${buildStyleIfTaken(gift)}`}>
+                                                    <div className="py-2 grid md:flex">
+                                                        <label className="input-label">Nom:</label>
+                                                        <textarea
                                                             id="newGiftInputId"
-                                                            className="px-3 py-1.5 bg-white/50 border border-neutral-200 rounded-lg focus:outline-none focus:border-vertNoel focus:ring-1 focus:ring-vertNoel transition-all duration-200"
+                                                            className="input-field"
                                                             value={newGiftName}
                                                             onChange={(e) => setNewGiftName(e.target.value)}
                                                         />
                                                     </div>
 
-                                                    <div className="grid md:flex">
-                                                        <b className="pr-2">Description:</b>
-                                                        <input
-                                                            className="px-3 py-1.5 bg-white/50 border border-neutral-200 rounded-lg focus:outline-none focus:border-vertNoel focus:ring-1 focus:ring-vertNoel transition-all duration-200"
+                                                    <div className="py-2 grid md:flex">
+                                                        <label className="input-label">Description:</label>
+                                                        <textarea
+                                                            className="input-field"
                                                             value={newDescription}
                                                             onChange={(e) => setNewDescription(e.target.value)}
                                                         />
                                                     </div>
 
-                                                    <div className="grid md:flex">
-                                                        <b className="pr-2">Lien:</b>
-                                                        <input
-                                                            className="px-3 py-1.5 bg-white/50 border border-neutral-200 rounded-lg focus:outline-none focus:border-vertNoel focus:ring-1 focus:ring-vertNoel transition-all duration-200"
+                                                    <div className="py-2 grid md:flex">
+                                                        <label className="input-label">Lien:</label>
+                                                        <textarea
+                                                            className="input-field"
                                                             value={newLink}
                                                             onChange={(e) => setNewLink(e.target.value)}
                                                         />
@@ -348,7 +348,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                                 </div>
                                             )}
 
-                                            <div className="text-right block md:flex">
+                                            <div className="pt-4 md:pt-0 justify-end flex">
                                                 {userCanAddGift &&
                                                     (updatingGiftId === gift.id ? (
                                                         <>
@@ -418,7 +418,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
 
                         <div className="input-group pt-3">
                             <label className="input-label">Nom:</label>
-                            <input
+                            <textarea
                                 id="newGiftInputId"
                                 className="input-field"
                                 value={newGiftName}
@@ -428,7 +428,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
 
                         <div className="input-group">
                             <label className="input-label">Description:</label>
-                            <input
+                            <textarea
                                 className="input-field"
                                 value={newDescription}
                                 onChange={(e) => setNewDescription(e.target.value)}
@@ -437,7 +437,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
 
                         <div className="input-group">
                             <label className="input-label">Lien:</label>
-                            <input className="input-field" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
+                            <textarea className="input-field" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
                         </div>
 
                         <div className="py-2">

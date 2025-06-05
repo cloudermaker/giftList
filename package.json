@@ -1,6 +1,6 @@
 {
     "name": "gift_list",
-    "version": "2.3.0",
+    "version": "3.0.0",
     "private": true,
     "scripts": {
         "dev": "next dev",
@@ -9,7 +9,6 @@
         "lint": "next lint",
         "format": "prettier --loglevel warn --write .",
         "export": "npm run build && next export -o _static",
-        "postinstall": "prisma generate",
         "initDb": "node ./migration/init.js"
     },
     "dependencies": {
@@ -23,7 +22,7 @@
         "@typescript-eslint/parser": "^6.9.0",
         "axios": "^1.2.1",
         "js-cookie": "^3.0.1",
-        "next": "^14.0.0",
+        "next": "^15.3.3",
         "pg": "^8.8.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
@@ -31,7 +30,7 @@
         "react-spinners": "^0.13.7",
         "sweetalert2": "^11.10.5",
         "typescript": "^5.2.0",
-        "uuid": "^3.4.0"
+        "uuid": "^11.1.0"
     },
     "devDependencies": {
         "@dnd-kit/core": "^6.1.0",

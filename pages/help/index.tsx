@@ -1,4 +1,3 @@
-import CustomButton from '@/components/atoms/customButton';
 import { QuestionMarkIcon } from '@/components/icons/questionMark';
 import { Layout } from '@/components/layout';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
@@ -6,6 +5,7 @@ import Link from 'next/link';
 import Router from 'next/router';
 import SEO from '@/components/SEO';
 import { generateFAQSchema } from '@/lib/schema/schemaGenerators';
+import CustomButton from '@/components/atoms/customButton';
 
 export default function Help(): JSX.Element {
     const { connectedUser } = useCurrentUser();
@@ -71,8 +71,8 @@ export default function Help(): JSX.Element {
                         <Link href={'/contact'} className="pl-2">
                             contacter
                         </Link>
-                    </p>{' '}
-                    <CustomButton className="green-button mt-5" onClick={() => Router.push(connectedUser ? '/home' : '/')}>
+                    </p>
+                    <CustomButton className="green-button mt-5" onClick={() => Router.push('/')}>
                         Aller à l&apos;accueil
                     </CustomButton>
                 </div>

@@ -31,7 +31,7 @@ body {
         Helvetica Neue,
         sans-serif;
     position: relative;
-    background-color: #FFF1F2;
+    background-color: #fff1f2;
     min-height: 100vh;
     height: 100%;
 }
@@ -49,7 +49,7 @@ body {
 
 .prose {
     max-width: 65ch;
-    color: #4B5563;
+    color: #4b5563;
 }
 
 .prose p {
@@ -66,24 +66,32 @@ body {
 .birthday-card {
     background: white;
     border-radius: 12px;
-    box-shadow: 
+    box-shadow:
         0 4px 6px -1px rgba(0, 0, 0, 0.1),
         0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
 }
 
 .birthday-card:hover {
     transform: translateY(-5px);
-    box-shadow: 
+    box-shadow:
         0 10px 15px -3px rgba(0, 0, 0, 0.1),
         0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 /* Balloon animation */
 @keyframes float {
-    0% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(5deg); }
-    100% { transform: translateY(0) rotate(0deg); }
+    0% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-20px) rotate(5deg);
+    }
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
 }
 
 .balloon {
@@ -102,8 +110,13 @@ body {
 }
 
 @keyframes gift-bounce {
-    0%, 100% { transform: translateY(0) rotate(-5deg); }
-    50% { transform: translateY(-5px) rotate(5deg); }
+    0%,
+    100% {
+        transform: translateY(0) rotate(-5deg);
+    }
+    50% {
+        transform: translateY(-5px) rotate(5deg);
+    }
 }
 
 .body-padding {
@@ -115,7 +128,7 @@ div {
 }
 
 a {
-    color: #4F46E5;
+    color: #4f46e5;
     text-decoration: none;
 }
 a:hover {
@@ -124,12 +137,15 @@ a:hover {
     transition: all 0.2s ease-in-out;
 }
 
-button, button[type=submit] {
-    box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.08);
+button,
+button[type='submit'] {
+    box-shadow:
+        0 4px 10px -1px rgba(0, 0, 0, 0.15),
+        0 2px 4px -1px rgba(0, 0, 0, 0.08);
     padding: 10px 18px;
     border-radius: 0.75rem;
-    background-color: var(--button-color, #E63946);
-    background-image: linear-gradient(45deg, #E63946, #FF5A5F);
+    background-color: var(--button-color, #e63946);
+    background-image: linear-gradient(45deg, #e63946, #ff5a5f);
     color: white;
     margin-left: 8px;
     margin-right: 8px;
@@ -141,8 +157,8 @@ button, button[type=submit] {
 }
 
 button.green-button {
-    background-color: var(--button-color, #39A667);
-    background-image: linear-gradient(45deg, #39A667, #4EB883);
+    background-color: var(--button-color, #39a667);
+    background-image: linear-gradient(45deg, #39a667, #4eb883);
 }
 
 button::before {
@@ -157,15 +173,19 @@ button::before {
 }
 
 button:hover {
-    background-image: linear-gradient(45deg, #D42A37, #FF7A7F);
+    background-image: linear-gradient(45deg, #d42a37, #ff7a7f);
     transform: translateY(-3px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.07);
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.15),
+        0 10px 10px -5px rgba(0, 0, 0, 0.07);
 }
 
 button.green-button:hover {
-    background-image: linear-gradient(45deg, #36C07D, #70D6A3);
+    background-image: linear-gradient(45deg, #36c07d, #70d6a3);
     transform: translateY(-3px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.07);
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.15),
+        0 10px 10px -5px rgba(0, 0, 0, 0.07);
 }
 
 button:hover::before {
@@ -177,7 +197,7 @@ button:active {
 }
 
 button:disabled {
-    background-color: #9CA3AF;
+    background-color: #9ca3af;
     background-image: none;
     transform: none;
     opacity: 0.7;
@@ -188,9 +208,11 @@ button:disabled {
     background-color: rgba(255, 255, 255, 0.95);
     padding: 18px;
     border-radius: 1rem;
-    border: 1px solid #E5E7EB;
+    border: 1px solid #e5e7eb;
     margin-bottom: 16px;
-    box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.07);
+    box-shadow:
+        0 10px 20px -3px rgba(0, 0, 0, 0.12),
+        0 4px 8px -2px rgba(0, 0, 0, 0.07);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -206,8 +228,10 @@ button:disabled {
 
 .item:hover {
     transform: translateY(-3px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.07);
-    border-color: #FFD700;
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.15),
+        0 10px 10px -5px rgba(0, 0, 0, 0.07);
+    border-color: #ffd700;
     animation: shimmer 2s infinite;
 }
 
@@ -221,7 +245,7 @@ button:disabled {
 }
 
 .item::after {
-    content: "🎁";
+    content: '🎁';
     position: absolute;
     bottom: -10px;
     right: -10px;
@@ -238,7 +262,8 @@ button:disabled {
 }
 
 @keyframes gift-float {
-    0%, 100% {
+    0%,
+    100% {
         transform: rotate(0deg) translateY(0);
     }
     50% {
@@ -250,7 +275,9 @@ button:disabled {
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(230, 57, 70, 0.1);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
     padding: 1rem 2rem;
     border-radius: 0.75rem;
     align-items: center;
@@ -260,7 +287,7 @@ button:disabled {
 }
 
 .header::before {
-    content: "🎀";
+    content: '🎀';
     position: absolute;
     top: -15px;
     left: -10px;
@@ -270,7 +297,7 @@ button:disabled {
 }
 
 .header::after {
-    content: "🎄";
+    content: '🎄';
     position: absolute;
     bottom: -15px;
     right: -10px;
@@ -279,7 +306,8 @@ button:disabled {
     transform: rotate(15deg);
 }
 
-.header:hover::before, .header:hover::after {
+.header:hover::before,
+.header:hover::after {
     opacity: 0.3;
     transition: opacity 0.5s ease;
 }
@@ -293,16 +321,18 @@ button:disabled {
     border-radius: 0.75rem;
     width: auto;
     display: inline-block;
-    box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow:
+        0 8px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
     position: relative;
     overflow: hidden;
-    border-left: 3px solid #E63946;
+    border-left: 3px solid #e63946;
     padding: 0.5rem 2rem;
 }
 
 .footer {
     background-color: white;
-    border-top: 1px solid #F3F4F6;
+    border-top: 1px solid #f3f4f6;
     box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05);
 }
 
@@ -329,34 +359,34 @@ input {
 /* Custom input styling */
 .birthday-input {
     background-color: white;
-    border: 2px solid #FFE4E6;
+    border: 2px solid #ffe4e6;
     border-radius: 1rem;
     padding: 0.75rem 1rem;
     transition: all 0.3s ease;
     width: 100%;
     font-family: inherit;
-    box-shadow: 
+    box-shadow:
         0 2px 4px rgba(0, 0, 0, 0.05),
         0 0 0 2px rgba(255, 228, 230, 0.1);
 }
 
 .birthday-input:hover {
-    border-color: #FDA4AF;
-    box-shadow: 
+    border-color: #fda4af;
+    box-shadow:
         0 4px 6px rgba(0, 0, 0, 0.05),
         0 0 0 3px rgba(255, 228, 230, 0.2);
 }
 
 .birthday-input:focus {
     outline: none;
-    border-color: #FB7185;
-    box-shadow: 
+    border-color: #fb7185;
+    box-shadow:
         0 4px 6px rgba(0, 0, 0, 0.05),
         0 0 0 4px rgba(251, 113, 133, 0.2);
 }
 
 .birthday-input::placeholder {
-    color: #FDA4AF;
+    color: #fda4af;
     opacity: 0.7;
 }
 
@@ -365,7 +395,7 @@ input {
     min-height: 12rem;
     resize: vertical;
     line-height: 1.5;
-    background-image: linear-gradient(to bottom, transparent, transparent 29px, #FFE4E6 30px);
+    background-image: linear-gradient(to bottom, transparent, transparent 29px, #ffe4e6 30px);
     background-size: 100% 30px;
     padding-top: 4px;
 }
@@ -437,52 +467,54 @@ input {
     position: relative;
     cursor: pointer;
 }
-  
+
 /* Tooltip text */
 .tooltip-container .tooltip {
     visibility: hidden;
     width: 120px;
-    background-color: #E63946;
-    background-image: linear-gradient(45deg, #D42A37, #FF5A5F);
+    background-color: #e63946;
+    background-image: linear-gradient(45deg, #d42a37, #ff5a5f);
     color: #fff;
     text-align: center;
     padding: 10px;
     border-radius: 8px;
-  
+
     /* Position the tooltip text */
     position: absolute;
     z-index: 1;
     bottom: 125%;
     left: 50%;
     margin-left: -60px;
-  
+
     /* Fade in tooltip */
     opacity: 0;
     transition: all 0.3s ease;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
     font-weight: 500;
     transform: translateY(10px);
 }
-  
+
 /* Tooltip arrow */
 .tooltip-container .tooltip::after {
-    content: "";
+    content: '';
     position: absolute;
     top: 100%;
     left: 50%;
     margin-left: -5px;
     border-width: 5px;
     border-style: solid;
-    border-color: #E63946 transparent transparent transparent;
+    border-color: #e63946 transparent transparent transparent;
 }
 /* END OF TOOLTIP */
-  
-  /* Show the tooltip text when you mouse over the tooltip container */
-  .tooltip-container:hover .tooltip {
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip-container:hover .tooltip {
     visibility: visible;
     opacity: 1;
     transform: translateY(0);
-  }
+}
 
 /* Form input styling */
 .input-group {
@@ -492,7 +524,6 @@ input {
 }
 
 .input-label {
-    min-width: 140px;
     margin-right: 1rem;
     display: inline-flex;
     align-items: center;
@@ -501,17 +532,15 @@ input {
 
 .input-field {
     flex: 1;
-    min-width: 200px;
     padding: 0.75rem 1rem;
     background-color: rgba(255, 255, 255, 0.75);
-    border: 1px solid #E5E7EB;
+    border: 1px solid #e5e7eb;
     border-radius: 0.75rem;
-    transition: all 0.3s ease;
 }
 
 .input-field:focus {
     outline: none;
-    border-color: #39A667;
+    border-color: #39a667;
     box-shadow: 0 0 0 2px rgba(57, 166, 103, 0.2);
 }
 
@@ -520,24 +549,18 @@ input {
         padding: 0.5rem 1rem;
     }
 
-    button {
-        padding: 6px 12px;
-        margin: 4px 4px;
-        font-size: 0.9rem;
-    }
-
     .bg-shadow {
         background-color: rgba(255, 255, 255, 0.8);
         border-radius: 0.75rem;
         width: auto;
         display: block;
     }
-    
+
     .header {
         padding: 0.75rem;
         font-size: 1rem;
     }
-    
+
     .item {
         padding: 12px;
     }
@@ -558,15 +581,17 @@ input {
 
 /* Custom NProgress styling to match website color scheme */
 #nprogress .bar {
-    background: #D42A37 !important; /* Red color to match your rouge Noel theme */
+    background: #d42a37 !important; /* Red color to match your rouge Noel theme */
     height: 3px !important;
 }
 
 #nprogress .peg {
-    box-shadow: 0 0 10px #D42A37, 0 0 5px #D42A37 !important;
+    box-shadow:
+        0 0 10px #d42a37,
+        0 0 5px #d42a37 !important;
 }
 
 #nprogress .spinner-icon {
-    border-top-color: #D42A37 !important;
-    border-left-color: #D42A37 !important;
+    border-top-color: #d42a37 !important;
+    border-left-color: #d42a37 !important;
 }
