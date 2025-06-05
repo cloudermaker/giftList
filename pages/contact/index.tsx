@@ -121,10 +121,15 @@ export default function Contact(): JSX.Element {
                                     name="message"
                                     required
                                 />
-                            </div>{' '}
-                            <button type="submit" className="green-button mt-5 float-right">
-                                Envoyer
-                            </button>
+                            </div>
+                            <div className="float-right">
+                                <button type="submit" className="green-button">
+                                    Envoyer
+                                </button>
+                                <CustomButton type="button" onClick={() => Router.push('/')}>
+                                    Accueil
+                                </CustomButton>
+                            </div>
                         </form>
                     )}
 
@@ -132,7 +137,7 @@ export default function Contact(): JSX.Element {
                         <div className="text-center">
                             <p className="py-2">Ton message a bien été envoyé!</p>
                             <FontAwesomeIcon icon={faCheck} className="h-6 inline" />
-                            <p className="py-2">Nous te répondrons dés que possible.</p>{' '}
+                            <p className="py-2">Nous te répondrons dés que possible.</p>
                             <CustomButton
                                 className="green-button mt-5"
                                 onClick={() => Router.push(connectedUser ? '/home' : '/')}

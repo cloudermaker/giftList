@@ -35,6 +35,17 @@ export const CustomHeader = ({
         { url: '', name: 'Déconnexion', isSelected: false, icon: '🚪', onClick: onDisconnectClick }
     ];
 
+    const onMenuClick = (menu: any) => {
+        if (menu.onClick) {
+            menu.onClick();
+        } else if (menu.url === Router.asPath) {
+            // Force reload of page since router.push do not full reload page
+            window.location.reload();
+        } else {
+            Router.push(menu.url);
+        }
+    };
+
     return (
         <>
             <div className="header flex justify-between py-2 px-5 mb-4 sm:px-3 bg-gradient-to-r from-vertNoel/10 to-rougeNoel/10">
@@ -53,9 +64,7 @@ export const CustomHeader = ({
                 {menus.map((menu) => (
                     <div
                         key={`menu_${menu.name}`}
-                        onClick={() => {
-                            menu.onClick ? menu.onClick() : Router.push(menu.url);
-                        }}
+                        onClick={() => onMenuClick(menu)}
                         className={`${commonStyle} hidden sm:flex items-center ${
                             menu.isSelected
                                 ? 'font-bold text-rougeNoel candy-cane-border px-3 py-1 rounded-lg bg-white/50'
@@ -90,9 +99,7 @@ export const CustomHeader = ({
                 {menus.map((menu) => (
                     <span
                         key={`menu_${menu.name}`}
-                        onClick={() => {
-                            menu.onClick ? menu.onClick() : Router.push(menu.url);
-                        }}
+                        onClick={() => onMenuClick(menu)}
                         className={`${commonStyle} flex items-center px-4 py-2 text-base ${
                             menu.isSelected
                                 ? 'font-bold text-rougeNoel bg-white rounded-lg candy-cane-border'
