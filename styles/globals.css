@@ -47,77 +47,7 @@ body {
     flex: 1 0 auto;
 }
 
-.prose {
-    max-width: 65ch;
-    color: #4b5563;
-}
 
-.prose p {
-    margin-top: 1.25em;
-    margin-bottom: 1.25em;
-}
-
-.prose strong {
-    color: #111827;
-    font-weight: 600;
-}
-
-/* Birthday card effect */
-.birthday-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow:
-        0 4px 6px -1px rgba(0, 0, 0, 0.1),
-        0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    transition:
-        transform 0.3s ease,
-        box-shadow 0.3s ease;
-}
-
-.birthday-card:hover {
-    transform: translateY(-5px);
-    box-shadow:
-        0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-/* Balloon animation */
-@keyframes float {
-    0% {
-        transform: translateY(0) rotate(0deg);
-    }
-    50% {
-        transform: translateY(-20px) rotate(5deg);
-    }
-    100% {
-        transform: translateY(0) rotate(0deg);
-    }
-}
-
-.balloon {
-    animation: float 6s ease-in-out infinite;
-}
-
-/* Gift icon animation */
-.gift-icon {
-    position: relative;
-    transition: transform 0.3s ease;
-}
-
-.gift-icon:hover {
-    transform: scale(1.2);
-    animation: gift-bounce 0.5s ease infinite;
-}
-
-@keyframes gift-bounce {
-    0%,
-    100% {
-        transform: translateY(0) rotate(-5deg);
-    }
-    50% {
-        transform: translateY(-5px) rotate(5deg);
-    }
-}
 
 .body-padding {
     padding: 0.5rem 2.5rem;
@@ -289,20 +219,20 @@ button:disabled {
 .header::before {
     content: '🎀';
     position: absolute;
-    top: -15px;
+    top: -10px;
     left: -10px;
-    font-size: 30px;
-    opacity: 0.1;
+    font-size: 40px;
+    opacity: 0.2;
     transform: rotate(-15deg);
 }
 
 .header::after {
     content: '🎄';
     position: absolute;
-    bottom: -15px;
+    bottom: -10px;
     right: -10px;
-    font-size: 30px;
-    opacity: 0.1;
+    font-size: 40px;
+    opacity: 0.2;
     transform: rotate(15deg);
 }
 
@@ -316,11 +246,43 @@ button:disabled {
     transition: all 0.3s ease-in-out;
 }
 
+.step-number {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0 auto 20px;
+}
+
+.step-emoji {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.home-section {
+    justify-self: center;
+    padding: 20px;
+    text-align: center;
+    margin: 40px 0;
+}
+
+.home-section h2 {
+    font-size: 2.0rem;
+    margin-bottom: 20px;
+}
+
 .bg-shadow {
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 0.75rem;
     width: auto;
-    display: inline-block;
+    display: block;
     box-shadow:
         0 8px 15px -3px rgba(0, 0, 0, 0.1),
         0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -354,50 +316,6 @@ hr {
 input {
     margin: 0;
     font-family: inherit;
-}
-
-/* Custom input styling */
-.birthday-input {
-    background-color: white;
-    border: 2px solid #ffe4e6;
-    border-radius: 1rem;
-    padding: 0.75rem 1rem;
-    transition: all 0.3s ease;
-    width: 100%;
-    font-family: inherit;
-    box-shadow:
-        0 2px 4px rgba(0, 0, 0, 0.05),
-        0 0 0 2px rgba(255, 228, 230, 0.1);
-}
-
-.birthday-input:hover {
-    border-color: #fda4af;
-    box-shadow:
-        0 4px 6px rgba(0, 0, 0, 0.05),
-        0 0 0 3px rgba(255, 228, 230, 0.2);
-}
-
-.birthday-input:focus {
-    outline: none;
-    border-color: #fb7185;
-    box-shadow:
-        0 4px 6px rgba(0, 0, 0, 0.05),
-        0 0 0 4px rgba(251, 113, 133, 0.2);
-}
-
-.birthday-input::placeholder {
-    color: #fda4af;
-    opacity: 0.7;
-}
-
-/* Birthday textarea specific styles */
-.birthday-textarea {
-    min-height: 12rem;
-    resize: vertical;
-    line-height: 1.5;
-    background-image: linear-gradient(to bottom, transparent, transparent 29px, #ffe4e6 30px);
-    background-size: 100% 30px;
-    padding-top: 4px;
 }
 
 * {
@@ -462,60 +380,6 @@ input {
 }
 /* END OF SPINNER */
 
-/* TOOLTIP */
-.tooltip-container {
-    position: relative;
-    cursor: pointer;
-}
-
-/* Tooltip text */
-.tooltip-container .tooltip {
-    visibility: hidden;
-    width: 120px;
-    background-color: #e63946;
-    background-image: linear-gradient(45deg, #d42a37, #ff5a5f);
-    color: #fff;
-    text-align: center;
-    padding: 10px;
-    border-radius: 8px;
-
-    /* Position the tooltip text */
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -60px;
-
-    /* Fade in tooltip */
-    opacity: 0;
-    transition: all 0.3s ease;
-    box-shadow:
-        0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    font-weight: 500;
-    transform: translateY(10px);
-}
-
-/* Tooltip arrow */
-.tooltip-container .tooltip::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #e63946 transparent transparent transparent;
-}
-/* END OF TOOLTIP */
-
-/* Show the tooltip text when you mouse over the tooltip container */
-.tooltip-container:hover .tooltip {
-    visibility: visible;
-    opacity: 1;
-    transform: translateY(0);
-}
-
 /* Form input styling */
 .input-group {
     display: flex;
@@ -559,10 +423,6 @@ input {
     .header {
         padding: 0.75rem;
         font-size: 1rem;
-    }
-
-    .item {
-        padding: 12px;
     }
 
     .input-group {

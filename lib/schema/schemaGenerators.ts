@@ -23,6 +23,20 @@ export const generatePageSchema = (
         "name": "Ma liste de cadeaux",
         "url": "https://www.malistedecadeaux.fr"
       }
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "Web browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      },
+      "featureList": [
+        "Création de listes de cadeaux gratuitement",
+        "Création de groupes familiaux",
+        "Gestion secrète des cadeaux",
+        "Classement par préférence",
+        "Page récapitulative pour les achats"
+      ]
     }`
     };
 };

@@ -88,132 +88,199 @@ export default function Index(): JSX.Element {
                 dangerouslySetInnerHTML={generatePageSchema('WebPage', pageTitle, '/', pageDescription)}
             />
 
-            <h1 className="header text-center bg-white my-8">Bienvenue sur le site de gestion de cadeaux</h1>
+            <h1 className="header text-center font-bold my-8">🎁 Ma Liste de Cadeaux</h1>
 
-            {!creatingGroup && !joiningGroup && (
-                <div className="block text-center">
-                    <h2 className="p-5 font-bold bg-shadow">Que souhaites-tu faire ?</h2>
-
+            <section className="text-center block place-self-center pt-4">
+                {!creatingGroup && !joiningGroup && (
                     <div className="block m-3">
                         <CustomButton className="green-button p-3 mx-3" onClick={onCreatingButtonClick}>
-                            Créer mon groupe
+                            👥 Créer mon groupe
                         </CustomButton>
 
                         <CustomButton className="green-button p-3 mx-3 mt-3" onClick={onJoiningButtonClick}>
-                            Rejoindre mon groupe
+                            🚪 Rejoindre mon groupe
                         </CustomButton>
                     </div>
-                </div>
-            )}
+                )}
 
-            {(creatingGroup || joiningGroup) && (
-                <div className="block text-center">
-                    <div className="block m-5 p-2 bg-shadow">
-                        {error && <b className="text-red-500">{`Erreur: ${error}`}</b>}
+                {(creatingGroup || joiningGroup) && (
+                    <div className="block text-center">
+                        <div className="block m-5 p-2">
+                            {error && <b className="text-red-500">{`Erreur: ${error}`}</b>}
 
-                        {creatingGroup && <p className="font-bold mb-2">Pour créer ton groupe:</p>}
-                        {!creatingGroup && <p className="font-bold mb-2">Pour rejoindre un groupe:</p>}
+                            {creatingGroup && <p className="font-bold mb-2">Pour créer ton groupe:</p>}
+                            {!creatingGroup && <p className="font-bold mb-2">Pour rejoindre un groupe:</p>}
 
-                        <div className="input-group">
-                            <label className="input-label">Entre le nom de ton groupe:</label>
-                            <input
-                                id="groupNameInputId"
-                                className="input-field"
-                                onChange={(e) => setGroupName(e.target.value)}
-                                value={groupName}
-                            />
-                        </div>
-
-                        <div className="input-group">
-                            <label className="input-label">Entre ton nom:</label>
-                            <CustomInput
-                                id="nameInputId"
-                                className="input-field bg-transparent"
-                                onChange={setName}
-                                value={name}
-                                onKeyDown={onInputPressKey}
-                            />
-                        </div>
-
-                        {joiningGroup && (
-                            <div className="flex py-4">
-                                Je veux me connecter comme admin:
+                            <div className="input-group">
+                                <label className="input-label">Entre le nom de ton groupe:</label>
                                 <input
-                                    className="ml-2 cursor-pointer w-6 accent-vertNoel"
-                                    type="checkbox"
-                                    onChange={() => setConnectingAsAdmin((value) => !value)}
+                                    id="groupNameInputId"
+                                    className="input-field"
+                                    onChange={(e) => setGroupName(e.target.value)}
+                                    value={groupName}
                                 />
                             </div>
-                        )}
 
-                        {(connectingAsAdmin || creatingGroup) && (
-                            <>
-                                <div className="input-group">
-                                    <label className="input-label">Mot de passe admin:</label>
-                                    <CustomInput
-                                        id="passwordInputId"
-                                        className="input-field bg-transparent"
-                                        onChange={setPassword}
-                                        value={password}
-                                        onKeyDown={onInputPressKey}
-                                        type="password"
+                            <div className="input-group">
+                                <label className="input-label">Entre ton nom:</label>
+                                <CustomInput
+                                    id="nameInputId"
+                                    className="input-field bg-transparent"
+                                    onChange={setName}
+                                    value={name}
+                                    onKeyDown={onInputPressKey}
+                                />
+                            </div>
+
+                            {joiningGroup && (
+                                <div className="flex py-4">
+                                    Je veux me connecter comme admin:
+                                    <input
+                                        className="ml-2 cursor-pointer w-6 accent-vertNoel"
+                                        type="checkbox"
+                                        onChange={() => setConnectingAsAdmin((value) => !value)}
                                     />
                                 </div>
-                            </>
-                        )}
+                            )}
+
+                            {(connectingAsAdmin || creatingGroup) && (
+                                <>
+                                    <div className="input-group">
+                                        <label className="input-label">Mot de passe admin:</label>
+                                        <CustomInput
+                                            id="passwordInputId"
+                                            className="input-field bg-transparent"
+                                            onChange={setPassword}
+                                            value={password}
+                                            onKeyDown={onInputPressKey}
+                                            type="password"
+                                        />
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        <div className="block m-3">
+                            <CustomButton className="p-3 mx-3 green-button" onClick={onValidateButtonClick}>
+                                {"C'est parti!"}
+                            </CustomButton>
+
+                            <CustomButton className="p-3 mx-3" onClick={onCancelButtonClick}>
+                                {'En fait, non'}
+                            </CustomButton>
+                        </div>
+                    </div>
+                )}
+            </section>
+
+            <section className="home-section">
+                <h2 className="font-bold">🎉 Créez votre liste de cadeaux en ligne gratuitement</h2>
+
+                <p>
+                    Organisez vos échanges de cadeaux en famille ou entre amis - Simple, secret et efficace pour Noël,
+                    anniversaires et toutes vos fêtes !
+                </p>
+            </section>
+
+            <section className="home-section" id="comment-ca-marche">
+                <h2 className="font-bold">
+                    <span role="img" aria-label="cible">
+                        🎯
+                    </span>
+                    Comment organiser vos listes de cadeaux ?
+                </h2>
+                <p>Pour créer votre liste de cadeaux en ligne, rien de plus simple :</p>
+
+                <div className="flex flex-col md:flex-row justify-around items-center mt-4">
+                    <div className="item md:m-4">
+                        <div className="step-number">1</div>
+                        <span className="step-emoji" role="img" aria-label="étincelle">
+                            ✨
+                        </span>
+                        <h3>Créer votre groupe de cadeaux</h3>
+                        <p>
+                            {
+                                "Lancez votre groupe familial ou entre amis pour Noël, anniversaires ou toute occasion spéciale. C'est gratuit et sans inscription compliquée !"
+                            }
+                        </p>
                     </div>
 
-                    <div className="block m-3">
-                        <CustomButton className="p-3 mx-3 green-button" onClick={onValidateButtonClick}>
-                            {"C'est parti!"}
-                        </CustomButton>
+                    <div className="item md:m-4">
+                        <div className="step-number">2</div>
+                        <span className="step-emoji" role="img" aria-label="amis">
+                            👫
+                        </span>
+                        <h3>Inviter vos proches</h3>
+                        <p>
+                            Une fois connecté, ajoutez vos proches à votre liste de cadeaux. Chaque personne se connecte
+                            simplement avec le nom du groupe et son prénom.
+                        </p>
+                    </div>
 
-                        <CustomButton className="p-3 mx-3" onClick={onCancelButtonClick}>
-                            {'En fait, non'}
+                    <div className="item md:m-4">
+                        <div className="step-number">3</div>
+                        <span className="step-emoji" role="img" aria-label="secret">
+                            🤫
+                        </span>
+                        <h3>Gérer les cadeaux en secret</h3>
+                        <p>
+                            {
+                                "Ajoutez vos envies de cadeaux, réservez ceux des autres... tout en gardant le secret jusqu'au jour J! Parfait pour les surprises de Noël ou d'anniversaire."
+                            }
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section className="home-section">
+                <h2 className="text-center font-bold">❓ Questions fréquentes sur les listes de cadeaux</h2>
+                <div className="item m-4">
+                    <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
+                        Comment créer une liste de cadeaux pour ma famille ?
+                    </h3>
+                    <p>
+                        {
+                            "Il suffit de créer un groupe, d'inviter vos proches et de commencer à ajouter vos envies de cadeaux. Chacun peut voir les listes des autres et réserver secrètement les cadeaux qu'il souhaite offrir."
+                        }
+                    </p>
+                </div>
+
+                <div className="item m-4">
+                    <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
+                        Est-ce que le service est vraiment gratuit ?
+                    </h3>
+                    <p>
+                        Oui, notre plateforme de gestion de listes de cadeaux est entièrement gratuite. Aucun abonnement, aucune
+                        publicité intrusive.
+                    </p>
+                </div>
+
+                <div className="item m-4">
+                    <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
+                        Puis-je utiliser cette liste pour Noël et les anniversaires ?
+                    </h3>
+                    <p>
+                        Absolument ! Notre outil est parfait pour organiser tous vos échanges de cadeaux : Noël, anniversaires,
+                        fêtes des mères, mariages, et toute occasion spéciale.
+                    </p>
+                </div>
+            </section>
+
+            <section className="home-section">
+                <div>
+                    <h2 className="font-bold">🎈 Prêt à organiser vos prochains cadeaux ?</h2>
+                    <p>
+                        Rejoignez des milliers de familles qui ont simplifié leurs échanges de cadeaux grâce à notre liste en
+                        ligne gratuite
+                    </p>
+
+                    <div className="mt-4">
+                        <CustomButton className="green-button p-3 mx-3" onClick={onCreatingButtonClick}>
+                            🚀 Créer mon groupe
                         </CustomButton>
                     </div>
                 </div>
-            )}
-
-            <div className="py-8 flex justify-center relative">
-                <div className="bg-white w-fit h-fit rounded p-5 place-center border-vertNoel border-solid border-2">
-                    <div className="flex justify-around">
-                        <span className="text-4xl absolute top-0 left-0 md:relative">🎂</span>
-                        <h2 className="bg-vertNoel/25 rounded-lg p-2 self-center text-center text-lg font-bold">
-                            Ma liste de cadeaux en famille ou entre amis
-                        </h2>
-                        <span className="text-4xl absolute top-0 right-0 md:relative">🎁</span>
-                    </div>
-
-                    <h3 className="pt-5 font-bold">Pour commencer, rien de plus simple. Il te suffit de:</h3>
-                    <ul className="pl-5">
-                        <li className="py-2">
-                            <span className="bg-vertNoel/25 rounded-full mr-3 px-2 py-1">1</span>
-                            Créer un nouveau groupe
-                        </li>
-                        <li className="py-2">
-                            <span className="bg-vertNoel/25 rounded-full mr-3 px-2 py-1">2</span>
-                            Une fois connecté, tu pourras ajouter de nouveaux utilisateurs
-                        </li>
-                        <li className="py-2">
-                            <span className="bg-vertNoel/25 rounded-full mr-3 px-2 py-1">3</span>
-                            <span>Chaque utilisateur pourra se connecter avec son nom de groupe et son nom</span>
-                        </li>
-                    </ul>
-
-                    <h3 className="pt-5 font-bold">Une fois connecté, tu pourras:</h3>
-                    <ul className="pl-5">
-                        <li className="list-disc">Ajouter les cadeaux que tu souhaites</li>
-                        <li className="list-disc">Indiquer aux autres utilisateurs quel(s) cadeau(x) tu prends...</li>
-                        <li className="text-center italic">... Mais sans que la personne ne soit au courant !</li>
-                        <li className="list-disc">Classer tes cadeaux dans un ordre de préférence</li>
-                        <li className="list-disc">Enfin, une page te résume tous les cadeaux que tu dois prendre et pour qui</li>
-                        <i className="w-full block text-xs text-right">
-                            Pratique pour faire les courses, tout est sur la même page!
-                        </i>
-                    </ul>
-                </div>
-            </div>
+            </section>
         </Layout>
     );
 }
