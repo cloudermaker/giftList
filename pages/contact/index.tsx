@@ -2,8 +2,6 @@ import CustomButton from '@/components/atoms/customButton';
 import { QuestionMarkIcon } from '@/components/icons/questionMark';
 import { Layout } from '@/components/layout';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Router from 'next/router';
 import { useState } from 'react';
 import { TSendEmailResult } from '../api/sendEmail';
@@ -70,83 +68,81 @@ export default function Contact(): JSX.Element {
                 canonicalPath="/contact"
             />
             <script type="application/ld+json" dangerouslySetInnerHTML={contactSchemaData} />
-            <h1 className="header text-center bg-white mt-8">Page de contact</h1>
 
-            <div className="py-8 flex justify-center relative">
-                <div className="bg-white w-fit h-fit rounded p-5 place-center border-vertNoel border-solid border-2">
-                    <div className="flex justify-around">
-                        <QuestionMarkIcon className="-rotate-45 w-9 fill-vertNoel absolute top-0 left-0 md:relative" />
-                        <h2 className="bg-vertNoel/25 rounded-lg p-2 self-center text-center text-lg font-bold">
-                            Contactez-nous
-                        </h2>
+            <h1 className="header text-center font-bold mt-8">✉️ Page de contact</h1>
 
-                        <QuestionMarkIcon className="rotate-45 w-9 fill-rougeNoel absolute top-0 right-0 md:relative" />
-                    </div>
+            <div className="home-section my-8 item w-full md:w-1/2">
+                <div className="flex justify-around">
+                    <QuestionMarkIcon className="-rotate-45 w-9 fill-vertNoel" />
+                    <h2 className="bg-vertNoel/25 rounded-lg p-2 self-center text-center text-lg font-bold">Contactez-nous</h2>
 
-                    <i className="py-5 block">Vous avez besoin d&apos;aide ? Des idées d&apos;amélioration du site ?</i>
+                    <QuestionMarkIcon className="rotate-45 w-9 fill-rougeNoel" />
+                </div>
 
-                    {!isSubmitted && (
-                        <form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                onSubmit();
-                            }}
-                        >
-                            {' '}
-                            <div className="input-group">
-                                <label className="input-label" htmlFor="email">
-                                    Votre email:
-                                </label>
-                                <input
-                                    id="email"
-                                    className="input-field"
-                                    type="email"
-                                    placeholder="Ton email"
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    value={email}
-                                    name="email"
-                                    required
-                                />
-                            </div>
-                            <div className="input-group">
-                                <label className="input-label" htmlFor="message">
-                                    Votre message:
-                                </label>
-                                <textarea
-                                    id="message"
-                                    className="input-field min-h-[128px] p-4"
-                                    onChange={(e) => setMessage(e.target.value)}
-                                    placeholder="Ton message"
-                                    value={message}
-                                    name="message"
-                                    required
-                                />
-                            </div>
-                            <div className="float-right">
-                                <button type="submit" className="green-button">
-                                    Envoyer
-                                </button>
-                                <CustomButton type="button" onClick={() => Router.push('/')}>
-                                    Accueil
-                                </CustomButton>
-                            </div>
-                        </form>
-                    )}
+                {!isSubmitted && (
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            onSubmit();
+                        }}
+                    >
+                        <i className="py-5 block text-center">
+                            Vous avez besoin d&apos;aide ? Des idées d&apos;amélioration du site ?
+                        </i>
 
-                    {isSubmitted && (
-                        <div className="text-center">
-                            <p className="py-2">Ton message a bien été envoyé!</p>
-                            <FontAwesomeIcon icon={faCheck} className="h-6 inline" />
-                            <p className="py-2">Nous te répondrons dés que possible.</p>
-                            <CustomButton
-                                className="green-button mt-5"
-                                onClick={() => Router.push(connectedUser ? '/home' : '/')}
-                            >
-                                Revenir à la page principale
+                        <div className="input-group">
+                            <label className="input-label" htmlFor="email">
+                                Votre email:
+                            </label>
+                            <input
+                                id="email"
+                                className="input-field"
+                                type="email"
+                                placeholder="Ton email"
+                                onChange={(e) => setEmail(e.target.value)}
+                                value={email}
+                                name="email"
+                                required
+                            />
+                        </div>
+                        <div className="input-group">
+                            <label className="input-label" htmlFor="message">
+                                Votre message:
+                            </label>
+                            <textarea
+                                id="message"
+                                className="input-field min-h-[128px] p-4"
+                                onChange={(e) => setMessage(e.target.value)}
+                                placeholder="Ton message"
+                                value={message}
+                                name="message"
+                                required
+                            />
+                        </div>
+                        <div className="float-right">
+                            <button type="submit" className="green-button">
+                                Envoyer
+                            </button>
+                            <CustomButton type="button" onClick={() => Router.push('/')}>
+                                Accueil
                             </CustomButton>
                         </div>
-                    )}
-                </div>
+                    </form>
+                )}
+
+                {isSubmitted && (
+                    <div className="text-center py-4">
+                        <p>Ton message a bien été envoyé!</p>
+                        <span className="step-emoji mb-0" role="img" aria-label="secret">
+                            🫡
+                        </span>
+                        <p>Nous te répondrons dés que possible.</p>
+
+                        <CustomButton className="green-button mt-8" onClick={() => Router.push(connectedUser ? '/home' : '/')}>
+                            Revenir à la page principale
+                        </CustomButton>
+                    </div>
+                )}
             </div>
         </Layout>
     );
