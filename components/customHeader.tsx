@@ -51,13 +51,13 @@ export const CustomHeader = ({
             <div className="header flex justify-between py-2 px-5 mb-4 sm:px-3 bg-gradient-to-r from-vertNoel/10 to-rougeNoel/10">
                 <div
                     onClick={() => Router.push('/home')}
-                    className={`${commonStyle} flex items-center ${
+                    className={`${commonStyle} gap-2 flex items-center ${
                         selectedHeader === EHeader.Homepage
                             ? 'font-bold text-rougeNoel candy-cane-border px-3 py-1 rounded-lg bg-white/50'
                             : 'hover:bg-white/30 px-3 py-1 rounded-lg transition-all duration-300'
                     }`}
                 >
-                    <span className={`mr-1 ${selectedHeader === EHeader.Homepage ? 'gift-icon' : ''}`}>🏠</span>
+                    <span className={`text-xl ${selectedHeader === EHeader.Homepage ? 'gift-icon' : ''}`}>🏠</span>
                     <span>Accueil</span>
                 </div>
 
@@ -76,19 +76,26 @@ export const CustomHeader = ({
                     </div>
                 ))}
 
-                <div className={`sm:hidden ${commonStyle}`}>
-                    <FontAwesomeIcon
-                        icon={faAlignJustify}
-                        className="w-8 h-8"
-                        onClick={(e) => {
-                            setIsResponsiveMenuOpen((value) => !value);
-                        }}
-                    />
+                <div
+                    className={`sm:hidden ${commonStyle}`}
+                    onClick={(e) => {
+                        setIsResponsiveMenuOpen((value) => !value);
+                    }}
+                >
+                    <span className="inline-flex items-center gap-2">
+                        <span
+                            className={`inline-flex text-xl transition-transform duration-300 ${isResponsiveMenuOpen ? 'rotate-180' : ''}`}
+                        >
+                            🔻
+                        </span>
+                        <b>Menu</b>
+                        <FontAwesomeIcon icon={faAlignJustify} className="w-5 h-5 text-rougeNoel" />
+                    </span>
                 </div>
             </div>
 
             <div
-                className="absolute right-0 z-10 -mt-2 mr-4 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                className="absolute right-0 z-10 -mt-2 mr-4 p-2 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                 role="menu"
                 id="dropdown-menu-responsive"
                 aria-orientation="vertical"
