@@ -16,12 +16,6 @@ export const buildDefaultGift = (userId: string, order: number, name?: string, d
     };
 };
 
-export const getGifts = async (): Promise<Gift[]> => {
-    var gifts = await prisma.gift.findMany();
-
-    return gifts;
-};
-
 export const getGiftFromId = async (id: string): Promise<Gift | null> => {
     var gift = await prisma.gift.findFirst({
         where: {
@@ -39,6 +33,9 @@ export const getTakenGiftsFromUserId = async (userId: string): Promise<(Gift & {
         },
         include: {
             user: true
+        },
+        orderBy: {
+            order: 'asc'
         }
     });
 
@@ -49,33 +46,13 @@ export const getGiftsFromUserId = async (userId: string): Promise<Gift[]> => {
     var gifts = await prisma.gift.findMany({
         where: {
             userId
+        },
+        orderBy: {
+            order: 'asc'
         }
     });
 
     return gifts;
-};
-
-export const createGift = async (
-    giftName: string,
-    ownerUserId: string,
-    description: string,
-    url: string,
-    isSuggestedGift = false
-): Promise<Gift> => {
-    var users = await getGifts();
-
-    var user = await prisma.gift.create({
-        data: {
-            name: giftName.trim(),
-            userId: ownerUserId,
-            description,
-            url,
-            order: users.length + 1,
-            isSuggestedGift
-        }
-    });
-
-    return user;
 };
 
 export const updateGift = async (giftId: string, gift: Gift): Promise<Gift> => {
@@ -105,11 +82,17 @@ export const updateGifts = async (gifts: Gift[]): Promise<Gift[]> => {
 };
 
 export const upsertGift = async (gift: Gift): Promise<Gift> => {
+    var latestGift = await prisma.gift.aggregate({
+        _max: {
+            order: true
+        }
+    });
+
     var user = await prisma.gift.upsert({
         where: {
             id: gift.id
         },
-        create: { ...gift, id: undefined, updatedAt: new Date().toISOString() },
+        create: { ...gift, id: undefined, updatedAt: new Date().toISOString(), order: latestGift._max.order ?? 0 + 1 },
         update: { ...gift, name: gift.name.trim(), updatedAt: new Date().toISOString() }
     });
 

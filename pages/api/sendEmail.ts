@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { MailService } from '@sendgrid/mail';
-import { text } from 'stream/consumers';
 
 export type TSendEmailResult = {
     success: boolean;
