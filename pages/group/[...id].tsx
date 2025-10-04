@@ -123,74 +123,74 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
                 <h1 className="pb-5">{`Voici le groupe: ${group.name}`}</h1>
 
                 {localUsers.map((user) => (
-                    <div className="item flex justify-between items-center" key={`group_${user.id}`}>
-                        <span className="w-full md:w-auto">
-                            <b className="pr-2">Nom:</b>
+                    <div className="item" key={`group_${user.id}`}>
+                        <div className="flex justify-between items-center">
+                            <span className="w-full md:w-auto">
+                                <b className="pr-2">Nom:</b>
 
-                            {updatingUserId === user.id && (
-                                <input
-                                    className="px-3 py-1.5 bg-white/50 border border-neutral-200 rounded-lg focus:outline-none focus:border-vertNoel focus:ring-1 focus:ring-vertNoel transition-all duration-200"
-                                    value={newUserName}
-                                    onChange={(e) => setNewUserName(e.target.value)}
-                                />
-                            )}
-                            {updatingUserId !== user.id && <span>{user.name}</span>}
+                                {updatingUserId === user.id && (
+                                    <input
+                                        className="px-3 py-1.5 bg-white/50 border border-neutral-200 rounded-lg focus:outline-none focus:border-vertNoel focus:ring-1 focus:ring-vertNoel transition-all duration-200"
+                                        value={newUserName}
+                                        onChange={(e) => setNewUserName(e.target.value)}
+                                    />
+                                )}
+                                {updatingUserId !== user.id && <span>{user.name}</span>}
+                            </span>
 
-                            {connectedUser?.isAdmin && (
-                                <i>
-                                    <div className="flex">
-                                        <span className="pr-2">Créé:</span>
-                                        {user.createdAt?.toLocaleString()}
-                                    </div>
-                                </i>
-                            )}
-                        </span>
+                            <div className="block md:flex items-center text-center">
+                                {updatingUserId !== user.id && (
+                                    <>
+                                        <CustomButton
+                                            className="green-button mt-3 md:mt-0"
+                                            onClick={() => Router.push(`/giftList/${user.id}`)}
+                                        >
+                                            Liste de cadeaux
+                                        </CustomButton>
 
-                        <div className="block md:flex items-center text-center">
-                            {updatingUserId !== user.id && (
-                                <>
-                                    <CustomButton
-                                        className="green-button mt-3 md:mt-0"
-                                        onClick={() => Router.push(`/giftList/${user.id}`)}
-                                    >
-                                        Liste de cadeaux
-                                    </CustomButton>
+                                        {connectedUser?.isAdmin && (
+                                            <div className="flex">
+                                                <CustomButton
+                                                    className="green-button mt-3 md:mt-0"
+                                                    onClick={() => updatingUser(user)}
+                                                >
+                                                    Modifier
+                                                </CustomButton>
 
-                                    {connectedUser?.isAdmin && (
+                                                <CustomButton className="mt-3 md:mt-0" onClick={() => removeUser(user.id)}>
+                                                    Supprimer
+                                                </CustomButton>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+
+                                {connectedUser?.isAdmin && updatingUserId === user.id && (
+                                    <>
                                         <div className="flex">
                                             <CustomButton
                                                 className="green-button mt-3 md:mt-0"
-                                                onClick={() => updatingUser(user)}
+                                                onClick={() => addOrUpdateUser(user.id)}
+                                                disabled={newUserName == null || newUserName === ''}
                                             >
-                                                Modifier
+                                                Valider
                                             </CustomButton>
 
-                                            <CustomButton className="mt-3 md:mt-0" onClick={() => removeUser(user.id)}>
-                                                Supprimer
+                                            <CustomButton className="mt-3 md:mt-0" onClick={clearAllFields}>
+                                                Annuler
                                             </CustomButton>
                                         </div>
-                                    )}
-                                </>
-                            )}
-
-                            {connectedUser?.isAdmin && updatingUserId === user.id && (
-                                <>
-                                    <div className="flex">
-                                        <CustomButton
-                                            className="green-button mt-3 md:mt-0"
-                                            onClick={() => addOrUpdateUser(user.id)}
-                                            disabled={newUserName == null || newUserName === ''}
-                                        >
-                                            Valider
-                                        </CustomButton>
-
-                                        <CustomButton className="mt-3 md:mt-0" onClick={clearAllFields}>
-                                            Annuler
-                                        </CustomButton>
-                                    </div>
-                                </>
-                            )}
+                                    </>
+                                )}
+                            </div>
                         </div>
+
+                        {connectedUser?.isAdmin && (
+                            <i className="flex pt-4">
+                                <span className="pr-2">Créé:</span>
+                                {user.createdAt?.toLocaleString()}
+                            </i>
+                        )}
                     </div>
                 ))}
 
