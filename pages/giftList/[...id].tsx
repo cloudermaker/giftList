@@ -233,8 +233,6 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
     function handleDragEnd(event: { active: any; over: any }) {
         const { active, over } = event;
 
-        console.log('handleDragEnd');
-
         if (active.id !== over.id) {
             setLocalGifts((prevLocalGifts) => {
                 const oldIndex = prevLocalGifts.findIndex((gift) => gift.id === active.id);
@@ -246,8 +244,6 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                 for (let i = 0; i < newGifts.length; i++) {
                     newGifts[i].order = i + 1;
                 }
-
-                console.log({ newGifts });
 
                 AxiosWrapper.post('/api/gift', {
                     gifts: newGifts,

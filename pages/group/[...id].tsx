@@ -38,7 +38,6 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
             })
             .then(async (result) => {
                 if (result.isConfirmed) {
-                    console.log({ userId });
                     const apiResult = await AxiosWrapper.delete(`/api/user/${userId ?? 'toto'}`);
                     const data = apiResult?.data as TUserApiResult;
 
