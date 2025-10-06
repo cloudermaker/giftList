@@ -53,9 +53,9 @@ export default function Contact(): JSX.Element {
             setIsSubmitted(true);
         } else {
             Swal.fire({
-                title: 'Erreur',
-                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? 'erreur technique'}`,
-                icon: 'error'
+                title: 'Erreur technique',
+                icon: 'error',
+                html: `Mince, ça n'a pas fonctionné.<br/><br/>Tu peux réessayer ou nous contacter directement à l'adresse <b>malistedecadeaux.contact@gmail.com</b>.`
             });
         }
     };
