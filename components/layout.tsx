@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { CustomFooter } from './atoms/CustomFooter';
 import { CustomHeader, EHeader } from './customHeader';
+import { Logo } from './Logo';
 import Router from 'next/router';
 import { useLogout } from '@/lib/hooks/useLogout';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
@@ -25,20 +26,33 @@ export const Layout = ({
 
     return (
         <div className="flex flex-col min-h-screen">
-            <div className="body-padding flex-grow">
-                {connectedUser && (
-                    <div className="pt-5 pb-3 flex justify-between">
-                        <div className="text-xs flex bg-shadow">
-                            <>
-                                <span>Connecté en tant que</span>
-                                <b className="pl-1 text-rougeNoel">{connectedUser.userName}</b>
-                                <span>, dans le groupe</span>
-                                <b className="pl-1 text-vertNoel">{connectedUser.groupName}</b>
-                            </>
-                        </div>
-                    </div>
-                )}
+            {/* Logo et statut utilisateur en haut */}
+            <div className="bg-white shadow-sm border-b border-gray-100">
+                <div className="body-padding py-4 flex justify-between items-center">
+                    <Logo size="medium" showText={true} />
 
+                    {connectedUser && (
+                        <div className="relative group">
+                            {/* Indicator */}
+                            <div className="flex items-center text-sm cursor-default">
+                                <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-1" />
+                                <span>Connecté</span>
+                            </div>
+                            {/* Tooltip with details on hover */}
+                            <div className="absolute right-0 top-full mt-1 w-48 p-2 bg-white border border-gray-200 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                <p className="text-xs">
+                                    <span className="font-semibold">Nom :</span> {connectedUser.userName}
+                                </p>
+                                <p className="text-xs">
+                                    <span className="font-semibold">Groupe :</span> {connectedUser.groupName}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <div className="body-padding flex-grow">
                 {withHeader && connectedUser && (
                     <CustomHeader
                         selectedHeader={selectedHeader}

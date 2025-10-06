@@ -1,5 +1,4 @@
 import { Layout } from '@/components/layout';
-import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Link from 'next/link';
 import Router from 'next/router';
 import SEO from '@/components/SEO';
@@ -7,8 +6,6 @@ import { generateFAQSchema } from '@/lib/schema/schemaGenerators';
 import CustomButton from '@/components/atoms/customButton';
 
 export default function Help(): JSX.Element {
-    const { connectedUser } = useCurrentUser();
-
     // Define FAQ items for rich results
     const faqItems = [
         {
@@ -38,8 +35,6 @@ export default function Help(): JSX.Element {
                 canonicalPath="/help"
             />
             <script type="application/ld+json" dangerouslySetInnerHTML={generateFAQSchema(faqItems)} />
-
-            <h1 className="header text-center font-bold my-8">❓ Page d&apos;aide</h1>
 
             <section className="home-section">
                 <h2 className="text-center font-bold">❓ Questions fréquentes sur les listes de cadeaux</h2>

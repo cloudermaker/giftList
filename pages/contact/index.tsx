@@ -69,8 +69,6 @@ export default function Contact(): JSX.Element {
             />
             <script type="application/ld+json" dangerouslySetInnerHTML={contactSchemaData} />
 
-            <h1 className="header text-center font-bold mt-8">✉️ Page de contact</h1>
-
             <div className="home-section my-8 item w-full md:w-1/2">
                 <div className="flex justify-around">
                     <QuestionMarkIcon className="-rotate-45 w-9 fill-vertNoel" />

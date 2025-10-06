@@ -48,7 +48,7 @@ export const CustomHeader = ({
 
     return (
         <>
-            <div className="header flex justify-between py-2 px-5 mb-4 sm:px-3 bg-gradient-to-r from-vertNoel/10 to-rougeNoel/10">
+            <div className="header flex justify-between mt-4 py-2 px-5 mb-4 sm:px-3 bg-gradient-to-r from-vertNoel/10 to-rougeNoel/10">
                 <div
                     onClick={() => Router.push('/home')}
                     className={`${commonStyle} gap-2 flex items-center ${
