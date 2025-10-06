@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { MailService } from '@sendgrid/mail';
+import nodemailer from 'nodemailer';
 
 export type TSendEmailResult = {
     success: boolean;
@@ -17,19 +17,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
     try {
         if (req.method === 'POST') {
-            const mailService = new MailService();
+            // Configuration du transporteur SMTP MailerSend
+            const transporter = nodemailer.createTransport({
+                host: 'smtp.mailersend.net',
+                port: 587,
+                secure: false, // true pour 465, false pour autres ports
+                auth: {
+                    user: process.env.MAILERSEND_SMTP_USERNAME ?? '',
+                    pass: process.env.MAILERSEND_SMTP_PASSWORD ?? ''
+                }
+            });
 
-            mailService.setApiKey(process.env.SENDGRID_API_KEY ?? '');
-
-            const emailToSend = {
-                to: 'malistedecadeaux.contact@gmail.com',
+            // Configuration de l'email
+            const mailOptions = {
                 from: {
-                    email: 'malistedecadeaux.contact@gmail.com',
-                    name: 'Ma Liste de Cadeaux'
+                    name: 'Ma Liste de Cadeaux',
+                    address: 'info@test-51ndgwv63xqlzqx8.mlsender.net'
                 },
+                to: 'malistedecadeaux.contact@gmail.com',
+                replyTo: senderEmail,
                 subject: `[Contact Form] ${subject}`,
                 text: `Message from "${senderEmail}": ${message}`,
-                replyTo: senderEmail,
                 html: `
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                         <h2 style="color: #444;">New Contact Form Submission</h2>
@@ -41,18 +49,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                         <p style="color: #777; margin-top: 20px; font-size: 12px;">
                             This email was sent from the contact form on Ma Liste de Cadeaux website.
                         </p>
-                    </div>`,
-                trackingSettings: {
-                    clickTracking: {
-                        enable: false
-                    },
-                    openTracking: {
-                        enable: true
-                    }
-                }
+                    </div>`
             };
 
-            await mailService.send(emailToSend, false);
+            // Envoi de l'email
+            await transporter.sendMail(mailOptions);
 
             res.status(200).json({ success: true, error: '' });
         } else {
@@ -62,7 +63,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             });
         }
     } catch (e) {
-        console.log(e);
-        res.status(500).json({ success: false, error: e as string });
+        console.error('Email sending error:', e);
+        res.status(500).json({
+            success: false,
+            error: e instanceof Error ? e.message : 'Unknown error occurred'
+        });
     }
 }
