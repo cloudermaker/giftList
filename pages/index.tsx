@@ -1,70 +1,100 @@
 import Router from 'next/router';
-import { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useState, useEffect } from 'react';
 import { Layout } from '../components/layout';
 import { CustomInput } from '../components/atoms/customInput';
 import CustomButton from '../components/atoms/customButton';
+import { ErrorAlert } from '../components/atoms/ErrorAlert';
 import { useLogin } from '@/lib/hooks/useLogin';
 import SEO from '@/components/SEO';
 import { generatePageSchema } from '@/lib/schema/schemaGenerators';
 
+// Constants
+const ERROR_MESSAGES = {
+    NO_GROUP: 'Il faut rentrer un groupe.',
+    NO_NAME: 'Il faut rentrer un nom.',
+    NO_PASSWORD: 'Il faut rentrer un mot de passe.',
+    GENERIC: 'Erreur'
+} as const;
+
+const STORAGE_KEY_GROUP = 'recentGroupName';
+const STORAGE_KEY_NAME = 'recentUserName';
+const STORAGE_KEY_COOKIE_BANNER = 'cookieBannerDismissed';
+
 export default function Index(): JSX.Element {
     const { login } = useLogin();
 
-    const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
-    const [joiningGroup, setJoiningGroup] = useState<boolean>(false);
+    // UI state consolidated
+    const [mode, setMode] = useState<'creating' | 'joining'>('joining');
     const [connectingAsAdmin, setConnectingAsAdmin] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [showCookieBanner, setShowCookieBanner] = useState(false);
 
     const pageTitle = 'Créez votre liste de cadeaux en ligne gratuitement';
     const pageDescription =
         'Créez et partagez facilement une liste de cadeaux en famille ou entre amis. Service 100% gratuit, sans inscription par email. Idéal pour les fêtes, anniversaires et événements spéciaux.';
 
-    const [groupName, setGroupName] = useState<string>('');
-    const [name, setName] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [error, setError] = useState<string>('');
+    // Form data consolidated - load from localStorage on init for joining mode
+    const [formData, setFormData] = useState(() => ({
+        groupName: typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY_GROUP) || '' : '',
+        name: typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY_NAME) || '' : '',
+        password: '',
+        error: ''
+    }));
 
-    const onCreatingButtonClick = (): void => {
-        setCreatingGroup(true);
-
-        window.setTimeout(function () {
-            document.getElementById('groupNameInputId')?.focus();
-        }, 0);
-    };
-
-    const onJoiningButtonClick = (): void => {
-        setJoiningGroup(true);
-
-        window.setTimeout(function () {
-            document.getElementById('groupNameInputId')?.focus();
-        }, 0);
-    };
-
-    const onCancelButtonClick = (): void => {
-        setCreatingGroup(false);
-        setJoiningGroup(false);
-        setConnectingAsAdmin(false);
-        setGroupName('');
-        setName('');
-        setPassword('');
-        setError('');
+    // Clear form when switching to creating mode
+    const handleModeChange = (newMode: 'creating' | 'joining') => {
+        if (newMode === 'creating') {
+            setFormData({ groupName: '', name: '', password: '', error: '' });
+            setConnectingAsAdmin(false);
+        } else {
+            // Load from localStorage when switching to joining
+            setFormData((prev) => ({
+                ...prev,
+                groupName: typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY_GROUP) || '' : '',
+                name: typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY_NAME) || '' : '',
+                password: '',
+                error: ''
+            }));
+            setConnectingAsAdmin(false);
+        }
+        setMode(newMode);
+        setShowPassword(false);
     };
 
     const onValidateButtonClick = async (): Promise<void> => {
-        setError('');
-        if (!groupName) {
-            setError('Il faut rentrer un groupe.');
-        } else if (!name) {
-            setError('Il faut rentrer un nom.');
-        } else if (connectingAsAdmin && !password) {
-            setError('Il faut rentrer un mot de passe.');
-        } else {
-            const data = await login(name, groupName, creatingGroup, password);
+        setFormData((prev) => ({ ...prev, error: '' }));
+        setIsLoading(true);
+
+        try {
+            if (!formData.groupName) {
+                setFormData((prev) => ({ ...prev, error: ERROR_MESSAGES.NO_GROUP }));
+                return;
+            }
+            if (!formData.name) {
+                setFormData((prev) => ({ ...prev, error: ERROR_MESSAGES.NO_NAME }));
+                return;
+            }
+            if (connectingAsAdmin && !formData.password) {
+                setFormData((prev) => ({ ...prev, error: ERROR_MESSAGES.NO_PASSWORD }));
+                return;
+            }
+
+            // Save to localStorage
+            localStorage.setItem(STORAGE_KEY_GROUP, formData.groupName);
+            localStorage.setItem(STORAGE_KEY_NAME, formData.name);
+
+            const data = await login(formData.name, formData.groupName, mode === 'creating', formData.password);
 
             if (data?.success) {
                 Router.push('/home');
             } else if (data) {
-                setError(data?.error ?? 'Erreur');
+                setFormData((prev) => ({ ...prev, error: data?.error ?? ERROR_MESSAGES.GENERIC }));
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -73,6 +103,33 @@ export default function Index(): JSX.Element {
             await onValidateButtonClick();
         }
     };
+
+    const handleDismissCookieBanner = () => {
+        localStorage.setItem(STORAGE_KEY_COOKIE_BANNER, 'true');
+        setShowCookieBanner(false);
+    };
+
+    // Add Ctrl/Cmd + Enter shortcut
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !isLoading) {
+                e.preventDefault();
+                onValidateButtonClick();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isLoading]);
+
+    // Check cookie banner status after mount (client-side only)
+    useEffect(() => {
+        const dismissed = localStorage.getItem(STORAGE_KEY_COOKIE_BANNER);
+        if (!dismissed) {
+            setShowCookieBanner(true);
+        }
+    }, []);
 
     return (
         <Layout withHeader={false}>
@@ -88,87 +145,183 @@ export default function Index(): JSX.Element {
                 dangerouslySetInnerHTML={generatePageSchema('WebPage', pageTitle, '/', pageDescription)}
             />
 
-            <section className="text-center block place-self-center pt-4">
-                {!creatingGroup && !joiningGroup && (
-                    <div className="block m-3">
-                        <CustomButton className="green-button p-3 mx-3" onClick={onCreatingButtonClick}>
-                            👥 Créer mon groupe
-                        </CustomButton>
-
-                        <CustomButton className="green-button p-3 mx-3 mt-3" onClick={onJoiningButtonClick}>
-                            🚪 Rejoindre mon groupe
-                        </CustomButton>
-                    </div>
-                )}
-
-                {(creatingGroup || joiningGroup) && (
-                    <div className="block text-center">
-                        <div className="block m-5 p-2">
-                            {error && <b className="text-red-500">{`Erreur: ${error}`}</b>}
-
-                            {creatingGroup && <p className="font-bold mb-2">Pour créer ton groupe:</p>}
-                            {!creatingGroup && <p className="font-bold mb-2">Pour rejoindre un groupe:</p>}
-
-                            <div className="input-group">
-                                <label className="input-label">Entre le nom de ton groupe:</label>
-                                <input
-                                    id="groupNameInputId"
-                                    className="input-field"
-                                    onChange={(e) => setGroupName(e.target.value)}
-                                    value={groupName}
-                                />
+            <section className="flex justify-center items-start pt-8 pb-12 px-4">
+                <div className="w-full max-w-6xl flex gap-8 items-center">
+                    {/* Form Section */}
+                    <div className="w-full md:w-1/2 card-container">
+                        <div
+                            key={mode}
+                            className={`bg-white rounded-2xl shadow-xl overflow-hidden ${mode === 'joining' ? 'animate-flip-in' : 'animate-flip-in-reverse'}`}
+                        >
+                            {/* Tabs */}
+                            <div className="flex border-b border-gray-200">
+                                <div
+                                    onClick={() => !isLoading && handleModeChange('joining')}
+                                    className={`flex-1 px-4 py-3 cursor-pointer transition-all text-center flex items-center justify-center ${
+                                        mode === 'joining'
+                                            ? 'font-semibold text-rougeNoel border-b-2 border-rougeNoel -mb-px'
+                                            : 'font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                    } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    Se connecter
+                                </div>
+                                <div
+                                    onClick={() => !isLoading && handleModeChange('creating')}
+                                    className={`flex-1 px-4 py-3 cursor-pointer transition-all text-center flex items-center justify-center ${
+                                        mode === 'creating'
+                                            ? 'font-semibold text-vertNoel border-b-2 border-vertNoel -mb-px'
+                                            : 'font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                    } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    Créer un groupe
+                                </div>
                             </div>
 
-                            <div className="input-group">
-                                <label className="input-label">Entre ton nom:</label>
-                                <CustomInput
-                                    id="nameInputId"
-                                    className="input-field bg-transparent"
-                                    onChange={setName}
-                                    value={name}
-                                    onKeyDown={onInputPressKey}
-                                />
+                            {/* Header */}
+                            <div className="p-6 overflow-hidden">
+                                <h2 className="text-2xl font-bold text-center text-gray-800">
+                                    {mode === 'creating' ? '✨ Créer ton groupe' : '🎁 Rejoindre un groupe'}
+                                </h2>
+                                <p className="text-sm text-gray-600 text-center mt-2">
+                                    {mode === 'creating'
+                                        ? 'Commencez une nouvelle liste de cadeaux pour ta famille ou tes amis'
+                                        : 'Connecte-toi à un groupe existant avec ton nom ou prénom'}
+                                </p>
                             </div>
 
-                            {joiningGroup && (
-                                <div className="flex py-4">
-                                    Je veux me connecter comme admin:
-                                    <input
-                                        className="ml-2 cursor-pointer w-6 accent-vertNoel"
-                                        type="checkbox"
-                                        onChange={() => setConnectingAsAdmin((value) => !value)}
+                            {/* Form */}
+                            <div className="p-6 space-y-4">
+                                {formData.error && (
+                                    <ErrorAlert
+                                        message={formData.error}
+                                        onClose={() => setFormData((prev) => ({ ...prev, error: '' }))}
+                                    />
+                                )}
+
+                                <div className="space-y-2">
+                                    <label htmlFor="groupNameInputId" className="block text-sm font-medium text-gray-700">
+                                        Nom du groupe
+                                    </label>
+                                    <CustomInput
+                                        id="groupNameInputId"
+                                        className="w-full"
+                                        onChange={(value) => setFormData((prev) => ({ ...prev, groupName: value }))}
+                                        value={formData.groupName}
+                                        onKeyDown={onInputPressKey}
+                                        autoFocus
+                                        disabled={isLoading}
+                                        placeholder={mode === 'creating' ? 'Ex: Famille Dupont' : 'Entrez le nom du groupe'}
                                     />
                                 </div>
-                            )}
 
-                            {(connectingAsAdmin || creatingGroup) && (
-                                <>
-                                    <div className="input-group">
-                                        <label className="input-label">Mot de passe admin:</label>
-                                        <CustomInput
-                                            id="passwordInputId"
-                                            className="input-field bg-transparent"
-                                            onChange={setPassword}
-                                            value={password}
-                                            onKeyDown={onInputPressKey}
-                                            type="password"
+                                <div className="space-y-2">
+                                    <label htmlFor="nameInputId" className="block text-sm font-medium text-gray-700">
+                                        Nom
+                                    </label>
+                                    <CustomInput
+                                        id="nameInputId"
+                                        className="w-full"
+                                        onChange={(value) => setFormData((prev) => ({ ...prev, name: value }))}
+                                        value={formData.name}
+                                        onKeyDown={onInputPressKey}
+                                        disabled={isLoading}
+                                        placeholder="Ex: Marie"
+                                    />
+                                </div>
+
+                                {mode === 'joining' && (
+                                    <div className="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer">
+                                        <input
+                                            id="adminCheckbox"
+                                            className="cursor-pointer w-5 h-5 accent-vertNoel rounded"
+                                            type="checkbox"
+                                            onChange={() => setConnectingAsAdmin((value) => !value)}
+                                            disabled={isLoading}
                                         />
+                                        <label
+                                            htmlFor="adminCheckbox"
+                                            className="ml-3 text-sm font-medium text-gray-700 cursor-pointer flex-1"
+                                        >
+                                            Je veux me connecter comme admin
+                                        </label>
                                     </div>
-                                </>
-                            )}
-                        </div>
+                                )}
 
-                        <div className="block m-3">
-                            <CustomButton className="p-3 mx-3 green-button" onClick={onValidateButtonClick}>
-                                {"C'est parti!"}
-                            </CustomButton>
+                                {(connectingAsAdmin || mode === 'creating') && (
+                                    <div className="space-y-2">
+                                        <label htmlFor="passwordInputId" className="block text-sm font-medium text-gray-700">
+                                            Mot de passe admin
+                                            {mode === 'creating' && (
+                                                <span className="block text-xs font-normal text-gray-500 mt-0.5">
+                                                    Pour gérer le groupe
+                                                </span>
+                                            )}
+                                        </label>
+                                        <div className="relative">
+                                            <CustomInput
+                                                id="passwordInputId"
+                                                className="w-full pr-10"
+                                                onChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
+                                                value={formData.password}
+                                                onKeyDown={onInputPressKey}
+                                                type={showPassword ? 'text' : 'password'}
+                                                disabled={isLoading}
+                                                placeholder={
+                                                    mode === 'creating' ? 'Choisissez un mot de passe' : 'Mot de passe admin'
+                                                }
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                                                disabled={isLoading}
+                                                tabIndex={-1}
+                                                style={{
+                                                    all: 'unset',
+                                                    position: 'absolute',
+                                                    right: '0.75rem',
+                                                    top: '50%',
+                                                    transform: 'translateY(-50%)',
+                                                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                                                    opacity: isLoading ? 0.5 : 1,
+                                                    fontSize: '1.25rem'
+                                                }}
+                                            >
+                                                {showPassword ? '👁️' : '👁️‍🗨️'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
 
-                            <CustomButton className="p-3 mx-3" onClick={onCancelButtonClick}>
-                                {'En fait, non'}
-                            </CustomButton>
+                            {/* Actions */}
+                            <div className="p-6 bg-gray-50 flex flex-col gap-3">
+                                {mode === 'joining' && (
+                                    <div className="text-sm text-center">
+                                        <Link href="/contact" className="text-rougeNoel hover:underline">
+                                            Nom de groupe, nom ou mot de passe oublié ?
+                                        </Link>
+                                    </div>
+                                )}
+
+                                <CustomButton
+                                    className="flex-1 p-3 green-button"
+                                    onClick={onValidateButtonClick}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? '⏳ Chargement...' : "C'est parti!"}
+                                </CustomButton>
+                            </div>
                         </div>
                     </div>
-                )}
+
+                    {/* Illustration Section - Hidden on mobile */}
+                    <div className="hidden md:block w-1/2">
+                        <div className="relative min-h-[600px]">
+                            <Image src="/login2.jpg" alt="Gift organization illustration" fill className="object-contain" />
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <section className="home-section">
@@ -273,12 +426,33 @@ export default function Index(): JSX.Element {
                     </p>
 
                     <div className="mt-4">
-                        <CustomButton className="green-button p-3 mx-3" onClick={onCreatingButtonClick}>
+                        <CustomButton
+                            className="green-button p-3 mx-3"
+                            onClick={() => handleModeChange('creating')}
+                            disabled={isLoading}
+                        >
                             🚀 Créer mon groupe
                         </CustomButton>
                     </div>
                 </div>
             </section>
+
+            {/* Cookie Banner */}
+            {showCookieBanner && (
+                <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-50">
+                    <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:justify-between gap-3">
+                        <div className="flex-1 text-sm text-gray-700 text-center md:text-left">
+                            <p>
+                                🍪 Ce site n&apos;utilise <strong>aucun cookie de tracking</strong> ni de publicité. Nous
+                                utilisons uniquement le stockage local de votre navigateur pour améliorer votre expérience.
+                            </p>
+                        </div>
+                        <button onClick={handleDismissCookieBanner} aria-label="Fermer le bandeau">
+                            J&apos;ai compris
+                        </button>
+                    </div>
+                </div>
+            )}
         </Layout>
     );
 }
