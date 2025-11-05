@@ -167,7 +167,7 @@ export default function Index(): JSX.Element {
                             <p className="text-sm text-gray-600 text-center mt-2">
                                 {mode === 'creating'
                                     ? 'Commencez une nouvelle liste de cadeaux pour ta famille ou tes amis'
-                                    : 'Connecte-toi à un groupe existant avec son nom'}
+                                    : 'Connecte-toi à un groupe existant avec ton nom ou prénom'}
                             </p>
                         </div>
 
@@ -198,7 +198,7 @@ export default function Index(): JSX.Element {
 
                             <div className="space-y-2">
                                 <label htmlFor="nameInputId" className="block text-sm font-medium text-gray-700">
-                                    Ton nom
+                                    Nom
                                 </label>
                                 <CustomInput
                                     id="nameInputId"
