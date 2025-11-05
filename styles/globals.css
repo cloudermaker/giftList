@@ -199,6 +199,44 @@ button:disabled {
     }
 }
 
+/* Tab change animations */
+@keyframes flip-in {
+    from {
+        opacity: 0;
+        transform: rotateY(90deg);
+    }
+    to {
+        opacity: 1;
+        transform: rotateY(0deg);
+    }
+}
+
+@keyframes flip-in-reverse {
+    from {
+        opacity: 0;
+        transform: rotateY(-90deg);
+    }
+    to {
+        opacity: 1;
+        transform: rotateY(0deg);
+    }
+}
+
+.animate-flip-in {
+    animation: flip-in 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+.animate-flip-in-reverse {
+    animation: flip-in-reverse 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+/* Container for 3D perspective */
+.card-container {
+    perspective: 1000px;
+}
+
 .header {
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
