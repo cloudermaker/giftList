@@ -22,10 +22,6 @@ const STORAGE_KEY_GROUP = 'recentGroupName';
 const STORAGE_KEY_NAME = 'recentUserName';
 const STORAGE_KEY_COOKIE_BANNER = 'cookieBannerDismissed';
 
-// Random image selection
-const LOGIN_IMAGES = ['login.jpg', 'login1.jpg', 'login2.jpg'];
-const getRandomLoginImage = () => LOGIN_IMAGES[Math.floor(Math.random() * LOGIN_IMAGES.length)];
-
 export default function Index(): JSX.Element {
     const { login } = useLogin();
 
@@ -34,7 +30,6 @@ export default function Index(): JSX.Element {
     const [connectingAsAdmin, setConnectingAsAdmin] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [showPassword, setShowPassword] = useState<boolean>(false);
-    const [loginImage] = useState(() => getRandomLoginImage());
     const [showCookieBanner, setShowCookieBanner] = useState(false);
 
     const pageTitle = 'Créez votre liste de cadeaux en ligne gratuitement';
@@ -323,7 +318,7 @@ export default function Index(): JSX.Element {
                     {/* Illustration Section - Hidden on mobile */}
                     <div className="hidden md:block w-1/2">
                         <div className="relative min-h-[600px]">
-                            <Image src={`/${loginImage}`} alt="Gift organization illustration" fill className="object-contain" />
+                            <Image src="/login2.jpg" alt="Gift organization illustration" fill className="object-contain" />
                         </div>
                     </div>
                 </div>
