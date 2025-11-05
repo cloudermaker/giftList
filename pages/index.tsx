@@ -20,6 +20,7 @@ const ERROR_MESSAGES = {
 
 const STORAGE_KEY_GROUP = 'recentGroupName';
 const STORAGE_KEY_NAME = 'recentUserName';
+const STORAGE_KEY_COOKIE_BANNER = 'cookieBannerDismissed';
 
 // Random image selection
 const LOGIN_IMAGES = ['login.jpg', 'login1.jpg', 'login2.jpg'];
@@ -34,6 +35,7 @@ export default function Index(): JSX.Element {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [loginImage] = useState(() => getRandomLoginImage());
+    const [showCookieBanner, setShowCookieBanner] = useState(false);
 
     const pageTitle = 'Créez votre liste de cadeaux en ligne gratuitement';
     const pageDescription =
@@ -107,6 +109,11 @@ export default function Index(): JSX.Element {
         }
     };
 
+    const handleDismissCookieBanner = () => {
+        localStorage.setItem(STORAGE_KEY_COOKIE_BANNER, 'true');
+        setShowCookieBanner(false);
+    };
+
     // Add Ctrl/Cmd + Enter shortcut
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -120,6 +127,14 @@ export default function Index(): JSX.Element {
         return () => window.removeEventListener('keydown', handleKeyDown);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoading]);
+
+    // Check cookie banner status after mount (client-side only)
+    useEffect(() => {
+        const dismissed = localStorage.getItem(STORAGE_KEY_COOKIE_BANNER);
+        if (!dismissed) {
+            setShowCookieBanner(true);
+        }
+    }, []);
 
     return (
         <Layout withHeader={false}>
@@ -426,6 +441,23 @@ export default function Index(): JSX.Element {
                     </div>
                 </div>
             </section>
+
+            {/* Cookie Banner */}
+            {showCookieBanner && (
+                <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-50">
+                    <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:justify-between gap-3">
+                        <div className="flex-1 text-sm text-gray-700 text-center md:text-left">
+                            <p>
+                                🍪 Ce site n&apos;utilise <strong>aucun cookie de tracking</strong> ni de publicité. Nous
+                                utilisons uniquement le stockage local de votre navigateur pour améliorer votre expérience.
+                            </p>
+                        </div>
+                        <button onClick={handleDismissCookieBanner} aria-label="Fermer le bandeau">
+                            J&apos;ai compris
+                        </button>
+                    </div>
+                </div>
+            )}
         </Layout>
     );
 }
