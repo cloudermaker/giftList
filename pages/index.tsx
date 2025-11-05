@@ -1,5 +1,6 @@
 import Router from 'next/router';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Layout } from '../components/layout';
 import { CustomInput } from '../components/atoms/customInput';
@@ -20,6 +21,10 @@ const ERROR_MESSAGES = {
 const STORAGE_KEY_GROUP = 'recentGroupName';
 const STORAGE_KEY_NAME = 'recentUserName';
 
+// Random image selection
+const LOGIN_IMAGES = ['login.jpg', 'login1.jpg', 'login2.jpg'];
+const getRandomLoginImage = () => LOGIN_IMAGES[Math.floor(Math.random() * LOGIN_IMAGES.length)];
+
 export default function Index(): JSX.Element {
     const { login } = useLogin();
 
@@ -28,6 +33,7 @@ export default function Index(): JSX.Element {
     const [connectingAsAdmin, setConnectingAsAdmin] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [loginImage] = useState(() => getRandomLoginImage());
 
     const pageTitle = 'Créez votre liste de cadeaux en ligne gratuitement';
     const pageDescription =
@@ -129,175 +135,180 @@ export default function Index(): JSX.Element {
                 dangerouslySetInnerHTML={generatePageSchema('WebPage', pageTitle, '/', pageDescription)}
             />
 
-            <section className="flex justify-center items-start pt-8 pb-12">
-                <div className="w-full max-w-md px-4 card-container">
-                    <div
-                        key={mode}
-                        className={`bg-white rounded-2xl shadow-xl overflow-hidden ${mode === 'joining' ? 'animate-flip-in' : 'animate-flip-in-reverse'}`}
-                    >
-                        {/* Tabs */}
-                        <div className="flex border-b border-gray-200">
-                            <div
-                                onClick={() => !isLoading && handleModeChange('joining')}
-                                className={`flex-1 px-4 py-3 cursor-pointer transition-all text-center flex items-center justify-center ${
-                                    mode === 'joining'
-                                        ? 'font-semibold text-rougeNoel border-b-2 border-rougeNoel -mb-px'
-                                        : 'font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                                } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            >
-                                Se connecter
-                            </div>
-                            <div
-                                onClick={() => !isLoading && handleModeChange('creating')}
-                                className={`flex-1 px-4 py-3 cursor-pointer transition-all text-center flex items-center justify-center ${
-                                    mode === 'creating'
-                                        ? 'font-semibold text-vertNoel border-b-2 border-vertNoel -mb-px'
-                                        : 'font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                                } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            >
-                                Créer un groupe
-                            </div>
-                        </div>
-
-                        {/* Header */}
-                        <div className="p-6 overflow-hidden">
-                            <h2 className="text-2xl font-bold text-center text-gray-800">
-                                {mode === 'creating' ? '✨ Créer ton groupe' : '🎁 Rejoindre un groupe'}
-                            </h2>
-                            <p className="text-sm text-gray-600 text-center mt-2">
-                                {mode === 'creating'
-                                    ? 'Commencez une nouvelle liste de cadeaux pour ta famille ou tes amis'
-                                    : 'Connecte-toi à un groupe existant avec ton nom ou prénom'}
-                            </p>
-                        </div>
-
-                        {/* Form */}
-                        <div className="p-6 space-y-4">
-                            {formData.error && (
-                                <ErrorAlert
-                                    message={formData.error}
-                                    onClose={() => setFormData((prev) => ({ ...prev, error: '' }))}
-                                />
-                            )}
-
-                            <div className="space-y-2">
-                                <label htmlFor="groupNameInputId" className="block text-sm font-medium text-gray-700">
-                                    Nom du groupe
-                                </label>
-                                <CustomInput
-                                    id="groupNameInputId"
-                                    className="w-full"
-                                    onChange={(value) => setFormData((prev) => ({ ...prev, groupName: value }))}
-                                    value={formData.groupName}
-                                    onKeyDown={onInputPressKey}
-                                    autoFocus
-                                    disabled={isLoading}
-                                    placeholder={mode === 'creating' ? 'Ex: Famille Dupont' : 'Entrez le nom du groupe'}
-                                />
+            <section className="flex justify-center items-start pt-8 pb-12 px-4">
+                <div className="w-full max-w-6xl flex gap-8 items-center">
+                    {/* Form Section */}
+                    <div className="w-full md:w-1/2 card-container">
+                        <div
+                            key={mode}
+                            className={`bg-white rounded-2xl shadow-xl overflow-hidden ${mode === 'joining' ? 'animate-flip-in' : 'animate-flip-in-reverse'}`}
+                        >
+                            {/* Tabs */}
+                            <div className="flex border-b border-gray-200">
+                                <div
+                                    onClick={() => !isLoading && handleModeChange('joining')}
+                                    className={`flex-1 px-4 py-3 cursor-pointer transition-all text-center flex items-center justify-center ${
+                                        mode === 'joining'
+                                            ? 'font-semibold text-rougeNoel border-b-2 border-rougeNoel -mb-px'
+                                            : 'font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                    } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    Se connecter
+                                </div>
+                                <div
+                                    onClick={() => !isLoading && handleModeChange('creating')}
+                                    className={`flex-1 px-4 py-3 cursor-pointer transition-all text-center flex items-center justify-center ${
+                                        mode === 'creating'
+                                            ? 'font-semibold text-vertNoel border-b-2 border-vertNoel -mb-px'
+                                            : 'font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                    } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    Créer un groupe
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label htmlFor="nameInputId" className="block text-sm font-medium text-gray-700">
-                                    Nom
-                                </label>
-                                <CustomInput
-                                    id="nameInputId"
-                                    className="w-full"
-                                    onChange={(value) => setFormData((prev) => ({ ...prev, name: value }))}
-                                    value={formData.name}
-                                    onKeyDown={onInputPressKey}
-                                    disabled={isLoading}
-                                    placeholder="Ex: Marie"
-                                />
+                            {/* Header */}
+                            <div className="p-6 overflow-hidden">
+                                <h2 className="text-2xl font-bold text-center text-gray-800">
+                                    {mode === 'creating' ? '✨ Créer ton groupe' : '🎁 Rejoindre un groupe'}
+                                </h2>
+                                <p className="text-sm text-gray-600 text-center mt-2">
+                                    {mode === 'creating'
+                                        ? 'Commencez une nouvelle liste de cadeaux pour ta famille ou tes amis'
+                                        : 'Connecte-toi à un groupe existant avec ton nom ou prénom'}
+                                </p>
                             </div>
 
-                            {mode === 'joining' && (
-                                <div className="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer">
-                                    <input
-                                        id="adminCheckbox"
-                                        className="cursor-pointer w-5 h-5 accent-vertNoel rounded"
-                                        type="checkbox"
-                                        onChange={() => setConnectingAsAdmin((value) => !value)}
-                                        disabled={isLoading}
+                            {/* Form */}
+                            <div className="p-6 space-y-4">
+                                {formData.error && (
+                                    <ErrorAlert
+                                        message={formData.error}
+                                        onClose={() => setFormData((prev) => ({ ...prev, error: '' }))}
                                     />
-                                    <label
-                                        htmlFor="adminCheckbox"
-                                        className="ml-3 text-sm font-medium text-gray-700 cursor-pointer flex-1"
-                                    >
-                                        Je veux me connecter comme admin
-                                    </label>
-                                </div>
-                            )}
+                                )}
 
-                            {(connectingAsAdmin || mode === 'creating') && (
                                 <div className="space-y-2">
-                                    <label
-                                        htmlFor="passwordInputId"
-                                        className="block text-sm font-medium text-gray-700 flex items-center gap-2"
-                                    >
-                                        Mot de passe admin
-                                        {mode === 'creating' && (
-                                            <span
-                                                className="text-gray-400 hover:text-gray-600 cursor-help"
-                                                title="Le mot de passe admin permet de gérer le groupe et d'ajouter/supprimer des membres"
-                                            >
-                                                ℹ️
-                                            </span>
-                                        )}
+                                    <label htmlFor="groupNameInputId" className="block text-sm font-medium text-gray-700">
+                                        Nom du groupe
                                     </label>
-                                    <div className="relative">
-                                        <CustomInput
-                                            id="passwordInputId"
-                                            className="w-full pr-10"
-                                            onChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
-                                            value={formData.password}
-                                            onKeyDown={onInputPressKey}
-                                            type={showPassword ? 'text' : 'password'}
-                                            disabled={isLoading}
-                                            placeholder={
-                                                mode === 'creating' ? 'Choisissez un mot de passe' : 'Mot de passe admin'
-                                            }
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
-                                            disabled={isLoading}
-                                            tabIndex={-1}
-                                            style={{
-                                                all: 'unset',
-                                                position: 'absolute',
-                                                right: '0.75rem',
-                                                top: '50%',
-                                                transform: 'translateY(-50%)',
-                                                cursor: isLoading ? 'not-allowed' : 'pointer',
-                                                opacity: isLoading ? 0.5 : 1,
-                                                fontSize: '1.25rem'
-                                            }}
-                                        >
-                                            {showPassword ? '👁️' : '👁️‍🗨️'}
-                                        </button>
-                                    </div>
-                                    {connectingAsAdmin && (
-                                        <div className="text-sm">
-                                            <Link href="/contact" className="text-rougeNoel hover:underline">
-                                                Mot de passe oublié ?
-                                            </Link>
-                                        </div>
-                                    )}
+                                    <CustomInput
+                                        id="groupNameInputId"
+                                        className="w-full"
+                                        onChange={(value) => setFormData((prev) => ({ ...prev, groupName: value }))}
+                                        value={formData.groupName}
+                                        onKeyDown={onInputPressKey}
+                                        autoFocus
+                                        disabled={isLoading}
+                                        placeholder={mode === 'creating' ? 'Ex: Famille Dupont' : 'Entrez le nom du groupe'}
+                                    />
                                 </div>
-                            )}
-                        </div>
 
-                        {/* Actions */}
-                        <div className="p-6 bg-gray-50 flex gap-3">
-                            <CustomButton
-                                className="flex-1 p-3 green-button"
-                                onClick={onValidateButtonClick}
-                                disabled={isLoading}
-                            >
-                                {isLoading ? '⏳ Chargement...' : "C'est parti!"}
-                            </CustomButton>
+                                <div className="space-y-2">
+                                    <label htmlFor="nameInputId" className="block text-sm font-medium text-gray-700">
+                                        Nom
+                                    </label>
+                                    <CustomInput
+                                        id="nameInputId"
+                                        className="w-full"
+                                        onChange={(value) => setFormData((prev) => ({ ...prev, name: value }))}
+                                        value={formData.name}
+                                        onKeyDown={onInputPressKey}
+                                        disabled={isLoading}
+                                        placeholder="Ex: Marie"
+                                    />
+                                </div>
+
+                                {mode === 'joining' && (
+                                    <div className="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer">
+                                        <input
+                                            id="adminCheckbox"
+                                            className="cursor-pointer w-5 h-5 accent-vertNoel rounded"
+                                            type="checkbox"
+                                            onChange={() => setConnectingAsAdmin((value) => !value)}
+                                            disabled={isLoading}
+                                        />
+                                        <label
+                                            htmlFor="adminCheckbox"
+                                            className="ml-3 text-sm font-medium text-gray-700 cursor-pointer flex-1"
+                                        >
+                                            Je veux me connecter comme admin
+                                        </label>
+                                    </div>
+                                )}
+
+                                {(connectingAsAdmin || mode === 'creating') && (
+                                    <div className="space-y-2">
+                                        <label htmlFor="passwordInputId" className="block text-sm font-medium text-gray-700">
+                                            Mot de passe admin
+                                            {mode === 'creating' && (
+                                                <span className="block text-xs font-normal text-gray-500 mt-0.5">
+                                                    Pour gérer le groupe
+                                                </span>
+                                            )}
+                                        </label>
+                                        <div className="relative">
+                                            <CustomInput
+                                                id="passwordInputId"
+                                                className="w-full pr-10"
+                                                onChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
+                                                value={formData.password}
+                                                onKeyDown={onInputPressKey}
+                                                type={showPassword ? 'text' : 'password'}
+                                                disabled={isLoading}
+                                                placeholder={
+                                                    mode === 'creating' ? 'Choisissez un mot de passe' : 'Mot de passe admin'
+                                                }
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                                                disabled={isLoading}
+                                                tabIndex={-1}
+                                                style={{
+                                                    all: 'unset',
+                                                    position: 'absolute',
+                                                    right: '0.75rem',
+                                                    top: '50%',
+                                                    transform: 'translateY(-50%)',
+                                                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                                                    opacity: isLoading ? 0.5 : 1,
+                                                    fontSize: '1.25rem'
+                                                }}
+                                            >
+                                                {showPassword ? '👁️' : '👁️‍🗨️'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Actions */}
+                            <div className="p-6 bg-gray-50 flex flex-col gap-3">
+                                {mode === 'joining' && (
+                                    <div className="text-sm text-center">
+                                        <Link href="/contact" className="text-rougeNoel hover:underline">
+                                            Nom de groupe, nom ou mot de passe oublié ?
+                                        </Link>
+                                    </div>
+                                )}
+
+                                <CustomButton
+                                    className="flex-1 p-3 green-button"
+                                    onClick={onValidateButtonClick}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? '⏳ Chargement...' : "C'est parti!"}
+                                </CustomButton>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Illustration Section - Hidden on mobile */}
+                    <div className="hidden md:block w-1/2">
+                        <div className="relative min-h-[600px]">
+                            <Image src={`/${loginImage}`} alt="Gift organization illustration" fill className="object-contain" />
                         </div>
                     </div>
                 </div>
