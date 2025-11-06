@@ -152,16 +152,47 @@ export default function Contact(): JSX.Element {
                 )}
 
                 {isSubmitted && (
-                    <div className="text-center py-4">
-                        <p>Ton message a bien été envoyé!</p>
-                        <span className="step-emoji mb-0" role="img" aria-label="secret">
-                            🫡
-                        </span>
-                        <p>Nous te répondrons dés que possible.</p>
+                    <div className="text-center py-8">
+                        {/* Success Icon with Animation */}
+                        <div className="mb-6 relative inline-block">
+                            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <div className="absolute -top-2 -right-2 text-4xl animate-pulse">✨</div>
+                        </div>
 
-                        <CustomButton className="green-button mt-8" onClick={() => Router.push(connectedUser ? '/home' : '/')}>
-                            Revenir à la page principale
-                        </CustomButton>
+                        {/* Success Message */}
+                        <h3 className="text-2xl font-bold text-gray-800 mb-3">Message envoyé avec succès ! 🎉</h3>
+
+                        <div className="max-w-md mx-auto mb-6">
+                            <p className="text-gray-600 mb-2">Merci pour ton message ! Notre équipe l&apos;a bien reçu.</p>
+                            <p className="text-gray-600">
+                                Nous te répondrons dans les plus brefs délais à l&apos;adresse <strong>{email}</strong>
+                            </p>
+                        </div>
+
+                        {/* Info Box */}
+                        <div className="max-w-md mx-auto mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <p className="text-sm text-blue-800 flex items-center justify-center gap-2">
+                                <span className="text-xl">💡</span>
+                                <span>Délai de réponse habituel : 24-48h</span>
+                            </p>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                            <CustomButton
+                                className="green-button px-6 py-3"
+                                onClick={() => Router.push(connectedUser ? '/home' : '/')}
+                            >
+                                🏠 Revenir à l&apos;accueil
+                            </CustomButton>
+                            <CustomButton className="px-6 py-3" onClick={() => setIsSubmitted(false)}>
+                                ✉️ Envoyer un autre message
+                            </CustomButton>
+                        </div>
                     </div>
                 )}
             </div>

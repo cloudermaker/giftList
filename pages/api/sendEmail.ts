@@ -23,8 +23,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 port: 587,
                 secure: false, // true pour 465, false pour autres ports
                 auth: {
-                    user: 'MS_OmUM8f@malistedecadeaux.fr',
-                    pass: 'mssp.ldLJpsE.3z0vklo37y1l7qrx.FgvAXVH'
+                    user: process.env.MAILERSEND_SMTP_USERNAME || '',
+                    pass: process.env.MAILERSEND_SMTP_PASSWORD || ''
                 }
             });
 
