@@ -15,6 +15,7 @@ export default function Contact(): JSX.Element {
     const [message, setMessage] = useState<string>();
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [hasError, setHasError] = useState<boolean>(false);
     const { connectedUser } = useCurrentUser();
 
     // Define contact schema data
@@ -41,6 +42,7 @@ export default function Contact(): JSX.Element {
 
     const onSubmit = async (): Promise<void> => {
         setIsLoading(true);
+        setHasError(false);
         try {
             const response = await AxiosWrapper.post('/api/sendEmail', {
                 senderEmail: email,
@@ -50,24 +52,12 @@ export default function Contact(): JSX.Element {
             const data = response?.data as TSendEmailResult;
 
             if (data?.success) {
-                Swal.fire({
-                    title: 'Envoyé !',
-                    icon: 'success'
-                });
                 setIsSubmitted(true);
             } else {
-                Swal.fire({
-                    title: 'Erreur technique',
-                    icon: 'error',
-                    html: `Mince, ça n'a pas fonctionné.<br/><br/>Tu peux réessayer ou nous contacter directement à l'adresse <b>malistedecadeaux.contact@gmail.com</b>.`
-                });
+                setHasError(true);
             }
         } catch (error) {
-            Swal.fire({
-                title: 'Erreur technique',
-                icon: 'error',
-                html: `Mince, ça n'a pas fonctionné.<br/><br/>Tu peux réessayer ou nous contacter directement à l'adresse <b>malistedecadeaux.contact@gmail.com</b>.`
-            });
+            setHasError(true);
         } finally {
             setIsLoading(false);
         }
@@ -82,53 +72,52 @@ export default function Contact(): JSX.Element {
             />
             <script type="application/ld+json" dangerouslySetInnerHTML={contactSchemaData} />
 
-            <div className="home-section my-8 item w-full md:w-2/3 lg:w-1/2">
+            <div className="home-section my-8 item w-full md:w-2/3 lg:w-1/2 relative overflow-hidden">
+                {/* Decorative background elements */}
+                <div className="absolute -top-4 -left-4 w-20 h-20 bg-vertNoel/10 rounded-full blur-2xl"></div>
+                <div className="absolute -top-4 -right-4 w-20 h-20 bg-rougeNoel/10 rounded-full blur-2xl"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-vertNoel/20 to-transparent rounded-bl-full"></div>
+
                 {/* Header Section */}
-                <div className="text-center mb-10">
-                    <div className="flex items-center justify-center gap-3 mb-4">
-                        <QuestionMarkIcon className="-rotate-12 w-10 h-10 fill-vertNoel animate-pulse" />
-                        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-vertNoel to-green-600 bg-clip-text text-transparent">
+                <div className="text-center mb-10 relative">
+                    <div className="flex items-center justify-center gap-3 mb-4 relative">
+                        <QuestionMarkIcon className="-rotate-12 w-10 h-10 fill-vertNoel" />
+                        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-vertNoel via-green-500 to-rougeNoel bg-clip-text text-transparent">
                             Contactez-nous
                         </h1>
-                        <QuestionMarkIcon className="rotate-12 w-10 h-10 fill-rougeNoel animate-pulse" />
+                        <QuestionMarkIcon className="rotate-12 w-10 h-10 fill-rougeNoel" />
                     </div>
-                    <p className="text-gray-600 text-sm md:text-base max-w-lg mx-auto">
+                    <p className="text-gray-700 text-sm md:text-base max-w-lg mx-auto font-medium">
                         Une question, une suggestion ou besoin d&apos;aide ? <br className="hidden sm:block" />
                         Notre équipe est là pour vous répondre ! 💌
                     </p>
                 </div>
 
-                {!isSubmitted && (
+                {!isSubmitted && !hasError && (
                     <form
                         onSubmit={(e) => {
                             e.preventDefault();
                             onSubmit();
                         }}
-                        className="space-y-6"
+                        className="space-y-6 relative"
                     >
-                        <div className="text-center mb-6">
-                            <p className="text-gray-600 text-sm md:text-base">
-                                💬 Vous avez besoin d&apos;aide ? Des idées d&apos;amélioration du site ?
-                            </p>
-                            <p className="text-gray-500 text-xs mt-2">Nous vous répondrons dans les plus brefs délais !</p>
+                        <div className="text-center mb-6 relative">
+                            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-vertNoel/10 to-green-100 px-4 py-2 rounded-full">
+                                <span className="text-2xl">💬</span>
+                                <p className="text-gray-700 text-sm md:text-base font-medium">On est là pour vous aider !</p>
+                            </div>
+                            <p className="text-gray-500 text-xs mt-3">Réponse garantie sous 24-48h</p>
                         </div>
 
                         {/* Email field */}
-                        <div className="space-y-2">
+                        <div className="space-y-2 relative">
                             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700" htmlFor="email">
-                                <svg className="w-5 h-5 text-vertNoel" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                                    />
-                                </svg>
+                                <span className="text-lg">📧</span>
                                 Votre email
                             </label>
                             <input
                                 id="email"
-                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-vertNoel focus:ring-2 focus:ring-vertNoel/20 transition-all duration-200 outline-none"
+                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-vertNoel focus:ring-2 focus:ring-vertNoel/20 transition-all duration-200 outline-none bg-white hover:border-gray-300"
                                 type="email"
                                 placeholder="votre.email@exemple.com"
                                 onChange={(e) => setEmail(e.target.value)}
@@ -140,21 +129,14 @@ export default function Contact(): JSX.Element {
                         </div>
 
                         {/* Subject field */}
-                        <div className="space-y-2">
+                        <div className="space-y-2 relative">
                             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700" htmlFor="subject">
-                                <svg className="w-5 h-5 text-vertNoel" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                                    />
-                                </svg>
+                                <span className="text-lg">🏷️</span>
                                 Sujet
                             </label>
                             <select
                                 id="subject"
-                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-vertNoel focus:ring-2 focus:ring-vertNoel/20 transition-all duration-200 outline-none bg-white"
+                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-vertNoel focus:ring-2 focus:ring-vertNoel/20 transition-all duration-200 outline-none bg-white hover:border-gray-300"
                                 onChange={(e) => setSubject(e.target.value)}
                                 value={subject}
                                 name="subject"
@@ -171,21 +153,14 @@ export default function Contact(): JSX.Element {
                         </div>
 
                         {/* Message field */}
-                        <div className="space-y-2">
+                        <div className="space-y-2 relative">
                             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700" htmlFor="message">
-                                <svg className="w-5 h-5 text-vertNoel" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                                    />
-                                </svg>
+                                <span className="text-lg">💬</span>
                                 Votre message
                             </label>
                             <textarea
                                 id="message"
-                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-vertNoel focus:ring-2 focus:ring-vertNoel/20 transition-all duration-200 outline-none resize-none"
+                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-vertNoel focus:ring-2 focus:ring-vertNoel/20 transition-all duration-200 outline-none resize-none bg-white hover:border-gray-300"
                                 onChange={(e) => setMessage(e.target.value)}
                                 placeholder="Décrivez votre demande en détail..."
                                 value={message}
@@ -206,36 +181,9 @@ export default function Contact(): JSX.Element {
                                 className="green-button disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isLoading ? (
-                                    <span className="flex items-center gap-2">
-                                        <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                                            <circle
-                                                className="opacity-25"
-                                                cx="12"
-                                                cy="12"
-                                                r="10"
-                                                stroke="currentColor"
-                                                strokeWidth="4"
-                                            ></circle>
-                                            <path
-                                                className="opacity-75"
-                                                fill="currentColor"
-                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                            ></path>
-                                        </svg>
-                                        Envoi...
-                                    </span>
+                                    <span className="flex items-center gap-2">⏳ Envoi...</span>
                                 ) : (
-                                    <span className="flex items-center gap-1">
-                                        Envoyer
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                                            />
-                                        </svg>
-                                    </span>
+                                    <span className="flex items-center gap-1">Envoyer ✈️</span>
                                 )}
                             </button>
                             <CustomButton type="button" onClick={() => Router.push('/')} disabled={isLoading}>
@@ -249,11 +197,7 @@ export default function Contact(): JSX.Element {
                     <div className="text-center py-8">
                         {/* Success Icon with Animation */}
                         <div className="mb-6 relative inline-block">
-                            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg animate-bounce">
-                                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                </svg>
-                            </div>
+                            <div className="text-8xl animate-bounce">✅</div>
                             <div className="absolute -top-2 -right-2 text-4xl animate-pulse">✨</div>
                         </div>
 
@@ -285,6 +229,53 @@ export default function Contact(): JSX.Element {
                             </CustomButton>
                             <CustomButton className="px-6 py-3" onClick={() => setIsSubmitted(false)}>
                                 ✉️ Envoyer un autre message
+                            </CustomButton>
+                        </div>
+                    </div>
+                )}
+
+                {hasError && (
+                    <div className="text-center py-8">
+                        {/* Error Icon with Animation */}
+                        <div className="mb-6 relative inline-block">
+                            <div className="text-8xl">❌</div>
+                        </div>
+
+                        {/* Error Message */}
+                        <h3 className="text-2xl font-bold text-gray-800 mb-3">Oups, une erreur est survenue 😕</h3>
+
+                        <div className="max-w-md mx-auto mb-6">
+                            <p className="text-gray-600 mb-4">
+                                Mince, ça n&apos;a pas fonctionné. Le message n&apos;a pas pu être envoyé.
+                            </p>
+                        </div>
+
+                        {/* Info Box */}
+                        <div className="max-w-md mx-auto mb-8 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                            <p className="text-sm text-orange-800 flex items-center justify-center gap-2 mb-2">
+                                <span className="text-xl">💡</span>
+                                <span className="font-semibold">Tu peux :</span>
+                            </p>
+                            <ul className="text-sm text-orange-800 text-left space-y-1">
+                                <li>• Réessayer en cliquant sur le bouton ci-dessous</li>
+                                <li>
+                                    • Nous contacter directement à <strong>contact@malistedecadeaux.fr</strong>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                            <CustomButton
+                                className="green-button px-6 py-3"
+                                onClick={() => {
+                                    setHasError(false);
+                                }}
+                            >
+                                🔄 Réessayer
+                            </CustomButton>
+                            <CustomButton className="px-6 py-3" onClick={() => Router.push(connectedUser ? '/home' : '/')}>
+                                🏠 Retour à l&apos;accueil
                             </CustomButton>
                         </div>
                     </div>
