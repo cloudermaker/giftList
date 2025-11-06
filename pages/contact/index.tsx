@@ -11,6 +11,7 @@ import SEO from '@/components/SEO';
 
 export default function Contact(): JSX.Element {
     const [email, setEmail] = useState<string>();
+    const [subject, setSubject] = useState<string>('');
     const [message, setMessage] = useState<string>();
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
     const { connectedUser } = useCurrentUser();
@@ -40,7 +41,7 @@ export default function Contact(): JSX.Element {
     const onSubmit = async (): Promise<void> => {
         const response = await AxiosWrapper.post('/api/sendEmail', {
             senderEmail: email,
-            subject: 'Message de contact',
+            subject: subject || 'Message de contact',
             message: message
         });
         const data = response?.data as TSendEmailResult;
@@ -103,6 +104,28 @@ export default function Contact(): JSX.Element {
                                 required
                             />
                         </div>
+
+                        <div className="input-group">
+                            <label className="input-label" htmlFor="subject">
+                                Sujet:
+                            </label>
+                            <select
+                                id="subject"
+                                className="input-field"
+                                onChange={(e) => setSubject(e.target.value)}
+                                value={subject}
+                                name="subject"
+                                required
+                            >
+                                <option value="">-- Sélectionnez un sujet --</option>
+                                <option value="🔑 Mot de passe oublié">🔑 Mot de passe oublié</option>
+                                <option value="🐛 Signaler un problème">🐛 Signaler un problème</option>
+                                <option value="💡 Suggestion d'amélioration">💡 Suggestion d&apos;amélioration</option>
+                                <option value="❓ Question générale">❓ Question générale</option>
+                                <option value="📧 Autre demande">📧 Autre demande</option>
+                            </select>
+                        </div>
+
                         <div className="input-group">
                             <label className="input-label" htmlFor="message">
                                 Votre message:
