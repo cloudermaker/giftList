@@ -133,13 +133,7 @@ export default function Index(): JSX.Element {
 
     return (
         <Layout withHeader={false}>
-            <SEO
-                title={pageTitle}
-                description={pageDescription}
-                keywords="liste de cadeaux,famille,groupe,cadeaux,gratuit,anniversaire,noël,mariage,naissance,secret"
-                canonicalPath="/"
-                ogImage="/BG_1.png"
-            />
+            <SEO title={pageTitle} description={pageDescription} canonicalPath="/" ogImage="/og-image-home.jpg" />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={generatePageSchema('WebPage', pageTitle, '/', pageDescription)}
@@ -216,7 +210,7 @@ export default function Index(): JSX.Element {
 
                                 <div className="space-y-2">
                                     <label htmlFor="nameInputId" className="block text-sm font-medium text-gray-700">
-                                        Nom
+                                        Prénom
                                     </label>
                                     <CustomInput
                                         id="nameInputId"
@@ -324,13 +318,153 @@ export default function Index(): JSX.Element {
                 </div>
             </section>
 
+            {/* Pourquoi choisir Ma liste de cadeaux */}
             <section className="home-section">
-                <h2 className="font-bold">🎉 Créez votre liste de cadeaux en ligne gratuitement</h2>
+                <h2 className="font-bold">✅ Pourquoi choisir Ma liste de cadeaux ?</h2>
 
                 <p>
-                    Organisez vos échanges de cadeaux en famille ou entre amis - Simple, secret et efficace pour Noël,
-                    anniversaires et toutes vos fêtes !
+                    Organisez vos échanges de cadeaux en famille ou entre amis -<strong> Simple, secret et efficace</strong> pour
+                    Noël, anniversaires et toutes vos fêtes !
                 </p>
+
+                <div className="flex flex-wrap justify-center gap-4 md:gap-8 mt-4 mb-6 text-sm md:text-base">
+                    <div className="flex items-center gap-2">
+                        <span>💰</span>
+                        <span>
+                            <strong>100%</strong> gratuit
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span>🚀</span>
+                        <span>
+                            <strong>1 000+</strong> familles
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span>🔒</span>
+                        <span>Zéro tracking</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span>⚡</span>
+                        <span>
+                            Prêt en <strong>2 min</strong>
+                        </span>
+                    </div>
+                </div>
+
+                <div className="item">
+                    <ul className="space-y-3 text-left">
+                        <li className="flex items-start gap-3">
+                            <span className="text-green-500 font-bold text-xl">✓</span>
+                            <span>
+                                <strong>100% gratuit</strong>
+                                {" - Aucun frais caché, pas d'abonnement"}
+                            </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <span className="text-green-500 font-bold text-xl">✓</span>
+                            <span>
+                                <strong>Sans inscription compliquée</strong>
+                                {" - Pas besoin d'email, juste un nom de groupe et votre prénom"}
+                            </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <span className="text-green-500 font-bold text-xl">✓</span>
+                            <span>
+                                <strong>Gestion secrète</strong> - Les cadeaux réservés restent cachés du destinataire
+                            </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <span className="text-green-500 font-bold text-xl">✓</span>
+                            <span>
+                                <strong>Multi-événements</strong> - Une seule liste pour tous les membres de votre groupe familial
+                            </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <span className="text-green-500 font-bold text-xl">✓</span>
+                            <span>
+                                <strong>Accessible partout</strong> - Sur mobile, tablette ou ordinateur
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div className="mt-6">
+                    <CustomButton
+                        className="green-button p-3"
+                        onClick={() => {
+                            const formSection = document.querySelector('.card-container');
+                            formSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            handleModeChange('creating');
+                        }}
+                    >
+                        🎁 Créer ma liste maintenant
+                    </CustomButton>
+                </div>
+            </section>
+
+            {/* SEO-optimized content section */}
+            <section className="home-section">
+                <h2 className="font-bold text-center text-2xl md:text-3xl mb-6">
+                    🎁 La solution idéale pour vos listes de cadeaux en famille
+                </h2>
+
+                <div className="grid md:grid-cols-3 gap-6 my-6">
+                    <div className="item bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                        <div className="text-4xl mb-3">🎄</div>
+                        <h3 className="text-lg font-semibold text-vertNoel mb-2">Pour Noël</h3>
+                        <p className="text-gray-600 text-sm">
+                            Organisez vos échanges de cadeaux de Noël en famille sans stress. Chacun indique ses envies et peut
+                            réserver secrètement les cadeaux des autres.
+                        </p>
+                    </div>
+
+                    <div className="item bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                        <div className="text-4xl mb-3">🎂</div>
+                        <h3 className="text-lg font-semibold text-rougeNoel mb-2">Pour les anniversaires</h3>
+                        <p className="text-gray-600 text-sm">
+                            {
+                                "Créez une liste d'anniversaire pour ne plus jamais recevoir de doublons. Vos proches savent exactement quoi offrir !"
+                            }
+                        </p>
+                    </div>
+
+                    <div className="item bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                        <div className="text-4xl mb-3">💝</div>
+                        <h3 className="text-lg font-semibold text-vertNoel mb-2">Toutes occasions</h3>
+                        <p className="text-gray-600 text-sm">
+                            {
+                                "Mariage, naissance, fête des mères... Notre outil s'adapte à toutes vos célébrations et événements spéciaux."
+                            }
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* Testimonials Section */}
+            <section className="home-section">
+                <h2 className="font-bold">💬 Ils ont simplifié leurs cadeaux avec nous</h2>
+
+                <div className="item">
+                    <div className="space-y-3">
+                        <p className="text-sm italic" style={{ color: '#666' }}>
+                            &quot;Fini les doublons et les cadeaux ratés ! On utilise Ma liste de cadeaux depuis 2 ans.&quot; -
+                            Marie, Lyon
+                        </p>
+                        <p className="text-sm italic" style={{ color: '#666' }}>
+                            &quot;Mon oncle Jean m&apos;a enfin offert autre chose que des chaussettes ! 🧦😂&quot; - Thomas,
+                            Paris
+                        </p>
+                        <p className="text-sm italic" style={{ color: '#666' }}>
+                            &quot;Plus besoin de faire semblant d&apos;être surprise avec le 3ème grille-pain... Merci !&quot; -
+                            Sophie, Bordeaux
+                        </p>
+                        <p className="text-sm italic" style={{ color: '#666' }}>
+                            &quot;Ma belle-mère sait enfin ce qui me fait plaisir. Un miracle de Noël ! 🎅&quot; - Antoine,
+                            Marseille
+                        </p>
+                    </div>
+                </div>
             </section>
 
             <section className="home-section" id="comment-ca-marche">
@@ -340,7 +474,6 @@ export default function Index(): JSX.Element {
                     </span>
                     Comment organiser vos listes de cadeaux ?
                 </h2>
-                <p>Pour créer votre liste de cadeaux en ligne, rien de plus simple :</p>
 
                 <div className="flex flex-col md:flex-row justify-around items-center mt-4">
                     <div className="item md:m-4">
