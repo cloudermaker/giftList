@@ -445,24 +445,30 @@ export default function Index(): JSX.Element {
             <section className="home-section">
                 <h2 className="font-bold">💬 Ils ont simplifié leurs cadeaux avec nous</h2>
 
-                <div className="item">
-                    <div className="space-y-3">
-                        <p className="text-sm italic" style={{ color: '#666' }}>
-                            &quot;Fini les doublons et les cadeaux ratés ! On utilise Ma liste de cadeaux depuis 2 ans.&quot; -
-                            Marie, Lyon
+                <div className="grid md:grid-cols-2 gap-4 mt-6">
+                    <div className="item bg-green-50 border-l-4 border-vertNoel p-4">
+                        <p className="italic" style={{ color: '#333' }}>
+                            &quot;Fini les doublons et les cadeaux ratés ! On utilise Ma liste de cadeaux depuis 2 ans.&quot;
                         </p>
-                        <p className="text-sm italic" style={{ color: '#666' }}>
-                            &quot;Mon oncle Jean m&apos;a enfin offert autre chose que des chaussettes ! 🧦😂&quot; - Thomas,
-                            Paris
+                        <p className="text-sm mt-2 font-semibold text-vertNoel">— Marie, Lyon</p>
+                    </div>
+                    <div className="item bg-red-50 border-l-4 border-rougeNoel p-4">
+                        <p className="italic" style={{ color: '#333' }}>
+                            &quot;Mon oncle Jean m&apos;a enfin offert autre chose que des chaussettes ! 🧦😂&quot;
                         </p>
-                        <p className="text-sm italic" style={{ color: '#666' }}>
-                            &quot;Plus besoin de faire semblant d&apos;être surprise avec le 3ème grille-pain... Merci !&quot; -
-                            Sophie, Bordeaux
+                        <p className="text-sm mt-2 font-semibold text-rougeNoel">— Thomas, Paris</p>
+                    </div>
+                    <div className="item bg-green-50 border-l-4 border-vertNoel p-4">
+                        <p className="italic" style={{ color: '#333' }}>
+                            &quot;Plus besoin de faire semblant d&apos;être surprise avec le 3ème grille-pain... Merci !&quot;
                         </p>
-                        <p className="text-sm italic" style={{ color: '#666' }}>
-                            &quot;Ma belle-mère sait enfin ce qui me fait plaisir. Un miracle de Noël ! 🎅&quot; - Antoine,
-                            Marseille
+                        <p className="text-sm mt-2 font-semibold text-vertNoel">— Sophie, Bordeaux</p>
+                    </div>
+                    <div className="item bg-red-50 border-l-4 border-rougeNoel p-4">
+                        <p className="italic" style={{ color: '#333' }}>
+                            &quot;Ma belle-mère sait enfin ce qui me fait plaisir. Un miracle de Noël ! 🎅&quot;
                         </p>
+                        <p className="text-sm mt-2 font-semibold text-rougeNoel">— Antoine, Marseille</p>
                     </div>
                 </div>
             </section>
