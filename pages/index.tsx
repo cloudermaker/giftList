@@ -327,28 +327,34 @@ export default function Index(): JSX.Element {
                     Noël, anniversaires et toutes vos fêtes !
                 </p>
 
-                <div className="flex flex-wrap justify-center gap-4 md:gap-8 mt-4 mb-6 text-sm md:text-base">
-                    <div className="flex items-center gap-2">
-                        <span>💰</span>
-                        <span>
-                            <strong>100%</strong> gratuit
-                        </span>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 mb-6">
+                    <div className="item bg-white p-3 rounded-lg border border-gray-200 text-center">
+                        <div className="text-2xl mb-1">💰</div>
+                        <div className="text-sm">
+                            <strong className="block">100%</strong>
+                            <span className="text-gray-600">gratuit</span>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span>🚀</span>
-                        <span>
-                            <strong>1 000+</strong> familles
-                        </span>
+                    <div className="item bg-white p-3 rounded-lg border border-gray-200 text-center">
+                        <div className="text-2xl mb-1">🚀</div>
+                        <div className="text-sm">
+                            <strong className="block">1 000+</strong>
+                            <span className="text-gray-600">familles</span>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span>🔒</span>
-                        <span>Zéro tracking</span>
+                    <div className="item bg-white p-3 rounded-lg border border-gray-200 text-center">
+                        <div className="text-2xl mb-1">🔒</div>
+                        <div className="text-sm">
+                            <strong className="block">Zéro</strong>
+                            <span className="text-gray-600">tracking</span>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span>⚡</span>
-                        <span>
-                            Prêt en <strong>2 min</strong>
-                        </span>
+                    <div className="item bg-white p-3 rounded-lg border border-gray-200 text-center">
+                        <div className="text-2xl mb-1">⚡</div>
+                        <div className="text-sm">
+                            <strong className="block">2 min</strong>
+                            <span className="text-gray-600">chrono</span>
+                        </div>
                     </div>
                 </div>
 
