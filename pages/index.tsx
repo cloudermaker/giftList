@@ -15,6 +15,7 @@ const ERROR_MESSAGES = {
     NO_GROUP: 'Il faut rentrer un groupe.',
     NO_NAME: 'Il faut rentrer un nom.',
     NO_PASSWORD: 'Il faut rentrer un mot de passe.',
+    NO_EMOJI_IN_GROUP: 'Les emojis ne sont pas autorisés dans le nom du groupe.',
     GENERIC: 'Erreur'
 } as const;
 
@@ -73,6 +74,16 @@ export default function Index(): JSX.Element {
                 setFormData((prev) => ({ ...prev, error: ERROR_MESSAGES.NO_GROUP }));
                 return;
             }
+
+            // Check for emojis in group name when creating
+            if (mode === 'creating') {
+                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+                if (emojiRegex.test(formData.groupName)) {
+                    setFormData((prev) => ({ ...prev, error: ERROR_MESSAGES.NO_EMOJI_IN_GROUP }));
+                    return;
+                }
+            }
+
             if (!formData.name) {
                 setFormData((prev) => ({ ...prev, error: ERROR_MESSAGES.NO_NAME }));
                 return;
