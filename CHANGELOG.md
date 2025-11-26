@@ -12,6 +12,10 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 - Séparation visuelle entre "Cadeaux réservés" et "Mes cadeaux personnels"
 - Sélection multiple de cadeaux avec suppression groupée
 - Validation pour empêcher les emojis dans les noms de groupe
+- Page changelog dynamique affichant l'historique des versions
+- Documentation complète du projet dans le dossier .rules/ (overview, conventions, patterns, database)
+- Liens vers la page changelog depuis le footer
+- Intégration Vercel Analytics pour le suivi des statistiques
 
 ### Modifié
 
