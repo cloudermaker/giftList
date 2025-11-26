@@ -90,7 +90,7 @@ export const upsertGift = async (gift: Gift): Promise<Gift> => {
 
     var user = await prisma.gift.upsert({
         where: {
-            id: gift.id
+            id: gift.id ?? 'new-gift-placeholder'
         },
         create: { ...gift, id: undefined, updatedAt: new Date().toISOString(), order: latestGift._max.order ?? 0 + 1 },
         update: { ...gift, name: gift.name.trim(), updatedAt: new Date().toISOString() }

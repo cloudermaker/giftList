@@ -13,6 +13,7 @@ export const generatePageSchema = (
       "description": "${pageDescription}",
       "url": "https://www.malistedecadeaux.fr${pageUrl}",
       "dateModified": "${dateModified}",
+      "inLanguage": "fr-FR",
       "isPartOf": {
         "@type": "WebSite",
         "name": "Ma liste de cadeaux",
@@ -21,22 +22,24 @@ export const generatePageSchema = (
       "publisher": {
         "@type": "Organization",
         "name": "Ma liste de cadeaux",
-        "url": "https://www.malistedecadeaux.fr"
-      }
-      "applicationCategory": "UtilityApplication",
-      "operatingSystem": "Web browser",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "EUR"
+        "url": "https://www.malistedecadeaux.fr",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://www.malistedecadeaux.fr/favicon.ico"
+        }
       },
-      "featureList": [
-        "Création de listes de cadeaux gratuitement",
-        "Création de groupes familiaux",
-        "Gestion secrète des cadeaux",
-        "Classement par préférence",
-        "Page récapitulative pour les achats"
-      ]
+      "potentialAction": {
+        "@type": "UseAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://www.malistedecadeaux.fr/",
+          "actionPlatform": [
+            "http://schema.org/DesktopWebPlatform",
+            "http://schema.org/MobileWebPlatform"
+          ]
+        },
+        "name": "Créer une liste de cadeaux"
+      }
     }`
     };
 };
@@ -60,6 +63,35 @@ export const generateFAQSchema = (questions: Array<{ question: string; answer: s
       "@context": "https://schema.org",
       "@type": "FAQPage",
       "mainEntity": [${faqItems}]
+    }`
+    };
+};
+
+export const generateHowToSchema = (
+    name: string,
+    description: string,
+    steps: Array<{ name: string; text: string; image?: string }>
+) => {
+    const howToSteps = steps
+        .map((step, index) => {
+            const imageProperty = step.image ? `,\n        "image": "${step.image}"` : '';
+            return `{
+        "@type": "HowToStep",
+        "position": ${index + 1},
+        "name": "${step.name}",
+        "text": "${step.text.replace(/"/g, '\\"')}"${imageProperty}
+      }`;
+        })
+        .join(',');
+
+    return {
+        __html: `{
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "${name}",
+      "description": "${description}",
+      "step": [${howToSteps}],
+      "totalTime": "PT5M"
     }`
     };
 };

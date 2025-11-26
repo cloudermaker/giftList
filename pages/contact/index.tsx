@@ -67,8 +67,8 @@ export default function Contact(): JSX.Element {
             <SEO
                 title="Contactez-nous - Ma liste de cadeaux"
                 description="Vous avez des questions sur l'utilisation de Ma liste de cadeaux? Besoin d'aide ou avez des suggestions? Contactez-nous facilement via notre formulaire."
-                keywords="contact,aide,questions,suggestions,liste cadeaux"
                 canonicalPath="/contact"
+                ogImage="/og-image-contact.jpg"
             />
             <script type="application/ld+json" dangerouslySetInnerHTML={contactSchemaData} />
 

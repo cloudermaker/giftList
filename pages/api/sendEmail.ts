@@ -24,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 secure: false, // true pour 465, false pour autres ports
                 auth: {
                     user: process.env.MAILERSEND_SMTP_USERNAME || '',
-                    pass: process.env.MAILERSEND_SMTP_PASSWORD || ''
+                    pass: process.env.MAILERSEND_SMTP_PASSWORD || 'v'
                 }
             });
 
