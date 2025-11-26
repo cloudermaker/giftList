@@ -347,13 +347,6 @@ export default function Index(): JSX.Element {
                         </div>
                     </div>
                     <div className="item bg-white p-3 rounded-lg border border-gray-200 text-center">
-                        <div className="text-2xl mb-1">🚀</div>
-                        <div className="text-sm">
-                            <strong className="block">1 000+</strong>
-                            <span className="text-gray-600">familles</span>
-                        </div>
-                    </div>
-                    <div className="item bg-white p-3 rounded-lg border border-gray-200 text-center">
                         <div className="text-2xl mb-1">🔒</div>
                         <div className="text-sm">
                             <strong className="block">Zéro</strong>
@@ -365,6 +358,13 @@ export default function Index(): JSX.Element {
                         <div className="text-sm">
                             <strong className="block">2 min</strong>
                             <span className="text-gray-600">chrono</span>
+                        </div>
+                    </div>
+                    <div className="item bg-white p-3 rounded-lg border border-gray-200 text-center">
+                        <div className="text-2xl mb-1">🤫</div>
+                        <div className="text-sm">
+                            <strong className="block">100%</strong>
+                            <span className="text-gray-600">secret</span>
                         </div>
                     </div>
                 </div>
@@ -483,7 +483,7 @@ export default function Index(): JSX.Element {
                     </div>
                     <div className="item bg-red-50 border-l-4 border-rougeNoel p-4">
                         <p className="italic" style={{ color: '#333' }}>
-                            &quot;Ma belle-mère sait enfin ce qui me fait plaisir. Un miracle de Noël ! 🎅&quot;
+                            &quot;Avec 12 personnes dans la famille, cette app a sauvé notre Noël ! 🎄&quot;
                         </p>
                         <p className="text-sm mt-2 font-semibold text-rougeNoel">— Antoine, Marseille</p>
                     </div>
