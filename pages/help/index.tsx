@@ -2,7 +2,7 @@ import { Layout } from '@/components/layout';
 import Link from 'next/link';
 import Router from 'next/router';
 import SEO from '@/components/SEO';
-import { generateFAQSchema } from '@/lib/schema/schemaGenerators';
+import { generateFAQSchema, generateHowToSchema } from '@/lib/schema/schemaGenerators';
 import CustomButton from '@/components/atoms/customButton';
 
 export default function Help(): JSX.Element {
@@ -26,15 +26,43 @@ export default function Help(): JSX.Element {
         }
     ];
 
+    // Define HowTo steps for structured data
+    const howToSteps = [
+        {
+            name: 'Créer votre groupe',
+            text: "Cliquez sur 'Créer un groupe', choisissez un nom de groupe et définissez un mot de passe administrateur."
+        },
+        {
+            name: 'Inviter vos proches',
+            text: 'Partagez le nom du groupe avec votre famille ou vos amis. Ils pourront se connecter avec leur prénom.'
+        },
+        {
+            name: 'Ajouter des cadeaux',
+            text: 'Chaque membre ajoute ses envies de cadeaux sur sa liste personnelle.'
+        },
+        {
+            name: 'Réserver des cadeaux',
+            text: 'Consultez les listes des autres et réservez les cadeaux que vous souhaitez offrir. La réservation reste secrète pour le destinataire.'
+        }
+    ];
+
     return (
         <Layout withHeader={false}>
             <SEO
                 title="Aide et FAQ - Créer une liste de cadeaux"
                 description="Questions fréquentes sur l'utilisation de Ma liste de cadeaux - Comment créer une liste, ajouter des membres, gérer les cadeaux et plus encore."
-                keywords="aide,faq,questions,liste cadeaux,comment utiliser,tutoriel"
                 canonicalPath="/help"
+                ogImage="/og-image-help.jpg"
             />
             <script type="application/ld+json" dangerouslySetInnerHTML={generateFAQSchema(faqItems)} />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={generateHowToSchema(
+                    'Comment créer une liste de cadeaux en ligne',
+                    'Guide complet pour créer et gérer votre liste de cadeaux en famille ou entre amis',
+                    howToSteps
+                )}
+            />
 
             <section className="home-section">
                 <h2 className="text-center font-bold">❓ Questions fréquentes sur les listes de cadeaux</h2>

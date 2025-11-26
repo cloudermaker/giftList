@@ -3,7 +3,6 @@ import Head from 'next/head';
 interface SEOProps {
     title?: string;
     description?: string;
-    keywords?: string;
     ogType?: string;
     ogImage?: string;
     canonicalPath?: string;
@@ -13,9 +12,8 @@ interface SEOProps {
 export default function SEO({
     title = 'Ma liste de cadeaux',
     description = 'Créé ta liste de cadeaux en famille ou entre amis facilement et gratuitement. Indique les cadeaux que tu prends sans que le concerné soit au courant!',
-    keywords = 'liste de cadeaux,famille,groupe,cadeaux,gratuit,acheter pour qui',
     ogType = 'website',
-    ogImage = '',
+    ogImage = '/og-image-home.jpg',
     canonicalPath = '',
     noIndex = false
 }: SEOProps) {
@@ -29,9 +27,11 @@ export default function SEO({
             {/* Basic Meta Tags */}
             <title>{fullTitle}</title>
             <meta name="description" content={description} />
-            <meta name="keywords" content={keywords} />
             {noIndex ? <meta name="robots" content="noindex, nofollow" /> : <meta name="robots" content="index, follow" />}
             <meta name="author" content="PLR" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <meta name="theme-color" content="#D42A37" />
+            <link rel="manifest" href="/manifest.json" />
 
             {/* Open Graph Tags */}
             <meta property="og:title" content={fullTitle} />
@@ -43,10 +43,14 @@ export default function SEO({
             {ogImage && <meta property="og:image" content={`${siteUrl}${ogImage}`} />}
 
             {/* Twitter Card Tags */}
-            <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:title" content={fullTitle} />
-            <meta name="twitter:description" content={description} />
-            {ogImage && <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />}
+            {ogImage && (
+                <>
+                    <meta name="twitter:card" content="summary_large_image" />
+                    <meta name="twitter:title" content={fullTitle} />
+                    <meta name="twitter:description" content={description} />
+                    <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
+                </>
+            )}
 
             {/* Canonical Link */}
             <link rel="canonical" href={fullCanonicalUrl} />

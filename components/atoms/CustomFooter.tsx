@@ -67,7 +67,10 @@ export const CustomFooter = (): JSX.Element => {
                             <span className="sm:hidden">© {new Date().getFullYear()} PLR</span>
                         </div>
                         <div className="text-xs text-neutral-500 mt-1">
-                            Version <span className="text-vertNoel">{jsonPackage.version}</span>
+                            Version
+                            <Link href="/changelog" className="text-vertNoel hover:underline">
+                                {jsonPackage.version}
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -122,9 +125,12 @@ export const CustomFooter = (): JSX.Element => {
                         <div className="text-sm text-neutral-600 flex items-center">
                             <span className="mr-2">🎁</span>
                             Copyright © {new Date().getFullYear()} PLR
-                            <span className="ml-2 px-2 py-0.5 rounded-full bg-white/30 text-xs text-vertNoel">
+                            <Link
+                                href="/changelog"
+                                className="ml-2 px-2 py-0.5 rounded-full bg-white/30 text-xs text-vertNoel hover:bg-white/50 transition-all"
+                            >
                                 v{jsonPackage.version}
-                            </span>
+                            </Link>
                         </div>
                     </div>
                 </div>

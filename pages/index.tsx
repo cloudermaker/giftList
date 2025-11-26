@@ -15,6 +15,7 @@ const ERROR_MESSAGES = {
     NO_GROUP: 'Il faut rentrer un groupe.',
     NO_NAME: 'Il faut rentrer un nom.',
     NO_PASSWORD: 'Il faut rentrer un mot de passe.',
+    NO_EMOJI_IN_GROUP: 'Les emojis ne sont pas autorisés dans le nom du groupe.',
     GENERIC: 'Erreur'
 } as const;
 
@@ -73,6 +74,16 @@ export default function Index(): JSX.Element {
                 setFormData((prev) => ({ ...prev, error: ERROR_MESSAGES.NO_GROUP }));
                 return;
             }
+
+            // Check for emojis in group name when creating
+            if (mode === 'creating') {
+                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+                if (emojiRegex.test(formData.groupName)) {
+                    setFormData((prev) => ({ ...prev, error: ERROR_MESSAGES.NO_EMOJI_IN_GROUP }));
+                    return;
+                }
+            }
+
             if (!formData.name) {
                 setFormData((prev) => ({ ...prev, error: ERROR_MESSAGES.NO_NAME }));
                 return;
@@ -133,13 +144,7 @@ export default function Index(): JSX.Element {
 
     return (
         <Layout withHeader={false}>
-            <SEO
-                title={pageTitle}
-                description={pageDescription}
-                keywords="liste de cadeaux,famille,groupe,cadeaux,gratuit,anniversaire,noël,mariage,naissance,secret"
-                canonicalPath="/"
-                ogImage="/BG_1.png"
-            />
+            <SEO title={pageTitle} description={pageDescription} canonicalPath="/" ogImage="/og-image-home.jpg" />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={generatePageSchema('WebPage', pageTitle, '/', pageDescription)}
@@ -216,7 +221,7 @@ export default function Index(): JSX.Element {
 
                                 <div className="space-y-2">
                                     <label htmlFor="nameInputId" className="block text-sm font-medium text-gray-700">
-                                        Nom
+                                        Prénom
                                     </label>
                                     <CustomInput
                                         id="nameInputId"
@@ -324,13 +329,165 @@ export default function Index(): JSX.Element {
                 </div>
             </section>
 
+            {/* Pourquoi choisir Ma liste de cadeaux */}
             <section className="home-section">
-                <h2 className="font-bold">🎉 Créez votre liste de cadeaux en ligne gratuitement</h2>
+                <h2 className="font-bold">✅ Pourquoi choisir Ma liste de cadeaux ?</h2>
 
                 <p>
-                    Organisez vos échanges de cadeaux en famille ou entre amis - Simple, secret et efficace pour Noël,
-                    anniversaires et toutes vos fêtes !
+                    Organisez vos échanges de cadeaux en famille ou entre amis -<strong> Simple, secret et efficace</strong> pour
+                    Noël, anniversaires et toutes vos fêtes !
                 </p>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 mb-6">
+                    <div className="item bg-white p-3 rounded-lg border border-gray-200 text-center">
+                        <div className="text-2xl mb-1">💰</div>
+                        <div className="text-sm">
+                            <strong className="block">100%</strong>
+                            <span className="text-gray-600">gratuit</span>
+                        </div>
+                    </div>
+                    <div className="item bg-white p-3 rounded-lg border border-gray-200 text-center">
+                        <div className="text-2xl mb-1">🔒</div>
+                        <div className="text-sm">
+                            <strong className="block">Zéro</strong>
+                            <span className="text-gray-600">tracking</span>
+                        </div>
+                    </div>
+                    <div className="item bg-white p-3 rounded-lg border border-gray-200 text-center">
+                        <div className="text-2xl mb-1">⚡</div>
+                        <div className="text-sm">
+                            <strong className="block">2 min</strong>
+                            <span className="text-gray-600">chrono</span>
+                        </div>
+                    </div>
+                    <div className="item bg-white p-3 rounded-lg border border-gray-200 text-center">
+                        <div className="text-2xl mb-1">🤫</div>
+                        <div className="text-sm">
+                            <strong className="block">100%</strong>
+                            <span className="text-gray-600">secret</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="item">
+                    <ul className="space-y-3 text-left">
+                        <li className="flex items-start gap-3">
+                            <span className="text-green-500 font-bold text-xl">✓</span>
+                            <span>
+                                <strong>100% gratuit</strong>
+                                {" - Aucun frais caché, pas d'abonnement"}
+                            </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <span className="text-green-500 font-bold text-xl">✓</span>
+                            <span>
+                                <strong>Sans inscription compliquée</strong>
+                                {" - Pas besoin d'email, juste un nom de groupe et votre prénom"}
+                            </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <span className="text-green-500 font-bold text-xl">✓</span>
+                            <span>
+                                <strong>Gestion secrète</strong> - Les cadeaux réservés restent cachés du destinataire
+                            </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <span className="text-green-500 font-bold text-xl">✓</span>
+                            <span>
+                                <strong>Multi-événements</strong> - Une seule liste pour tous les membres de votre groupe familial
+                            </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <span className="text-green-500 font-bold text-xl">✓</span>
+                            <span>
+                                <strong>Accessible partout</strong> - Sur mobile, tablette ou ordinateur
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div className="mt-6">
+                    <CustomButton
+                        className="green-button p-3"
+                        onClick={() => {
+                            const formSection = document.querySelector('.card-container');
+                            formSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            handleModeChange('creating');
+                        }}
+                    >
+                        🎁 Créer ma liste maintenant
+                    </CustomButton>
+                </div>
+            </section>
+
+            {/* SEO-optimized content section */}
+            <section className="home-section">
+                <h2 className="font-bold text-center text-2xl md:text-3xl mb-6">
+                    🎁 La solution idéale pour vos listes de cadeaux en famille
+                </h2>
+
+                <div className="grid md:grid-cols-3 gap-6 my-6">
+                    <div className="item bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                        <div className="text-4xl mb-3">🎄</div>
+                        <h3 className="text-lg font-semibold text-vertNoel mb-2">Pour Noël</h3>
+                        <p className="text-gray-600 text-sm">
+                            Organisez vos échanges de cadeaux de Noël en famille sans stress. Chacun indique ses envies et peut
+                            réserver secrètement les cadeaux des autres.
+                        </p>
+                    </div>
+
+                    <div className="item bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                        <div className="text-4xl mb-3">🎂</div>
+                        <h3 className="text-lg font-semibold text-rougeNoel mb-2">Pour les anniversaires</h3>
+                        <p className="text-gray-600 text-sm">
+                            {
+                                "Créez une liste d'anniversaire pour ne plus jamais recevoir de doublons. Vos proches savent exactement quoi offrir !"
+                            }
+                        </p>
+                    </div>
+
+                    <div className="item bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                        <div className="text-4xl mb-3">💝</div>
+                        <h3 className="text-lg font-semibold text-vertNoel mb-2">Toutes occasions</h3>
+                        <p className="text-gray-600 text-sm">
+                            {
+                                "Mariage, naissance, fête des mères... Notre outil s'adapte à toutes vos célébrations et événements spéciaux."
+                            }
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* Testimonials Section */}
+            <section className="home-section">
+                <h2 className="font-bold">💬 Ils ont simplifié leurs cadeaux avec nous</h2>
+
+                <div className="grid md:grid-cols-2 gap-4 mt-6">
+                    <div className="item bg-green-50 border-l-4 border-vertNoel p-4">
+                        <p className="italic" style={{ color: '#333' }}>
+                            &quot;Fini les doublons et les cadeaux ratés ! On utilise Ma liste de cadeaux depuis 2 ans.&quot;
+                        </p>
+                        <p className="text-sm mt-2 font-semibold text-vertNoel">— Marie, Lyon</p>
+                    </div>
+                    <div className="item bg-red-50 border-l-4 border-rougeNoel p-4">
+                        <p className="italic" style={{ color: '#333' }}>
+                            &quot;Mon oncle Jean m&apos;a enfin offert autre chose que des chaussettes ! 🧦😂&quot;
+                        </p>
+                        <p className="text-sm mt-2 font-semibold text-rougeNoel">— Thomas, Paris</p>
+                    </div>
+                    <div className="item bg-green-50 border-l-4 border-vertNoel p-4">
+                        <p className="italic" style={{ color: '#333' }}>
+                            &quot;Plus besoin de faire semblant d&apos;être surprise avec le 3ème grille-pain... Merci !&quot;
+                        </p>
+                        <p className="text-sm mt-2 font-semibold text-vertNoel">— Sophie, Bordeaux</p>
+                    </div>
+                    <div className="item bg-red-50 border-l-4 border-rougeNoel p-4">
+                        <p className="italic" style={{ color: '#333' }}>
+                            &quot;Avec 12 personnes dans la famille, cette app a sauvé notre Noël ! 🎄&quot;
+                        </p>
+                        <p className="text-sm mt-2 font-semibold text-rougeNoel">— Antoine, Marseille</p>
+                    </div>
+                </div>
             </section>
 
             <section className="home-section" id="comment-ca-marche">
@@ -340,7 +497,6 @@ export default function Index(): JSX.Element {
                     </span>
                     Comment organiser vos listes de cadeaux ?
                 </h2>
-                <p>Pour créer votre liste de cadeaux en ligne, rien de plus simple :</p>
 
                 <div className="flex flex-col md:flex-row justify-around items-center mt-4">
                     <div className="item md:m-4">
