@@ -1,9 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getGiftFromId, updateGifts, upsertGift } from '@/lib/db/giftManager';
 import { Gift } from '@prisma/client';
-import { getUserById } from '@/lib/db/userManager';
 import { COOKIE_NAME } from '@/lib/auth/authService';
-import Cookies from 'js-cookie';
 import { TGroupAndUser } from '../authenticate';
 
 export type TGiftApiResult = {
@@ -22,7 +20,13 @@ const isAuthorized = async (req: NextApiRequest) => {
 
     const connectedUser = JSON.parse(atob(req.cookies[COOKIE_NAME] as string)) as TGroupAndUser;
     const userGiftId = req.body?.userGiftId ?? req.query?.userGiftId ?? 'None';
-    const isGiftAdmin = connectedUser?.isAdmin || connectedUser?.userId === userGiftId;
+    const takenUserId = req.body?.gift?.takenUserId;
+
+    // Allow if admin, or if user owns the gift list, or if it's a personal gift (userId null) created by the user
+    const isGiftAdmin =
+        connectedUser?.isAdmin ||
+        connectedUser?.userId === userGiftId ||
+        (req.body?.gift?.userId === null && takenUserId === connectedUser?.userId);
 
     return isGiftAdmin;
 };
