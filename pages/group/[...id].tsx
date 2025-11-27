@@ -63,7 +63,7 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
     const addOrUpdateUser = async (userId?: string): Promise<void> => {
         const currentUserToAdd = localUsers.filter((user) => user.id === userId)[0];
 
-        let userToAdd: User = currentUserToAdd ?? buildDefaultUser(group.id);
+        let userToAdd = currentUserToAdd ?? { ...buildDefaultUser(group.id), id: '' };
         userToAdd.name = newUserName.trim();
 
         const response = await AxiosWrapper.post('/api/user', {

@@ -135,7 +135,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
 
     const upsertGift = async (giftId: string | null = null): Promise<void> => {
         const currentGift: Gift = cloneDeep(localGifts.filter((gift) => gift.id === giftId)[0]);
-        const giftToUpsert: Gift = currentGift ?? buildDefaultGift(user.id, localGifts.length);
+        const giftToUpsert = currentGift ?? { ...buildDefaultGift(user.id, localGifts.length), id: '' };
 
         giftToUpsert.name = newGiftName;
         giftToUpsert.description = newDescription;

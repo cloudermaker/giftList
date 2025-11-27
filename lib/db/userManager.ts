@@ -1,9 +1,8 @@
 import { User } from '@prisma/client';
 import prisma from './dbSingleton';
 
-export const buildDefaultUser = (groupId: string): User => {
+export const buildDefaultUser = (groupId: string): Omit<User, 'id'> => {
     return {
-        id: '',
         name: '',
         groupId,
         isAdmin: false,
@@ -77,7 +76,7 @@ export const upsertUser = async (user: User): Promise<User> => {
             id: user.id
         },
         create: { ...user, name: user.name.toLowerCase().trim(), id: undefined },
-        update: { ...user, name: user.name.toLowerCase().trim(), updatedAt: new Date().toISOString() }
+        update: { ...user, name: user.name.toLowerCase().trim(), updatedAt: new Date() }
     });
 
     return user;
@@ -88,7 +87,7 @@ export const updateUser = async (userId: string, user: User): Promise<User> => {
         where: {
             id: userId
         },
-        data: { ...user, name: user.name.toLowerCase().trim(), updatedAt: new Date().toISOString() }
+        data: { ...user, name: user.name.toLowerCase().trim(), updatedAt: new Date() }
     });
 
     return user;
