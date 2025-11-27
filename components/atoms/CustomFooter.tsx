@@ -68,7 +68,7 @@ export const CustomFooter = (): JSX.Element => {
                         </div>
                         <div className="text-xs text-neutral-500 mt-1">
                             Version
-                            <Link href="/changelog" className="text-vertNoel hover:underline">
+                            <Link href="/changelog" className="pl-2 text-vertNoel hover:underline">
                                 {jsonPackage.version}
                             </Link>
                         </div>

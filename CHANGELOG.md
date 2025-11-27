@@ -4,6 +4,20 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [3.8.0] - 2025-11-27
+
+### Ajouté
+
+- Générateur d'idées cadeaux avec suggestions basées sur mots-clés
+- 40+ catégories de cadeaux (sport, yoga, tech, gaming, jardinage, cuisine, mode, etc.)
+- Suggestions personnalisées selon l'âge, le genre et les centres d'intérêt
+- Composant GiftIdeasGenerator réutilisable sur pages index et home
+
+### Modifié
+
+- Amélioration responsive de la page groupe (mobile-friendly)
+- Espacement du lien version dans le footer mobile
+
 ## [3.7.0] - 2025-11-26
 
 ### Ajouté

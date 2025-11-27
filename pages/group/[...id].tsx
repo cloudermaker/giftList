@@ -129,7 +129,8 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
 
                                 {updatingUserId === user.id && (
                                     <input
-                                        className="px-3 py-1.5 bg-white/50 border border-neutral-200 rounded-lg focus:outline-none focus:border-vertNoel focus:ring-1 focus:ring-vertNoel transition-all duration-200"
+                                        name="updateUserInput"
+                                        className="w-full px-3 py-1.5 bg-white/50 border border-neutral-200 rounded-lg focus:outline-none focus:border-vertNoel focus:ring-1 focus:ring-vertNoel transition-all duration-200"
                                         value={newUserName}
                                         onChange={(e) => setNewUserName(e.target.value)}
                                     />
@@ -148,7 +149,7 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
                                         </CustomButton>
 
                                         {connectedUser?.isAdmin && (
-                                            <div className="flex">
+                                            <div className="md:flex">
                                                 <CustomButton
                                                     className="green-button mt-3 md:mt-0"
                                                     onClick={() => updatingUser(user)}
@@ -166,7 +167,7 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
 
                                 {connectedUser?.isAdmin && updatingUserId === user.id && (
                                     <>
-                                        <div className="flex">
+                                        <div className="md:flex">
                                             <CustomButton
                                                 className="green-button mt-3 md:mt-0"
                                                 onClick={() => addOrUpdateUser(user.id)}

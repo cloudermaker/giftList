@@ -9,6 +9,7 @@ import { ErrorAlert } from '../components/atoms/ErrorAlert';
 import { useLogin } from '@/lib/hooks/useLogin';
 import SEO from '@/components/SEO';
 import { generatePageSchema } from '@/lib/schema/schemaGenerators';
+import GiftIdeasGenerator from '@/components/GiftIdeasGenerator';
 
 // Constants
 const ERROR_MESSAGES = {
@@ -489,6 +490,9 @@ export default function Index(): JSX.Element {
                     </div>
                 </div>
             </section>
+
+            {/* Gift Ideas Generator Section */}
+            <GiftIdeasGenerator />
 
             <section className="home-section" id="comment-ca-marche">
                 <h2 className="font-bold">

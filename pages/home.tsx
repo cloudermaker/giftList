@@ -7,6 +7,7 @@ import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import CustomButton from '@/components/atoms/customButton';
 import Swal from 'sweetalert2';
+import GiftIdeasGenerator from '@/components/GiftIdeasGenerator';
 
 export const Home = (): JSX.Element => {
     const { connectedUser } = useCurrentUser();
@@ -120,6 +121,9 @@ export const Home = (): JSX.Element => {
                         </div>
                     )}
                 </div>
+
+                {/* Gift Ideas Generator */}
+                <GiftIdeasGenerator />
             </div>
         </Layout>
     );
