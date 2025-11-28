@@ -324,7 +324,14 @@ export default function Index(): JSX.Element {
                     {/* Illustration Section - Hidden on mobile */}
                     <div className="hidden md:block w-1/2">
                         <div className="relative min-h-[600px]">
-                            <Image src="/login2.jpg" alt="Gift organization illustration" fill className="object-contain" />
+                            <Image
+                                src="/login2.jpg"
+                                alt="Gift organization illustration"
+                                fill
+                                className="object-contain"
+                                sizes="(min-width: 768px) 50vw, 100vw"
+                                priority={true}
+                            />
                         </div>
                     </div>
                 </div>
