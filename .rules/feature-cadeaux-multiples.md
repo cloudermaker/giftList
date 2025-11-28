@@ -246,17 +246,18 @@ components/gift/
 
 ### Phase 1 : Base de données
 
-**1.1 Migration Prisma**
-
-```bash
-# Créer la migration
-npx prisma migrate dev --name add_gift_variants
-```
-
-**1.2 Schéma**
+**1.1 Schéma**
 
 - Ajouter le modèle `GiftVariant`
 - Ajouter les champs `isCollection`, `isUnlimited` à `Gift`
+
+**1.2 Migration Prisma**
+
+```bash
+npx prisma format
+
+npx prisma db push
+```
 
 **1.3 Mise à jour des managers**
 
