@@ -59,7 +59,7 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
     };
 
     const addGroup = async (): Promise<void> => {
-        const groupToAdd: Group = buildDefaultGroup();
+        const groupToAdd = buildDefaultGroup();
         groupToAdd.name = newGroupName;
         groupToAdd.adminPassword = newPassword;
 

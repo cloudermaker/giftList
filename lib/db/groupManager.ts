@@ -1,9 +1,8 @@
 import { Group } from '@prisma/client';
 import prisma from './dbSingleton';
 
-export const buildDefaultGroup = () => {
+export const buildDefaultGroup = (): Omit<Group, 'id'> => {
     return {
-        id: '-1',
         name: '',
         description: '',
         imageUrl: '',

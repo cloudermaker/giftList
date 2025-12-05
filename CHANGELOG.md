@@ -4,6 +4,14 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [3.9.0] - 2025-11-28
+
+### Modifié
+
+- Refactorisation : extraction et centralisation du composant GiftItem pour une gestion DRY des cadeaux (édition/création) sur la
+  page giftList
+- Suppression de la duplication entre création et édition de cadeau
+
 ## [3.8.0] - 2025-11-27
 
 ### Ajouté
