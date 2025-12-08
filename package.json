@@ -13,7 +13,7 @@
         "postinstall": "prisma generate"
     },
     "engines": {
-        "node": "22.20.0"
+        "node": "22.x"
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^6.2.1",
