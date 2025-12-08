@@ -1,6 +1,6 @@
 {
     "name": "gift_list",
-    "version": "3.8.0",
+    "version": "3.8.1",
     "private": true,
     "scripts": {
         "dev": "next dev",
@@ -13,7 +13,7 @@
         "postinstall": "prisma generate"
     },
     "engines": {
-        "node": "22.20.0"
+        "node": "22.x"
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^6.2.1",
@@ -28,9 +28,9 @@
         "@vercel/analytics": "^1.5.0",
         "axios": "^1.12.2",
         "js-cookie": "^3.0.1",
-        "next": "^15.5.4",
+        "next": "^15.5.7",
         "node": "^24.9.0",
-        "nodemailer": "^7.0.7",
+        "nodemailer": "^7.0.11",
         "pg": "^8.8.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
@@ -51,7 +51,7 @@
         "@types/react-dom": "18.0.9",
         "autoprefixer": "^10.4.13",
         "eslint": "^8.52.0",
-        "eslint-config-next": "^14.0.0",
+        "eslint-config-next": "^15.5.7",
         "eslint-config-prettier": "^9.0.0",
         "lodash": "^4.17.21",
         "nprogress": "^0.2.0",

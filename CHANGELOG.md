@@ -4,6 +4,13 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [3.8.1] - 2025-12-08
+
+### Corrigé
+
+- Mise à jour des dépendances (Next.js, Nodemailer, eslint-config-next)
+- Correction de vulnérabilités de sécurité
+
 ## [3.8.0] - 2025-11-27
 
 ### Ajouté
