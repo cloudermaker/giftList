@@ -1,4 +1,4 @@
-import { ReactNode, Suspense, useState } from 'react';
+import { ReactNode, Suspense, useEffect, useState } from 'react';
 import { Layout } from '@/components/layout';
 import { EHeader } from '@/components/customHeader';
 import ModernLink from '@/components/atoms/ModernLink';
@@ -12,11 +12,12 @@ import { Drag } from '@/components/icons/drag';
 import { Gift, User } from '@prisma/client';
 import { buildDefaultGift, getGiftsFromUserId } from '@/lib/db/giftManager';
 import { TGiftApiResult } from '@/pages/api/gift';
-import { getUserById } from '@/lib/db/userManager';
+import { getUserById, getUsersFromGroupId } from '@/lib/db/userManager';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Swal from 'sweetalert2';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import { cloneDeep } from 'lodash';
+import { TUserApiResult } from '../api/user';
 
 function SortableItem({
     gift,
@@ -76,6 +77,37 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
     const [newLink, setNewLink] = useState<string>('');
 
     const [updatingGiftId, setUpdatingGiftId] = useState<string>('');
+
+    const [groupUserMap, setGroupUserMap] = useState<{ [key: string]: User }>({});
+    const [loadingGroupUsers, setLoadingGroupUsers] = useState<boolean>(true);
+    const [revealedGiftIds, setRevealedGiftIds] = useState<Set<string>>(new Set());
+
+    useEffect(() => {
+        const fillTakenUserMap = async () => {
+            if (user.groupId) {
+                setLoadingGroupUsers(true);
+                const response = await AxiosWrapper.get(`/api/user?groupid=${user.groupId}`);
+
+                if (response?.status !== 200) {
+                    console.log('Unable to fetch users by group');
+                    setLoadingGroupUsers(false);
+                    return;
+                }
+
+                const responseData = response?.data as TUserApiResult;
+                const takenUsers = responseData.users as User[];
+
+                const newTakenUserMap: { [key: string]: User } = Object.fromEntries(
+                    takenUsers.map((takenUser) => [takenUser.id, takenUser])
+                );
+
+                setGroupUserMap(newTakenUserMap);
+                setLoadingGroupUsers(false);
+            }
+        };
+
+        fillTakenUserMap();
+    }, [user.groupId]);
 
     const clearAllFields = (): void => {
         setCreatingGift(false);
@@ -384,7 +416,52 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                                 {!userCanAddGift &&
                                                     gift.takenUserId &&
                                                     gift.takenUserId !== connectedUser?.userId && (
-                                                        <span className="text-red-500">Ce cadeau est déjà pris</span>
+                                                        <>
+                                                            {(loadingGroupUsers ||
+                                                                !groupUserMap ||
+                                                                !groupUserMap[gift.takenUserId]) && (
+                                                                <span className="text-red-500 text-center">
+                                                                    Ce cadeau est déjà pris
+                                                                </span>
+                                                            )}
+                                                            {!loadingGroupUsers &&
+                                                                groupUserMap[gift.takenUserId] &&
+                                                                !revealedGiftIds.has(gift.id) && (
+                                                                    <span
+                                                                        className="text-red-500 text-center cursor-pointer"
+                                                                        onClick={() =>
+                                                                            setRevealedGiftIds((prev) => {
+                                                                                const newSet = new Set(prev);
+                                                                                newSet.add(gift.id);
+                                                                                return newSet;
+                                                                            })
+                                                                        }
+                                                                    >
+                                                                        Ce cadeau est déjà pris <br />
+                                                                        (cliquer pour révéler)
+                                                                    </span>
+                                                                )}
+                                                            {!loadingGroupUsers && revealedGiftIds.has(gift.id) && (
+                                                                <span
+                                                                    className="text-red-500 text-center cursor-pointer"
+                                                                    onClick={() =>
+                                                                        setRevealedGiftIds((prev) => {
+                                                                            const newSet = new Set([...prev]);
+                                                                            newSet.delete(gift.id);
+                                                                            return newSet;
+                                                                        })
+                                                                    }
+                                                                >
+                                                                    Ce cadeau est déjà pris <br />
+                                                                    (par{' '}
+                                                                    <b>
+                                                                        {groupUserMap[gift.takenUserId]?.name ||
+                                                                            'Utilisateur inconnu'}
+                                                                    </b>
+                                                                    )
+                                                                </span>
+                                                            )}
+                                                        </>
                                                     )}
 
                                                 {!userCanAddGift &&

@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { User } from '@prisma/client';
-import { isString } from 'lodash';
-import { deleteUser, getUserById, updateUser, upsertUser } from '@/lib/db/userManager';
+import { getUsersFromGroupId, upsertUser } from '@/lib/db/userManager';
 import { COOKIE_NAME } from '@/lib/auth/authService';
 import { TGroupAndUser } from '../authenticate';
 
@@ -9,6 +8,7 @@ export type TUserApiResult = {
     success: boolean;
     userId?: string;
     user?: User;
+    users?: User[];
     error?: string;
 };
 
@@ -38,6 +38,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const user = await upsertUser(body.user as User);
 
             res.status(200).json({ success: true, user });
+        } else if (req.method === 'GET' && req.query['groupid']) {
+            const users = await getUsersFromGroupId(req.query['groupid'] as string);
+
+            res.status(200).json({ success: true, users });
         } else {
             res.status(400).json({ success: false });
         }
