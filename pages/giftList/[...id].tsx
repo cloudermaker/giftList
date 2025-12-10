@@ -1,4 +1,4 @@
-import { ReactNode, Suspense, useState } from 'react';
+import { ReactNode, Suspense, useEffect, useState } from 'react';
 import { Layout } from '@/components/layout';
 import { EHeader } from '@/components/customHeader';
 import ModernLink from '@/components/atoms/ModernLink';
@@ -12,11 +12,12 @@ import { Drag } from '@/components/icons/drag';
 import { Gift, User } from '@prisma/client';
 import { buildDefaultGift, getGiftsFromUserId } from '@/lib/db/giftManager';
 import { TGiftApiResult } from '@/pages/api/gift';
-import { getUserById } from '@/lib/db/userManager';
+import { getUserById, getUsersFromGroupId } from '@/lib/db/userManager';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Swal from 'sweetalert2';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import { cloneDeep } from 'lodash';
+import { TUserApiResult } from '../api/user';
 
 function SortableItem({
     gift,
@@ -76,6 +77,32 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
     const [newLink, setNewLink] = useState<string>('');
 
     const [updatingGiftId, setUpdatingGiftId] = useState<string>('');
+
+    const [groupUserMap, setGroupUserMap] = useState<{ [key: string]: User }>({});
+
+    useEffect(() => {
+        const fillTakenUserMap = async () => {
+            if (user.groupId) {
+                const response = await AxiosWrapper.get(`/api/user?groupid=${user.groupId}`);
+
+                if (response?.status !== 200) {
+                    console.log('Unable to fetch users by group');
+                    return;
+                }
+
+                const responseData = response?.data as TUserApiResult;
+                const takenUsers = responseData.users as User[];
+
+                const newTakenUserMap: { [key: string]: User } = Object.fromEntries(
+                    takenUsers.map((takenUser) => [takenUser.id, takenUser])
+                );
+
+                setGroupUserMap(newTakenUserMap);
+            }
+        };
+
+        fillTakenUserMap();
+    }, [user.groupId]);
 
     const clearAllFields = (): void => {
         setCreatingGift(false);
@@ -383,8 +410,18 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
 
                                                 {!userCanAddGift &&
                                                     gift.takenUserId &&
-                                                    gift.takenUserId !== connectedUser?.userId && (
-                                                        <span className="text-red-500">Ce cadeau est déjà pris</span>
+                                                    gift.takenUserId !== connectedUser?.userId &&
+                                                    groupUserMap[gift.takenUserId] == null && (
+                                                        <span className="text-red-500 text-center">Ce cadeau est déjà pris</span>
+                                                    )}
+                                                {!userCanAddGift &&
+                                                    gift.takenUserId &&
+                                                    gift.takenUserId !== connectedUser?.userId &&
+                                                    groupUserMap &&
+                                                    groupUserMap[gift.takenUserId] && (
+                                                        <span className="text-red-500 text-center">
+                                                            Cadeau pris par <b>{groupUserMap[gift.takenUserId].name}</b>
+                                                        </span>
                                                     )}
 
                                                 {!userCanAddGift &&

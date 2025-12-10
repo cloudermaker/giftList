@@ -4,6 +4,12 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [3.8.2] - 2025-12-09
+
+### Ajouté
+
+- Affichage du nom de celui qui a pris le cadeau
+
 ## [3.8.1] - 2025-12-08
 
 ### Corrigé
