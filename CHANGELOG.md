@@ -9,6 +9,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ### Ajouté
 
 - Affichage du nom de celui qui a pris le cadeau
+- Permet de cacher ou afficher le nom de celui qui prend le cadeau
 
 ## [3.8.1] - 2025-12-08
 

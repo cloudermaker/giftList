@@ -79,14 +79,18 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
     const [updatingGiftId, setUpdatingGiftId] = useState<string>('');
 
     const [groupUserMap, setGroupUserMap] = useState<{ [key: string]: User }>({});
+    const [loadingGroupUsers, setLoadingGroupUsers] = useState<boolean>(true);
+    const [revealedGiftIds, setRevealedGiftIds] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         const fillTakenUserMap = async () => {
             if (user.groupId) {
+                setLoadingGroupUsers(true);
                 const response = await AxiosWrapper.get(`/api/user?groupid=${user.groupId}`);
 
                 if (response?.status !== 200) {
                     console.log('Unable to fetch users by group');
+                    setLoadingGroupUsers(false);
                     return;
                 }
 
@@ -98,6 +102,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                 );
 
                 setGroupUserMap(newTakenUserMap);
+                setLoadingGroupUsers(false);
             }
         };
 
@@ -410,18 +415,53 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
 
                                                 {!userCanAddGift &&
                                                     gift.takenUserId &&
-                                                    gift.takenUserId !== connectedUser?.userId &&
-                                                    groupUserMap[gift.takenUserId] == null && (
-                                                        <span className="text-red-500 text-center">Ce cadeau est déjà pris</span>
-                                                    )}
-                                                {!userCanAddGift &&
-                                                    gift.takenUserId &&
-                                                    gift.takenUserId !== connectedUser?.userId &&
-                                                    groupUserMap &&
-                                                    groupUserMap[gift.takenUserId] && (
-                                                        <span className="text-red-500 text-center">
-                                                            Cadeau pris par <b>{groupUserMap[gift.takenUserId].name}</b>
-                                                        </span>
+                                                    gift.takenUserId !== connectedUser?.userId && (
+                                                        <>
+                                                            {(loadingGroupUsers ||
+                                                                !groupUserMap ||
+                                                                !groupUserMap[gift.takenUserId]) && (
+                                                                <span className="text-red-500 text-center">
+                                                                    Ce cadeau est déjà pris
+                                                                </span>
+                                                            )}
+                                                            {!loadingGroupUsers &&
+                                                                groupUserMap[gift.takenUserId] &&
+                                                                !revealedGiftIds.has(gift.id) && (
+                                                                    <span
+                                                                        className="text-red-500 text-center cursor-pointer"
+                                                                        onClick={() =>
+                                                                            setRevealedGiftIds((prev) => {
+                                                                                const newSet = new Set(prev);
+                                                                                newSet.add(gift.id);
+                                                                                return newSet;
+                                                                            })
+                                                                        }
+                                                                    >
+                                                                        Ce cadeau est déjà pris <br />
+                                                                        (cliquer pour révéler)
+                                                                    </span>
+                                                                )}
+                                                            {!loadingGroupUsers && revealedGiftIds.has(gift.id) && (
+                                                                <span
+                                                                    className="text-red-500 text-center cursor-pointer"
+                                                                    onClick={() =>
+                                                                        setRevealedGiftIds((prev) => {
+                                                                            const newSet = new Set([...prev]);
+                                                                            newSet.delete(gift.id);
+                                                                            return newSet;
+                                                                        })
+                                                                    }
+                                                                >
+                                                                    Ce cadeau est déjà pris <br />
+                                                                    (par{' '}
+                                                                    <b>
+                                                                        {groupUserMap[gift.takenUserId]?.name ||
+                                                                            'Utilisateur inconnu'}
+                                                                    </b>
+                                                                    )
+                                                                </span>
+                                                            )}
+                                                        </>
                                                     )}
 
                                                 {!userCanAddGift &&
