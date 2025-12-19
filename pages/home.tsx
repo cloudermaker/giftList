@@ -1,5 +1,6 @@
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
+import SEO from '@/components/SEO';
 import { useEffect, useState } from 'react';
 import { Group } from '@prisma/client';
 import { TGroupApiResult } from './api/group';
@@ -63,6 +64,11 @@ export const Home = (): JSX.Element => {
 
     return (
         <Layout selectedHeader={EHeader.Homepage}>
+            <SEO 
+                title="Mon groupe de cadeaux"
+                description="Gérez votre liste de cadeaux en famille ou entre amis. Ajoutez vos envies, réservez secrètement les cadeaux des autres et organisez vos événements facilement."
+                noIndex={true}
+            />
             <div className="max-w-6xl mx-auto px-4">
                 {/* Header Section with Group Name */}
                 <div className="bg-white rounded-xl shadow-sm p-8 mb-8 flex items-center justify-center">

@@ -4,6 +4,12 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [3.8.3] - 2025-12-19
+
+### Amélioré
+
+- Optimisation SEO (H1, meta descriptions, titres)
+
 ## [3.8.2] - 2025-12-09
 
 ### Ajouté

@@ -34,7 +34,7 @@ export default function Index(): JSX.Element {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [showCookieBanner, setShowCookieBanner] = useState(false);
 
-    const pageTitle = 'Créez votre liste de cadeaux en ligne gratuitement';
+    const pageTitle = 'Liste de cadeaux en ligne gratuite';
     const pageDescription =
         'Créez et partagez facilement une liste de cadeaux en famille ou entre amis. Service 100% gratuit, sans inscription par email. Idéal pour les fêtes, anniversaires et événements spéciaux.';
 
@@ -151,7 +151,17 @@ export default function Index(): JSX.Element {
                 dangerouslySetInnerHTML={generatePageSchema('WebPage', pageTitle, '/', pageDescription)}
             />
 
-            <section className="flex justify-center items-start pt-8 pb-12 px-4">
+            {/* Hero Section with H1 */}
+            <section className="text-center py-8 px-4">
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-3 max-w-4xl mx-auto">
+                    Liste de cadeaux en ligne gratuite
+                </h1>
+                <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+                    Organisez vos cadeaux de Noël et anniversaires en famille
+                </p>
+            </section>
+
+            <section className="flex justify-center items-start px-4">
                 <div className="w-full max-w-6xl flex gap-8 items-center">
                     {/* Form Section */}
                     <div className="w-full md:w-1/2 card-container">
@@ -332,7 +342,7 @@ export default function Index(): JSX.Element {
 
             {/* Pourquoi choisir Ma liste de cadeaux */}
             <section className="home-section">
-                <h2 className="font-bold">✅ Pourquoi choisir Ma liste de cadeaux ?</h2>
+                <h2 className="font-bold">Pourquoi choisir Ma liste de cadeaux ? ✅</h2>
 
                 <p>
                     Organisez vos échanges de cadeaux en famille ou entre amis -<strong> Simple, secret et efficace</strong> pour
@@ -496,10 +506,7 @@ export default function Index(): JSX.Element {
 
             <section className="home-section" id="comment-ca-marche">
                 <h2 className="font-bold">
-                    <span role="img" aria-label="cible">
-                        🎯
-                    </span>
-                    Comment organiser vos listes de cadeaux ?
+                    Comment organiser vos listes de cadeaux ? 🎯
                 </h2>
 
                 <div className="flex flex-col md:flex-row justify-around items-center mt-4">
@@ -544,7 +551,7 @@ export default function Index(): JSX.Element {
             </section>
 
             <section className="home-section">
-                <h2 className="text-center font-bold">❓ Questions fréquentes sur les listes de cadeaux</h2>
+                <h2 className="text-center font-bold">Questions fréquentes sur les listes de cadeaux ❓</h2>
                 <div className="item m-4">
                     <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
                         Comment créer une liste de cadeaux pour ma famille ?
@@ -579,7 +586,7 @@ export default function Index(): JSX.Element {
 
             <section className="home-section">
                 <div>
-                    <h2 className="font-bold">🎈 Prêt à organiser vos prochains cadeaux ?</h2>
+                    <h2 className="font-bold">Prêt à organiser vos prochains cadeaux ? 🎈</h2>
                     <p>
                         Rejoignez des milliers de familles qui ont simplifié leurs échanges de cadeaux grâce à notre liste en
                         ligne gratuite
