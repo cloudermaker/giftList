@@ -18,13 +18,9 @@ export default function Custom404() {
                 <h1 className="text-4xl font-bold text-rougeNoel mb-6">404</h1>
 
                 <div className="mb-6 justify-self-center">
-                    <Image
-                        src="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3Y3l5cW52MGdoemV3bXR4cnEwMTN6bHZkeXplc3I5aWM0YXhiN3NzOSZlcD12MV9naWZzX3JlbGF0ZWQmY3Q9Zw/g01ZnwAUvutuK8GIQn/giphy.gif"
-                        alt="Image descriptive"
-                        width={300}
-                        height={300}
-                        unoptimized
-                    />
+                    <video autoPlay loop muted playsInline width={300} height={300}>
+                        <source src="https://media.giphy.com/media/g01ZnwAUvutuK8GIQn/giphy.mp4" type="video/mp4" />
+                    </video>
                 </div>
 
                 <h2 className="text-2xl font-semibold mb-4">Page non trouvée</h2>
