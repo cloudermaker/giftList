@@ -8,7 +8,7 @@ import CustomButton from '../components/atoms/customButton';
 import { ErrorAlert } from '../components/atoms/ErrorAlert';
 import { useLogin } from '@/lib/hooks/useLogin';
 import SEO from '@/components/SEO';
-import { generatePageSchema } from '@/lib/schema/schemaGenerators';
+import { generatePageSchema, generateFAQSchema } from '@/lib/schema/schemaGenerators';
 import GiftIdeasGenerator from '@/components/GiftIdeasGenerator';
 
 // Constants
@@ -145,10 +145,33 @@ export default function Index(): JSX.Element {
 
     return (
         <Layout withHeader={false}>
-            <SEO title={pageTitle} description={pageDescription} canonicalPath="/" ogImage="/og-image-home.jpg" />
+            <SEO 
+                title={pageTitle} 
+                description={pageDescription} 
+                keywords="liste de cadeaux, liste cadeaux gratuite, organiser cadeaux famille, cadeaux Noël, cadeaux anniversaire, partager liste cadeaux, planifier cadeaux groupe, secret Santa, liste souhaits, gestion cadeaux en ligne"
+                canonicalPath="/" 
+                ogImage="/og-image-home.jpg" 
+            />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={generatePageSchema('WebPage', pageTitle, '/', pageDescription)}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={generateFAQSchema([
+                    {
+                        question: "Comment créer une liste de cadeaux pour ma famille ?",
+                        answer: "Il suffit de créer un groupe, d'inviter vos proches et de commencer à ajouter vos envies de cadeaux. Chacun peut voir les listes des autres et réserver secrètement les cadeaux qu'il souhaite offrir."
+                    },
+                    {
+                        question: "Est-ce que le service est vraiment gratuit ?",
+                        answer: "Oui, notre plateforme de gestion de listes de cadeaux est entièrement gratuite. Aucun abonnement, aucune publicité intrusive."
+                    },
+                    {
+                        question: "Puis-je utiliser cette liste pour Noël et les anniversaires ?",
+                        answer: "Absolument ! Notre outil est parfait pour organiser tous vos échanges de cadeaux : Noël, anniversaires, fêtes des mères, mariages, et toute occasion spéciale."
+                    }
+                ])}
             />
 
             {/* Hero Section with H1 */}
@@ -336,7 +359,7 @@ export default function Index(): JSX.Element {
                         <div className="relative min-h-[600px]">
                             <Image
                             src="/login2.jpg"
-                            alt="Gift organization illustration"
+                            alt="Interface de création de liste de cadeaux en ligne - Organisez vos cadeaux en famille facilement"
                             fill
                             className="object-contain"
                             priority
