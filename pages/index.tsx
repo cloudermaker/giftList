@@ -377,8 +377,8 @@ export default function Index(): JSX.Element {
                 <h2 className="font-bold">Pourquoi choisir Ma liste de cadeaux ? ✅</h2>
 
                 <p>
-                    Organisez vos échanges de cadeaux en famille ou entre amis -<strong> Simple, secret et efficace</strong> pour
-                    Noël, anniversaires et toutes vos fêtes !
+                    Organisez vos échanges de cadeaux en famille ou entre amis de manière simple et efficace. Notre outil gratuit de gestion de listes de cadeaux
+                    sécurisées est parfait pour <strong>Noël, anniversaires et toutes vos fêtes</strong> !
                 </p>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 mb-6">
@@ -418,32 +418,32 @@ export default function Index(): JSX.Element {
                             <span className="text-green-500 font-bold text-xl">✓</span>
                             <span>
                                 <strong>100% gratuit</strong>
-                                {" - Aucun frais caché, pas d'abonnement"}
+                                {" - Créez votre liste de cadeaux en ligne sans frais cachés, sans abonnement"}
                             </span>
                         </li>
                         <li className="flex items-start gap-3">
                             <span className="text-green-500 font-bold text-xl">✓</span>
                             <span>
                                 <strong>Sans inscription compliquée</strong>
-                                {" - Pas besoin d'email, juste un nom de groupe et votre prénom"}
+                                {" - Démarrez en 2 minutes sans email. Juste un nom de groupe et votre prénom"}
                             </span>
                         </li>
                         <li className="flex items-start gap-3">
                             <span className="text-green-500 font-bold text-xl">✓</span>
                             <span>
-                                <strong>Gestion secrète</strong> - Les cadeaux réservés restent cachés du destinataire
+                                <strong>Gestion secrète et sécurisée</strong> - Les cadeaux réservés restent cachés du destinataire pour préserver la surprise
                             </span>
                         </li>
                         <li className="flex items-start gap-3">
                             <span className="text-green-500 font-bold text-xl">✓</span>
                             <span>
-                                <strong>Multi-événements</strong> - Une seule liste pour tous les membres de votre groupe familial
+                                <strong>Multi-événements</strong> - Une seule liste partagée pour tous les membres de votre groupe familial ou entre amis
                             </span>
                         </li>
                         <li className="flex items-start gap-3">
                             <span className="text-green-500 font-bold text-xl">✓</span>
                             <span>
-                                <strong>Accessible partout</strong> - Sur mobile, tablette ou ordinateur
+                                <strong>Accessible partout</strong> - Gérez vos listes de cadeaux sur mobile, tablette ou ordinateur
                             </span>
                         </li>
                     </ul>
@@ -589,9 +589,9 @@ export default function Index(): JSX.Element {
                         Comment créer une liste de cadeaux pour ma famille ?
                     </h3>
                     <p>
-                        {
-                            "Il suffit de créer un groupe, d'inviter vos proches et de commencer à ajouter vos envies de cadeaux. Chacun peut voir les listes des autres et réserver secrètement les cadeaux qu'il souhaite offrir."
-                        }
+                        {"Créer une liste de cadeaux en ligne est très simple : créez un groupe, invitez vos proches et commencez à ajouter vos envies de cadeaux. "}
+                        {"Chaque membre peut consulter les listes des autres et réserver secrètement les cadeaux qu'il souhaite offrir. "}
+                        {"Idéal pour éviter les doublons lors des fêtes de Noël ou anniversaires en famille."}
                     </p>
                 </div>
 
@@ -600,8 +600,8 @@ export default function Index(): JSX.Element {
                         Est-ce que le service est vraiment gratuit ?
                     </h3>
                     <p>
-                        Oui, notre plateforme de gestion de listes de cadeaux est entièrement gratuite. Aucun abonnement, aucune
-                        publicité intrusive.
+                        Oui ! Notre plateforme de gestion de listes de cadeaux en ligne est entièrement gratuite. Aucun abonnement,
+                        aucune publicité intrusive, aucun frais caché. Vous pouvez créer autant de groupes et de listes que vous le souhaitez.
                     </p>
                 </div>
 
@@ -610,9 +610,41 @@ export default function Index(): JSX.Element {
                         Puis-je utiliser cette liste pour Noël et les anniversaires ?
                     </h3>
                     <p>
-                        Absolument ! Notre outil est parfait pour organiser tous vos échanges de cadeaux : Noël, anniversaires,
-                        fêtes des mères, mariages, et toute occasion spéciale.
+                        Absolument ! Notre outil est parfait pour organiser tous vos échanges de cadeaux : liste de cadeaux de Noël en famille,
+                        anniversaires, fêtes des mères, mariages, crémaillères, naissances et toute occasion spéciale. Une seule liste pour tous vos événements !
                     </p>
+                </div>
+            </section>
+
+            {/* SEO Content Section - Long-tail keywords */}
+            <section className="home-section">
+                <div className="max-w-4xl mx-auto">
+                    <h2 className="font-bold text-center mb-6">Simplifiez vos échanges de cadeaux en ligne</h2>
+                    
+                    <div className="space-y-4 item">
+                        <p>
+                            <strong>Organiser une liste de cadeaux en famille</strong> n&apos;a jamais été aussi simple. Que vous prépariez 
+                            vos cadeaux de Noël, un anniversaire surprise ou un événement spécial, notre plateforme vous permet de 
+                            <strong> partager vos idées cadeaux</strong> avec vos proches en toute sécurité.
+                        </p>
+                        
+                        <p>
+                            Plus besoin de deviner ce qui ferait plaisir ! Avec notre <strong>outil de liste de cadeaux gratuit</strong>, 
+                            chacun indique ses envies et les autres peuvent réserver discrètement ce qu&apos;ils souhaitent offrir. 
+                            Fini les doublons et les cadeaux qui ne plaisent pas.
+                        </p>
+                        
+                        <p>
+                            Notre système de <strong>liste de cadeaux partagée</strong> est idéal pour les grandes familles, 
+                            les groupes d&apos;amis ou les équipes de travail. Créez votre groupe en moins de 2 minutes, sans inscription email, 
+                            et commencez à planifier vos prochains échanges de cadeaux sereinement.
+                        </p>
+
+                        <p className="text-sm italic text-gray-600 mt-6">
+                            🎁 Astuce : Pour Noël en famille, créez votre liste de cadeaux dès novembre pour laisser le temps à chacun 
+                            de choisir et commander tranquillement. Votre liste reste accessible toute l&apos;année pour tous vos événements !
+                        </p>
+                    </div>
                 </div>
             </section>
 
@@ -620,8 +652,8 @@ export default function Index(): JSX.Element {
                 <div>
                     <h2 className="font-bold">Prêt à organiser vos prochains cadeaux ? 🎈</h2>
                     <p>
-                        Rejoignez des milliers de familles qui ont simplifié leurs échanges de cadeaux grâce à notre liste en
-                        ligne gratuite
+                        Rejoignez des milliers de familles qui ont simplifié leurs échanges de cadeaux grâce à notre outil gratuit de liste de cadeaux en ligne.
+                        Créez votre première liste maintenant et découvrez comme c&apos;est simple !
                     </p>
 
                     <div className="mt-4">
