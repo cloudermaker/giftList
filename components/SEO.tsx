@@ -3,6 +3,7 @@ import Head from 'next/head';
 interface SEOProps {
     title?: string;
     description?: string;
+    keywords?: string;
     ogType?: string;
     ogImage?: string;
     canonicalPath?: string;
@@ -12,6 +13,7 @@ interface SEOProps {
 export default function SEO({
     title = 'Ma liste de cadeaux',
     description = 'Créé ta liste de cadeaux en famille ou entre amis facilement et gratuitement. Indique les cadeaux que tu prends sans que le concerné soit au courant!',
+    keywords = '',
     ogType = 'website',
     ogImage = '/og-image-home.jpg',
     canonicalPath = '',
@@ -27,6 +29,7 @@ export default function SEO({
             {/* Basic Meta Tags */}
             <title>{fullTitle}</title>
             <meta name="description" content={description} />
+            {keywords && <meta name="keywords" content={keywords} />}
             {noIndex ? <meta name="robots" content="noindex, nofollow" /> : <meta name="robots" content="index, follow" />}
             <meta name="author" content="PLR" />
             <meta name="viewport" content="width=device-width, initial-scale=1" />
