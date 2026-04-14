@@ -4,6 +4,14 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [3.8.4] - 2026-04-14
+
+### Amélioré
+
+- Optimisation SEO avancée (keywords, Schema FAQ, alt images, contenu enrichi)
+- Optimisation des chargements d'images
+- Mise à jour du texte sur la page principale
+
 ## [3.8.3] - 2025-12-19
 
 ### Amélioré
