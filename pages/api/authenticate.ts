@@ -1,10 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createGroup, getGroupByName } from '@/lib/db/groupManager';
 import { createUser, getUserByGroupAndName } from '@/lib/db/userManager';
+import { getUserGroups, addUserToGroup, getUserRole } from '@/lib/db/userGroupManager';
 
 export type TGroupAndUser = {
     groupName: string;
     groupId: string;
+    groupIds: string[];     // NOUVEAU: Liste de tous les groupes du user
     userName: string;
     userId: string;
     isAdmin: boolean;
@@ -26,18 +28,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         if (isCreating && group != null) {
             res.status(200).json({ success: false, error: 'Ce nom de groupe existe déjà.' });
         } else if (isCreating) {
+            // Créer le groupe et le user
             const group = await createGroup(groupName, password);
             const user = await createUser(userName, group.id);
+            
+            // Ajouter le user au groupe avec rôle ADMIN (c'est le créateur)
+            await addUserToGroup(user.id, group.id, 'ADMIN');
+            
+            // Récupérer tous les groupes du user (pour l'instant, juste celui-ci)
+            const userGroups = await getUserGroups(user.id);
+            const groupIds = userGroups.map(g => g.id);
 
             res.status(200).json({
                 success: true,
                 error: '',
                 groupUser: {
                     groupId: group.id,
+                    groupIds: groupIds,
                     groupName: group.name,
                     userId: user.id,
                     userName: user.name,
-                    isAdmin: user.isAdmin
+                    isAdmin: true
                 }
             });
         } else if (!isCreating && group == null) {
@@ -48,12 +59,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 error: "Ce prénom n'existe pas."
             });
         } else if (!isCreating && group && user) {
+            // Récupérer tous les groupes du user
+            const userGroups = await getUserGroups(user.id);
+            const groupIds = userGroups.map(g => g.id);
+            
+            // Vérifier le rôle dans le groupe actuel
+            const role = await getUserRole(user.id, group.id);
+            const isAdminInGroup = role === 'ADMIN';
+            
             if (password && group.adminPassword === password) {
                 res.status(200).json({
                     success: true,
                     error: '',
                     groupUser: {
                         groupId: group.id,
+                        groupIds: groupIds,
                         groupName: group.name,
                         userId: user.id,
                         userName: user.name,
@@ -71,10 +91,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                     error: '',
                     groupUser: {
                         groupId: group.id,
+                        groupIds: groupIds,
                         groupName: group.name,
                         userId: user.id,
                         userName: user.name,
-                        isAdmin: false
+                        isAdmin: isAdminInGroup
                     }
                 });
             }

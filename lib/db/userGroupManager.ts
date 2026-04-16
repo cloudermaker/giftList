@@ -126,3 +126,19 @@ export const getUserPrimaryGroup = async (userId: string) => {
   
   return membership?.group || null;
 };
+
+/**
+ * Récupérer le rôle d'un user dans un groupe spécifique
+ */
+export const getUserRole = async (userId: string, groupId: string): Promise<Role | null> => {
+  const membership = await prisma.userGroupMapping.findUnique({
+    where: {
+      userId_groupId: {
+        userId,
+        groupId
+      }
+    }
+  });
+  
+  return membership?.role || null;
+};

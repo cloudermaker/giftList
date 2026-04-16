@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { User } from '@prisma/client';
-import { getUsersFromGroupId, upsertUser } from '@/lib/db/userManager';
+import { upsertUser } from '@/lib/db/userManager';
+import { getGroupUsers } from '@/lib/db/userGroupManager';
 import { COOKIE_NAME } from '@/lib/auth/authService';
 import { TGroupAndUser } from '../authenticate';
 
@@ -39,7 +40,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             res.status(200).json({ success: true, user });
         } else if (req.method === 'GET' && req.query['groupid']) {
-            const users = await getUsersFromGroupId(req.query['groupid'] as string);
+            // Utiliser le nouveau userGroupManager au lieu du manager obsolète
+            const userMemberships = await getGroupUsers(req.query['groupid'] as string);
+            // Extraire juste les users (sans les infos de membership)
+            const users = userMemberships.map(m => ({
+                id: m.id,
+                name: m.name,
+                groupId: m.groupId,
+                isAdmin: m.role === 'ADMIN'  // Convertir le rôle en isAdmin pour compatibilité
+            })) as User[];
 
             res.status(200).json({ success: true, users });
         } else {
