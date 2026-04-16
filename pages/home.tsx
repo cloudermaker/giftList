@@ -9,17 +9,22 @@ import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import CustomButton from '@/components/atoms/customButton';
 import Swal from 'sweetalert2';
 import GiftIdeasGenerator from '@/components/GiftIdeasGenerator';
+import { useActiveGroup } from '@/lib/hooks/useActiveGroup';
 
 export const Home = (): JSX.Element => {
     const { connectedUser } = useCurrentUser();
+    const { activeGroupId, setActiveGroup } = useActiveGroup(connectedUser?.userId);
     const [group, setGroup] = useState<Group>();
     const [description, setDescription] = useState<string | null>();
     const [updatingDescription, setUpdatingDescription] = useState<boolean>(false);
 
+    // Utiliser activeGroupId si disponible, sinon fallback sur connectedUser.groupId
+    const currentGroupId = activeGroupId || connectedUser?.groupId;
+
     useEffect(() => {
         const fetchData = async () => {
-            if (connectedUser) {
-                const response = await AxiosWrapper.get(`/api/group/${connectedUser?.groupId}`);
+            if (connectedUser && currentGroupId) {
+                const response = await AxiosWrapper.get(`/api/group/${currentGroupId}`);
                 const groupInfoResponse = response?.data as TGroupApiResult;
 
                 if (groupInfoResponse && groupInfoResponse.success && groupInfoResponse.group) {
@@ -29,7 +34,7 @@ export const Home = (): JSX.Element => {
         };
 
         fetchData();
-    }, [connectedUser]);
+    }, [connectedUser, currentGroupId]);
 
     const onUpdateDescriptionClick = (): void => {
         setUpdatingDescription(true);

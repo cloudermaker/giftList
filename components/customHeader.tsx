@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAlignJustify } from '@fortawesome/free-solid-svg-icons';
 import { useClickOutside } from './atoms/clickOutsideHook';
+import GroupSelector from './GroupSelector';
 
 export enum EHeader {
     Homepage = 'Homepage',
@@ -48,7 +49,7 @@ export const CustomHeader = ({
 
     return (
         <>
-            <div className="header flex justify-between mt-4 py-2 px-5 mb-4 sm:px-3 bg-gradient-to-r from-vertNoel/10 to-rougeNoel/10">
+            <div className="header flex flex-wrap items-center justify-between mt-4 py-2 px-5 mb-4 sm:px-3 bg-gradient-to-r from-vertNoel/10 to-rougeNoel/10 gap-2">
                 <div
                     onClick={() => Router.push('/home')}
                     className={`${commonStyle} gap-2 flex items-center ${
@@ -59,6 +60,15 @@ export const CustomHeader = ({
                 >
                     <span className={`text-xl ${selectedHeader === EHeader.Homepage ? 'gift-icon' : ''}`}>🏠</span>
                     <span>Accueil</span>
+                </div>
+
+                {/* Group Selector for multi-group support */}
+                <div className="hidden sm:flex items-center">
+                    <GroupSelector 
+                        userId={userId} 
+                        currentGroupId={groupId}
+                        className="text-sm"
+                    />
                 </div>
 
                 {menus.map((menu) => (

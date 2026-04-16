@@ -218,30 +218,42 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
     };
 
     const onBlockUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
-        const result = await AxiosWrapper.put(`/api/gift/${giftToUpdate.id}`, {
-            gift: {
-                id: giftToUpdate.id,
-                takenUserId: giftToUpdate.takenUserId != null ? null : connectedUser?.userId
+        const isTaken = giftToUpdate.takenUserId != null;
+        
+        try {
+            let result;
+            if (isTaken) {
+                // Libérer le cadeau (DELETE)
+                result = await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`);
+            } else {
+                // Réserver le cadeau (POST)
+                result = await AxiosWrapper.post(`/api/gift/${giftToUpdate.id}/take`);
             }
-        });
-        const data = result?.data as TGiftApiResult;
+            
+            const data = result?.data;
 
-        if (data && data.success && data.gift) {
-            const newLocalGifts: Gift[] = [];
-
-            for (const gift of localGifts) {
-                if (gift.id === giftToUpdate.id) {
-                    newLocalGifts.push(data.gift);
-                } else {
-                    newLocalGifts.push(gift);
+            if (data && data.success) {
+                // Recharger le cadeau pour obtenir les données à jour
+                const refreshResult = await AxiosWrapper.get(`/api/gift?giftId=${giftToUpdate.id}`);
+                const refreshData = refreshResult?.data as TGiftApiResult;
+                
+                if (refreshData && refreshData.success && refreshData.gift) {
+                    const newLocalGifts: Gift[] = localGifts.map(gift => 
+                        gift.id === giftToUpdate.id ? refreshData.gift! : gift
+                    );
+                    setLocalGifts(newLocalGifts);
                 }
+            } else {
+                Swal.fire({
+                    title: 'Erreur',
+                    text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
+                    icon: 'error'
+                });
             }
-
-            setLocalGifts(newLocalGifts);
-        } else {
+        } catch (error) {
             Swal.fire({
                 title: 'Erreur',
-                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
+                text: `Erreur lors de la réservation: ${error}`,
                 icon: 'error'
             });
         }

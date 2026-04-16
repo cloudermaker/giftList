@@ -24,15 +24,11 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
     });
 
     const onUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
-        const result = await AxiosWrapper.put(`/api/gift/${giftToUpdate.id}`, {
-            gift: {
-                id: giftToUpdate.id,
-                takenUserId: null
-            }
-        });
-        const data = result?.data as TGiftApiResult;
+        // Utiliser le nouveau endpoint /api/gift/[id]/take pour libérer le cadeau
+        const result = await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`);
+        const data = result?.data;
 
-        if (data && data.success && data.gift) {
+        if (data && data.success) {
             setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftToUpdate.id));
         } else {
             Swal.fire({
@@ -64,25 +60,32 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
             return;
         }
 
-        const result = await AxiosWrapper.post('/api/gift', {
-            gift: {
+        // Utiliser le nouveau endpoint /api/personalGift au lieu de /api/gift
+        const result = await AxiosWrapper.post('/api/personalGift', {
+            personalGift: {
                 name: formData.name,
                 description: formData.description || null,
                 url: formData.link || null,
-                userId: null, // Pas d'utilisateur associé (cadeau personnel)
-                takenUserId: connectedUser?.userId // L'utilisateur qui crée ce cadeau personnel
+                userId: connectedUser?.userId,  // User qui crée le cadeau personnel
+                groupId: connectedUser?.groupId, // Groupe du user
+                forUserId: null  // Pas de destinataire spécifique (cadeau général)
             }
         });
-        const data = result?.data as TGiftApiResult;
+        const data = result?.data;
 
-        if (data && data.success && data.gift) {
-            setLocalTakenGifts((oldGifts) => [
-                ...oldGifts,
-                {
-                    ...data.gift,
-                    user: null
-                } as Gift & { user: User | null }
-            ]);
+        if (data && data.success && data.personalGift) {
+            // Convertir PersonalGift en Gift pour compatibilité d'affichage
+            const giftFromPersonal = {
+                id: data.personalGift.id,
+                name: data.personalGift.name,
+                description: data.personalGift.description,
+                url: data.personalGift.url,
+                userId: null,  // PersonalGift n'a pas de userId (pour compatibilité)
+                takenUserId: connectedUser?.userId,
+                user: null
+            } as Gift & { user: User | null };
+            
+            setLocalTakenGifts((oldGifts) => [...oldGifts, giftFromPersonal]);
             clearAllFields();
         } else {
             Swal.fire({
