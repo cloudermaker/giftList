@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
+}
+
+model Group {
+  id            String  @id @default(uuid())
+  name          String
+  description   String?
+  imageUrl      String?
+  adminPassword String @default("admin")
+
+  users User[]
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model User {
+  id                  String  @id @default(uuid())
+  name                String
+  isAdmin             Boolean @default(false)
+  acceptSuggestedGift Boolean @default(false)
+
+  group   Group?  @relation(fields: [groupId], references: [id])
+  groupId String?
+
+  gifts      Gift[] @relation(name: "user")
+  takenGifts Gift[] @relation(name: "takenUser")
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model Gift {
+  id              String   @id @default(uuid())
+  name            String
+  description     String?
+  url             String?
+  isSuggestedGift Boolean? @default(false)
+  order           Int?
+
+  user   User?   @relation(fields: [userId], references: [id], name: "user")
+  userId String?
+
+  takenUser   User?   @relation(fields: [takenUserId], references: [id], name: "takenUser")
+  takenUserId String?
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+}

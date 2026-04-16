@@ -22,7 +22,7 @@ enum GiftType {
 }
 
 // ============================================
-// MODELS - VERSION TRANSITION
+// MODELS
 // ============================================
 
 model Group {
@@ -32,15 +32,12 @@ model Group {
   imageUrl      String?
   adminPassword String  @default("admin")
 
-  // ANCIEN (à conserver temporairement)
-  users User[]
-
-  // NOUVEAU
+  // Relations
   userMemberships UserGroupMapping[]
   personalGifts   PersonalGift[]
 
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model User {
@@ -49,22 +46,15 @@ model User {
   isAdmin             Boolean @default(false)
   acceptSuggestedGift Boolean @default(false)
 
-  // ANCIEN (à conserver temporairement pour migration)
-  group   Group?  @relation(fields: [groupId], references: [id])
-  groupId String?
+  // Relations
+  groupMemberships UserGroupMapping[]
+  gifts            Gift[]             @relation("GiftOwner")
+  takenGifts       UserTakenGift[]
+  personalGifts    PersonalGift[]     @relation("PersonalGiftCreator")
+  giftsFor         PersonalGift[]     @relation("PersonalGiftRecipient")
 
-  // ANCIEN (relations existantes)
-  gifts      Gift[] @relation(name: "user")
-  takenGifts Gift[] @relation(name: "takenUser")
-
-  // NOUVEAU
-  groupMemberships     UserGroupMapping[]
-  userTakenGifts       UserTakenGift[]
-  personalGifts        PersonalGift[]     @relation("PersonalGiftCreator")
-  personalGiftsFor     PersonalGift[]     @relation("PersonalGiftRecipient")
-
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([name])
 }
@@ -76,6 +66,7 @@ model UserGroupMapping {
   role     Role     @default(MEMBER)
   joinedAt DateTime @default(now())
 
+  // Relations
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
@@ -85,30 +76,28 @@ model UserGroupMapping {
 }
 
 model Gift {
-  id              String    @id @default(uuid())
+  id              String   @id @default(uuid())
   name            String
   description     String?
   url             String?
-  giftType        GiftType  @default(SIMPLE)
-  isSuggestedGift Boolean?  @default(false)
+  giftType        GiftType @default(SIMPLE)
+  isSuggestedGift Boolean  @default(false)
   order           Int?
 
-  // ANCIEN (à conserver temporairement)
-  user   User?   @relation(fields: [userId], references: [id], name: "user")
-  userId String?
+  // Owner (obligatoire maintenant)
+  userId String
+  user   User   @relation("GiftOwner", fields: [userId], references: [id], onDelete: Cascade)
 
-  takenUser   User?   @relation(fields: [takenUserId], references: [id], name: "takenUser")
-  takenUserId String?
-
-  // NOUVEAU
+  // Sub-gifts (self-relation)
   parentGiftId String?
   parentGift   Gift?   @relation("SubGifts", fields: [parentGiftId], references: [id], onDelete: Cascade)
   subGifts     Gift[]  @relation("SubGifts")
 
+  // Réservations
   takenBy UserTakenGift[]
 
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([parentGiftId])
@@ -121,6 +110,7 @@ model UserTakenGift {
   giftId  String
   takenAt DateTime @default(now())
 
+  // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   gift Gift @relation(fields: [giftId], references: [id], onDelete: Cascade)
 
@@ -135,12 +125,15 @@ model PersonalGift {
   description String?
   url         String?
 
+  // Qui apporte ce cadeau
   userId String
   user   User   @relation("PersonalGiftCreator", fields: [userId], references: [id], onDelete: Cascade)
 
+  // Pour qui (optionnel)
   forUserId String?
   forUser   User?   @relation("PersonalGiftRecipient", fields: [forUserId], references: [id], onDelete: SetNull)
 
+  // Dans quel groupe
   groupId String
   group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
 

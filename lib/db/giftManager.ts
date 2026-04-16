@@ -1,4 +1,4 @@
-import { Gift, User } from '@prisma/client';
+import { Gift, User, GiftType } from '@prisma/client';
 import prisma from './dbSingleton';
 
 export const buildDefaultGift = (userId: string, order: number, name?: string, description?: string, url?: string): Gift => {
@@ -11,6 +11,8 @@ export const buildDefaultGift = (userId: string, order: number, name?: string, d
         order,
         takenUserId: null,
         isSuggestedGift: false,
+        giftType: 'SIMPLE' as GiftType,
+        parentGiftId: null,
         updatedAt: new Date(),
         createdAt: new Date()
     };
@@ -97,6 +99,94 @@ export const upsertGift = async (gift: Gift): Promise<Gift> => {
     });
 
     return user;
+};
+
+/**
+ * Récupérer les sous-cadeaux d'un cadeau parent
+ */
+export const getSubGifts = async (parentGiftId: string): Promise<Gift[]> => {
+    return await prisma.gift.findMany({
+        where: {
+            parentGiftId
+        },
+        orderBy: {
+            order: 'asc'
+        }
+    });
+};
+
+/**
+ * Créer un sous-cadeau
+ */
+export const createSubGift = async (
+    parentGiftId: string, 
+    name: string, 
+    description?: string,
+    url?: string
+): Promise<Gift> => {
+    // Récupérer l'ordre max des sous-cadeaux existants
+    const maxOrder = await prisma.gift.aggregate({
+        where: {
+            parentGiftId
+        },
+        _max: {
+            order: true
+        }
+    });
+
+    // Récupérer le parent pour obtenir le userId
+    const parent = await prisma.gift.findUnique({
+        where: { id: parentGiftId }
+    });
+
+    if (!parent) {
+        throw new Error('Parent gift not found');
+    }
+
+    return await prisma.gift.create({
+        data: {
+            name: name.trim(),
+            description: description?.trim() ?? null,
+            url: url?.trim() ?? null,
+            userId: parent.userId,
+            parentGiftId,
+            giftType: 'SIMPLE',
+            isSuggestedGift: false,
+            order: (maxOrder._max.order ?? -1) + 1,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        }
+    });
+};
+
+/**
+ * Récupérer un cadeau avec ses sous-cadeaux et réservations
+ */
+export const getGiftWithDetails = async (giftId: string) => {
+    return await prisma.gift.findUnique({
+        where: { id: giftId },
+        include: {
+            user: true,
+            subGifts: {
+                include: {
+                    takenBy: {
+                        include: {
+                            user: true
+                        }
+                    }
+                },
+                orderBy: {
+                    order: 'asc'
+                }
+            },
+            takenBy: {
+                include: {
+                    user: true
+                }
+            },
+            parentGift: true
+        }
+    });
 };
 
 export const deleteGift = async (giftId: string): Promise<void> => {
