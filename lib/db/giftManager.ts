@@ -24,17 +24,17 @@ export const getGiftFromId = async (id: string): Promise<Gift | null> => {
             id
         },
         include: {
-            userTakenGifts: true  // Inclure les réservations depuis UserTakenGift
+            takenBy: true  // Relation UserTakenGift
         }
     });
 
     if (!gift) return null;
 
     // Ajouter takenUserId depuis UserTakenGift
+    const { takenBy, ...giftWithoutTakenBy } = gift;
     return {
-        ...gift,
-        takenUserId: gift.userTakenGifts.length > 0 ? gift.userTakenGifts[0].userId : null,
-        userTakenGifts: undefined  // Enlever userTakenGifts du résultat
+        ...giftWithoutTakenBy,
+        takenUserId: takenBy.length > 0 ? takenBy[0].userId : null
     } as Gift;
 };
 
@@ -64,7 +64,7 @@ export const getGiftsFromUserId = async (userId: string): Promise<Gift[]> => {
             userId
         },
         include: {
-            userTakenGifts: true  // Inclure les réservations depuis UserTakenGift
+            takenBy: true  // Relation UserTakenGift
         },
         orderBy: {
             order: 'asc'
@@ -72,11 +72,13 @@ export const getGiftsFromUserId = async (userId: string): Promise<Gift[]> => {
     });
 
     // Mapper les gifts en ajoutant takenUserId depuis UserTakenGift
-    return gifts.map(gift => ({
-        ...gift,
-        takenUserId: gift.userTakenGifts.length > 0 ? gift.userTakenGifts[0].userId : null,
-        userTakenGifts: undefined  // Enlever userTakenGifts du résultat
-    })) as Gift[];
+    return gifts.map(gift => {
+        const { takenBy, ...giftWithoutTakenBy } = gift;
+        return {
+            ...giftWithoutTakenBy,
+            takenUserId: takenBy.length > 0 ? takenBy[0].userId : null
+        };
+    }) as Gift[];
 };
 
 export const updateGift = async (giftId: string, gift: Gift): Promise<Gift> => {
