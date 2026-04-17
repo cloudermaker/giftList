@@ -225,10 +225,14 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
             let result;
             if (isTaken) {
                 // Libérer le cadeau (DELETE)
-                result = await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`);
+                result = await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`, {
+                    userId: connectedUser?.userId
+                });
             } else {
                 // Réserver le cadeau (POST)
-                result = await AxiosWrapper.post(`/api/gift/${giftToUpdate.id}/take`);
+                result = await AxiosWrapper.post(`/api/gift/${giftToUpdate.id}/take`, {
+                    userId: connectedUser?.userId
+                });
             }
             
             const data = result?.data;

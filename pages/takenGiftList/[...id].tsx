@@ -25,6 +25,7 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
     const [groupUsers, setGroupUsers] = useState<User[]>([]);
     const [releasingGiftId, setReleasingGiftId] = useState<string | null>(null);
     const [isCreatingGift, setIsCreatingGift] = useState<boolean>(false);
+    const [deletingGiftId, setDeletingGiftId] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         isCreating: false,
         name: '',
@@ -54,7 +55,9 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
         
         try {
             // Utiliser le nouveau endpoint /api/gift/[id]/take pour libérer le cadeau
-            const result = await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`);
+            const result = await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`, {
+                userId: connectedUser?.userId
+            });
             const data = result?.data;
 
             if (data && data.success) {
@@ -152,22 +155,30 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
         });
 
         if (result.isConfirmed) {
-            const apiResult = await AxiosWrapper.delete(`/api/gift/${giftId}`);
-            const data = apiResult?.data as TGiftApiResult;
+            setDeletingGiftId(giftId);
+            
+            try {
+                const apiResult = await AxiosWrapper.delete(`/api/personalGift/${giftId}`, {
+                    userId: connectedUser?.userId
+                });
+                const data = apiResult?.data;
 
-            if (data && data.success === true) {
-                setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftId));
-                swalWithBootstrapButtons.fire({
-                    title: 'Supprimé!',
-                    text: 'Le cadeau a été supprimé.',
-                    icon: 'success'
-                });
-            } else {
-                swalWithBootstrapButtons.fire({
-                    title: 'Erreur!',
-                    text: "Le cadeau n'a pas pu être supprimé.",
-                    icon: 'error'
-                });
+                if (data && data.success === true) {
+                    setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftId));
+                    swalWithBootstrapButtons.fire({
+                        title: 'Supprimé!',
+                        text: 'Le cadeau a été supprimé.',
+                        icon: 'success'
+                    });
+                } else {
+                    swalWithBootstrapButtons.fire({
+                        title: 'Erreur!',
+                        text: data?.error || "Le cadeau n'a pas pu être supprimé.",
+                        icon: 'error'
+                    });
+                }
+            } finally {
+                setDeletingGiftId(null);
             }
         }
     };
@@ -267,7 +278,12 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                                 </div>
 
                                 <div className="flex flex-col gap-2">
-                                    <CustomButton onClick={() => deletePersonalGift(gift.id)}>Supprimer</CustomButton>
+                                    <CustomButton 
+                                        onClick={() => deletePersonalGift(gift.id)}
+                                        disabled={deletingGiftId === gift.id}
+                                    >
+                                        {deletingGiftId === gift.id ? 'Suppression...' : 'Supprimer'}
+                                    </CustomButton>
                                 </div>
                             </div>
                         ))
@@ -369,6 +385,12 @@ export async function getServerSideProps(context: NextPageContext) {
     // Charger les cadeaux réservés (takenUserId)
     const takenGifts = await getTakenGiftsFromUserId(userId);
     
+    // Ajouter forUser: null aux cadeaux réservés (ils n'ont pas de destinataire)
+    const takenGiftsWithForUser = takenGifts.map(gift => ({
+        ...gift,
+        forUser: null
+    }));
+    
     // Charger les cadeaux personnels créés par le user
     const personalGifts = await getPersonalGiftsByUser(userId);
     
@@ -391,7 +413,7 @@ export async function getServerSideProps(context: NextPageContext) {
     }));
     
     // Fusionner les deux listes
-    const allGifts = [...takenGifts, ...personalGiftsAsGifts];
+    const allGifts = [...takenGiftsWithForUser, ...personalGiftsAsGifts];
 
     return {
         props: {

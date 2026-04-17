@@ -19,42 +19,64 @@ export const buildDefaultGift = (userId: string, order: number, name?: string, d
 };
 
 export const getGiftFromId = async (id: string): Promise<Gift | null> => {
-    var gift = await prisma.gift.findFirst({
+    const gift = await prisma.gift.findFirst({
         where: {
             id
+        },
+        include: {
+            userTakenGifts: true  // Inclure les réservations depuis UserTakenGift
         }
     });
 
-    return gift;
+    if (!gift) return null;
+
+    // Ajouter takenUserId depuis UserTakenGift
+    return {
+        ...gift,
+        takenUserId: gift.userTakenGifts.length > 0 ? gift.userTakenGifts[0].userId : null,
+        userTakenGifts: undefined  // Enlever userTakenGifts du résultat
+    } as Gift;
 };
 
 export const getTakenGiftsFromUserId = async (userId: string): Promise<(Gift & { user: User | null })[]> => {
-    var gifts = await prisma.gift.findMany({
-        where: {
-            takenUserId: userId
-        },
-        include: {
-            user: true
-        },
-        orderBy: {
-            order: 'asc'
-        }
-    });
-
-    return gifts;
-};
-
-export const getGiftsFromUserId = async (userId: string): Promise<Gift[]> => {
-    var gifts = await prisma.gift.findMany({
+    // Utiliser UserTakenGift (v4.0.0) au lieu de Gift.takenUserId
+    const takenGiftRecords = await prisma.userTakenGift.findMany({
         where: {
             userId
         },
+        include: {
+            gift: {
+                include: {
+                    user: true
+                }
+            }
+        }
+    });
+
+    // Extraire les gifts avec leur user
+    return takenGiftRecords.map(record => record.gift);
+};
+
+export const getGiftsFromUserId = async (userId: string): Promise<Gift[]> => {
+    // Charger les cadeaux avec les réservations depuis UserTakenGift
+    const gifts = await prisma.gift.findMany({
+        where: {
+            userId
+        },
+        include: {
+            userTakenGifts: true  // Inclure les réservations depuis UserTakenGift
+        },
         orderBy: {
             order: 'asc'
         }
     });
 
-    return gifts;
+    // Mapper les gifts en ajoutant takenUserId depuis UserTakenGift
+    return gifts.map(gift => ({
+        ...gift,
+        takenUserId: gift.userTakenGifts.length > 0 ? gift.userTakenGifts[0].userId : null,
+        userTakenGifts: undefined  // Enlever userTakenGifts du résultat
+    })) as Gift[];
 };
 
 export const updateGift = async (giftId: string, gift: Gift): Promise<Gift> => {

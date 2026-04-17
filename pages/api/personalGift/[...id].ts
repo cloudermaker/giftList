@@ -16,7 +16,9 @@ import {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const { id } = req.query;
+    // Extraire l'ID depuis le catch-all route [...id]
+    const rawId = req.query.id;
+    const id = Array.isArray(rawId) ? rawId[0] : rawId;
 
     if (!id || typeof id !== 'string') {
       return res.status(400).json({ error: 'Gift ID required' });

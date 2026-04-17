@@ -4,9 +4,7 @@
  * Séparés des wishlists normales
  */
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from './dbSingleton';
 
 export interface PersonalGiftData {
   name: string;

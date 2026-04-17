@@ -21,10 +21,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       where: { groupId: { not: null } }
     });
     
-    // Gifts réservés (takenUserId)
-    const takenGifts = await prisma.gift.count({
-      where: { takenUserId: { not: null } }
-    });
+    // Gifts réservés (UserTakenGift v4.0.0)
+    const takenGifts = await prisma.userTakenGift.count();
     
     // Gifts personnels (userId = null)
     const personalGifts = await prisma.gift.count({

@@ -3,9 +3,7 @@
  * Gère les réservations de cadeaux (remplace Gift.takenUserId)
  */
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from './dbSingleton';
 
 /**
  * Réserver un cadeau (logique hybride parent/enfant)

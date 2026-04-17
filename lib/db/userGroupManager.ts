@@ -3,9 +3,8 @@
  * Gère les relations many-to-many entre users et groupes via UserGroupMapping
  */
 
-import { PrismaClient, Role } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { Role } from '@prisma/client';
+import prisma from './dbSingleton';
 
 /**
  * Récupérer tous les groupes d'un user

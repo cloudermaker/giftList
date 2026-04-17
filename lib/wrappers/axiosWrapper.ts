@@ -54,9 +54,12 @@ export default class AxiosWrapper {
         }
     }
 
-    static async delete(url: string): Promise<AxiosResponse<any, any> | undefined> {
+    static async delete(url: string, data?: any): Promise<AxiosResponse<any, any> | undefined> {
         try {
-            return await axios.delete(url, { withCredentials: true });
+            return await axios.delete(url, { 
+                data,
+                withCredentials: true 
+            });
         } catch (ex) {
             console.log(`delete: ${(ex as any).message}`);
             Swal.fire(
