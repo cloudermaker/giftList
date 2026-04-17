@@ -53,11 +53,10 @@ model User {
   group   Group?  @relation(fields: [groupId], references: [id])
   groupId String?
 
-  // ANCIEN (relations existantes)
+  // Relations
   gifts      Gift[] @relation(name: "user")
-  takenGifts Gift[] @relation(name: "takenUser")
-
-  // NOUVEAU
+  
+  // v4.0.0
   groupMemberships     UserGroupMapping[]
   userTakenGifts       UserTakenGift[]
   personalGifts        PersonalGift[]     @relation("PersonalGiftCreator")
@@ -93,18 +92,16 @@ model Gift {
   isSuggestedGift Boolean?  @default(false)
   order           Int?
 
-  // ANCIEN (à conserver temporairement)
+  // Owner du cadeau
   user   User?   @relation(fields: [userId], references: [id], name: "user")
   userId String?
 
-  takenUser   User?   @relation(fields: [takenUserId], references: [id], name: "takenUser")
-  takenUserId String?
-
-  // NOUVEAU
+  // Sub-gifts (self-relation)
   parentGiftId String?
   parentGift   Gift?   @relation("SubGifts", fields: [parentGiftId], references: [id], onDelete: Cascade)
   subGifts     Gift[]  @relation("SubGifts")
 
+  // Réservations (v4.0.0)
   takenBy UserTakenGift[]
 
   createdAt DateTime? @default(now())
