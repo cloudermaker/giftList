@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createGroup, getGroupByName } from '@/lib/db/groupManager';
 import { createUser, getUserByGroupAndName } from '@/lib/db/userManager';
-import { getUserGroups, addUserToGroup } from '@/lib/db/userGroupManager';
+import { addUserToGroup } from '@/lib/db/userGroupManager';
 
 export type TGroupAndUser = {
     groupName: string;
@@ -34,17 +34,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             
             // Ajouter le user au groupe avec rôle ADMIN (c'est le créateur)
             await addUserToGroup(user.id, group.id, 'ADMIN');
-            
-            // Récupérer tous les groupes du user (pour l'instant, juste celui-ci)
-            const userGroups = await getUserGroups(user.id);
-            const groupIds = userGroups.map(g => g.id);
 
             res.status(200).json({
                 success: true,
                 error: '',
                 groupUser: {
                     groupId: group.id,
-                    groupIds: groupIds,
+                    groupIds: [group.id],
                     groupName: group.name,
                     userId: user.id,
                     userName: user.name,
@@ -59,17 +55,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 error: "Ce prénom n'existe pas."
             });
         } else if (!isCreating && group && user) {
-            // Récupérer tous les groupes du user
-            const userGroups = await getUserGroups(user.id);
-            const groupIds = userGroups.map(g => g.id);
-            
             if (password && group.adminPassword === password) {
                 res.status(200).json({
                     success: true,
                     error: '',
                     groupUser: {
                         groupId: group.id,
-                        groupIds: groupIds,
+                        groupIds: [group.id],
                         groupName: group.name,
                         userId: user.id,
                         userName: user.name,
@@ -89,7 +81,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                     error: '',
                     groupUser: {
                         groupId: group.id,
-                        groupIds: groupIds,
+                        groupIds: [group.id],
                         groupName: group.name,
                         userId: user.id,
                         userName: user.name,

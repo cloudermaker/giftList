@@ -41,7 +41,7 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                         setGroupUsers(response.data.users);
                     }
                 } catch (error) {
-                    console.error('Erreur chargement users:', error);
+                    // Silently fail if unable to fetch group users
                 }
             }
         };

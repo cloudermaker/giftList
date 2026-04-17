@@ -89,7 +89,6 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                 const response = await AxiosWrapper.get(`/api/user?groupid=${user.groupId}`);
 
                 if (response?.status !== 200) {
-                    console.log('Unable to fetch users by group');
                     setLoadingGroupUsers(false);
                     return;
                 }
