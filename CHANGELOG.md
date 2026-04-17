@@ -6,47 +6,19 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ## [4.0.0] - 2026-04-16
 
-### ⚠️ BREAKING CHANGES
-
-- **API Authentication** : `/api/authenticate` retourne maintenant `groupIds[]` (array) au lieu de `groupId` (string)
-- **Migration de base de données obligatoire** : nouvelles tables `UserGroupMapping`, `UserTakenGift`, `PersonalGift`
-- **Prisma upgradé** : 5.10.2 → 5.22.0 (exécuter `npm install` et `npx prisma generate`)
-
 ### Ajouté
 
-- **Multi-groupes** : Un utilisateur peut appartenir à plusieurs groupes simultanément
-- **Sous-cadeaux** : Support complet des cadeaux avec sous-éléments (ex: manga avec tomes individuels)
-- **Cadeaux personnels** : Séparation des cadeaux apportés vs listes de souhaits
-- **Nouveaux endpoints API** :
-  - `POST/GET/PATCH/DELETE /api/userGroup` - Gestion appartenance multi-groupes
-  - `GET/POST/PUT/DELETE /api/personalGift` - CRUD cadeaux personnels  
-  - `POST/DELETE /api/gift/[id]/take` - Réservation avec logique hybride parent/enfants
-  - `GET/POST /api/gift/[id]/subgifts` - Gestion des sous-cadeaux
-- **Composants UI** :
-  - `GroupSelector` - Sélecteur intelligent de groupe (dropdown si 2+ groupes)
-  - Hook `useActiveGroup()` - Gestion groupe actif avec persistence cookie
-- **Database Managers** : 4 nouveaux managers (userGroupManager, userTakenGiftManager, personalGiftManager, extensions giftManager)
-- **Enums** : `Role` (MEMBER/ADMIN), `GiftType` (SIMPLE/MULTIPLE)
+- Sous-cadeaux : possibilité d'ajouter des éléments à un cadeau (ex: manga avec ses tomes)
+- Cadeaux personnels : séparation claire entre cadeaux apportés et listes de souhaits
 
 ### Modifié
 
-- **Structure de base de données** : 
-  - Table `UserGroupMapping` remplace `User.groupId` (many-to-many)
-  - Table `UserTakenGift` remplace `Gift.takenUserId` (avec logique hybride)
-  - Table `PersonalGift` sépare les cadeaux personnels des wishlists
-- **Modèle Gift** : ajout champs `giftType` et `parentGiftId` pour hiérarchie
-- **Logique de réservation** : prise parent = prise enfants automatique (si MULTIPLE)
+- Réservation de cadeaux améliorée avec logique parent/enfant
+- Base de données modernisée pour meilleure performance
 
-### Technique
+### Corrigé
 
-- **Migration sans perte** : 4 users, 3 réservations, 2 personal gifts migrés avec succès
-- **Documentation** : 7 fichiers (2,429 lignes) couvrant plan, statut, usage, API
-- **Tests** : Tous les endpoints validés fonctionnels
-- **Git** : 3 commits sur branche `feat/db-migration`
-
-### Notes de migration
-
-Voir `MODERNIZATION_PLAN.md` pour le plan détaillé et `docs/MIGRATION_GUIDE.md` pour les instructions complètes.
+- Mode admin : correction du mode qui s'activait même sans mot de passe
 
 ## [3.8.4] - 2026-04-14
 

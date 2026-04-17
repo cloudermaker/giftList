@@ -2,9 +2,10 @@ import CustomButton from '@/components/atoms/customButton';
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
 import { getTakenGiftsFromUserId } from '@/lib/db/giftManager';
-import { Gift, User } from '@prisma/client';
+import { getPersonalGiftsByUser } from '@/lib/db/personalGiftManager';
+import { Gift, User, GiftType } from '@prisma/client';
 import { NextPageContext } from 'next';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TGiftApiResult } from '@/pages/api/gift';
 import Swal from 'sweetalert2';
 import { GiftIcon } from '@/components/icons/gift';
@@ -12,17 +13,40 @@ import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import ModernLink from '@/components/atoms/ModernLink';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 
-const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null })[] }): JSX.Element => {
+// Type étendu pour inclure forUser (pour les personal gifts)
+type GiftWithForUser = Gift & { 
+    user: User | null;
+    forUser?: User | null;
+};
+
+const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.Element => {
     const { connectedUser } = useCurrentUser();
-    const [localTakenGifts, setLocalTakenGifts] = useState<(Gift & { user: User | null })[]>(takenGifts);
+    const [localTakenGifts, setLocalTakenGifts] = useState<GiftWithForUser[]>(takenGifts);
+    const [groupUsers, setGroupUsers] = useState<User[]>([]);
     const [formData, setFormData] = useState({
         isCreating: false,
         name: '',
         description: '',
         link: '',
+        forUserId: '', // '' = personne, connectedUser.userId = moi, autre = user du groupe
         error: ''
     });
-
+    // Charger les users du groupe
+    useEffect(() => {
+        const loadGroupUsers = async () => {
+            if (connectedUser?.groupId) {
+                try {
+                    const response = await AxiosWrapper.get(`/api/user?groupid=${connectedUser.groupId}`);
+                    if (response?.data?.success && response.data.users) {
+                        setGroupUsers(response.data.users);
+                    }
+                } catch (error) {
+                    console.error('Erreur chargement users:', error);
+                }
+            }
+        };
+        loadGroupUsers();
+    }, [connectedUser?.groupId]);
     const onUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
         // Utiliser le nouveau endpoint /api/gift/[id]/take pour libérer le cadeau
         const result = await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`);
@@ -50,6 +74,7 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
             name: '',
             description: '',
             link: '',
+            forUserId: '',
             error: ''
         });
     };
@@ -68,22 +93,23 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
                 url: formData.link || null,
                 userId: connectedUser?.userId,  // User qui crée le cadeau personnel
                 groupId: connectedUser?.groupId, // Groupe du user
-                forUserId: null  // Pas de destinataire spécifique (cadeau général)
+                forUserId: formData.forUserId || null  // Destinataire sélectionné (ou null si "Personne")
             }
         });
         const data = result?.data;
 
         if (data && data.success && data.personalGift) {
             // Convertir PersonalGift en Gift pour compatibilité d'affichage
-            const giftFromPersonal = {
+            const giftFromPersonal: GiftWithForUser = {
                 id: data.personalGift.id,
                 name: data.personalGift.name,
                 description: data.personalGift.description,
                 url: data.personalGift.url,
                 userId: null,  // PersonalGift n'a pas de userId (pour compatibilité)
                 takenUserId: connectedUser?.userId,
-                user: null
-            } as Gift & { user: User | null };
+                user: null,
+                forUser: data.personalGift.forUser || null  // Garder l'info du destinataire
+            } as GiftWithForUser;
             
             setLocalTakenGifts((oldGifts) => [...oldGifts, giftFromPersonal]);
             clearAllFields();
@@ -202,6 +228,13 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
                                         {gift.name}
                                     </p>
 
+                                    {gift.forUser && (
+                                        <p>
+                                            <b className="pr-2">Pour:</b>
+                                            {gift.forUser.name}
+                                        </p>
+                                    )}
+
                                     {gift.description && (
                                         <p>
                                             <b className="pr-2">Description:</b>
@@ -233,19 +266,40 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
                     <div className="block pt-3">
                         <b>Ajouter un cadeau personnel:</b>
                         <p className="text-sm text-gray-600 mb-2">
-                            Ce cadeau ne sera visible que par toi et ne sera pas associé à un utilisateur
+                            Ce cadeau ne sera visible que par toi
                         </p>
                         {formData.error && <p className="text-red-500">{formData.error}</p>}
 
                         <div className="input-group pt-3">
-                            <label className="input-label">Nom (incluant la personne):</label>
+                            <label className="input-label">Nom du cadeau:</label>
                             <textarea
                                 id="newGiftInputId"
                                 className="input-field"
                                 value={formData.name}
                                 onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                                placeholder="Ex: Livre pour Marie"
+                                placeholder="Ex: Livre Harry Potter"
                             />
+                        </div>
+
+                        <div className="input-group">
+                            <label className="input-label">Pour qui ?</label>
+                            <select
+                                className="input-field"
+                                value={formData.forUserId}
+                                onChange={(e) => setFormData((prev) => ({ ...prev, forUserId: e.target.value }))}
+                            >
+                                <option value="">Personne en particulier</option>
+                                <option value={connectedUser?.userId}>Moi-même</option>
+                                <option disabled>──────────</option>
+                                {groupUsers
+                                    .filter(u => u.id !== connectedUser?.userId)
+                                    .map(user => (
+                                        <option key={user.id} value={user.id}>
+                                            {user.name}
+                                        </option>
+                                    ))
+                                }
+                            </select>
                         </div>
 
                         <div className="input-group">
@@ -291,21 +345,53 @@ export async function getServerSideProps(context: NextPageContext) {
         };
     }
 
+    // Charger les cadeaux réservés (takenUserId)
     const takenGifts = await getTakenGiftsFromUserId(userId);
+    
+    // Charger les cadeaux personnels créés par le user
+    const personalGifts = await getPersonalGiftsByUser(userId);
+    
+    // Convertir PersonalGifts en format Gift pour compatibilité
+    const personalGiftsAsGifts = personalGifts.map(pg => ({
+        id: pg.id,
+        name: pg.name,
+        description: pg.description,
+        url: pg.url,
+        userId: null,
+        order: 0,
+        takenUserId: userId,
+        isSuggestedGift: false,
+        giftType: 'SIMPLE' as GiftType,
+        parentGiftId: null,
+        updatedAt: pg.updatedAt,
+        createdAt: pg.createdAt,
+        user: null,
+        forUser: pg.forUser || null
+    }));
+    
+    // Fusionner les deux listes
+    const allGifts = [...takenGifts, ...personalGiftsAsGifts];
 
     return {
         props: {
-            takenGifts: takenGifts.map((takenGift) => ({
-                ...takenGift,
-                user: takenGift.user
+            takenGifts: allGifts.map((gift) => ({
+                ...gift,
+                user: gift.user
                     ? {
-                          ...takenGift.user,
-                          updatedAt: takenGift.user.updatedAt?.toISOString() ?? '',
-                          createdAt: takenGift.user.createdAt?.toISOString() ?? ''
+                          ...gift.user,
+                          updatedAt: gift.user.updatedAt?.toISOString() ?? '',
+                          createdAt: gift.user.createdAt?.toISOString() ?? ''
                       }
                     : null,
-                updatedAt: takenGift.updatedAt?.toISOString() ?? '',
-                createdAt: takenGift.createdAt?.toISOString() ?? ''
+                forUser: gift.forUser
+                    ? {
+                          ...gift.forUser,
+                          updatedAt: gift.forUser.updatedAt?.toISOString() ?? '',
+                          createdAt: gift.forUser.createdAt?.toISOString() ?? ''
+                      }
+                    : null,
+                updatedAt: gift.updatedAt?.toISOString() ?? '',
+                createdAt: gift.createdAt?.toISOString() ?? ''
             }))
         }
     };

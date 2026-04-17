@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createGroup, getGroupByName } from '@/lib/db/groupManager';
 import { createUser, getUserByGroupAndName } from '@/lib/db/userManager';
-import { getUserGroups, addUserToGroup, getUserRole } from '@/lib/db/userGroupManager';
+import { getUserGroups, addUserToGroup } from '@/lib/db/userGroupManager';
 
 export type TGroupAndUser = {
     groupName: string;
@@ -63,10 +63,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const userGroups = await getUserGroups(user.id);
             const groupIds = userGroups.map(g => g.id);
             
-            // Vérifier le rôle dans le groupe actuel
-            const role = await getUserRole(user.id, group.id);
-            const isAdminInGroup = role === 'ADMIN';
-            
             if (password && group.adminPassword === password) {
                 res.status(200).json({
                     success: true,
@@ -86,6 +82,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                     error: 'Mauvais mot de passe'
                 });
             } else {
+                // Connexion sans mot de passe = toujours mode user normal (isAdmin: false)
+                // même si le user a un rôle ADMIN dans UserGroupMapping
                 res.status(200).json({
                     success: true,
                     error: '',
@@ -95,7 +93,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                         groupName: group.name,
                         userId: user.id,
                         userName: user.name,
-                        isAdmin: isAdminInGroup
+                        isAdmin: false
                     }
                 });
             }

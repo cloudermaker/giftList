@@ -49,7 +49,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // POST - Créer un cadeau personnel
     if (req.method === 'POST') {
-      const { name, description, url, userId, forUserId, groupId } = req.body;
+      const { personalGift } = req.body;
+      
+      if (!personalGift) {
+        return res.status(400).json({ error: 'personalGift object required' });
+      }
+
+      const { name, description, url, userId, forUserId, groupId } = personalGift;
 
       if (!name || !userId || !groupId) {
         return res.status(400).json({ error: 'name, userId and groupId required' });
@@ -60,13 +66,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         description: description?.trim(),
         url: url?.trim(),
         userId,
-        forUserId,
+        forUserId: forUserId || undefined,
         groupId
       });
 
       return res.status(201).json({
         success: true,
-        gift
+        personalGift: gift
       });
     }
 

@@ -348,6 +348,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                                         <i>
                                                             <div className="flex">
                                                                 <span className="pr-2">Créé:</span>
+                                                                ah bon ??
                                                                 {gift.createdAt?.toLocaleString()}
                                                             </div>
 
