@@ -52,7 +52,7 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
                     } else {
                         swalWithBootstrapButtons.fire({
                             title: 'Erreur',
-                            text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
+                            text: data?.error || 'Impossible de supprimer cet utilisateur. Réessayez dans quelques instants.',
                             icon: 'error'
                         });
                     }
@@ -88,7 +88,7 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
         } else {
             Swal.fire({
                 title: 'Erreur',
-                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? 'erreur technique'}`,
+                text: data?.error || 'Impossible de créer cet utilisateur. Réessayez dans quelques instants.',
                 icon: 'error'
             });
         }

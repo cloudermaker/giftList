@@ -23,6 +23,8 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
     const { connectedUser } = useCurrentUser();
     const [localTakenGifts, setLocalTakenGifts] = useState<GiftWithForUser[]>(takenGifts);
     const [groupUsers, setGroupUsers] = useState<User[]>([]);
+    const [releasingGiftId, setReleasingGiftId] = useState<string | null>(null);
+    const [isCreatingGift, setIsCreatingGift] = useState<boolean>(false);
     const [formData, setFormData] = useState({
         isCreating: false,
         name: '',
@@ -48,18 +50,24 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
         loadGroupUsers();
     }, [connectedUser?.groupId]);
     const onUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
-        // Utiliser le nouveau endpoint /api/gift/[id]/take pour libérer le cadeau
-        const result = await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`);
-        const data = result?.data;
+        setReleasingGiftId(giftToUpdate.id);
+        
+        try {
+            // Utiliser le nouveau endpoint /api/gift/[id]/take pour libérer le cadeau
+            const result = await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`);
+            const data = result?.data;
 
-        if (data && data.success) {
-            setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftToUpdate.id));
-        } else {
-            Swal.fire({
-                title: 'Erreur',
-                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
-                icon: 'error'
-            });
+            if (data && data.success) {
+                setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftToUpdate.id));
+            } else {
+                Swal.fire({
+                    title: 'Erreur',
+                    text: data?.error || 'Impossible de libérer ce cadeau. Réessayez dans quelques instants.',
+                    icon: 'error'
+                });
+            }
+        } finally {
+            setReleasingGiftId(null);
         }
     };
 
@@ -85,40 +93,46 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
             return;
         }
 
-        // Utiliser le nouveau endpoint /api/personalGift au lieu de /api/gift
-        const result = await AxiosWrapper.post('/api/personalGift', {
-            personalGift: {
-                name: formData.name,
-                description: formData.description || null,
-                url: formData.link || null,
-                userId: connectedUser?.userId,  // User qui crée le cadeau personnel
-                groupId: connectedUser?.groupId, // Groupe du user
-                forUserId: formData.forUserId || null  // Destinataire sélectionné (ou null si "Personne")
-            }
-        });
-        const data = result?.data;
+        setIsCreatingGift(true);
 
-        if (data && data.success && data.personalGift) {
-            // Convertir PersonalGift en Gift pour compatibilité d'affichage
-            const giftFromPersonal: GiftWithForUser = {
-                id: data.personalGift.id,
-                name: data.personalGift.name,
-                description: data.personalGift.description,
-                url: data.personalGift.url,
-                userId: null,  // PersonalGift n'a pas de userId (pour compatibilité)
-                takenUserId: connectedUser?.userId,
-                user: null,
-                forUser: data.personalGift.forUser || null  // Garder l'info du destinataire
-            } as GiftWithForUser;
-            
-            setLocalTakenGifts((oldGifts) => [...oldGifts, giftFromPersonal]);
-            clearAllFields();
-        } else {
-            Swal.fire({
-                title: 'Erreur',
-                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
-                icon: 'error'
+        try {
+            // Utiliser le nouveau endpoint /api/personalGift au lieu de /api/gift
+            const result = await AxiosWrapper.post('/api/personalGift', {
+                personalGift: {
+                    name: formData.name,
+                    description: formData.description || null,
+                    url: formData.link || null,
+                    userId: connectedUser?.userId,  // User qui crée le cadeau personnel
+                    groupId: connectedUser?.groupId, // Groupe du user
+                    forUserId: formData.forUserId || null  // Destinataire sélectionné (ou null si "Personne")
+                }
             });
+            const data = result?.data;
+
+            if (data && data.success && data.personalGift) {
+                // Convertir PersonalGift en Gift pour compatibilité d'affichage
+                const giftFromPersonal: GiftWithForUser = {
+                    id: data.personalGift.id,
+                    name: data.personalGift.name,
+                    description: data.personalGift.description,
+                    url: data.personalGift.url,
+                    userId: null,  // PersonalGift n'a pas de userId (pour compatibilité)
+                    takenUserId: connectedUser?.userId,
+                    user: null,
+                    forUser: data.personalGift.forUser || null  // Garder l'info du destinataire
+                } as GiftWithForUser;
+                
+                setLocalTakenGifts((oldGifts) => [...oldGifts, giftFromPersonal]);
+                clearAllFields();
+            } else {
+                Swal.fire({
+                    title: 'Erreur',
+                    text: data?.error || 'Impossible d\'ajouter ce cadeau. Réessayez dans quelques instants.',
+                    icon: 'error'
+                });
+            }
+        } finally {
+            setIsCreatingGift(false);
         }
     };
 
@@ -198,8 +212,11 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                                 </div>
 
                                 <div className="flex flex-col gap-2">
-                                    <CustomButton onClick={() => onUnBlockGiftClick(gift)}>
-                                        Je ne prends plus ce cadeau
+                                    <CustomButton 
+                                        onClick={() => onUnBlockGiftClick(gift)}
+                                        disabled={releasingGiftId === gift.id}
+                                    >
+                                        {releasingGiftId === gift.id ? 'Libération...' : 'Je ne prends plus ce cadeau'}
                                     </CustomButton>
                                 </div>
                             </div>
@@ -321,8 +338,12 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                         </div>
 
                         <div className="py-2">
-                            <CustomButton className="green-button" onClick={createPersonalGift} disabled={formData.name === ''}>
-                                Valider
+                            <CustomButton 
+                                className="green-button" 
+                                onClick={createPersonalGift} 
+                                disabled={formData.name === '' || isCreatingGift}
+                            >
+                                {isCreatingGift ? 'Ajout en cours...' : 'Valider'}
                             </CustomButton>
 
                             <CustomButton onClick={clearAllFields}>Annuler</CustomButton>

@@ -81,6 +81,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
     const [groupUserMap, setGroupUserMap] = useState<{ [key: string]: User }>({});
     const [loadingGroupUsers, setLoadingGroupUsers] = useState<boolean>(true);
     const [revealedGiftIds, setRevealedGiftIds] = useState<Set<string>>(new Set());
+    const [takingGiftId, setTakingGiftId] = useState<string | null>(null);
 
     useEffect(() => {
         const fillTakenUserMap = async () => {
@@ -143,7 +144,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                     } else {
                         swalWithBootstrapButtons.fire({
                             title: 'Erreur',
-                            text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
+                            text: data?.error || 'Impossible de supprimer ce cadeau. Réessayez dans quelques instants.',
                             icon: 'error'
                         });
                     }
@@ -218,6 +219,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
 
     const onBlockUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
         const isTaken = giftToUpdate.takenUserId != null;
+        setTakingGiftId(giftToUpdate.id);
         
         try {
             let result;
@@ -245,7 +247,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
             } else {
                 Swal.fire({
                     title: 'Erreur',
-                    text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
+                    text: data?.error || 'Impossible de réserver ce cadeau. Réessayez dans quelques instants.',
                     icon: 'error'
                 });
             }
@@ -255,6 +257,8 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                 text: `Erreur lors de la réservation: ${error}`,
                 icon: 'error'
             });
+        } finally {
+            setTakingGiftId(null);
         }
     };
 
@@ -420,8 +424,11 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                                     ))}
 
                                                 {!userCanAddGift && gift.takenUserId === connectedUser?.userId && (
-                                                    <CustomButton onClick={() => onBlockUnBlockGiftClick(gift)}>
-                                                        Je ne prends plus ce cadeau
+                                                    <CustomButton 
+                                                        onClick={() => onBlockUnBlockGiftClick(gift)}
+                                                        disabled={takingGiftId === gift.id}
+                                                    >
+                                                        {takingGiftId === gift.id ? 'Libération...' : 'Je ne prends plus ce cadeau'}
                                                     </CustomButton>
                                                 )}
 
@@ -482,8 +489,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                                                         <CustomButton
                                                             className="green-button"
                                                             onClick={() => onBlockUnBlockGiftClick(gift)}
+                                                            disabled={takingGiftId === gift.id}
                                                         >
-                                                            Je prends ce cadeau
+                                                            {takingGiftId === gift.id ? 'Réservation...' : 'Je prends ce cadeau'}
                                                         </CustomButton>
                                                     )}
                                             </div>

@@ -50,7 +50,7 @@ export const Home = (): JSX.Element => {
         } else {
             Swal.fire({
                 title: 'Erreur',
-                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
+                text: data?.error || 'Impossible de sauvegarder la description. Réessayez dans quelques instants.',
                 icon: 'error'
             });
         }
