@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { COOKIE_NAME } from '@/lib/auth/authService';
 import { User } from '@prisma/client';
 import { deleteUser, getUserById, updateUser } from '@/lib/db/userManager';
+import { getUserGroups, countGroupAdmins, isUserGroupAdmin } from '@/lib/db/userGroupManager';
 
 export type TUserApiResult = {
     success: boolean;
@@ -24,6 +25,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 res.status(404).json({ success: false });
             }
         } else if (method === 'DELETE' && userId && cookies[COOKIE_NAME]) {
+            const userGroups = await getUserGroups(userId);
+            
+            for (const group of userGroups) {
+                const isAdmin = await isUserGroupAdmin(userId, group.id);
+                if (isAdmin) {
+                    const adminCount = await countGroupAdmins(group.id);
+                    if (adminCount <= 1) {
+                        return res.status(400).json({ 
+                            success: false, 
+                            error: `Impossible de supprimer cet utilisateur : il est le dernier administrateur du groupe "${group.name}".` 
+                        });
+                    }
+                }
+            }
+            
             await deleteUser(userId);
 
             res.status(200).json({ success: true });

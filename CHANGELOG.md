@@ -4,6 +4,22 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [4.0.0] - 2026-04-16
+
+### Ajouté
+
+- Sous-cadeaux : possibilité d'ajouter des éléments à un cadeau (ex: manga avec ses tomes)
+- Cadeaux personnels : séparation claire entre cadeaux apportés et listes de souhaits
+
+### Modifié
+
+- Réservation de cadeaux améliorée avec logique parent/enfant
+- Base de données modernisée pour meilleure performance
+
+### Corrigé
+
+- Mode admin : correction du mode qui s'activait même sans mot de passe
+
 ## [3.8.4] - 2026-04-14
 
 ### Amélioré

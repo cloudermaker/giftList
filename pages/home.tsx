@@ -18,8 +18,8 @@ export const Home = (): JSX.Element => {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (connectedUser) {
-                const response = await AxiosWrapper.get(`/api/group/${connectedUser?.groupId}`);
+            if (connectedUser?.groupId) {
+                const response = await AxiosWrapper.get(`/api/group/${connectedUser.groupId}`);
                 const groupInfoResponse = response?.data as TGroupApiResult;
 
                 if (groupInfoResponse && groupInfoResponse.success && groupInfoResponse.group) {
@@ -29,7 +29,7 @@ export const Home = (): JSX.Element => {
         };
 
         fetchData();
-    }, [connectedUser]);
+    }, [connectedUser?.groupId]);
 
     const onUpdateDescriptionClick = (): void => {
         setUpdatingDescription(true);
@@ -50,7 +50,7 @@ export const Home = (): JSX.Element => {
         } else {
             Swal.fire({
                 title: 'Erreur',
-                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
+                text: data?.error || 'Impossible de sauvegarder la description. Réessayez dans quelques instants.',
                 icon: 'error'
             });
         }

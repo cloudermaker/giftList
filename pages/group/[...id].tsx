@@ -5,7 +5,7 @@ import { NextPageContext } from 'next';
 import CustomButton from '@/components/atoms/customButton';
 import { TUserApiResult } from '@/pages/api/user';
 import { getGroupById } from '@/lib/db/groupManager';
-import { buildDefaultUser, getUsersFromGroupId } from '@/lib/db/userManager';
+import { getUsersFromGroupId } from '@/lib/db/userManager';
 import { User, Group } from '@prisma/client';
 import Router from 'next/router';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
@@ -38,7 +38,7 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
             })
             .then(async (result) => {
                 if (result.isConfirmed) {
-                    const apiResult = await AxiosWrapper.delete(`/api/user/${userId ?? 'toto'}`);
+                    const apiResult = await AxiosWrapper.delete(`/api/user/${userId}`);
                     const data = apiResult?.data as TUserApiResult;
 
                     if (data?.success === true) {
@@ -52,7 +52,7 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
                     } else {
                         swalWithBootstrapButtons.fire({
                             title: 'Erreur',
-                            text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
+                            text: data?.error || 'Impossible de supprimer cet utilisateur. Réessayez dans quelques instants.',
                             icon: 'error'
                         });
                     }
@@ -63,12 +63,20 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
     const addOrUpdateUser = async (userId?: string): Promise<void> => {
         const currentUserToAdd = localUsers.filter((user) => user.id === userId)[0];
 
-        let userToAdd: User = currentUserToAdd ?? buildDefaultUser(group.id);
+        let userToAdd: User = currentUserToAdd ?? {
+            id: '',
+            name: newUserName.trim(),
+            isAdmin: false,
+            acceptSuggestedGift: false,
+            updatedAt: new Date(),
+            createdAt: new Date()
+        };
         userToAdd.name = newUserName.trim();
 
         const response = await AxiosWrapper.post('/api/user', {
             user: userToAdd,
-            initiatorUserId: connectedUser?.userId ?? ''
+            initiatorUserId: connectedUser?.userId ?? '',
+            groupId: group.id
         });
         const data = response?.data as TUserApiResult;
 
@@ -88,7 +96,7 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
         } else {
             Swal.fire({
                 title: 'Erreur',
-                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? 'erreur technique'}`,
+                text: data?.error || 'Impossible de créer cet utilisateur. Réessayez dans quelques instants.',
                 icon: 'error'
             });
         }
@@ -203,7 +211,7 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
                         )}
 
                         {creatingUser && (
-                            <div className="pb-5 pl-3">
+                            <div className="pb-5 pl-3 item">
                                 {addError && <div className="text-red-500 font-bold">{addError}</div>}
 
                                 <div className="input-group">

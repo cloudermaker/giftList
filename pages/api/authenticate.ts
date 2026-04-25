@@ -5,6 +5,7 @@ import { createUser, getUserByGroupAndName } from '@/lib/db/userManager';
 export type TGroupAndUser = {
     groupName: string;
     groupId: string;
+    groupIds: string[];     // NOUVEAU: Liste de tous les groupes du user
     userName: string;
     userId: string;
     isAdmin: boolean;
@@ -26,6 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         if (isCreating && group != null) {
             res.status(200).json({ success: false, error: 'Ce nom de groupe existe déjà.' });
         } else if (isCreating) {
+            // Créer le groupe et le user
             const group = await createGroup(groupName, password);
             const user = await createUser(userName, group.id);
 
@@ -34,10 +36,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 error: '',
                 groupUser: {
                     groupId: group.id,
+                    groupIds: [group.id],
                     groupName: group.name,
                     userId: user.id,
                     userName: user.name,
-                    isAdmin: user.isAdmin
+                    isAdmin: true
                 }
             });
         } else if (!isCreating && group == null) {
@@ -54,6 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                     error: '',
                     groupUser: {
                         groupId: group.id,
+                        groupIds: [group.id],
                         groupName: group.name,
                         userId: user.id,
                         userName: user.name,
@@ -66,11 +70,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                     error: 'Mauvais mot de passe'
                 });
             } else {
+                // Connexion sans mot de passe = toujours mode user normal (isAdmin: false)
+                // même si le user a un rôle ADMIN dans UserGroupMapping
                 res.status(200).json({
                     success: true,
                     error: '',
                     groupUser: {
                         groupId: group.id,
+                        groupIds: [group.id],
                         groupName: group.name,
                         userId: user.id,
                         userName: user.name,

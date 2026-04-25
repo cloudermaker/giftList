@@ -1,17 +1,6 @@
 import { User } from '@prisma/client';
 import prisma from './dbSingleton';
-
-export const buildDefaultUser = (groupId: string): User => {
-    return {
-        id: '',
-        name: '',
-        groupId,
-        isAdmin: false,
-        acceptSuggestedGift: false,
-        updatedAt: new Date(),
-        createdAt: new Date()
-    };
-};
+import { addUserToGroup } from './userGroupManager';
 
 export const getUsers = async (): Promise<User[]> => {
     var users = await prisma.user.findMany();
@@ -20,7 +9,7 @@ export const getUsers = async (): Promise<User[]> => {
 };
 
 export const getUserByGroupAndName = async (userName: string, groupId: string): Promise<User | null> => {
-    var user = await prisma.user.findFirst({
+    const user = await prisma.user.findFirst({
         where: {
             AND: [
                 {
@@ -30,7 +19,11 @@ export const getUserByGroupAndName = async (userName: string, groupId: string): 
                     }
                 },
                 {
-                    groupId
+                    groupMemberships: {
+                        some: {
+                            groupId: groupId
+                        }
+                    }
                 }
             ]
         }
@@ -50,9 +43,13 @@ export const getUserById = async (userId: string): Promise<User | null> => {
 };
 
 export const getUsersFromGroupId = async (groupId: string): Promise<User[]> => {
-    var users = await prisma.user.findMany({
+    const users = await prisma.user.findMany({
         where: {
-            groupId
+            groupMemberships: {
+                some: {
+                    groupId: groupId
+                }
+            }
         }
     });
 
@@ -60,38 +57,43 @@ export const getUsersFromGroupId = async (groupId: string): Promise<User[]> => {
 };
 
 export const createUser = async (userName: string, userGroupId: string): Promise<User> => {
-    var user = await prisma.user.create({
+    const user = await prisma.user.create({
         data: {
             name: userName.toLowerCase().trim(),
-            groupId: userGroupId,
             isAdmin: true
         }
     });
+
+    await addUserToGroup(user.id, userGroupId, 'ADMIN');
 
     return user;
 };
 
 export const upsertUser = async (user: User): Promise<User> => {
-    var user = await prisma.user.upsert({
+    const { id, createdAt, updatedAt, gifts, groupMemberships, takenGifts, personalGifts, personalGiftsReceived, userTakenGifts, personalGiftsFor, ...userData } = user as any;
+    
+    const result = await prisma.user.upsert({
         where: {
             id: user.id
         },
-        create: { ...user, name: user.name.toLowerCase().trim(), id: undefined },
-        update: { ...user, name: user.name.toLowerCase().trim(), updatedAt: new Date().toISOString() }
+        create: { ...userData, name: user.name.toLowerCase().trim() },
+        update: { ...userData, name: user.name.toLowerCase().trim(), updatedAt: new Date() }
     });
 
-    return user;
+    return result;
 };
 
 export const updateUser = async (userId: string, user: User): Promise<User> => {
-    var user = await prisma.user.update({
+    const { id, createdAt, updatedAt, gifts, groupMemberships, takenGifts, personalGifts, personalGiftsReceived, userTakenGifts, personalGiftsFor, ...userData } = user as any;
+    
+    const result = await prisma.user.update({
         where: {
             id: userId
         },
-        data: { ...user, name: user.name.toLowerCase().trim(), updatedAt: new Date().toISOString() }
+        data: { ...userData, name: user.name.toLowerCase().trim(), updatedAt: new Date() }
     });
 
-    return user;
+    return result;
 };
 
 export const deleteUser = async (userId: string): Promise<void> => {

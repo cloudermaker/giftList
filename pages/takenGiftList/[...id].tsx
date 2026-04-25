@@ -1,10 +1,11 @@
 import CustomButton from '@/components/atoms/customButton';
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
-import { getTakenGiftsFromUserId } from '@/lib/db/giftManager';
-import { Gift, User } from '@prisma/client';
+import { getTakenGiftsFromUserId, GiftWithTakenUserId } from '@/lib/db/giftManager';
+import { getPersonalGiftsByUser } from '@/lib/db/personalGiftManager';
+import { Gift, User, GiftType } from '@prisma/client';
 import { NextPageContext } from 'next';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TGiftApiResult } from '@/pages/api/gift';
 import Swal from 'sweetalert2';
 import { GiftIcon } from '@/components/icons/gift';
@@ -12,34 +13,64 @@ import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import ModernLink from '@/components/atoms/ModernLink';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 
-const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null })[] }): JSX.Element => {
+// Type étendu pour inclure forUser (pour les personal gifts)
+type GiftWithForUser = GiftWithTakenUserId & { 
+    user: User | null;
+    forUser?: User | null;
+};
+
+const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.Element => {
     const { connectedUser } = useCurrentUser();
-    const [localTakenGifts, setLocalTakenGifts] = useState<(Gift & { user: User | null })[]>(takenGifts);
+    const [localTakenGifts, setLocalTakenGifts] = useState<GiftWithForUser[]>(takenGifts);
+    const [groupUsers, setGroupUsers] = useState<User[]>([]);
+    const [releasingGiftId, setReleasingGiftId] = useState<string | null>(null);
+    const [isCreatingGift, setIsCreatingGift] = useState<boolean>(false);
+    const [deletingGiftId, setDeletingGiftId] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         isCreating: false,
         name: '',
         description: '',
         link: '',
+        forUserId: '', // '' = personne, connectedUser.userId = moi, autre = user du groupe
         error: ''
     });
-
-    const onUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
-        const result = await AxiosWrapper.put(`/api/gift/${giftToUpdate.id}`, {
-            gift: {
-                id: giftToUpdate.id,
-                takenUserId: null
+    // Charger les users du groupe
+    useEffect(() => {
+        const loadGroupUsers = async () => {
+            if (connectedUser?.groupId) {
+                try {
+                    const response = await AxiosWrapper.get(`/api/user?groupid=${connectedUser.groupId}`);
+                    if (response?.data?.success && response.data.users) {
+                        setGroupUsers(response.data.users);
+                    }
+                } catch (error) {
+                    // Silently fail if unable to fetch group users
+                }
             }
-        });
-        const data = result?.data as TGiftApiResult;
-
-        if (data && data.success && data.gift) {
-            setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftToUpdate.id));
-        } else {
-            Swal.fire({
-                title: 'Erreur',
-                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
-                icon: 'error'
+        };
+        loadGroupUsers();
+    }, [connectedUser?.groupId]);
+    const onUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
+        setReleasingGiftId(giftToUpdate.id);
+        
+        try {
+            // Utiliser le nouveau endpoint /api/gift/[id]/take pour libérer le cadeau
+            const result = await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`, {
+                userId: connectedUser?.userId
             });
+            const data = result?.data;
+
+            if (data && data.success) {
+                setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftToUpdate.id));
+            } else {
+                Swal.fire({
+                    title: 'Erreur',
+                    text: data?.error || 'Impossible de libérer ce cadeau. Réessayez dans quelques instants.',
+                    icon: 'error'
+                });
+            }
+        } finally {
+            setReleasingGiftId(null);
         }
     };
 
@@ -54,6 +85,7 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
             name: '',
             description: '',
             link: '',
+            forUserId: '',
             error: ''
         });
     };
@@ -64,32 +96,46 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
             return;
         }
 
-        const result = await AxiosWrapper.post('/api/gift', {
-            gift: {
-                name: formData.name,
-                description: formData.description || null,
-                url: formData.link || null,
-                userId: null, // Pas d'utilisateur associé (cadeau personnel)
-                takenUserId: connectedUser?.userId // L'utilisateur qui crée ce cadeau personnel
-            }
-        });
-        const data = result?.data as TGiftApiResult;
+        setIsCreatingGift(true);
 
-        if (data && data.success && data.gift) {
-            setLocalTakenGifts((oldGifts) => [
-                ...oldGifts,
-                {
-                    ...data.gift,
-                    user: null
-                } as Gift & { user: User | null }
-            ]);
-            clearAllFields();
-        } else {
-            Swal.fire({
-                title: 'Erreur',
-                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
-                icon: 'error'
+        try {
+            // Utiliser le nouveau endpoint /api/personalGift au lieu de /api/gift
+            const result = await AxiosWrapper.post('/api/personalGift', {
+                personalGift: {
+                    name: formData.name,
+                    description: formData.description || null,
+                    url: formData.link || null,
+                    userId: connectedUser?.userId,  // User qui crée le cadeau personnel
+                    groupId: connectedUser?.groupId, // Groupe du user
+                    forUserId: formData.forUserId || null  // Destinataire sélectionné (ou null si "Personne")
+                }
             });
+            const data = result?.data;
+
+            if (data && data.success && data.personalGift) {
+                // Convertir PersonalGift en Gift pour compatibilité d'affichage
+                const giftFromPersonal: GiftWithForUser = {
+                    id: data.personalGift.id,
+                    name: data.personalGift.name,
+                    description: data.personalGift.description,
+                    url: data.personalGift.url,
+                    userId: null,  // PersonalGift n'a pas de userId (pour compatibilité)
+                    takenUserId: connectedUser?.userId,
+                    user: null,
+                    forUser: data.personalGift.forUser || null  // Garder l'info du destinataire
+                } as GiftWithForUser;
+                
+                setLocalTakenGifts((oldGifts) => [...oldGifts, giftFromPersonal]);
+                clearAllFields();
+            } else {
+                Swal.fire({
+                    title: 'Erreur',
+                    text: data?.error || 'Impossible d\'ajouter ce cadeau. Réessayez dans quelques instants.',
+                    icon: 'error'
+                });
+            }
+        } finally {
+            setIsCreatingGift(false);
         }
     };
 
@@ -109,22 +155,30 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
         });
 
         if (result.isConfirmed) {
-            const apiResult = await AxiosWrapper.delete(`/api/gift/${giftId}`);
-            const data = apiResult?.data as TGiftApiResult;
+            setDeletingGiftId(giftId);
+            
+            try {
+                const apiResult = await AxiosWrapper.delete(`/api/personalGift/${giftId}`, {
+                    userId: connectedUser?.userId
+                });
+                const data = apiResult?.data;
 
-            if (data && data.success === true) {
-                setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftId));
-                swalWithBootstrapButtons.fire({
-                    title: 'Supprimé!',
-                    text: 'Le cadeau a été supprimé.',
-                    icon: 'success'
-                });
-            } else {
-                swalWithBootstrapButtons.fire({
-                    title: 'Erreur!',
-                    text: "Le cadeau n'a pas pu être supprimé.",
-                    icon: 'error'
-                });
+                if (data && data.success === true) {
+                    setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftId));
+                    swalWithBootstrapButtons.fire({
+                        title: 'Supprimé!',
+                        text: 'Le cadeau a été supprimé.',
+                        icon: 'success'
+                    });
+                } else {
+                    swalWithBootstrapButtons.fire({
+                        title: 'Erreur!',
+                        text: data?.error || "Le cadeau n'a pas pu être supprimé.",
+                        icon: 'error'
+                    });
+                }
+            } finally {
+                setDeletingGiftId(null);
             }
         }
     };
@@ -169,8 +223,11 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
                                 </div>
 
                                 <div className="flex flex-col gap-2">
-                                    <CustomButton onClick={() => onUnBlockGiftClick(gift)}>
-                                        Je ne prends plus ce cadeau
+                                    <CustomButton 
+                                        onClick={() => onUnBlockGiftClick(gift)}
+                                        disabled={releasingGiftId === gift.id}
+                                    >
+                                        {releasingGiftId === gift.id ? 'Libération...' : 'Je ne prends plus ce cadeau'}
                                     </CustomButton>
                                 </div>
                             </div>
@@ -199,6 +256,13 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
                                         {gift.name}
                                     </p>
 
+                                    {gift.forUser && (
+                                        <p>
+                                            <b className="pr-2">Pour:</b>
+                                            {gift.forUser.name}
+                                        </p>
+                                    )}
+
                                     {gift.description && (
                                         <p>
                                             <b className="pr-2">Description:</b>
@@ -214,7 +278,12 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
                                 </div>
 
                                 <div className="flex flex-col gap-2">
-                                    <CustomButton onClick={() => deletePersonalGift(gift.id)}>Supprimer</CustomButton>
+                                    <CustomButton 
+                                        onClick={() => deletePersonalGift(gift.id)}
+                                        disabled={deletingGiftId === gift.id}
+                                    >
+                                        {deletingGiftId === gift.id ? 'Suppression...' : 'Supprimer'}
+                                    </CustomButton>
                                 </div>
                             </div>
                         ))
@@ -230,19 +299,40 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
                     <div className="block pt-3">
                         <b>Ajouter un cadeau personnel:</b>
                         <p className="text-sm text-gray-600 mb-2">
-                            Ce cadeau ne sera visible que par toi et ne sera pas associé à un utilisateur
+                            Ce cadeau ne sera visible que par toi
                         </p>
                         {formData.error && <p className="text-red-500">{formData.error}</p>}
 
                         <div className="input-group pt-3">
-                            <label className="input-label">Nom (incluant la personne):</label>
+                            <label className="input-label">Nom du cadeau:</label>
                             <textarea
                                 id="newGiftInputId"
                                 className="input-field"
                                 value={formData.name}
                                 onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                                placeholder="Ex: Livre pour Marie"
+                                placeholder="Ex: Livre Harry Potter"
                             />
+                        </div>
+
+                        <div className="input-group">
+                            <label className="input-label">Pour qui ?</label>
+                            <select
+                                className="input-field"
+                                value={formData.forUserId}
+                                onChange={(e) => setFormData((prev) => ({ ...prev, forUserId: e.target.value }))}
+                            >
+                                <option value="">Personne en particulier</option>
+                                <option value={connectedUser?.userId}>Moi-même</option>
+                                <option disabled>──────────</option>
+                                {groupUsers
+                                    .filter(u => u.id !== connectedUser?.userId)
+                                    .map(user => (
+                                        <option key={user.id} value={user.id}>
+                                            {user.name}
+                                        </option>
+                                    ))
+                                }
+                            </select>
                         </div>
 
                         <div className="input-group">
@@ -264,8 +354,12 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: (Gift & { user: User | null
                         </div>
 
                         <div className="py-2">
-                            <CustomButton className="green-button" onClick={createPersonalGift} disabled={formData.name === ''}>
-                                Valider
+                            <CustomButton 
+                                className="green-button" 
+                                onClick={createPersonalGift} 
+                                disabled={formData.name === '' || isCreatingGift}
+                            >
+                                {isCreatingGift ? 'Ajout en cours...' : 'Valider'}
                             </CustomButton>
 
                             <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
@@ -288,21 +382,59 @@ export async function getServerSideProps(context: NextPageContext) {
         };
     }
 
+    // Charger les cadeaux réservés (takenUserId)
     const takenGifts = await getTakenGiftsFromUserId(userId);
+    
+    // Ajouter forUser: null aux cadeaux réservés (ils n'ont pas de destinataire)
+    const takenGiftsWithForUser = takenGifts.map(gift => ({
+        ...gift,
+        forUser: null
+    }));
+    
+    // Charger les cadeaux personnels créés par le user
+    const personalGifts = await getPersonalGiftsByUser(userId);
+    
+    // Convertir PersonalGifts en format Gift pour compatibilité
+    const personalGiftsAsGifts = personalGifts.map(pg => ({
+        id: pg.id,
+        name: pg.name,
+        description: pg.description,
+        url: pg.url,
+        userId: null,
+        order: 0,
+        takenUserId: userId,
+        isSuggestedGift: false,
+        giftType: 'SIMPLE' as GiftType,
+        parentGiftId: null,
+        updatedAt: pg.updatedAt,
+        createdAt: pg.createdAt,
+        user: null,
+        forUser: pg.forUser || null
+    }));
+    
+    // Fusionner les deux listes
+    const allGifts = [...takenGiftsWithForUser, ...personalGiftsAsGifts];
 
     return {
         props: {
-            takenGifts: takenGifts.map((takenGift) => ({
-                ...takenGift,
-                user: takenGift.user
+            takenGifts: allGifts.map((gift) => ({
+                ...gift,
+                user: gift.user
                     ? {
-                          ...takenGift.user,
-                          updatedAt: takenGift.user.updatedAt?.toISOString() ?? '',
-                          createdAt: takenGift.user.createdAt?.toISOString() ?? ''
+                          ...gift.user,
+                          updatedAt: gift.user.updatedAt?.toISOString() ?? '',
+                          createdAt: gift.user.createdAt?.toISOString() ?? ''
                       }
                     : null,
-                updatedAt: takenGift.updatedAt?.toISOString() ?? '',
-                createdAt: takenGift.createdAt?.toISOString() ?? ''
+                forUser: gift.forUser
+                    ? {
+                          ...gift.forUser,
+                          updatedAt: gift.forUser.updatedAt?.toISOString() ?? '',
+                          createdAt: gift.forUser.createdAt?.toISOString() ?? ''
+                      }
+                    : null,
+                updatedAt: gift.updatedAt?.toISOString() ?? '',
+                createdAt: gift.createdAt?.toISOString() ?? ''
             }))
         }
     };

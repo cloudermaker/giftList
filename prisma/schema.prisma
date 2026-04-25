@@ -7,14 +7,34 @@ datasource db {
   url      = env("POSTGRES_PRISMA_URL")
 }
 
+// ============================================
+// ENUMS
+// ============================================
+
+enum Role {
+  MEMBER
+  ADMIN
+}
+
+enum GiftType {
+  SIMPLE    // Cadeau normal
+  MULTIPLE  // Cadeau parent avec sous-cadeaux
+}
+
+// ============================================
+// MODELS
+// ============================================
+
 model Group {
   id            String  @id @default(uuid())
   name          String
   description   String?
   imageUrl      String?
-  adminPassword String @default("admin")
+  adminPassword String  @default("admin")
 
-  users User[]
+  // Relations
+  userMemberships UserGroupMapping[]
+  personalGifts   PersonalGift[]
 
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
@@ -26,30 +46,95 @@ model User {
   isAdmin             Boolean @default(false)
   acceptSuggestedGift Boolean @default(false)
 
-  group   Group?  @relation(fields: [groupId], references: [id])
-  groupId String?
-
-  gifts      Gift[] @relation(name: "user")
-  takenGifts Gift[] @relation(name: "takenUser")
+  // Relations
+  gifts                Gift[]             @relation(name: "user")
+  groupMemberships     UserGroupMapping[]
+  userTakenGifts       UserTakenGift[]
+  personalGifts        PersonalGift[]     @relation("PersonalGiftCreator")
+  personalGiftsFor     PersonalGift[]     @relation("PersonalGiftRecipient")
 
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
+
+  @@index([name])
+}
+
+model UserGroupMapping {
+  id       String   @id @default(uuid())
+  userId   String
+  groupId  String
+  role     Role     @default(MEMBER)
+  joinedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+  @@index([userId])
+  @@index([groupId])
 }
 
 model Gift {
-  id              String   @id @default(uuid())
+  id              String    @id @default(uuid())
   name            String
   description     String?
   url             String?
-  isSuggestedGift Boolean? @default(false)
+  giftType        GiftType  @default(SIMPLE)
+  isSuggestedGift Boolean?  @default(false)
   order           Int?
 
+  // Owner du cadeau
   user   User?   @relation(fields: [userId], references: [id], name: "user")
   userId String?
 
-  takenUser   User?   @relation(fields: [takenUserId], references: [id], name: "takenUser")
-  takenUserId String?
+  // Sub-gifts (self-relation)
+  parentGiftId String?
+  parentGift   Gift?   @relation("SubGifts", fields: [parentGiftId], references: [id], onDelete: Cascade)
+  subGifts     Gift[]  @relation("SubGifts")
+
+  takenBy UserTakenGift[]
 
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
+
+  @@index([userId])
+  @@index([parentGiftId])
+  @@index([order])
+}
+
+model UserTakenGift {
+  id      String   @id @default(uuid())
+  userId  String
+  giftId  String
+  takenAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gift Gift @relation(fields: [giftId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, giftId])
+  @@index([userId])
+  @@index([giftId])
+}
+
+model PersonalGift {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  url         String?
+
+  userId String
+  user   User   @relation("PersonalGiftCreator", fields: [userId], references: [id], onDelete: Cascade)
+
+  forUserId String?
+  forUser   User?   @relation("PersonalGiftRecipient", fields: [forUserId], references: [id], onDelete: SetNull)
+
+  groupId String
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([groupId])
+  @@index([forUserId])
 }

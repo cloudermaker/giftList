@@ -66,23 +66,27 @@ export const createGroup = async (groupName: string, password: string, descripti
 };
 
 export const upsertGroup = async (group: Group): Promise<Group> => {
-    var newGroup = await prisma.group.upsert({
+    const { id, createdAt, updatedAt, users, personalGifts, userMemberships, ...groupData } = group as any;
+    
+    const newGroup = await prisma.group.upsert({
         where: {
             id: group.id
         },
-        create: { ...group, name: group.name.trim(), id: undefined },
-        update: { ...group, name: group.name.trim(), updatedAt: undefined }
+        create: { ...groupData, name: group.name.trim() },
+        update: { ...groupData, name: group.name.trim(), updatedAt: new Date() }
     });
 
     return newGroup;
 };
 
 export const updateGroup = async (groupId: string, group: Group): Promise<Group> => {
-    var newGroup = await prisma.group.update({
+    const { id, createdAt, updatedAt, users, personalGifts, userMemberships, ...groupData } = group as any;
+    
+    const newGroup = await prisma.group.update({
         where: {
             id: groupId
         },
-        data: { ...group, name: group.name.trim() }
+        data: { ...groupData, name: group.name.trim(), updatedAt: new Date() }
     });
 
     return newGroup;

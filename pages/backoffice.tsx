@@ -44,7 +44,7 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
                     } else {
                         swalWithBootstrapButtons.fire({
                             title: 'Erreur',
-                            text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
+                            text: data?.error || 'Impossible de supprimer ce groupe. Réessayez dans quelques instants.',
                             icon: 'error'
                         });
                     }
@@ -74,7 +74,7 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
         } else {
             Swal.fire({
                 title: 'Erreur',
-                text: `Mince, ça n'a pas fonctionné: ${data?.error ?? '...'}`,
+                text: data?.error || 'Impossible de créer ce groupe. Réessayez dans quelques instants.',
                 icon: 'error'
             });
         }
