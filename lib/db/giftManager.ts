@@ -90,24 +90,28 @@ export const getGiftsFromUserId = async (userId: string): Promise<GiftWithTakenU
 };
 
 export const updateGift = async (giftId: string, gift: Gift): Promise<Gift> => {
-    var gift = await prisma.gift.update({
+    const { id, createdAt, updatedAt, userId, parentGiftId, takenUserId, user, subGifts, parentGift, takenBy, ...giftData } = gift as any;
+    
+    const result = await prisma.gift.update({
         where: {
             id: giftId
         },
-        data: { ...gift, name: gift.name.trim(), updatedAt: new Date().toISOString() }
+        data: { ...giftData, name: gift.name.trim(), userId, parentGiftId, updatedAt: new Date() }
     });
 
-    return gift;
+    return result;
 };
 
 export const updateGifts = async (gifts: Gift[]): Promise<Gift[]> => {
     let updatedGifts: Gift[] = [];
     for (const gift of gifts) {
+        const { id, createdAt, updatedAt, userId, parentGiftId, takenUserId, user, subGifts, parentGift, takenBy, ...giftData } = gift as any;
+        
         const updatedGift = await prisma.gift.update({
             where: {
                 id: gift.id
             },
-            data: { ...gift, name: gift.name.trim(), updatedAt: new Date().toISOString() }
+            data: { ...giftData, name: gift.name.trim(), userId, parentGiftId, updatedAt: new Date() }
         });
         updatedGifts.push(updatedGift);
     }
@@ -116,21 +120,36 @@ export const updateGifts = async (gifts: Gift[]): Promise<Gift[]> => {
 };
 
 export const upsertGift = async (gift: Gift): Promise<Gift> => {
-    var latestGift = await prisma.gift.aggregate({
+    const latestGift = await prisma.gift.aggregate({
         _max: {
             order: true
         }
     });
 
-    var user = await prisma.gift.upsert({
+    // Extraire les champs à gérer séparément
+    const { userId, id, createdAt, updatedAt, takenUserId, parentGiftId, ...giftData } = gift as any;
+    
+    const result = await prisma.gift.upsert({
         where: {
-            id: gift.id ?? 'new-gift-placeholder'
+            id: id ?? 'new-gift-placeholder'
         },
-        create: { ...gift, id: undefined, updatedAt: new Date().toISOString(), order: latestGift._max.order ?? 0 + 1 },
-        update: { ...gift, name: gift.name.trim(), updatedAt: new Date().toISOString() }
+        create: { 
+            ...giftData,
+            user: { connect: { id: userId } },
+            ...(parentGiftId && { parentGift: { connect: { id: parentGiftId } } }),
+            updatedAt: new Date(),
+            order: (latestGift._max.order ?? 0) + 1 
+        },
+        update: { 
+            ...giftData, 
+            name: gift.name.trim(), 
+            userId,
+            parentGiftId,
+            updatedAt: new Date()
+        }
     });
 
-    return user;
+    return result;
 };
 
 /**
@@ -171,8 +190,8 @@ export const createSubGift = async (
         where: { id: parentGiftId }
     });
 
-    if (!parent) {
-        throw new Error('Parent gift not found');
+    if (!parent || !parent.userId) {
+        throw new Error('Parent gift not found or has no owner');
     }
 
     return await prisma.gift.create({
@@ -180,8 +199,8 @@ export const createSubGift = async (
             name: name.trim(),
             description: description?.trim() ?? null,
             url: url?.trim() ?? null,
-            userId: parent.userId,
-            parentGiftId,
+            user: { connect: { id: parent.userId } },
+            parentGift: { connect: { id: parentGiftId } },
             giftType: 'SIMPLE',
             isSuggestedGift: false,
             order: (maxOrder._max.order ?? -1) + 1,

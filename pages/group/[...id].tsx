@@ -38,7 +38,7 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
             })
             .then(async (result) => {
                 if (result.isConfirmed) {
-                    const apiResult = await AxiosWrapper.delete(`/api/user/${userId ?? 'toto'}`);
+                    const apiResult = await AxiosWrapper.delete(`/api/user/${userId}`);
                     const data = apiResult?.data as TUserApiResult;
 
                     if (data?.success === true) {
@@ -211,7 +211,7 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
                         )}
 
                         {creatingUser && (
-                            <div className="pb-5 pl-3">
+                            <div className="pb-5 pl-3 item">
                                 {addError && <div className="text-red-500 font-bold">{addError}</div>}
 
                                 <div className="input-group">

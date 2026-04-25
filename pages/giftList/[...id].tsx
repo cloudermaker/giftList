@@ -87,22 +87,27 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
         const fillTakenUserMap = async () => {
             if (connectedUser?.groupId) {
                 setLoadingGroupUsers(true);
-                const response = await AxiosWrapper.get(`/api/user?groupid=${connectedUser.groupId}`);
+                try {
+                    const response = await AxiosWrapper.get(`/api/user?groupid=${connectedUser.groupId}`);
 
-                if (response?.status !== 200) {
+                    if (response?.status !== 200) {
+                        setLoadingGroupUsers(false);
+                        return;
+                    }
+
+                    const responseData = response?.data as TUserApiResult;
+                    const takenUsers = responseData.users as User[];
+
+                    const newTakenUserMap: { [key: string]: User } = Object.fromEntries(
+                        takenUsers.map((takenUser) => [takenUser.id, takenUser])
+                    );
+
+                    setGroupUserMap(newTakenUserMap);
                     setLoadingGroupUsers(false);
-                    return;
+                } catch (error) {
+                    console.error('Erreur lors du chargement des utilisateurs du groupe:', error);
+                    setLoadingGroupUsers(false);
                 }
-
-                const responseData = response?.data as TUserApiResult;
-                const takenUsers = responseData.users as User[];
-
-                const newTakenUserMap: { [key: string]: User } = Object.fromEntries(
-                    takenUsers.map((takenUser) => [takenUser.id, takenUser])
-                );
-
-                setGroupUserMap(newTakenUserMap);
-                setLoadingGroupUsers(false);
             }
         };
 
@@ -135,30 +140,44 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
             })
             .then(async (result) => {
                 if (result.isConfirmed) {
-                    const result = await AxiosWrapper.delete(`/api/gift/${giftId}`);
-                    const data = result?.data as TGiftApiResult;
+                    try {
+                        const result = await AxiosWrapper.delete(`/api/gift/${giftId}`);
+                        const data = result?.data as TGiftApiResult;
 
-                    if (data && data.success === true) {
-                        setLocalGifts(localGifts.filter((gift) => gift.id !== giftId));
-                        clearAllFields();
-                    } else {
+                        if (data && data.success === true) {
+                            setLocalGifts(localGifts.filter((gift) => gift.id !== giftId));
+                            clearAllFields();
+
+                            swalWithBootstrapButtons.fire({
+                                title: 'Supprimé!',
+                                text: 'Le cadeau a été supprimé.',
+                                icon: 'success'
+                            });
+                        } else {
+                            swalWithBootstrapButtons.fire({
+                                title: 'Erreur',
+                                text: data?.error || 'Impossible de supprimer ce cadeau. Réessayez dans quelques instants.',
+                                icon: 'error'
+                            });
+                        }
+                    } catch (error: any) {
+                        const errorMessage = error?.response?.data?.error || error?.message || 'Impossible de supprimer ce cadeau. Réessayez dans quelques instants.';
                         swalWithBootstrapButtons.fire({
                             title: 'Erreur',
-                            text: data?.error || 'Impossible de supprimer ce cadeau. Réessayez dans quelques instants.',
+                            text: errorMessage,
                             icon: 'error'
                         });
                     }
-
-                    swalWithBootstrapButtons.fire({
-                        title: 'Supprimé!',
-                        text: 'Le cadeau a été supprimé.',
-                        icon: 'success'
-                    });
                 }
             });
     };
 
     const updatingGift = (gift: Gift): void => {
+        // Annuler la création en cours si active
+        if (creatingGift) {
+            setCreatingGift(false);
+        }
+        
         setNewGiftName(gift.name);
         setNewDescription(gift.description ?? '');
         setNewLink(gift.url ?? '');
@@ -174,43 +193,58 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
         giftToUpsert.url = newLink;
 
         let newGifts: GiftWithTakenUserId[] = localGifts;
-        if (giftId) {
-            // Update
-            const result = await AxiosWrapper.patch(`/api/gift/${giftId}`, {
-                gift: giftToUpsert
-            });
-            const data = result?.data as TGiftApiResult;
+        try {
+            if (giftId) {
+                // Update
+                const result = await AxiosWrapper.patch(`/api/gift/${giftId}`, {
+                    gift: giftToUpsert
+                });
+                const data = result?.data as TGiftApiResult;
 
-            if (data && data.success === true && data.gift) {
-                const giftWithTakenUserId: GiftWithTakenUserId = {
-                    ...data.gift,
-                    takenUserId: (data.gift as any).takenUserId ?? null
-                };
-                const currentUserToUpdateId = newGifts.findIndex((gift) => gift.id === giftId);
-                newGifts[currentUserToUpdateId] = giftWithTakenUserId;
+                if (data && data.success === true && data.gift) {
+                    const giftWithTakenUserId: GiftWithTakenUserId = {
+                        ...data.gift,
+                        takenUserId: (data.gift as any).takenUserId ?? null
+                    };
+                    const currentUserToUpdateId = newGifts.findIndex((gift) => gift.id === giftId);
+                    newGifts[currentUserToUpdateId] = giftWithTakenUserId;
+                } else {
+                    Swal.fire({
+                        title: 'Erreur',
+                        text: data?.error || 'Impossible de modifier ce cadeau. Réessayez dans quelques instants.',
+                        icon: 'error'
+                    });
+                }
             } else {
-                newGifts = localGifts;
-                clearAllFields();
-            }
-        } else {
-            // Create
-            const result = await AxiosWrapper.post('/api/gift', {
-                gift: giftToUpsert,
-                initiatorUserId: connectedUser?.userId,
-                userGiftId: user.id
-            });
-            const data = result?.data as TGiftApiResult;
+                // Create
+                const result = await AxiosWrapper.post('/api/gift', {
+                    gift: giftToUpsert,
+                    initiatorUserId: connectedUser?.userId,
+                    userGiftId: user.id
+                });
+                const data = result?.data as TGiftApiResult;
 
-            if (data && data.success === true && data.gift) {
-                const giftWithTakenUserId: GiftWithTakenUserId = {
-                    ...data.gift,
-                    takenUserId: (data.gift as any).takenUserId ?? null
-                };
-                newGifts.push(giftWithTakenUserId);
-            } else {
-                newGifts = localGifts;
-                clearAllFields();
+                if (data && data.success === true && data.gift) {
+                    const giftWithTakenUserId: GiftWithTakenUserId = {
+                        ...data.gift,
+                        takenUserId: (data.gift as any).takenUserId ?? null
+                    };
+                    newGifts.push(giftWithTakenUserId);
+                } else {
+                    Swal.fire({
+                        title: 'Erreur',
+                        text: data?.error || 'Impossible d\'ajouter ce cadeau. Réessayez dans quelques instants.',
+                        icon: 'error'
+                    });
+                }
             }
+        } catch (error: any) {
+            const errorMessage = error?.response?.data?.error || error?.message || 'Impossible de sauvegarder ce cadeau. Réessayez dans quelques instants.';
+            Swal.fire({
+                title: 'Erreur',
+                text: errorMessage,
+                icon: 'error'
+            });
         }
 
         setLocalGifts(newGifts);
@@ -218,6 +252,14 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     };
 
     const onCreatingGiftButtonClick = (): void => {
+        // Annuler la modification en cours si active
+        if (updatingGiftId !== '') {
+            setUpdatingGiftId('');
+            setNewGiftName('');
+            setNewDescription('');
+            setNewLink('');
+        }
+        
         setCreatingGift(true);
 
         window.setTimeout(function () {
@@ -312,6 +354,8 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                     gifts: newGifts,
                     initiatorUserId: connectedUser?.userId,
                     userGiftId: user.id
+                }).catch(error => {
+                    console.error('Erreur lors de la mise à jour de l\'ordre des cadeaux:', error);
                 });
 
                 return newGifts;
@@ -367,7 +411,6 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                         <i>
                                                             <div className="flex">
                                                                 <span className="pr-2">Créé:</span>
-                                                                ah bon ??
                                                                 {gift.createdAt?.toLocaleString()}
                                                             </div>
 
@@ -525,7 +568,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 )}
 
                 {creatingGift && (
-                    <div className="block pt-3">
+                    <div className="block pt-3 item">
                         <b>Ajouter ce nouveau cadeau:</b>
                         {error && <p>{error}</p>}
 

@@ -19,9 +19,14 @@ export interface PersonalGiftData {
  * Créer un cadeau personnel
  */
 export const createPersonalGift = async (data: PersonalGiftData) => {
+  const { userId, forUserId, groupId, ...giftData } = data;
+  
   return await prisma.personalGift.create({
     data: {
-      ...data,
+      ...giftData,
+      user: { connect: { id: userId } },
+      ...(forUserId && { forUser: { connect: { id: forUserId } } }),
+      group: { connect: { id: groupId } },
       createdAt: new Date(),
       updatedAt: new Date()
     },
@@ -102,10 +107,17 @@ export const updatePersonalGift = async (
   id: string, 
   data: Partial<PersonalGiftData>
 ) => {
+  const { userId, forUserId, groupId, ...giftData } = data;
+  
   return await prisma.personalGift.update({
     where: { id },
     data: {
-      ...data,
+      ...giftData,
+      ...(userId && { user: { connect: { id: userId } } }),
+      ...(forUserId !== undefined && {
+        forUser: forUserId ? { connect: { id: forUserId } } : { disconnect: true }
+      }),
+      ...(groupId && { group: { connect: { id: groupId } } }),
       updatedAt: new Date()
     },
     include: {
