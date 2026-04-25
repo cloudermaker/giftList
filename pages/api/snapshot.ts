@@ -16,12 +16,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const groupCount = await prisma.group.count();
     const giftCount = await prisma.gift.count();
     
-    // Users avec groupes
-    const usersWithGroups = await prisma.user.count({
-      where: { groupId: { not: null } }
+    const userIdsInGroups = await prisma.userGroupMapping.findMany({
+      select: { userId: true },
+      distinct: ['userId']
     });
+    const usersWithGroups = userIdsInGroups.length;
     
-    // Gifts réservés (UserTakenGift v4.0.0)
     const takenGifts = await prisma.userTakenGift.count();
     
     // Gifts personnels (userId = null)
@@ -37,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Détails des groupes
     const groups = await prisma.group.findMany({
       include: {
-        users: true
+        userMemberships: true
       }
     });
     
@@ -45,9 +45,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const sampleUsers = await prisma.user.findMany({
       take: 5,
       include: {
-        group: true,
         gifts: true,
-        takenGifts: true
+        userTakenGifts: true
       }
     });
     
@@ -65,15 +64,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       groups: groups.map(g => ({
         id: g.id,
         name: g.name,
-        userCount: g.users.length
+        userCount: g.userMemberships.length
       })),
       sampleUsers: sampleUsers.map(u => ({
         id: u.id,
         name: u.name,
-        groupId: u.groupId,
-        groupName: u.group?.name,
         giftCount: u.gifts.length,
-        takenGiftCount: u.takenGifts.length
+        takenGiftCount: u.userTakenGifts.length
       }))
     };
     

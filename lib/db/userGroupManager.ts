@@ -67,6 +67,34 @@ export const addUserToGroup = async (
 };
 
 /**
+ * Compter le nombre d'admins dans un groupe
+ */
+export const countGroupAdmins = async (groupId: string) => {
+  return await prisma.userGroupMapping.count({
+    where: {
+      groupId,
+      role: 'ADMIN'
+    }
+  });
+};
+
+/**
+ * Vérifier si un user est admin d'un groupe
+ */
+export const isUserGroupAdmin = async (userId: string, groupId: string) => {
+  const membership = await prisma.userGroupMapping.findUnique({
+    where: {
+      userId_groupId: {
+        userId,
+        groupId
+      }
+    }
+  });
+  
+  return membership?.role === 'ADMIN';
+};
+
+/**
  * Retirer un user d'un groupe
  */
 export const removeUserFromGroup = async (userId: string, groupId: string) => {

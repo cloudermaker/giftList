@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createGroup, getGroupByName } from '@/lib/db/groupManager';
 import { createUser, getUserByGroupAndName } from '@/lib/db/userManager';
-import { addUserToGroup } from '@/lib/db/userGroupManager';
 
 export type TGroupAndUser = {
     groupName: string;
@@ -31,9 +30,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             // Créer le groupe et le user
             const group = await createGroup(groupName, password);
             const user = await createUser(userName, group.id);
-            
-            // Ajouter le user au groupe avec rôle ADMIN (c'est le créateur)
-            await addUserToGroup(user.id, group.id, 'ADMIN');
 
             res.status(200).json({
                 success: true,

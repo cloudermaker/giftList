@@ -5,7 +5,7 @@ import { NextPageContext } from 'next';
 import CustomButton from '@/components/atoms/customButton';
 import { TUserApiResult } from '@/pages/api/user';
 import { getGroupById } from '@/lib/db/groupManager';
-import { buildDefaultUser, getUsersFromGroupId } from '@/lib/db/userManager';
+import { getUsersFromGroupId } from '@/lib/db/userManager';
 import { User, Group } from '@prisma/client';
 import Router from 'next/router';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
@@ -63,12 +63,20 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
     const addOrUpdateUser = async (userId?: string): Promise<void> => {
         const currentUserToAdd = localUsers.filter((user) => user.id === userId)[0];
 
-        let userToAdd: User = currentUserToAdd ?? buildDefaultUser(group.id);
+        let userToAdd: User = currentUserToAdd ?? {
+            id: '',
+            name: newUserName.trim(),
+            isAdmin: false,
+            acceptSuggestedGift: false,
+            updatedAt: new Date(),
+            createdAt: new Date()
+        };
         userToAdd.name = newUserName.trim();
 
         const response = await AxiosWrapper.post('/api/user', {
             user: userToAdd,
-            initiatorUserId: connectedUser?.userId ?? ''
+            initiatorUserId: connectedUser?.userId ?? '',
+            groupId: group.id
         });
         const data = response?.data as TUserApiResult;
 

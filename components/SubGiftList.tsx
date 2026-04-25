@@ -5,13 +5,14 @@
  */
 
 import { Gift, GiftType } from '@prisma/client';
+import { GiftWithTakenUserId } from '@/lib/db/giftManager';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import CustomButton from './atoms/customButton';
 import Swal from 'sweetalert2';
 
 interface SubGiftListProps {
-  parentGift: Gift;
+  parentGift: GiftWithTakenUserId;
   userId?: string;
   isAdmin?: boolean;
   onGiftUpdate?: () => void;
@@ -23,7 +24,7 @@ export default function SubGiftList({
   isAdmin = false,
   onGiftUpdate 
 }: SubGiftListProps) {
-  const [subGifts, setSubGifts] = useState<Gift[]>([]);
+  const [subGifts, setSubGifts] = useState<GiftWithTakenUserId[]>([]);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [creatingSubGift, setCreatingSubGift] = useState(false);
@@ -94,7 +95,7 @@ export default function SubGiftList({
     }
   };
 
-  const handleTakeSubGift = async (subGift: Gift) => {
+  const handleTakeSubGift = async (subGift: GiftWithTakenUserId) => {
     try {
       const isTaken = subGift.takenUserId != null;
       const endpoint = `/api/gift/${subGift.id}/take`;

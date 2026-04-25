@@ -1,7 +1,9 @@
 import { Gift, User, GiftType } from '@prisma/client';
 import prisma from './dbSingleton';
 
-export const buildDefaultGift = (userId: string, order: number, name?: string, description?: string, url?: string): Gift => {
+export type GiftWithTakenUserId = Gift & { takenUserId: string | null };
+
+export const buildDefaultGift = (userId: string, order: number, name?: string, description?: string, url?: string): GiftWithTakenUserId => {
     return {
         id: '',
         name: name ?? '',
@@ -18,7 +20,7 @@ export const buildDefaultGift = (userId: string, order: number, name?: string, d
     };
 };
 
-export const getGiftFromId = async (id: string): Promise<Gift | null> => {
+export const getGiftFromId = async (id: string): Promise<GiftWithTakenUserId | null> => {
     const gift = await prisma.gift.findFirst({
         where: {
             id
@@ -35,11 +37,10 @@ export const getGiftFromId = async (id: string): Promise<Gift | null> => {
     return {
         ...giftWithoutTakenBy,
         takenUserId: takenBy.length > 0 ? takenBy[0].userId : null
-    } as Gift;
+    } as GiftWithTakenUserId;
 };
 
-export const getTakenGiftsFromUserId = async (userId: string): Promise<(Gift & { user: User | null })[]> => {
-    // Utiliser UserTakenGift (v4.0.0) au lieu de Gift.takenUserId
+export const getTakenGiftsFromUserId = async (userId: string): Promise<(GiftWithTakenUserId & { user: User | null })[]> => {
     const takenGiftRecords = await prisma.userTakenGift.findMany({
         where: {
             userId
@@ -47,17 +48,24 @@ export const getTakenGiftsFromUserId = async (userId: string): Promise<(Gift & {
         include: {
             gift: {
                 include: {
-                    user: true
+                    user: true,
+                    takenBy: true  // Pour calculer takenUserId
                 }
             }
         }
     });
 
-    // Extraire les gifts avec leur user
-    return takenGiftRecords.map(record => record.gift);
+    // Extraire les gifts avec leur user et takenUserId
+    return takenGiftRecords.map(record => {
+        const { takenBy, ...giftWithoutTakenBy } = record.gift;
+        return {
+            ...giftWithoutTakenBy,
+            takenUserId: takenBy.length > 0 ? takenBy[0].userId : null
+        } as GiftWithTakenUserId & { user: User | null };
+    });
 };
 
-export const getGiftsFromUserId = async (userId: string): Promise<Gift[]> => {
+export const getGiftsFromUserId = async (userId: string): Promise<GiftWithTakenUserId[]> => {
     // Charger les cadeaux avec les réservations depuis UserTakenGift
     const gifts = await prisma.gift.findMany({
         where: {
@@ -78,7 +86,7 @@ export const getGiftsFromUserId = async (userId: string): Promise<Gift[]> => {
             ...giftWithoutTakenBy,
             takenUserId: takenBy.length > 0 ? takenBy[0].userId : null
         };
-    }) as Gift[];
+    }) as GiftWithTakenUserId[];
 };
 
 export const updateGift = async (giftId: string, gift: Gift): Promise<Gift> => {

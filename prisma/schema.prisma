@@ -22,7 +22,7 @@ enum GiftType {
 }
 
 // ============================================
-// MODELS - VERSION TRANSITION
+// MODELS
 // ============================================
 
 model Group {
@@ -32,10 +32,7 @@ model Group {
   imageUrl      String?
   adminPassword String  @default("admin")
 
-  // ANCIEN (à conserver temporairement)
-  users User[]
-
-  // NOUVEAU
+  // Relations
   userMemberships UserGroupMapping[]
   personalGifts   PersonalGift[]
 
@@ -49,14 +46,8 @@ model User {
   isAdmin             Boolean @default(false)
   acceptSuggestedGift Boolean @default(false)
 
-  // ANCIEN (à conserver temporairement pour migration)
-  group   Group?  @relation(fields: [groupId], references: [id])
-  groupId String?
-
   // Relations
-  gifts      Gift[] @relation(name: "user")
-  
-  // v4.0.0
+  gifts                Gift[]             @relation(name: "user")
   groupMemberships     UserGroupMapping[]
   userTakenGifts       UserTakenGift[]
   personalGifts        PersonalGift[]     @relation("PersonalGiftCreator")
@@ -101,7 +92,6 @@ model Gift {
   parentGift   Gift?   @relation("SubGifts", fields: [parentGiftId], references: [id], onDelete: Cascade)
   subGifts     Gift[]  @relation("SubGifts")
 
-  // Réservations (v4.0.0)
   takenBy UserTakenGift[]
 
   createdAt DateTime? @default(now())

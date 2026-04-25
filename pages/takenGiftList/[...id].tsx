@@ -1,7 +1,7 @@
 import CustomButton from '@/components/atoms/customButton';
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
-import { getTakenGiftsFromUserId } from '@/lib/db/giftManager';
+import { getTakenGiftsFromUserId, GiftWithTakenUserId } from '@/lib/db/giftManager';
 import { getPersonalGiftsByUser } from '@/lib/db/personalGiftManager';
 import { Gift, User, GiftType } from '@prisma/client';
 import { NextPageContext } from 'next';
@@ -14,7 +14,7 @@ import ModernLink from '@/components/atoms/ModernLink';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 
 // Type étendu pour inclure forUser (pour les personal gifts)
-type GiftWithForUser = Gift & { 
+type GiftWithForUser = GiftWithTakenUserId & { 
     user: User | null;
     forUser?: User | null;
 };

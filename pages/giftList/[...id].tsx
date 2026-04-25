@@ -10,7 +10,7 @@ import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable } 
 import { CSS } from '@dnd-kit/utilities';
 import { Drag } from '@/components/icons/drag';
 import { Gift, User } from '@prisma/client';
-import { buildDefaultGift, getGiftsFromUserId } from '@/lib/db/giftManager';
+import { buildDefaultGift, getGiftsFromUserId, GiftWithTakenUserId } from '@/lib/db/giftManager';
 import { TGiftApiResult } from '@/pages/api/gift';
 import { getUserById, getUsersFromGroupId } from '@/lib/db/userManager';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
@@ -25,7 +25,7 @@ function SortableItem({
     idx,
     canReorder
 }: {
-    gift: Gift;
+    gift: GiftWithTakenUserId;
     children: ReactNode;
     idx: number;
     canReorder: boolean;
@@ -62,12 +62,12 @@ function SortableItem({
     );
 }
 
-const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JSX.Element => {
+const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTakenUserId[] }): JSX.Element => {
     const { connectedUser } = useCurrentUser();
 
     const userCanAddGift: boolean = user.id === connectedUser?.userId;
 
-    const [localGifts, setLocalGifts] = useState<Gift[]>(giftList);
+    const [localGifts, setLocalGifts] = useState<GiftWithTakenUserId[]>(giftList);
     const [creatingGift, setCreatingGift] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
     const [filteringTakenGifts, setFilteringTakenGifts] = useState<boolean>(false);
@@ -85,9 +85,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
 
     useEffect(() => {
         const fillTakenUserMap = async () => {
-            if (user.groupId) {
+            if (connectedUser?.groupId) {
                 setLoadingGroupUsers(true);
-                const response = await AxiosWrapper.get(`/api/user?groupid=${user.groupId}`);
+                const response = await AxiosWrapper.get(`/api/user?groupid=${connectedUser.groupId}`);
 
                 if (response?.status !== 200) {
                     setLoadingGroupUsers(false);
@@ -107,7 +107,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         };
 
         fillTakenUserMap();
-    }, [user.groupId]);
+    }, [connectedUser?.groupId]);
 
     const clearAllFields = (): void => {
         setCreatingGift(false);
@@ -166,14 +166,14 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
     };
 
     const upsertGift = async (giftId: string | null = null): Promise<void> => {
-        const currentGift: Gift = cloneDeep(localGifts.filter((gift) => gift.id === giftId)[0]);
-        const giftToUpsert: Gift = currentGift ?? buildDefaultGift(user.id, localGifts.length);
+        const currentGift: GiftWithTakenUserId = cloneDeep(localGifts.filter((gift) => gift.id === giftId)[0]);
+        const giftToUpsert: GiftWithTakenUserId = currentGift ?? buildDefaultGift(user.id, localGifts.length);
 
         giftToUpsert.name = newGiftName;
         giftToUpsert.description = newDescription;
         giftToUpsert.url = newLink;
 
-        let newGifts: Gift[] = localGifts;
+        let newGifts: GiftWithTakenUserId[] = localGifts;
         if (giftId) {
             // Update
             const result = await AxiosWrapper.patch(`/api/gift/${giftId}`, {
@@ -182,8 +182,12 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
             const data = result?.data as TGiftApiResult;
 
             if (data && data.success === true && data.gift) {
+                const giftWithTakenUserId: GiftWithTakenUserId = {
+                    ...data.gift,
+                    takenUserId: (data.gift as any).takenUserId ?? null
+                };
                 const currentUserToUpdateId = newGifts.findIndex((gift) => gift.id === giftId);
-                newGifts[currentUserToUpdateId] = data.gift;
+                newGifts[currentUserToUpdateId] = giftWithTakenUserId;
             } else {
                 newGifts = localGifts;
                 clearAllFields();
@@ -198,7 +202,11 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
             const data = result?.data as TGiftApiResult;
 
             if (data && data.success === true && data.gift) {
-                newGifts.push(data.gift);
+                const giftWithTakenUserId: GiftWithTakenUserId = {
+                    ...data.gift,
+                    takenUserId: (data.gift as any).takenUserId ?? null
+                };
+                newGifts.push(giftWithTakenUserId);
             } else {
                 newGifts = localGifts;
                 clearAllFields();
@@ -217,7 +225,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         }, 0);
     };
 
-    const onBlockUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
+    const onBlockUnBlockGiftClick = async (giftToUpdate: GiftWithTakenUserId): Promise<void> => {
         const isTaken = giftToUpdate.takenUserId != null;
         setTakingGiftId(giftToUpdate.id);
         
@@ -243,8 +251,12 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                 const refreshData = refreshResult?.data as TGiftApiResult;
                 
                 if (refreshData && refreshData.success && refreshData.gift) {
-                    const newLocalGifts: Gift[] = localGifts.map(gift => 
-                        gift.id === giftToUpdate.id ? refreshData.gift! : gift
+                    const giftWithTakenUserId: GiftWithTakenUserId = {
+                        ...refreshData.gift,
+                        takenUserId: (refreshData.gift as any).takenUserId ?? null
+                    };
+                    const newLocalGifts: GiftWithTakenUserId[] = localGifts.map(gift => 
+                        gift.id === giftToUpdate.id ? giftWithTakenUserId : gift
                     );
                     setLocalGifts(newLocalGifts);
                 }
@@ -266,7 +278,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
         }
     };
 
-    const buildStyleIfTaken = (gift: Gift): string => {
+    const buildStyleIfTaken = (gift: GiftWithTakenUserId): string => {
         if (gift.userId !== connectedUser?.userId && gift.takenUserId != null) {
             return 'line-through';
         }
@@ -289,7 +301,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: Gift[] }): JS
                 const oldIndex = prevLocalGifts.findIndex((gift) => gift.id === active.id);
                 const newIndex = prevLocalGifts.findIndex((gift) => gift.id === over.id);
 
-                const newGifts: Gift[] = arrayMove(prevLocalGifts, oldIndex, newIndex);
+                const newGifts: GiftWithTakenUserId[] = arrayMove(prevLocalGifts, oldIndex, newIndex);
 
                 // Update position of all gifts
                 for (let i = 0; i < newGifts.length; i++) {
