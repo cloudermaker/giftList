@@ -10,7 +10,9 @@
         "format": "prettier --loglevel warn --write .",
         "export": "npm run build && next export -o _static",
         "initDb": "node ./migration/init.js",
-        "postinstall": "prisma generate"
+        "postinstall": "prisma generate",
+        "maintenance:on": "echo MAINTENANCE_MODE=true >> .env.local",
+        "maintenance:off": "powershell -Command \"(Get-Content .env.local) | Where-Object { $_ -notmatch 'MAINTENANCE_MODE' } | Set-Content .env.local\""
     },
     "engines": {
         "node": "22.x"
