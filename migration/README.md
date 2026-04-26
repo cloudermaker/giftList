@@ -1,58 +1,35 @@
-# Migration v4.0.0
+# Migration
 
-## 📋 Procédure de migration en production
+## 📁 Fichiers historiques
 
-### 1. Backup (Neon Console)
-Créer un backup manuel via Neon Console avant toute opération.
+Ce dossier contient les scripts de migration historiques pour référence :
 
-### 2. Mode maintenance (optionnel)
-```bash
-# Activer le mode maintenance
-npm run maintenance:on
+- **init.js** - Script d'initialisation de la base de données (première version)
+- **add_position.js** - Migration pour ajouter la colonne `order` aux cadeaux
 
-# Vérifier que la page de maintenance s'affiche
-# Ouvrir: https://your-domain.com
+## ✅ État actuel
+
+La base de données est en **v4.0.0** avec :
+- ✅ Tables `UserGroupMapping`, `UserTakenGift`, `PersonalGift`
+- ✅ Enums `Role`, `GiftType`
+- ✅ Relations many-to-many User ↔ Group
+- ✅ Système de réservation via UserTakenGift
+- ✅ Cadeaux personnels via PersonalGift
+
+## 🚀 Nouvelles migrations
+
+Pour créer une nouvelle migration :
+
+1. Créer un fichier SQL descriptif : `migration/add_feature_xyz.sql`
+2. Utiliser une transaction :
+```sql
+BEGIN;
+-- Vos modifications ici
+COMMIT;
 ```
-
-### 3. Exécuter la migration
+3. Tester en local
+4. Exécuter en production :
 ```bash
-psql "YOUR_NEON_DATABASE_URL" -f migration/migrate_v4.sql
+psql "YOUR_NEON_DATABASE_URL" -f migration/add_feature_xyz.sql
 ```
-
-Le script affichera sa progression et validera automatiquement les données.
-
-### 4. Générer Prisma
-```bash
-npx prisma generate
-```
-
-### 5. Redémarrer l'application
-```bash
-# Désactiver le mode maintenance
-npm run maintenance:off
-
-# Redémarrer l'application (selon votre déploiement)
-```
-
-### 6. Tester
-- Login/logout
-- Créer/modifier/supprimer un cadeau
-- Réserver un cadeau
-- Gérer les utilisateurs d'un groupe
-
-### 7. Cleanup (J+2 après validation)
-Une fois que tout fonctionne parfaitement pendant 24-48h :
-1. Éditer `migration/migrate_v4.sql`
-2. Décommenter la section **ÉTAPE 5 (OPTIONNELLE): CLEANUP**
-3. Réexécuter : `psql "YOUR_NEON_DATABASE_URL" -f migration/migrate_v4.sql`
-
-⚠️ Cette étape supprime définitivement `Gift.takenUserId` et `User.groupId`
-
-## 🔄 Rollback en cas de problème
-Si la migration échoue, tout est annulé automatiquement (transaction).
-Si besoin de revenir en arrière après succès : restaurer le backup Neon.
-
-## 📁 Fichiers
-- **migrate_v4.sql** - Script de migration complet (création tables + migration données + validation)
-- **add_position.js** - Ancienne migration (historique)
-- **init.js** - Initialisation initiale (historique)
+5. Commit le fichier pour historique
