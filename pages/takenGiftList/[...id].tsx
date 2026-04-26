@@ -296,7 +296,7 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                 )}
 
                 {formData.isCreating && (
-                    <div className="block pt-3">
+                    <div className="block pt-3 item">
                         <b>Ajouter un cadeau personnel:</b>
                         <p className="text-sm text-gray-600 mb-2">
                             Ce cadeau ne sera visible que par toi
@@ -385,13 +385,16 @@ export async function getServerSideProps(context: NextPageContext) {
     // Charger les cadeaux réservés (takenUserId)
     const takenGifts = await getTakenGiftsFromUserId(userId);
     
-    // Ajouter forUser: null aux cadeaux réservés (ils n'ont pas de destinataire)
-    const takenGiftsWithForUser = takenGifts.map(gift => ({
-        ...gift,
-        forUser: null
-    }));
+    // Filtrer pour ne garder QUE les cadeaux qui ont un user (vraies listes)
+    // Les cadeaux orphelins (user=null) ne doivent plus apparaître ici
+    const takenGiftsWithForUser = takenGifts
+        .filter(gift => gift.user !== null)  // Ignorer les orphelins
+        .map(gift => ({
+            ...gift,
+            forUser: null
+        }));
     
-    // Charger les cadeaux personnels créés par le user
+    // Charger les cadeaux personnels créés par le user (depuis PersonalGift)
     const personalGifts = await getPersonalGiftsByUser(userId);
     
     // Convertir PersonalGifts en format Gift pour compatibilité
