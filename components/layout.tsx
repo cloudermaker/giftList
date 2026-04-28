@@ -9,11 +9,13 @@ import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 export const Layout = ({
     children,
     selectedHeader = EHeader.Homepage,
-    withHeader = true
+    withHeader = true,
+    pageTitle
 }: {
     children: ReactNode;
     selectedHeader?: EHeader;
     withHeader?: boolean;
+    pageTitle?: string;
 }): JSX.Element => {
     const { logout } = useLogout();
     const { connectedUser } = useCurrentUser();
@@ -34,9 +36,14 @@ export const Layout = ({
                     {connectedUser && (
                         <div className="relative group">
                             {/* Indicator */}
-                            <div className="flex items-center text-sm cursor-default">
-                                <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-1" />
+                            <div className="flex items-center gap-2 text-sm cursor-default">
+                                <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
                                 <span>Connecté</span>
+                                {connectedUser.isAdmin && (
+                                    <span className="text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-300 px-2 py-0.5 rounded-full select-none">
+                                        🛡️ Admin
+                                    </span>
+                                )}
                             </div>
                             {/* Tooltip with details on hover */}
                             <div className="absolute right-0 top-full mt-1 w-48 p-2 bg-white border border-gray-200 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
@@ -59,6 +66,7 @@ export const Layout = ({
                         groupId={connectedUser.groupId}
                         userId={connectedUser.userId}
                         onDisconnectClick={onDisconnectClick}
+                        customTitle={pageTitle}
                     />
                 )}
 

@@ -4,6 +4,16 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [4.0.1] - 2026-04-28
+
+### Ajouté
+
+- Badge visuel "🛡️ Admin" affiché à côté de "Connecté" en haut à droite pour les utilisateurs en mode administrateur
+
+### Modifié
+
+- Affiche le nom de la personne quand on est sur sa liste de cadeaux
+
 ## [4.0.0] - 2026-04-16
 
 ### Ajouté

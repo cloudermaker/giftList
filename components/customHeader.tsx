@@ -17,12 +17,14 @@ export const CustomHeader = ({
     selectedHeader = EHeader.Homepage,
     groupId,
     userId,
-    onDisconnectClick
+    onDisconnectClick,
+    customTitle
 }: {
     selectedHeader?: EHeader;
     groupId: string;
     userId: string;
     onDisconnectClick: () => void;
+    customTitle?: string;
 }): JSX.Element => {
     const [isResponsiveMenuOpen, setIsResponsiveMenuOpen] = useState<boolean>(false);
     const ref = useClickOutside(() => setIsResponsiveMenuOpen(false));
@@ -30,7 +32,7 @@ export const CustomHeader = ({
     const commonStyle = 'text-neutral-500 hover:text-rougeNoel hover:cursor-pointer transition-all duration-300';
     const menus = [
         { url: `/group/${groupId}`, name: 'Mon groupe', isSelected: selectedHeader === EHeader.Group, icon: '👪' },
-        { url: `/giftList/${userId}`, name: 'Ma liste de cadeaux', isSelected: selectedHeader === EHeader.GiftList, icon: '🎁' },
+        { url: `/giftList/${userId}`, name: customTitle || 'Ma liste de cadeaux', isSelected: selectedHeader === EHeader.GiftList, icon: '🎁' },
         { url: `/takenGiftList/${userId}`, name: 'A acheter', isSelected: selectedHeader === EHeader.TakenGiftList, icon: '🛍️' },
         { url: '', name: 'Déconnexion', isSelected: false, icon: '🚪', onClick: onDisconnectClick }
     ];

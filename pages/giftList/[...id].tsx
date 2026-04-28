@@ -363,8 +363,12 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
         }
     }
 
+    const pageTitle = user.id === connectedUser?.userId 
+        ? 'Ma liste de cadeaux' 
+        : `Liste de cadeaux de ${user.name}`;
+
     return (
-        <Layout selectedHeader={EHeader.GiftList}>
+        <Layout selectedHeader={EHeader.GiftList} pageTitle={pageTitle}>
             <div className="mb-10">
                 <h1>{`Voici la liste de cadeaux pour ${user.name}:`}</h1>
 
