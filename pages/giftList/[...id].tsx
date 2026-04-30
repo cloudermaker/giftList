@@ -74,6 +74,14 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     const [error, setError] = useState<string>('');
     const [filteringTakenGifts, setFilteringTakenGifts] = useState<boolean>(false);
 
+    // Resync local state when navigating to a different user's list
+    useEffect(() => {
+        setLocalGifts(giftList);
+        setSelectedGiftId(null);
+        clearAllFields();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user.id]);
+
     const [newGiftName, setNewGiftName] = useState<string>('');
     const [newDescription, setNewDescription] = useState<string>('');
     const [newLink, setNewLink] = useState<string>('');
