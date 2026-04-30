@@ -407,13 +407,13 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                         >
                                             <span className={`font-medium flex-1 min-w-0 ${!isOwnList && gift.takenUserId ? 'line-through text-gray-400' : ''}`}>
                                                 {gift.name}
-                                                {gift.giftType === 'MULTIPLE' && (
-                                                    <span className="ml-2 text-xs bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded-full font-medium">
-                                                        🧩 {gift.subGiftsCount ?? 0} élément{(gift.subGiftsCount ?? 0) !== 1 ? 's' : ''}
-                                                    </span>
-                                                )}
                                             </span>
-                                            {!isOwnList && (
+                                            {gift.giftType === 'MULTIPLE' && (
+                                                <span className="shrink-0 text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
+                                                    🧩 {gift.subGiftsCount ?? 0} élément{(gift.subGiftsCount ?? 0) !== 1 ? 's' : ''}
+                                                </span>
+                                            )}
+                                            {!isOwnList && gift.giftType !== 'MULTIPLE' && (
                                                 <span className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
                                                     gift.takenUserId ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'
                                                 }`}>
@@ -631,7 +631,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                         </>
                                     )
                                 )}
-                                {!userCanAddGift && selectedGift.takenUserId === connectedUser?.userId && (
+                                {!userCanAddGift && selectedGift.giftType !== 'MULTIPLE' && selectedGift.takenUserId === connectedUser?.userId && (
                                     <CustomButton
                                         onClick={() => onBlockUnBlockGiftClick(selectedGift)}
                                         disabled={takingGiftId === selectedGift.id}
@@ -639,7 +639,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                         {takingGiftId === selectedGift.id ? 'Libération...' : 'Je ne prends plus ce cadeau'}
                                     </CustomButton>
                                 )}
-                                {!userCanAddGift && !selectedGift.takenUserId && (
+                                {!userCanAddGift && selectedGift.giftType !== 'MULTIPLE' && !selectedGift.takenUserId && (
                                     <CustomButton
                                         className="green-button"
                                         onClick={() => onBlockUnBlockGiftClick(selectedGift)}
@@ -648,6 +648,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                         {takingGiftId === selectedGift.id ? 'Réservation...' : 'Je prends ce cadeau'}
                                     </CustomButton>
                                 )}
+                                <CustomButton onClick={() => { clearAllFields(); setSelectedGiftId(null); }}>
+                                    Fermer
+                                </CustomButton>
                             </div>
                         </div>
                     </div>
