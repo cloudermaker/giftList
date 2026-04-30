@@ -205,7 +205,15 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                                     </p>
                                     <p>
                                         <b className="pr-2">Nom:</b>
-                                        {gift.name}
+                                        {(gift as any).parentGift ? (
+                                            <>
+                                                <span className="text-gray-500">{(gift as any).parentGift.name}</span>
+                                                <span className="mx-1 text-gray-400">›</span>
+                                                <span>{gift.name}</span>
+                                            </>
+                                        ) : (
+                                            gift.name
+                                        )}
                                     </p>
 
                                     {gift.description && (
@@ -391,7 +399,8 @@ export async function getServerSideProps(context: NextPageContext) {
         .filter(gift => gift.user !== null)  // Ignorer les orphelins
         .map(gift => ({
             ...gift,
-            forUser: null
+            forUser: null,
+            parentGift: (gift as any).parentGift ?? null
         }));
     
     // Charger les cadeaux personnels créés par le user (depuis PersonalGift)
@@ -437,7 +446,14 @@ export async function getServerSideProps(context: NextPageContext) {
                       }
                     : null,
                 updatedAt: gift.updatedAt?.toISOString() ?? '',
-                createdAt: gift.createdAt?.toISOString() ?? ''
+                createdAt: gift.createdAt?.toISOString() ?? '',
+                parentGift: (gift as any).parentGift
+                    ? {
+                          ...(gift as any).parentGift,
+                          updatedAt: (gift as any).parentGift.updatedAt?.toISOString() ?? '',
+                          createdAt: (gift as any).parentGift.createdAt?.toISOString() ?? ''
+                      }
+                    : null
             }))
         }
     };

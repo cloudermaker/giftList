@@ -50,7 +50,8 @@ export const getTakenGiftsFromUserId = async (userId: string): Promise<(GiftWith
             gift: {
                 include: {
                     user: true,
-                    takenBy: true  // Pour calculer takenUserId
+                    takenBy: true,  // Pour calculer takenUserId
+                    parentGift: true  // Pour les sous-cadeaux
                 }
             }
         }
