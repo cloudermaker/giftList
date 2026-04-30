@@ -15,6 +15,7 @@ interface SubGiftListProps {
   parentGift: GiftWithTakenUserId;
   userId?: string;
   isAdmin?: boolean;
+  initialCount?: number;
   onGiftUpdate?: () => void;
 }
 
@@ -22,6 +23,7 @@ export default function SubGiftList({
   parentGift, 
   userId, 
   isAdmin = false,
+  initialCount,
   onGiftUpdate 
 }: SubGiftListProps) {
   const [subGifts, setSubGifts] = useState<GiftWithTakenUserId[]>([]);
@@ -30,11 +32,14 @@ export default function SubGiftList({
   const [creatingSubGift, setCreatingSubGift] = useState(false);
   const [newSubGiftName, setNewSubGiftName] = useState('');
 
+  const isOwner = parentGift.userId === userId;
+
   // Charger les sous-cadeaux quand le composant est expanded
   useEffect(() => {
     if (expanded && parentGift.giftType === 'MULTIPLE') {
       loadSubGifts();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expanded, parentGift.id]);
 
   const loadSubGifts = async () => {
@@ -63,11 +68,7 @@ export default function SubGiftList({
 
     try {
       const response = await axios.post(`/api/gift/${parentGift.id}/subgifts`, {
-        subGift: {
-          name: newSubGiftName,
-          userId: parentGift.userId,
-          giftType: 'SIMPLE' as GiftType
-        }
+        name: newSubGiftName
       });
 
       if (response.data.success && response.data.subGift) {
@@ -95,15 +96,37 @@ export default function SubGiftList({
     }
   };
 
+  const handleDeleteSubGift = async (subGift: GiftWithTakenUserId) => {
+    const result = await Swal.fire({
+      title: 'Supprimer ce sous-cadeau ?',
+      text: 'Cette action est irréversible.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Oui',
+      cancelButtonText: 'Non',
+      reverseButtons: true
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await axios.delete(`/api/gift/${subGift.id}`);
+      setSubGifts((prev) => prev.filter((g) => g.id !== subGift.id));
+      if (onGiftUpdate) onGiftUpdate();
+    } catch (error) {
+      Swal.fire({ title: 'Erreur', text: `Erreur lors de la suppression: ${error}`, icon: 'error' });
+    }
+  };
+
   const handleTakeSubGift = async (subGift: GiftWithTakenUserId) => {
     try {
       const isTaken = subGift.takenUserId != null;
       const endpoint = `/api/gift/${subGift.id}/take`;
       
       if (isTaken) {
-        await axios.delete(endpoint);
+        await axios.delete(endpoint, { data: { userId } });
       } else {
-        await axios.post(endpoint);
+        await axios.post(endpoint, { userId });
       }
 
       // Recharger les sous-cadeaux
@@ -127,25 +150,36 @@ export default function SubGiftList({
   }
 
   return (
-    <div className="mt-3 ml-6 border-l-2 border-gray-200 pl-4">
+    <div>
       {/* Toggle pour expand/collapse */}
-      <button
+      <div
         onClick={() => setExpanded(!expanded)}
-        className="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-2 mb-2"
+        className="flex items-center gap-3 px-4 py-2.5 mb-3 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 cursor-pointer select-none transition-colors duration-150"
       >
-        <span className={`transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}>
+        <span className={`text-indigo-500 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}>
           ▶
         </span>
-        <span>
+        <span className="text-sm font-medium text-indigo-700 flex-1">
           {expanded ? 'Masquer' : 'Afficher'} les sous-cadeaux
-          {subGifts.length > 0 && ` (${subGifts.length})`}
         </span>
-      </button>
+        {(subGifts.length > 0 || (initialCount ?? 0) > 0) && (
+          <span className="text-xs bg-indigo-200 text-indigo-700 px-2 py-0.5 rounded-full font-semibold">
+            {subGifts.length || initialCount}
+          </span>
+        )}
+      </div>
 
       {expanded && (
         <div className="space-y-2">
           {loading && (
-            <div className="text-sm text-gray-500 italic">Chargement...</div>
+            <>
+              {Array.from({ length: subGifts.length || initialCount || 1 }).map((_, i) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-white animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-2/3" />
+                  <div className="h-8 bg-gray-200 rounded-lg w-24" />
+                </div>
+              ))}
+            </>
           )}
 
           {!loading && subGifts.length === 0 && (
@@ -155,47 +189,55 @@ export default function SubGiftList({
           )}
 
           {/* Liste des sous-cadeaux */}
-          {!loading && subGifts.map((subGift) => (
+          {!loading && subGifts.map((subGift) => {
+            const isTaken = subGift.takenUserId != null;
+            const takenByMe = subGift.takenUserId === userId;
+
+            return (
             <div
               key={subGift.id}
               className={`flex items-center justify-between p-3 rounded-lg border ${
-                subGift.takenUserId ? 'bg-gray-50 border-gray-300' : 'bg-white border-gray-200'
+                isOwner ? 'bg-white border-gray-200' : isTaken ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'
               }`}
             >
-              <div className="flex-1">
-                <span className={`text-sm ${subGift.takenUserId ? 'line-through text-gray-500' : 'text-gray-800'}`}>
-                  {subGift.name}
-                </span>
-                {subGift.takenUserId && (
-                  <span className="ml-2 text-xs text-gray-500">
-                    (Réservé)
+              <div className="flex-1 flex items-center gap-2">
+                <div>
+                  <span className={`text-sm ${isTaken ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                    {subGift.name}
                   </span>
-                )}
+                  {!isOwner && (
+                    <span className={`ml-2 text-xs font-medium ${isTaken ? 'text-red-500' : 'text-green-600'}`}>
+                      {isTaken ? (takenByMe ? 'Réservé par vous' : 'Déjà réservé') : 'Disponible'}
+                    </span>
+                  )}
+                </div>
               </div>
 
-              {/* Bouton de réservation/libération */}
-              {(isAdmin || subGift.takenUserId === userId) && (
-                <CustomButton
-                  onClick={() => handleTakeSubGift(subGift)}
-                  className={`text-xs px-3 py-1 ${
-                    subGift.takenUserId
-                      ? 'bg-red-100 hover:bg-red-200 text-red-700'
-                      : 'bg-green-100 hover:bg-green-200 text-green-700'
-                  }`}
-                >
-                  {subGift.takenUserId ? 'Libérer' : 'Réserver'}
+              {/* Boutons selon le rôle */}
+              {isOwner ? (
+                <CustomButton onClick={() => handleDeleteSubGift(subGift)}>
+                  Supprimer
                 </CustomButton>
-              )}
+              ) : isTaken && takenByMe ? (
+                <CustomButton onClick={() => handleTakeSubGift(subGift)}>
+                  Je ne prends plus
+                </CustomButton>
+              ) : !isTaken ? (
+                <CustomButton onClick={() => handleTakeSubGift(subGift)} className="green-button">
+                  Je le prends
+                </CustomButton>
+              ) : null}
             </div>
-          ))}
+            );
+          })}
 
           {/* Formulaire d'ajout de sous-cadeau */}
-          {isAdmin && (
+          {(isAdmin || isOwner) && (
             <div className="mt-3">
               {!creatingSubGift ? (
                 <CustomButton
                   onClick={() => setCreatingSubGift(true)}
-                  className="text-sm px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700"
+                  className="green-button"
                 >
                   + Ajouter un sous-cadeau
                 </CustomButton>
@@ -212,7 +254,7 @@ export default function SubGiftList({
                   />
                   <CustomButton
                     onClick={handleCreateSubGift}
-                    className="text-sm px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700"
+                    className="green-button"
                   >
                     Ajouter
                   </CustomButton>
@@ -221,7 +263,6 @@ export default function SubGiftList({
                       setCreatingSubGift(false);
                       setNewSubGiftName('');
                     }}
-                    className="text-sm px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700"
                   >
                     Annuler
                   </CustomButton>

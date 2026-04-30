@@ -9,6 +9,8 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ### Ajouté
 
 - Badge visuel "🛡️ Admin" affiché à côté de "Connecté" en haut à droite pour les utilisateurs en mode administrateur
+- Cadeau avec sous-éléments : option "Cadeau avec sous-éléments" dans le formulaire de création (ex: manga avec ses tomes)
+- Les sous-éléments d'un cadeau sont affichés/masquables directement dans la liste, avec possibilité de les réserver individuellement
 
 ### Modifié
 

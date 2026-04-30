@@ -18,6 +18,7 @@ import Swal from 'sweetalert2';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import { cloneDeep } from 'lodash';
 import { TUserApiResult } from '../api/user';
+import SubGiftList from '@/components/SubGiftList';
 
 function SortableItem({
     gift,
@@ -65,7 +66,8 @@ function SortableItem({
 const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTakenUserId[] }): JSX.Element => {
     const { connectedUser } = useCurrentUser();
 
-    const userCanAddGift: boolean = user.id === connectedUser?.userId;
+    const isOwnList: boolean = user.id === connectedUser?.userId;
+    const userCanAddGift: boolean = isOwnList || connectedUser?.isAdmin === true;
 
     const [localGifts, setLocalGifts] = useState<GiftWithTakenUserId[]>(giftList);
     const [creatingGift, setCreatingGift] = useState<boolean>(false);
@@ -75,12 +77,13 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     const [newGiftName, setNewGiftName] = useState<string>('');
     const [newDescription, setNewDescription] = useState<string>('');
     const [newLink, setNewLink] = useState<string>('');
+    const [newGiftType, setNewGiftType] = useState<'SIMPLE' | 'MULTIPLE'>('SIMPLE');
 
     const [updatingGiftId, setUpdatingGiftId] = useState<string>('');
+    const [selectedGiftId, setSelectedGiftId] = useState<string | null>(null);
 
     const [groupUserMap, setGroupUserMap] = useState<{ [key: string]: User }>({});
     const [loadingGroupUsers, setLoadingGroupUsers] = useState<boolean>(true);
-    const [revealedGiftIds, setRevealedGiftIds] = useState<Set<string>>(new Set());
     const [takingGiftId, setTakingGiftId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -120,6 +123,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
         setNewGiftName('');
         setNewDescription('');
         setNewLink('');
+        setNewGiftType('SIMPLE');
         setUpdatingGiftId('');
     };
 
@@ -147,6 +151,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                         if (data && data.success === true) {
                             setLocalGifts(localGifts.filter((gift) => gift.id !== giftId));
                             clearAllFields();
+                            setSelectedGiftId(null);
 
                             swalWithBootstrapButtons.fire({
                                 title: 'Supprimé!',
@@ -181,6 +186,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
         setNewGiftName(gift.name);
         setNewDescription(gift.description ?? '');
         setNewLink(gift.url ?? '');
+        setNewGiftType((gift.giftType as 'SIMPLE' | 'MULTIPLE') ?? 'SIMPLE');
         setUpdatingGiftId(gift.id);
     };
 
@@ -191,6 +197,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
         giftToUpsert.name = newGiftName;
         giftToUpsert.description = newDescription;
         giftToUpsert.url = newLink;
+        giftToUpsert.giftType = newGiftType;
 
         let newGifts: GiftWithTakenUserId[] = localGifts;
         try {
@@ -363,6 +370,8 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
         }
     }
 
+    const selectedGift = localGifts.find((g) => g.id === selectedGiftId) ?? null;
+
     const pageTitle = user.id === connectedUser?.userId 
         ? 'Ma liste de cadeaux' 
         : `Liste de cadeaux de ${user.name}`;
@@ -390,174 +399,27 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                 .filter((gift) => !filteringTakenGifts || !gift.takenUserId)
                                 .map((gift, idx) => (
                                     <SortableItem key={`gift_${gift.id}`} gift={gift} idx={idx + 1} canReorder={userCanAddGift}>
-                                        <div className="block md:flex justify-between items-center w-full">
-                                            {updatingGiftId !== gift.id && (
-                                                <div className={`w-full block ${buildStyleIfTaken(gift)}`}>
-                                                    <p className="py-1">
-                                                        <b className="pr-2">Nom:</b>
-                                                        <span>{gift.name}</span>
-                                                    </p>
-
-                                                    {gift.description && (
-                                                        <p className="py-1">
-                                                            <b className="pr-2">Description:</b>
-                                                            <span>{gift.description}</span>
-                                                        </p>
-                                                    )}
-
-                                                    {gift.url && (
-                                                        <p className="py-1">
-                                                            <ModernLink href={gift.url} />
-                                                        </p>
-                                                    )}
-
-                                                    {connectedUser?.isAdmin && (
-                                                        <i>
-                                                            <div className="flex">
-                                                                <span className="pr-2">Créé:</span>
-                                                                {gift.createdAt?.toLocaleString()}
-                                                            </div>
-
-                                                            <div className="flex">
-                                                                <span className="pr-2">Mis à jour:</span>
-                                                                {gift.updatedAt?.toString()}
-                                                            </div>
-                                                        </i>
-                                                    )}
-                                                </div>
-                                            )}
-
-                                            {updatingGiftId === gift.id && (
-                                                <div className={`w-full pr-4 block ${buildStyleIfTaken(gift)}`}>
-                                                    <div className="py-2 grid md:flex">
-                                                        <label className="input-label">Nom:</label>
-                                                        <textarea
-                                                            id="newGiftInputId"
-                                                            className="input-field"
-                                                            value={newGiftName}
-                                                            onChange={(e) => setNewGiftName(e.target.value)}
-                                                        />
-                                                    </div>
-
-                                                    <div className="py-2 grid md:flex">
-                                                        <label className="input-label">Description:</label>
-                                                        <textarea
-                                                            className="input-field"
-                                                            value={newDescription}
-                                                            onChange={(e) => setNewDescription(e.target.value)}
-                                                        />
-                                                    </div>
-
-                                                    <div className="py-2 grid md:flex">
-                                                        <label className="input-label">Lien:</label>
-                                                        <textarea
-                                                            className="input-field"
-                                                            value={newLink}
-                                                            onChange={(e) => setNewLink(e.target.value)}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            <div className="pt-4 md:pt-0 justify-end flex">
-                                                {userCanAddGift &&
-                                                    (updatingGiftId === gift.id ? (
-                                                        <>
-                                                            <CustomButton
-                                                                onClick={() => upsertGift(gift.id)}
-                                                                disabled={newGiftName == null || newGiftName === ''}
-                                                                className="green-button"
-                                                            >
-                                                                Valider
-                                                            </CustomButton>
-                                                            <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <CustomButton
-                                                                className="green-button"
-                                                                onClick={() => updatingGift(gift)}
-                                                            >
-                                                                Modifier
-                                                            </CustomButton>
-                                                            <CustomButton onClick={() => removeGift(gift.id)}>
-                                                                Supprimer
-                                                            </CustomButton>
-                                                        </>
-                                                    ))}
-
-                                                {!userCanAddGift && gift.takenUserId === connectedUser?.userId && (
-                                                    <CustomButton 
-                                                        onClick={() => onBlockUnBlockGiftClick(gift)}
-                                                        disabled={takingGiftId === gift.id}
-                                                    >
-                                                        {takingGiftId === gift.id ? 'Libération...' : 'Je ne prends plus ce cadeau'}
-                                                    </CustomButton>
+                                        <div
+                                            className={`w-full cursor-pointer p-3 rounded-lg border flex justify-between items-start gap-3 ${
+                                                !isOwnList && gift.takenUserId ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200 hover:bg-gray-50'
+                                            }`}
+                                            onClick={() => setSelectedGiftId(gift.id)}
+                                        >
+                                            <span className={`font-medium flex-1 min-w-0 ${!isOwnList && gift.takenUserId ? 'line-through text-gray-400' : ''}`}>
+                                                {gift.name}
+                                                {gift.giftType === 'MULTIPLE' && (
+                                                    <span className="ml-2 text-xs bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded-full font-medium">
+                                                        🧩 {gift.subGiftsCount ?? 0} élément{(gift.subGiftsCount ?? 0) !== 1 ? 's' : ''}
+                                                    </span>
                                                 )}
-
-                                                {!userCanAddGift &&
-                                                    gift.takenUserId &&
-                                                    gift.takenUserId !== connectedUser?.userId && (
-                                                        <>
-                                                            {(loadingGroupUsers ||
-                                                                !groupUserMap ||
-                                                                !groupUserMap[gift.takenUserId]) && (
-                                                                <span className="text-red-500 text-center">
-                                                                    Ce cadeau est déjà pris
-                                                                </span>
-                                                            )}
-                                                            {!loadingGroupUsers &&
-                                                                groupUserMap[gift.takenUserId] &&
-                                                                !revealedGiftIds.has(gift.id) && (
-                                                                    <span
-                                                                        className="text-red-500 text-center cursor-pointer"
-                                                                        onClick={() =>
-                                                                            setRevealedGiftIds((prev) => {
-                                                                                const newSet = new Set(prev);
-                                                                                newSet.add(gift.id);
-                                                                                return newSet;
-                                                                            })
-                                                                        }
-                                                                    >
-                                                                        Ce cadeau est déjà pris <br />
-                                                                        (cliquer pour révéler)
-                                                                    </span>
-                                                                )}
-                                                            {!loadingGroupUsers && revealedGiftIds.has(gift.id) && (
-                                                                <span
-                                                                    className="text-red-500 text-center cursor-pointer"
-                                                                    onClick={() =>
-                                                                        setRevealedGiftIds((prev) => {
-                                                                            const newSet = new Set([...prev]);
-                                                                            newSet.delete(gift.id);
-                                                                            return newSet;
-                                                                        })
-                                                                    }
-                                                                >
-                                                                    Ce cadeau est déjà pris <br />
-                                                                    (par{' '}
-                                                                    <b>
-                                                                        {groupUserMap[gift.takenUserId]?.name ||
-                                                                            'Utilisateur inconnu'}
-                                                                    </b>
-                                                                    )
-                                                                </span>
-                                                            )}
-                                                        </>
-                                                    )}
-
-                                                {!userCanAddGift &&
-                                                    !gift.takenUserId &&
-                                                    gift.takenUserId !== connectedUser?.userId && (
-                                                        <CustomButton
-                                                            className="green-button"
-                                                            onClick={() => onBlockUnBlockGiftClick(gift)}
-                                                            disabled={takingGiftId === gift.id}
-                                                        >
-                                                            {takingGiftId === gift.id ? 'Réservation...' : 'Je prends ce cadeau'}
-                                                        </CustomButton>
-                                                    )}
-                                            </div>
+                                            </span>
+                                            {!isOwnList && (
+                                                <span className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
+                                                    gift.takenUserId ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'
+                                                }`}>
+                                                    {gift.takenUserId ? 'Pris' : 'Libre'}
+                                                </span>
+                                            )}
                                         </div>
                                     </SortableItem>
                                 ))}
@@ -565,7 +427,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                     </DndContext>
                 </Suspense>
 
-                {!creatingGift && (
+                {!creatingGift && userCanAddGift && (
                     <CustomButton className="green-button" onClick={onCreatingGiftButtonClick}>
                         Ajouter un cadeau
                     </CustomButton>
@@ -600,6 +462,19 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                             <textarea className="input-field" value={newLink} onChange={(e) => setNewLink(e.target.value)} />
                         </div>
 
+                        <div className="flex items-center gap-2 mb-4">
+                            <input
+                                id="newGiftTypeCheckbox"
+                                type="checkbox"
+                                className="cursor-pointer w-4 h-4 accent-vertNoel shrink-0"
+                                checked={newGiftType === 'MULTIPLE'}
+                                onChange={(e) => setNewGiftType(e.target.checked ? 'MULTIPLE' : 'SIMPLE')}
+                            />
+                            <label htmlFor="newGiftTypeCheckbox" className="cursor-pointer text-sm">
+                                Cadeau avec sous-éléments (ex: manga avec ses tomes)
+                            </label>
+                        </div>
+
                         <div className="py-2">
                             <CustomButton className="green-button" onClick={() => upsertGift()} disabled={newGiftName === ''}>
                                 Ajouter
@@ -616,6 +491,164 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                             >
                                 Cancel
                             </CustomButton>
+                        </div>
+                    </div>
+                )}
+
+                {/* Modal de détail cadeau */}
+                {selectedGift && (
+                    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+                        {/* Backdrop */}
+                        <div
+                            className="absolute inset-0 bg-black/50"
+                            onClick={() => { clearAllFields(); setSelectedGiftId(null); }}
+                        />
+                        {/* Panel : bottom sheet mobile, modal centrée desktop */}
+                        <div className="relative bg-white w-full sm:max-w-lg sm:rounded-xl rounded-t-2xl shadow-xl max-h-[90vh] flex flex-col">
+                            {/* Header */}
+                            <div className="flex items-start justify-between px-5 py-4 border-b gap-3">
+                                <h2 className="font-bold text-lg leading-snug">{selectedGift.name}</h2>
+                                <div
+                                    onClick={() => { clearAllFields(); setSelectedGiftId(null); }}
+                                    className="shrink-0 text-gray-400 hover:text-gray-600 text-2xl leading-none cursor-pointer mt-0.5"
+                                >
+                                    ✕
+                                </div>
+                            </div>
+
+                            {/* Body scrollable */}
+                            <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
+                                {updatingGiftId === selectedGift.id ? (
+                                    <>
+                                        <div className="py-2 grid">
+                                            <label className="input-label">Nom:</label>
+                                            <textarea
+                                                id="newGiftInputId"
+                                                className="input-field"
+                                                value={newGiftName}
+                                                onChange={(e) => setNewGiftName(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="py-2 grid">
+                                            <label className="input-label">Description:</label>
+                                            <textarea
+                                                className="input-field"
+                                                value={newDescription}
+                                                onChange={(e) => setNewDescription(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="py-2 grid">
+                                            <label className="input-label">Lien:</label>
+                                            <textarea
+                                                className="input-field"
+                                                value={newLink}
+                                                onChange={(e) => setNewLink(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                id="editGiftTypeCheckbox"
+                                                type="checkbox"
+                                                className="cursor-pointer w-4 h-4 accent-vertNoel shrink-0"
+                                                checked={newGiftType === 'MULTIPLE'}
+                                                onChange={(e) => setNewGiftType(e.target.checked ? 'MULTIPLE' : 'SIMPLE')}
+                                            />
+                                            <label htmlFor="editGiftTypeCheckbox" className="cursor-pointer text-sm">
+                                                Cadeau avec sous-éléments
+                                            </label>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        {selectedGift.description ? (
+                                            <p className="text-gray-700">{selectedGift.description}</p>
+                                        ) : (
+                                            <p className="text-gray-700 italic">Pas de description</p>
+                                        )}
+                                        {selectedGift.url ? (
+                                            <p><ModernLink href={selectedGift.url} /></p>
+                                        ) : (
+                                            <p className="text-gray-700 italic">Pas de lien</p>
+                                        )}
+                                        {!isOwnList && selectedGift.takenUserId && selectedGift.takenUserId !== connectedUser?.userId && (
+                                            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                                                Ce cadeau est déjà pris
+                                                {!loadingGroupUsers && groupUserMap[selectedGift.takenUserId] && (
+                                                    <> — par <b>{groupUserMap[selectedGift.takenUserId]?.name}</b></>
+                                                )}
+                                            </div>
+                                        )}
+                                        {connectedUser?.isAdmin && (
+                                            <i className="text-xs text-gray-400 block space-y-0.5">
+                                                <div>Créé : {selectedGift.createdAt?.toLocaleString()}</div>
+                                                <div>Mis à jour : {selectedGift.updatedAt?.toString()}</div>
+                                            </i>
+                                        )}
+                                    </>
+                                )}
+
+                                {selectedGift.giftType === 'MULTIPLE' && (
+                                    <SubGiftList
+                                        parentGift={selectedGift}
+                                        userId={connectedUser?.userId}
+                                        isAdmin={connectedUser?.isAdmin}
+                                        initialCount={selectedGift.subGiftsCount}
+                                        onGiftUpdate={() => {
+                                            AxiosWrapper.get(`/api/gift?giftId=${selectedGift.id}`).then((res) => {
+                                                const data = res?.data as TGiftApiResult;
+                                                if (data?.success && data.gift) {
+                                                    const updated: GiftWithTakenUserId = { ...data.gift, takenUserId: (data.gift as any).takenUserId ?? null };
+                                                    setLocalGifts((prev) => prev.map((g) => g.id === selectedGift.id ? updated : g));
+                                                }
+                                            });
+                                        }}
+                                    />
+                                )}
+                            </div>
+
+                            {/* Footer : boutons d'action */}
+                            <div className="border-t px-5 py-4 flex flex-wrap gap-2 justify-end">
+                                {userCanAddGift && (
+                                    updatingGiftId === selectedGift.id ? (
+                                        <>
+                                            <CustomButton
+                                                onClick={() => upsertGift(selectedGift.id)}
+                                                disabled={!newGiftName}
+                                                className="green-button"
+                                            >
+                                                Valider
+                                            </CustomButton>
+                                            <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <CustomButton className="green-button" onClick={() => updatingGift(selectedGift)}>
+                                                Modifier
+                                            </CustomButton>
+                                            <CustomButton onClick={() => removeGift(selectedGift.id)}>
+                                                Supprimer
+                                            </CustomButton>
+                                        </>
+                                    )
+                                )}
+                                {!userCanAddGift && selectedGift.takenUserId === connectedUser?.userId && (
+                                    <CustomButton
+                                        onClick={() => onBlockUnBlockGiftClick(selectedGift)}
+                                        disabled={takingGiftId === selectedGift.id}
+                                    >
+                                        {takingGiftId === selectedGift.id ? 'Libération...' : 'Je ne prends plus ce cadeau'}
+                                    </CustomButton>
+                                )}
+                                {!userCanAddGift && !selectedGift.takenUserId && (
+                                    <CustomButton
+                                        className="green-button"
+                                        onClick={() => onBlockUnBlockGiftClick(selectedGift)}
+                                        disabled={takingGiftId === selectedGift.id}
+                                    >
+                                        {takingGiftId === selectedGift.id ? 'Réservation...' : 'Je prends ce cadeau'}
+                                    </CustomButton>
+                                )}
+                            </div>
                         </div>
                     </div>
                 )}
