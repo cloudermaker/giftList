@@ -4,7 +4,6 @@
  * Exemple: Manga "Naruto" avec les tomes individuels
  */
 
-import { Gift, GiftType } from '@prisma/client';
 import { GiftWithTakenUserId } from '@/lib/db/giftManager';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -170,7 +169,7 @@ export default function SubGiftList({
       </div>
 
       {expanded && (
-        <div className="space-y-2">
+        <div className="space-y-2 border border-indigo-200 rounded-lg p-3">
           {loading && (
             <>
               {Array.from({ length: subGifts.length || initialCount || 1 }).map((_, i) => (
@@ -189,57 +188,59 @@ export default function SubGiftList({
           )}
 
           {/* Liste des sous-cadeaux */}
-          {!loading && subGifts.map((subGift) => {
-            const isTaken = subGift.takenUserId != null;
-            const takenByMe = subGift.takenUserId === userId;
+          {!loading && subGifts.length > 0 && (
+            <div className="divide-y divide-gray-100">
+              {subGifts.map((subGift) => {
+                const isTaken = subGift.takenUserId != null;
+                const takenByMe = subGift.takenUserId === userId;
 
-            return (
-            <div
-              key={subGift.id}
-              className={`flex items-center justify-between p-3 rounded-lg border ${
-                isOwner ? 'bg-white border-gray-200' : isTaken ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'
-              }`}
-            >
-              <div className="flex-1 flex items-center gap-2">
-                <div>
-                  <span className={`text-sm ${isTaken ? 'line-through text-gray-400' : 'text-gray-800'}`}>
-                    {subGift.name}
-                  </span>
-                  {!isOwner && (
-                    <span className={`ml-2 text-xs font-medium ${isTaken ? 'text-red-500' : 'text-green-600'}`}>
-                      {isTaken ? (takenByMe ? 'Réservé par vous' : 'Déjà réservé') : 'Disponible'}
-                    </span>
-                  )}
+                return (
+                <div
+                  key={subGift.id}
+                  className="flex items-center justify-between py-2 px-2 gap-2"
+                >
+                  <div className="flex-1 flex items-center gap-2">
+                    <div>
+                      <span className={`text-sm ${isTaken ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                        {subGift.name}
+                      </span>
+                      {!isOwner && (
+                        <span className={`ml-2 text-xs font-medium ${isTaken ? 'text-red-500' : 'text-green-600'}`}>
+                          {isTaken ? (takenByMe ? 'Réservé par vous' : 'Déjà réservé') : 'Disponible'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Boutons selon le rôle */} 
+                  {isOwner ? (
+                    <CustomButton onClick={() => handleDeleteSubGift(subGift)}>
+                      Supprimer
+                    </CustomButton>
+                  ) : isTaken && takenByMe ? (
+                    <CustomButton onClick={() => handleTakeSubGift(subGift)}>
+                      Je ne prends plus
+                    </CustomButton>
+                  ) : !isTaken ? (
+                    <CustomButton onClick={() => handleTakeSubGift(subGift)} className="green-button">
+                      Je le prends
+                    </CustomButton>
+                  ) : null}
                 </div>
-              </div>
-
-              {/* Boutons selon le rôle */}
-              {isOwner ? (
-                <CustomButton onClick={() => handleDeleteSubGift(subGift)}>
-                  Supprimer
-                </CustomButton>
-              ) : isTaken && takenByMe ? (
-                <CustomButton onClick={() => handleTakeSubGift(subGift)}>
-                  Je ne prends plus
-                </CustomButton>
-              ) : !isTaken ? (
-                <CustomButton onClick={() => handleTakeSubGift(subGift)} className="green-button">
-                  Je le prends
-                </CustomButton>
-              ) : null}
+                );
+              })}
             </div>
-            );
-          })}
+          )}
 
           {/* Formulaire d'ajout de sous-cadeau */}
           {(isAdmin || isOwner) && (
-            <div className="mt-3">
+            <div className="mt-2">
               {!creatingSubGift ? (
                 <CustomButton
                   onClick={() => setCreatingSubGift(true)}
                   className="green-button"
                 >
-                  + Ajouter un sous-cadeau
+                  Ajouter un sous-cadeau
                 </CustomButton>
               ) : (
                 <div className="flex gap-2">

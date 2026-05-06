@@ -145,6 +145,16 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
 
     const saveGift = async (giftId: string | null = null) => {
         const currentGift: GiftWithTakenUserId = cloneDeep(localGifts.find((g) => g.id === giftId)!);
+
+        if (giftId && currentGift?.giftType === 'MULTIPLE' && formType === 'SIMPLE' && (currentGift.subGiftsCount ?? 0) > 0) {
+            Swal.fire({
+                title: 'Impossible de convertir ce cadeau',
+                text: `Ce cadeau contient ${currentGift.subGiftsCount} sous-élément${(currentGift.subGiftsCount ?? 0) > 1 ? 's' : ''}. Supprime-les d'abord avant de le convertir en cadeau simple.`,
+                icon: 'warning'
+            });
+            return;
+        }
+
         const giftToSave: GiftWithTakenUserId = currentGift ?? buildDefaultGift(user.id, localGifts.length);
         giftToSave.name = formName;
         giftToSave.description = formDescription;
