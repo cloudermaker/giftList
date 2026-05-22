@@ -10,6 +10,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 - Type de cadeau **Illimité** : un même cadeau peut être pris un nombre illimité de fois par différentes personnes (ou par la même personne)
 - Badge `🔁 Illimité` sur les cadeaux illimités dans sa propre liste ; `🔁 X pris` dans la liste des autres
+- Bouton switch ☰/⊞ pour basculer entre vue liste et vue grille (2-3 colonnes) sur la page de liste de cadeaux
 
 ### Modifié
 

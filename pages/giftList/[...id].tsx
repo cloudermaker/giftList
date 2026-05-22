@@ -25,9 +25,9 @@ import UnlimitedGiftTakers from '@/components/UnlimitedGiftTakers';
 const NEW_GIFT_SENTINEL = 'new';
 
 function SortableItem({
-    gift, children, idx, canReorder
+    gift, children, idx, canReorder, viewMode = 'list'
 }: {
-    gift: GiftWithTakenUserId; children: ReactNode; idx: number; canReorder: boolean;
+    gift: GiftWithTakenUserId; children: ReactNode; idx: number; canReorder: boolean; viewMode?: 'list' | 'grid';
 }) {
     const { listeners, setNodeRef, transform } = useSortable({ id: gift.id });
     const style = { transform: CSS.Transform.toString(transform) };
@@ -43,7 +43,7 @@ function SortableItem({
 
     return (
         <div className="item flex items-center" ref={setNodeRef} style={style}>
-            <div {...localListeners} style={localStyle}><LeftIcon /></div>
+            {viewMode === 'list' && <div {...localListeners} style={localStyle}><LeftIcon /></div>}
             {children}
         </div>
     );
@@ -57,6 +57,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
 
     const [localGifts, setLocalGifts] = useState<GiftWithTakenUserId[]>(giftList);
     const [filteringTakenGifts, setFilteringTakenGifts] = useState(false);
+    const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
     // selectedGiftId: gift id | 'new' (création) | null (fermé)
     const [selectedGiftId, setSelectedGiftId] = useState<string | null>(null);
@@ -253,20 +254,53 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                     </div>
                 )}
 
+                {/* Toggle vue liste / grille */}
+                <div className="flex justify-end mb-3">
+                    <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden">
+                        <span
+                            role="button"
+                            onClick={() => setViewMode('list')}
+                            title="Vue liste"
+                            className={`px-3 py-1.5 text-sm transition-colors cursor-pointer select-none ${
+                                viewMode === 'list' ? 'bg-vertNoel text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
+                            }`}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </span>
+                        <span
+                            role="button"
+                            onClick={() => setViewMode('grid')}
+                            title="Vue grille"
+                            className={`px-3 py-1.5 text-sm transition-colors cursor-pointer select-none border-l border-gray-200 ${
+                                viewMode === 'grid' ? 'bg-vertNoel text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
+                            }`}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 5h6v6H4zM14 5h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
                 <Suspense fallback="loading...">
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                         <SortableContext items={localGifts}>
+                            <div className={viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 gap-3' : 'flex flex-col gap-2'}>
                             {localGifts
                                 .filter((gift) => !filteringTakenGifts || !gift.takenUserId)
                                 .map((gift, idx) => (
-                                    <SortableItem key={`gift_${gift.id}`} gift={gift} idx={idx + 1} canReorder={userCanAddGift}>
+                                    <SortableItem key={`gift_${gift.id}`} gift={gift} idx={idx + 1} canReorder={userCanAddGift} viewMode={viewMode}>
                                         <div
-                                            className={`w-full cursor-pointer p-3 rounded-lg border flex justify-between items-start gap-3 ${
+                                            className={`w-full cursor-pointer p-3 rounded-lg border flex items-start gap-3 ${
+                                                viewMode === 'grid' ? 'flex-wrap' : 'justify-between'
+                                            } ${
                                                 !isOwnList && gift.takenUserId && (gift.giftType as string) !== 'MULTIPLE' && (gift.giftType as string) !== 'UNLIMITED' ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200 hover:bg-gray-50'
                                             }`}
                                             onClick={() => setSelectedGiftId(gift.id)}
                                         >
-                                            <span className={`font-medium flex-1 min-w-0 ${!isOwnList && gift.takenUserId && (gift.giftType as string) !== 'UNLIMITED' && (gift.giftType as string) !== 'MULTIPLE' ? 'line-through text-gray-400' : ''}`}>
+                                            <span className={`font-medium ${viewMode === 'grid' ? 'w-full' : 'flex-1 min-w-0'} ${!isOwnList && gift.takenUserId && (gift.giftType as string) !== 'UNLIMITED' && (gift.giftType as string) !== 'MULTIPLE' ? 'line-through text-gray-400' : ''}`}>
                                                 {gift.name}
                                             </span>
                                             {gift.giftType === 'MULTIPLE' && (
@@ -288,7 +322,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                             )}
                                         </div>
                                     </SortableItem>
-                                ))}
+                                ))}                            </div>
                         </SortableContext>
                     </DndContext>
                 </Suspense>
