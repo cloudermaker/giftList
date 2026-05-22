@@ -293,10 +293,10 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                 .map((gift, idx) => (
                                     <SortableItem key={`gift_${gift.id}`} gift={gift} idx={idx + 1} canReorder={userCanAddGift} viewMode={viewMode}>
                                         <div
-                                            className={`w-full cursor-pointer p-3 rounded-lg border flex items-start gap-3 ${
+                                            className={`w-full cursor-pointer p-3 rounded-lg flex items-start gap-3 ${
                                                 viewMode === 'grid' ? 'flex-wrap' : 'justify-between'
                                             } ${
-                                                !isOwnList && gift.takenUserId && (gift.giftType as string) !== 'MULTIPLE' && (gift.giftType as string) !== 'UNLIMITED' ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200 hover:bg-gray-50'
+                                                !isOwnList && gift.takenUserId && (gift.giftType as string) !== 'MULTIPLE' && (gift.giftType as string) !== 'UNLIMITED' ? 'bg-red-50' : 'bg-white hover:bg-gray-50'
                                             }`}
                                             onClick={() => setSelectedGiftId(gift.id)}
                                         >
