@@ -20,6 +20,7 @@ import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import { cloneDeep } from 'lodash';
 import { TUserApiResult } from '../api/user';
 import SubGiftList from '@/components/SubGiftList';
+import UnlimitedGiftTakers from '@/components/UnlimitedGiftTakers';
 
 const NEW_GIFT_SENTINEL = 'new';
 
@@ -66,7 +67,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     const [formName, setFormName] = useState('');
     const [formDescription, setFormDescription] = useState('');
     const [formLink, setFormLink] = useState('');
-    const [formType, setFormType] = useState<'SIMPLE' | 'MULTIPLE'>('SIMPLE');
+    const [formType, setFormType] = useState<'SIMPLE' | 'MULTIPLE' | 'UNLIMITED'>('SIMPLE');
 
     const [groupUserMap, setGroupUserMap] = useState<{ [key: string]: User }>({});
     const [loadingGroupUsers, setLoadingGroupUsers] = useState(true);
@@ -114,7 +115,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
         setFormName(gift.name);
         setFormDescription(gift.description ?? '');
         setFormLink(gift.url ?? '');
-        setFormType((gift.giftType as 'SIMPLE' | 'MULTIPLE') ?? 'SIMPLE');
+        setFormType((gift.giftType as 'SIMPLE' | 'MULTIPLE' | 'UNLIMITED') ?? 'SIMPLE');
         setEditingGiftId(gift.id);
     };
 
@@ -159,7 +160,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
         giftToSave.name = formName;
         giftToSave.description = formDescription;
         giftToSave.url = formLink;
-        giftToSave.giftType = formType;
+        giftToSave.giftType = formType as any;
 
         try {
             if (giftId) {
@@ -261,11 +262,11 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                     <SortableItem key={`gift_${gift.id}`} gift={gift} idx={idx + 1} canReorder={userCanAddGift}>
                                         <div
                                             className={`w-full cursor-pointer p-3 rounded-lg border flex justify-between items-start gap-3 ${
-                                                !isOwnList && gift.takenUserId ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200 hover:bg-gray-50'
+                                                !isOwnList && gift.takenUserId && (gift.giftType as string) !== 'MULTIPLE' && (gift.giftType as string) !== 'UNLIMITED' ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200 hover:bg-gray-50'
                                             }`}
                                             onClick={() => setSelectedGiftId(gift.id)}
                                         >
-                                            <span className={`font-medium flex-1 min-w-0 ${!isOwnList && gift.takenUserId ? 'line-through text-gray-400' : ''}`}>
+                                            <span className={`font-medium flex-1 min-w-0 ${!isOwnList && gift.takenUserId && (gift.giftType as string) !== 'UNLIMITED' && (gift.giftType as string) !== 'MULTIPLE' ? 'line-through text-gray-400' : ''}`}>
                                                 {gift.name}
                                             </span>
                                             {gift.giftType === 'MULTIPLE' && (
@@ -273,7 +274,12 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                     🧩 {gift.subGiftsCount ?? 0} élément{(gift.subGiftsCount ?? 0) !== 1 ? 's' : ''}
                                                 </span>
                                             )}
-                                            {!isOwnList && gift.giftType !== 'MULTIPLE' && (
+                                            {(gift.giftType as string) === 'UNLIMITED' && (
+                                                <span className="shrink-0 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+                                                    {isOwnList ? '🔁 Illimité' : `🔁 ${(gift.takenByList ?? []).length} pris`}
+                                                </span>
+                                            )}
+                                            {!isOwnList && gift.giftType === 'SIMPLE' && (
                                                 <span className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
                                                     gift.takenUserId ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'
                                                 }`}>
@@ -360,6 +366,22 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                 }}
                                             />
                                         )}
+                                        {(selectedGift!.giftType as string) === 'UNLIMITED' && !isOwnList && (
+                                            <UnlimitedGiftTakers
+                                                gift={selectedGift!}
+                                                userId={connectedUser?.userId}
+                                                groupUserMap={groupUserMap}
+                                                onGiftUpdate={() => {
+                                                    AxiosWrapper.get(`/api/gift?giftId=${selectedGift!.id}`).then((res) => {
+                                                        const data = res?.data as TGiftApiResult;
+                                                        if (data?.success && data.gift) {
+                                                            const updated: GiftWithTakenUserId = { ...data.gift, takenUserId: (data.gift as any).takenUserId ?? null, takenByList: (data.gift as any).takenByList ?? [] };
+                                                            setLocalGifts((prev) => prev.map((g) => g.id === selectedGift!.id ? updated : g));
+                                                        }
+                                                    });
+                                                }}
+                                            />
+                                        )}
                                     </>
                                 )}
                             </div>
@@ -390,12 +412,12 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                         </>
                                     )
                                 )}
-                                {!isCreating && !userCanAddGift && selectedGift!.giftType !== 'MULTIPLE' && selectedGift!.takenUserId === connectedUser?.userId && (
+                                {!isCreating && !userCanAddGift && selectedGift!.giftType === 'SIMPLE' && selectedGift!.takenUserId === connectedUser?.userId && (
                                     <CustomButton onClick={() => onBlockUnBlockGiftClick(selectedGift!)} disabled={takingGiftId === selectedGift!.id}>
                                         {takingGiftId === selectedGift!.id ? 'Libération...' : 'Je ne prends plus ce cadeau'}
                                     </CustomButton>
                                 )}
-                                {!isCreating && !userCanAddGift && selectedGift!.giftType !== 'MULTIPLE' && !selectedGift!.takenUserId && (
+                                {!isCreating && !userCanAddGift && selectedGift!.giftType === 'SIMPLE' && !selectedGift!.takenUserId && (
                                     <CustomButton className="green-button" onClick={() => onBlockUnBlockGiftClick(selectedGift!)} disabled={takingGiftId === selectedGift!.id}>
                                         {takingGiftId === selectedGift!.id ? 'Réservation...' : 'Je prends ce cadeau'}
                                     </CustomButton>
@@ -429,7 +451,11 @@ export async function getServerSideProps(context: NextPageContext) {
             giftList: giftList.map((gift) => ({
                 ...gift,
                 updatedAt: gift.updatedAt?.toISOString() ?? '',
-                createdAt: gift.createdAt?.toISOString() ?? ''
+                createdAt: gift.createdAt?.toISOString() ?? '',
+                takenByList: (gift.takenByList ?? []).map((t) => ({
+                    ...t,
+                    takenAt: t.takenAt instanceof Date ? t.takenAt.toISOString() : t.takenAt
+                }))
             }))
         }
     };

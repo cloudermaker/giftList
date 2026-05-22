@@ -5,8 +5,8 @@ interface GiftFormProps {
     setFormDescription: (v: string) => void;
     formLink: string;
     setFormLink: (v: string) => void;
-    formType: 'SIMPLE' | 'MULTIPLE';
-    setFormType: (v: 'SIMPLE' | 'MULTIPLE') => void;
+    formType: 'SIMPLE' | 'MULTIPLE' | 'UNLIMITED';
+    setFormType: (v: 'SIMPLE' | 'MULTIPLE' | 'UNLIMITED') => void;
     autoFocusName?: boolean;
 }
 
@@ -45,18 +45,24 @@ export default function GiftForm({
                     onChange={(e) => setFormLink(e.target.value)}
                 />
             </div>
-            <div className="flex items-center gap-2">
-                <input
-                    id="giftFormTypeCheckbox"
-                    type="checkbox"
-                    className="cursor-pointer w-4 h-4 accent-vertNoel shrink-0"
-                    checked={formType === 'MULTIPLE'}
-                    onChange={(e) => setFormType(e.target.checked ? 'MULTIPLE' : 'SIMPLE')}
-                />
-                <label htmlFor="giftFormTypeCheckbox" className="cursor-pointer text-sm">
-                    Cadeau avec sous-éléments (ex: manga avec ses tomes)
-                </label>
+            <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-700">Type de cadeau :</p>
+                <div className="flex flex-col gap-1.5">
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
+                        <input type="radio" name="giftType" className="accent-vertNoel" checked={formType === 'SIMPLE'} onChange={() => setFormType('SIMPLE')} />
+                        Cadeau simple
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
+                        <input type="radio" name="giftType" className="accent-indigo-500" checked={formType === 'MULTIPLE'} onChange={() => setFormType('MULTIPLE')} />
+                        Avec sous-éléments <span className="text-gray-400">(ex : manga avec ses tomes)</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
+                        <input type="radio" name="giftType" className="accent-orange-500" checked={formType === 'UNLIMITED'} onChange={() => setFormType('UNLIMITED')} />
+                        Illimité <span className="text-gray-400">(plusieurs personnes peuvent le prendre)</span>
+                    </label>
+                </div>
             </div>
+
         </div>
     );
 }

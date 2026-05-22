@@ -38,8 +38,11 @@ export const takeGift = async (userId: string, giftId: string) => {
     });
     taken.push(takenGift);
   } catch (error: any) {
-    // Ignore si déjà pris (erreur de contrainte unique)
+    // Pour SIMPLE/MULTIPLE : ignorer P2002 (déjà pris, c'est normal)
+    // Pour UNLIMITED : on doit pouvoir prendre plusieurs fois — relancer l'erreur
     if (error.code !== 'P2002') throw error;
+    if (gift.giftType === 'UNLIMITED') throw error;
+    // SIMPLE/MULTIPLE : silently ignore
   }
   
   // Si MULTIPLE, prendre aussi tous les sous-cadeaux
@@ -65,6 +68,14 @@ export const takeGift = async (userId: string, giftId: string) => {
     userId,
     subGiftsTaken: taken.map(t => t.giftId)
   };
+};
+
+/**
+ * Libérer une réservation spécifique par son id (pour les cadeaux UNLIMITED)
+ */
+export const releaseOneTakenGift = async (takenGiftId: string) => {
+  await prisma.userTakenGift.delete({ where: { id: takenGiftId } });
+  return { success: true };
 };
 
 /**

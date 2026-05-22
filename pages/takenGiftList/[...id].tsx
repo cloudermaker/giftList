@@ -50,18 +50,23 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
         };
         loadGroupUsers();
     }, [connectedUser?.groupId]);
-    const onUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
-        setReleasingGiftId(giftToUpdate.id);
+    const onUnBlockGiftClick = async (giftToUpdate: GiftWithForUser): Promise<void> => {
+        const uniqueKey = giftToUpdate.userTakenGiftId ?? giftToUpdate.id;
+        setReleasingGiftId(uniqueKey);
         
         try {
-            // Utiliser le nouveau endpoint /api/gift/[id]/take pour libérer le cadeau
-            const result = await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`, {
-                userId: connectedUser?.userId
-            });
+            // Pour les cadeaux UNLIMITED : libérer uniquement cette réservation spécifique
+            const body: any = { userId: connectedUser?.userId };
+            if ((giftToUpdate.giftType as string) === 'UNLIMITED' && giftToUpdate.userTakenGiftId) {
+                body.takenGiftId = giftToUpdate.userTakenGiftId;
+            }
+
+            const result = await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`, body);
             const data = result?.data;
 
             if (data && data.success) {
-                setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftToUpdate.id));
+                // Retirer uniquement cette entrée (par userTakenGiftId pour éviter de supprimer les doublons UNLIMITED)
+                setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => (gift.userTakenGiftId ?? gift.id) !== uniqueKey));
             } else {
                 Swal.fire({
                     title: 'Erreur',
@@ -233,9 +238,9 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                                 <div className="flex flex-col gap-2">
                                     <CustomButton 
                                         onClick={() => onUnBlockGiftClick(gift)}
-                                        disabled={releasingGiftId === gift.id}
+                                        disabled={releasingGiftId === (gift.userTakenGiftId ?? gift.id)}
                                     >
-                                        {releasingGiftId === gift.id ? 'Libération...' : 'Je ne prends plus ce cadeau'}
+                                        {releasingGiftId === (gift.userTakenGiftId ?? gift.id) ? 'Libération...' : 'Je ne prends plus ce cadeau'}
                                     </CustomButton>
                                 </div>
                             </div>

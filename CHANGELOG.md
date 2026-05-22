@@ -4,6 +4,18 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [4.1.0] - 2026-05-22
+
+### Ajouté
+
+- Type de cadeau **Illimité** : un même cadeau peut être pris un nombre illimité de fois par différentes personnes (ou par la même personne)
+- Badge `🔁 Illimité` sur les cadeaux illimités dans sa propre liste ; `🔁 X pris` dans la liste des autres
+
+### Modifié
+
+- Formulaire de cadeau : sélecteur radio pour les trois types (Simple / Avec sous-éléments / Illimité)
+- Conversion MULTIPLE → SIMPLE bloquée si des sous-cadeaux existent
+
 ## [4.0.1] - 2026-04-28
 
 ### Ajouté

@@ -19,6 +19,7 @@ enum Role {
 enum GiftType {
   SIMPLE    // Cadeau normal
   MULTIPLE  // Cadeau parent avec sous-cadeaux
+  UNLIMITED // Cadeau que plusieurs personnes peuvent prendre
 }
 
 // ============================================
@@ -111,7 +112,6 @@ model UserTakenGift {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   gift Gift @relation(fields: [giftId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, giftId])
   @@index([userId])
   @@index([giftId])
 }

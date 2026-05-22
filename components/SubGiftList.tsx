@@ -201,7 +201,7 @@ export default function SubGiftList({
                 >
                   <div className="flex-1 flex items-center gap-2">
                     <div>
-                      <span className={`text-sm ${isTaken ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                      <span className={`text-sm ${!isOwner && isTaken ? 'line-through text-gray-400' : 'text-gray-800'}`}>
                         {subGift.name}
                       </span>
                       {!isOwner && (
