@@ -52,8 +52,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Pour les cadeaux UNLIMITED : supprimer une réservation spécifique par son id
       if (takenGiftId) {
-        const result = await releaseOneTakenGift(takenGiftId);
-        return res.status(200).json({ success: true, ...result });
+        await releaseOneTakenGift(takenGiftId);
+        return res.status(200).json({ success: true });
       }
 
       const result = await releaseGift(userId, id);

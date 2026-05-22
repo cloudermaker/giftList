@@ -160,12 +160,10 @@ export const getGiftTakers = async (giftId: string) => {
  * Vérifier si un cadeau est pris par un user spécifique
  */
 export const isGiftTakenByUser = async (giftId: string, userId: string) => {
-  const taken = await prisma.userTakenGift.findUnique({
+  const taken = await prisma.userTakenGift.findFirst({
     where: {
-      userId_giftId: {
-        userId,
-        giftId
-      }
+      userId,
+      giftId
     }
   });
   
