@@ -50,18 +50,23 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
         };
         loadGroupUsers();
     }, [connectedUser?.groupId]);
-    const onUnBlockGiftClick = async (giftToUpdate: Gift): Promise<void> => {
-        setReleasingGiftId(giftToUpdate.id);
+    const onUnBlockGiftClick = async (giftToUpdate: GiftWithForUser): Promise<void> => {
+        const uniqueKey = giftToUpdate.userTakenGiftId ?? giftToUpdate.id;
+        setReleasingGiftId(uniqueKey);
         
         try {
-            // Utiliser le nouveau endpoint /api/gift/[id]/take pour libérer le cadeau
-            const result = await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`, {
-                userId: connectedUser?.userId
-            });
+            // Pour les cadeaux UNLIMITED : libérer uniquement cette réservation spécifique
+            const body: any = { userId: connectedUser?.userId };
+            if ((giftToUpdate.giftType as string) === 'UNLIMITED' && giftToUpdate.userTakenGiftId) {
+                body.takenGiftId = giftToUpdate.userTakenGiftId;
+            }
+
+            const result = await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`, body);
             const data = result?.data;
 
             if (data && data.success) {
-                setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftToUpdate.id));
+                // Retirer uniquement cette entrée (par userTakenGiftId pour éviter de supprimer les doublons UNLIMITED)
+                setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => (gift.userTakenGiftId ?? gift.id) !== uniqueKey));
             } else {
                 Swal.fire({
                     title: 'Erreur',
@@ -205,7 +210,15 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                                     </p>
                                     <p>
                                         <b className="pr-2">Nom:</b>
-                                        {gift.name}
+                                        {(gift as any).parentGift ? (
+                                            <>
+                                                <span className="text-gray-500">{(gift as any).parentGift.name}</span>
+                                                <span className="mx-1 text-gray-400">›</span>
+                                                <span>{gift.name}</span>
+                                            </>
+                                        ) : (
+                                            gift.name
+                                        )}
                                     </p>
 
                                     {gift.description && (
@@ -225,9 +238,9 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                                 <div className="flex flex-col gap-2">
                                     <CustomButton 
                                         onClick={() => onUnBlockGiftClick(gift)}
-                                        disabled={releasingGiftId === gift.id}
+                                        disabled={releasingGiftId === (gift.userTakenGiftId ?? gift.id)}
                                     >
-                                        {releasingGiftId === gift.id ? 'Libération...' : 'Je ne prends plus ce cadeau'}
+                                        {releasingGiftId === (gift.userTakenGiftId ?? gift.id) ? 'Libération...' : 'Je ne prends plus ce cadeau'}
                                     </CustomButton>
                                 </div>
                             </div>
@@ -296,7 +309,7 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                 )}
 
                 {formData.isCreating && (
-                    <div className="block pt-3">
+                    <div className="block pt-3 item">
                         <b>Ajouter un cadeau personnel:</b>
                         <p className="text-sm text-gray-600 mb-2">
                             Ce cadeau ne sera visible que par toi
@@ -385,13 +398,17 @@ export async function getServerSideProps(context: NextPageContext) {
     // Charger les cadeaux réservés (takenUserId)
     const takenGifts = await getTakenGiftsFromUserId(userId);
     
-    // Ajouter forUser: null aux cadeaux réservés (ils n'ont pas de destinataire)
-    const takenGiftsWithForUser = takenGifts.map(gift => ({
-        ...gift,
-        forUser: null
-    }));
+    // Filtrer pour ne garder QUE les cadeaux qui ont un user (vraies listes)
+    // Les cadeaux orphelins (user=null) ne doivent plus apparaître ici
+    const takenGiftsWithForUser = takenGifts
+        .filter(gift => gift.user !== null)  // Ignorer les orphelins
+        .map(gift => ({
+            ...gift,
+            forUser: null,
+            parentGift: (gift as any).parentGift ?? null
+        }));
     
-    // Charger les cadeaux personnels créés par le user
+    // Charger les cadeaux personnels créés par le user (depuis PersonalGift)
     const personalGifts = await getPersonalGiftsByUser(userId);
     
     // Convertir PersonalGifts en format Gift pour compatibilité
@@ -434,7 +451,14 @@ export async function getServerSideProps(context: NextPageContext) {
                       }
                     : null,
                 updatedAt: gift.updatedAt?.toISOString() ?? '',
-                createdAt: gift.createdAt?.toISOString() ?? ''
+                createdAt: gift.createdAt?.toISOString() ?? '',
+                parentGift: (gift as any).parentGift
+                    ? {
+                          ...(gift as any).parentGift,
+                          updatedAt: (gift as any).parentGift.updatedAt?.toISOString() ?? '',
+                          createdAt: (gift as any).parentGift.createdAt?.toISOString() ?? ''
+                      }
+                    : null
             }))
         }
     };

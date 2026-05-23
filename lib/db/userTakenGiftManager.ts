@@ -27,36 +27,38 @@ export const takeGift = async (userId: string, giftId: string) => {
   
   const taken = [];
   
-  // Prendre le cadeau principal
-  try {
-    const takenGift = await prisma.userTakenGift.create({
-      data: {
-        userId,
-        giftId,
-        takenAt: new Date()
-      }
-    });
-    taken.push(takenGift);
-  } catch (error: any) {
-    // Ignore si déjà pris (erreur de contrainte unique)
-    if (error.code !== 'P2002') throw error;
+  // Pour SIMPLE/MULTIPLE : vérifier qu'une réservation n'existe pas déjà (idempotence)
+  // Pour UNLIMITED : plusieurs réservations par le même user sont autorisées
+  if (gift.giftType !== 'UNLIMITED') {
+    const existing = await prisma.userTakenGift.findFirst({ where: { userId, giftId } });
+    if (existing) {
+      return { giftId, userId, subGiftsTaken: [giftId] };
+    }
   }
+
+  // Prendre le cadeau principal
+  const takenGift = await prisma.userTakenGift.create({
+    data: {
+      userId,
+      giftId,
+      takenAt: new Date()
+    }
+  });
+  taken.push(takenGift);
   
   // Si MULTIPLE, prendre aussi tous les sous-cadeaux
   if (gift.giftType === 'MULTIPLE' && gift.subGifts.length > 0) {
     for (const subGift of gift.subGifts) {
-      try {
-        const takenSubGift = await prisma.userTakenGift.create({
-          data: {
-            userId,
-            giftId: subGift.id,
-            takenAt: new Date()
-          }
-        });
-        taken.push(takenSubGift);
-      } catch (error: any) {
-        if (error.code !== 'P2002') throw error;
-      }
+      const subExisting = await prisma.userTakenGift.findFirst({ where: { userId, giftId: subGift.id } });
+      if (subExisting) continue;
+      const takenSubGift = await prisma.userTakenGift.create({
+        data: {
+          userId,
+          giftId: subGift.id,
+          takenAt: new Date()
+        }
+      });
+      taken.push(takenSubGift);
     }
   }
   
@@ -65,6 +67,14 @@ export const takeGift = async (userId: string, giftId: string) => {
     userId,
     subGiftsTaken: taken.map(t => t.giftId)
   };
+};
+
+/**
+ * Libérer une réservation spécifique par son id (pour les cadeaux UNLIMITED)
+ */
+export const releaseOneTakenGift = async (takenGiftId: string) => {
+  await prisma.userTakenGift.delete({ where: { id: takenGiftId } });
+  return { success: true };
 };
 
 /**
@@ -149,12 +159,10 @@ export const getGiftTakers = async (giftId: string) => {
  * Vérifier si un cadeau est pris par un user spécifique
  */
 export const isGiftTakenByUser = async (giftId: string, userId: string) => {
-  const taken = await prisma.userTakenGift.findUnique({
+  const taken = await prisma.userTakenGift.findFirst({
     where: {
-      userId_giftId: {
-        userId,
-        giftId
-      }
+      userId,
+      giftId
     }
   });
   

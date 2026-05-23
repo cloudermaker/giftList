@@ -1,7 +1,8 @@
 import { Gift, User, GiftType } from '@prisma/client';
 import prisma from './dbSingleton';
 
-export type GiftWithTakenUserId = Gift & { takenUserId: string | null };
+export type TakenByEntry = { id: string; userId: string; takenAt: Date | string };
+export type GiftWithTakenUserId = Gift & { takenUserId: string | null; subGiftsCount?: number; takenByList?: TakenByEntry[]; userTakenGiftId?: string };
 
 export const buildDefaultGift = (userId: string, order: number, name?: string, description?: string, url?: string): GiftWithTakenUserId => {
     return {
@@ -12,6 +13,8 @@ export const buildDefaultGift = (userId: string, order: number, name?: string, d
         userId,
         order,
         takenUserId: null,
+        subGiftsCount: 0,
+        takenByList: [],
         isSuggestedGift: false,
         giftType: 'SIMPLE' as GiftType,
         parentGiftId: null,
@@ -36,7 +39,8 @@ export const getGiftFromId = async (id: string): Promise<GiftWithTakenUserId | n
     const { takenBy, ...giftWithoutTakenBy } = gift;
     return {
         ...giftWithoutTakenBy,
-        takenUserId: takenBy.length > 0 ? takenBy[0].userId : null
+        takenUserId: takenBy.length > 0 ? takenBy[0].userId : null,
+        takenByList: takenBy.map((t) => ({ id: t.id, userId: t.userId, takenAt: t.takenAt }))
     } as GiftWithTakenUserId;
 };
 
@@ -49,7 +53,8 @@ export const getTakenGiftsFromUserId = async (userId: string): Promise<(GiftWith
             gift: {
                 include: {
                     user: true,
-                    takenBy: true  // Pour calculer takenUserId
+                    takenBy: true,  // Pour calculer takenUserId
+                    parentGift: true  // Pour les sous-cadeaux
                 }
             }
         }
@@ -60,7 +65,8 @@ export const getTakenGiftsFromUserId = async (userId: string): Promise<(GiftWith
         const { takenBy, ...giftWithoutTakenBy } = record.gift;
         return {
             ...giftWithoutTakenBy,
-            takenUserId: takenBy.length > 0 ? takenBy[0].userId : null
+            takenUserId: takenBy.length > 0 ? takenBy[0].userId : null,
+            userTakenGiftId: record.id  // ID de la ligne UserTakenGift (unique même pour UNLIMITED)
         } as GiftWithTakenUserId & { user: User | null };
     });
 };
@@ -72,7 +78,8 @@ export const getGiftsFromUserId = async (userId: string): Promise<GiftWithTakenU
             userId
         },
         include: {
-            takenBy: true  // Relation UserTakenGift
+            takenBy: true,  // Relation UserTakenGift
+            _count: { select: { subGifts: true } }
         },
         orderBy: {
             order: 'asc'
@@ -81,16 +88,18 @@ export const getGiftsFromUserId = async (userId: string): Promise<GiftWithTakenU
 
     // Mapper les gifts en ajoutant takenUserId depuis UserTakenGift
     return gifts.map(gift => {
-        const { takenBy, ...giftWithoutTakenBy } = gift;
+        const { takenBy, _count, ...giftWithoutTakenBy } = gift as any;
         return {
             ...giftWithoutTakenBy,
-            takenUserId: takenBy.length > 0 ? takenBy[0].userId : null
+            takenUserId: takenBy.length > 0 ? takenBy[0].userId : null,
+        takenByList: takenBy.map((t: any) => ({ id: t.id, userId: t.userId, takenAt: t.takenAt })),
+            subGiftsCount: _count?.subGifts ?? 0
         };
     }) as GiftWithTakenUserId[];
 };
 
 export const updateGift = async (giftId: string, gift: Gift): Promise<Gift> => {
-    const { id, createdAt, updatedAt, userId, parentGiftId, takenUserId, user, subGifts, parentGift, takenBy, ...giftData } = gift as any;
+    const { id, createdAt, updatedAt, userId, parentGiftId, takenUserId, user, subGifts, parentGift, takenBy, subGiftsCount, ...giftData } = gift as any;
     
     const result = await prisma.gift.update({
         where: {
@@ -105,7 +114,7 @@ export const updateGift = async (giftId: string, gift: Gift): Promise<Gift> => {
 export const updateGifts = async (gifts: Gift[]): Promise<Gift[]> => {
     let updatedGifts: Gift[] = [];
     for (const gift of gifts) {
-        const { id, createdAt, updatedAt, userId, parentGiftId, takenUserId, user, subGifts, parentGift, takenBy, ...giftData } = gift as any;
+        const { id, createdAt, updatedAt, userId, parentGiftId, takenUserId, user, subGifts, parentGift, takenBy, subGiftsCount, takenByList, ...giftData } = gift as any;
         
         const updatedGift = await prisma.gift.update({
             where: {
@@ -127,7 +136,7 @@ export const upsertGift = async (gift: Gift): Promise<Gift> => {
     });
 
     // Extraire les champs à gérer séparément
-    const { userId, id, createdAt, updatedAt, takenUserId, parentGiftId, ...giftData } = gift as any;
+    const { userId, id, createdAt, updatedAt, takenUserId, parentGiftId, subGiftsCount, takenByList, ...giftData } = gift as any;
     
     const result = await prisma.gift.upsert({
         where: {
@@ -155,15 +164,23 @@ export const upsertGift = async (gift: Gift): Promise<Gift> => {
 /**
  * Récupérer les sous-cadeaux d'un cadeau parent
  */
-export const getSubGifts = async (parentGiftId: string): Promise<Gift[]> => {
-    return await prisma.gift.findMany({
+export const getSubGifts = async (parentGiftId: string): Promise<GiftWithTakenUserId[]> => {
+    const gifts = await prisma.gift.findMany({
         where: {
             parentGiftId
+        },
+        include: {
+            takenBy: true
         },
         orderBy: {
             order: 'asc'
         }
     });
+
+    return gifts.map(({ takenBy, ...gift }) => ({
+        ...gift,
+        takenUserId: takenBy.length > 0 ? takenBy[0].userId : null
+    }));
 };
 
 /**

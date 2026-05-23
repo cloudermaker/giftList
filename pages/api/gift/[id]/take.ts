@@ -6,7 +6,8 @@
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { takeGift, releaseGift } from '../../../../lib/db/userTakenGiftManager';
+import { takeGift, releaseGift, releaseOneTakenGift } from '../../../../lib/db/userTakenGiftManager';
+import prisma from '../../../../lib/db/dbSingleton';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -44,10 +45,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // DELETE - Libérer un cadeau réservé
     if (req.method === 'DELETE') {
-      const { userId } = req.body;
+      const { userId, takenGiftId } = req.body;
 
       if (!userId) {
         return res.status(400).json({ error: 'userId required' });
+      }
+
+      // Pour les cadeaux UNLIMITED : supprimer une réservation spécifique par son id
+      if (takenGiftId) {
+        const row = await prisma.userTakenGift.findUnique({ where: { id: takenGiftId } });
+        if (!row || row.userId !== userId) {
+          return res.status(403).json({ error: 'Forbidden' });
+        }
+        await releaseOneTakenGift(takenGiftId);
+        return res.status(200).json({ success: true });
       }
 
       const result = await releaseGift(userId, id);

@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === 'GET') {
       const subGifts = await getSubGifts(id);
 
-      return res.status(200).json({ subGifts });
+      return res.status(200).json({ success: true, subGifts });
     }
 
     // POST - Créer un sous-cadeau

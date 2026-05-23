@@ -4,6 +4,31 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [4.1.0] - 2026-05-22
+
+### Ajouté
+
+- Type de cadeau **Illimité** : un même cadeau peut être pris un nombre illimité de fois par différentes personnes (ou par la même personne)
+- Badge `🔁 Illimité` sur les cadeaux illimités dans sa propre liste ; `🔁 X pris` dans la liste des autres
+- Bouton switch ☰/⊞ pour basculer entre vue liste et vue grille (2-3 colonnes) sur la page de liste de cadeaux
+
+### Modifié
+
+- Formulaire de cadeau : sélecteur radio pour les trois types (Simple / Avec sous-éléments / Illimité)
+- Conversion MULTIPLE → SIMPLE bloquée si des sous-cadeaux existent
+
+## [4.0.1] - 2026-04-28
+
+### Ajouté
+
+- Badge visuel "🛡️ Admin" affiché à côté de "Connecté" en haut à droite pour les utilisateurs en mode administrateur
+- Cadeau avec sous-éléments : option "Cadeau avec sous-éléments" dans le formulaire de création (ex: manga avec ses tomes)
+- Les sous-éléments d'un cadeau sont affichés/masquables directement dans la liste, avec possibilité de les réserver individuellement
+
+### Modifié
+
+- Affiche le nom de la personne quand on est sur sa liste de cadeaux
+
 ## [4.0.0] - 2026-04-16
 
 ### Ajouté
