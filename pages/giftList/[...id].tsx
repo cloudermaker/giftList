@@ -295,8 +295,6 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                         <div
                                             className={`w-full cursor-pointer p-3 rounded-lg flex items-start gap-3 ${
                                                 viewMode === 'grid' ? 'flex-wrap' : 'justify-between'
-                                            } ${
-                                                !isOwnList && gift.takenUserId && gift.giftType !== ('MULTIPLE' as GiftType) && gift.giftType !== ('UNLIMITED' as GiftType) ? 'bg-red-50' : 'bg-white hover:bg-gray-50'
                                             }`}
                                             onClick={() => setSelectedGiftId(gift.id)}
                                         >
