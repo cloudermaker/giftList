@@ -10,7 +10,7 @@ import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, us
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Drag } from '@/components/icons/drag';
-import { Gift, User } from '@prisma/client';
+import { Gift, GiftType, User } from '@prisma/client';
 import { buildDefaultGift, getGiftsFromUserId, GiftWithTakenUserId } from '@/lib/db/giftManager';
 import { TGiftApiResult } from '@/pages/api/gift';
 import { getUserById } from '@/lib/db/userManager';
@@ -57,7 +57,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
 
     const [localGifts, setLocalGifts] = useState<GiftWithTakenUserId[]>(giftList);
     const [filteringTakenGifts, setFilteringTakenGifts] = useState(false);
-    const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+    const [viewMode, setViewMode] = useState<'list' | 'grid'>(() =>
+        (typeof window !== 'undefined' ? localStorage.getItem('giftListViewMode') : null) as 'list' | 'grid' ?? 'list'
+    );
 
     // selectedGiftId: gift id | 'new' (création) | null (fermé)
     const [selectedGiftId, setSelectedGiftId] = useState<string | null>(null);
@@ -220,15 +222,13 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
 
     const handleDragEnd = (event: { active: any; over: any }) => {
         const { active, over } = event;
-        if (active.id === over.id) return;
-        setLocalGifts((prev) => {
-            const oldIndex = prev.findIndex((g) => g.id === active.id);
-            const newIndex = prev.findIndex((g) => g.id === over.id);
-            const reordered = arrayMove(prev, oldIndex, newIndex).map((g, i) => ({ ...g, order: i + 1 }));
-            AxiosWrapper.post('/api/gift', { gifts: reordered, initiatorUserId: connectedUser?.userId, userGiftId: user.id })
-                .catch((err) => console.error('Erreur mise à jour ordre:', err));
-            return reordered;
-        });
+        if (!over || active.id === over.id) return;
+        const oldIndex = localGifts.findIndex((g) => g.id === active.id);
+        const newIndex = localGifts.findIndex((g) => g.id === over.id);
+        const reordered = arrayMove(localGifts, oldIndex, newIndex).map((g, i) => ({ ...g, order: i + 1 }));
+        setLocalGifts(reordered);
+        AxiosWrapper.post('/api/gift', { gifts: reordered, initiatorUserId: connectedUser?.userId, userGiftId: user.id })
+            .catch((err) => console.error('Erreur mise à jour ordre:', err));
     };
 
     const isCreating = selectedGiftId === NEW_GIFT_SENTINEL;
@@ -259,7 +259,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                     <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden">
                         <span
                             role="button"
-                            onClick={() => setViewMode('list')}
+                            onClick={() => { setViewMode('list'); localStorage.setItem('giftListViewMode', 'list'); }}
                             title="Vue liste"
                             className={`px-3 py-1.5 text-sm transition-colors cursor-pointer select-none ${
                                 viewMode === 'list' ? 'bg-vertNoel text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
@@ -271,7 +271,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                         </span>
                         <span
                             role="button"
-                            onClick={() => setViewMode('grid')}
+                            onClick={() => { setViewMode('grid'); localStorage.setItem('giftListViewMode', 'grid'); }}
                             title="Vue grille"
                             className={`px-3 py-1.5 text-sm transition-colors cursor-pointer select-none border-l border-gray-200 ${
                                 viewMode === 'grid' ? 'bg-vertNoel text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
@@ -296,11 +296,11 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                             className={`w-full cursor-pointer p-3 rounded-lg flex items-start gap-3 ${
                                                 viewMode === 'grid' ? 'flex-wrap' : 'justify-between'
                                             } ${
-                                                !isOwnList && gift.takenUserId && (gift.giftType as string) !== 'MULTIPLE' && (gift.giftType as string) !== 'UNLIMITED' ? 'bg-red-50' : 'bg-white hover:bg-gray-50'
+                                                !isOwnList && gift.takenUserId && gift.giftType !== ('MULTIPLE' as GiftType) && gift.giftType !== ('UNLIMITED' as GiftType) ? 'bg-red-50' : 'bg-white hover:bg-gray-50'
                                             }`}
                                             onClick={() => setSelectedGiftId(gift.id)}
                                         >
-                                            <span className={`font-medium ${viewMode === 'grid' ? 'w-full' : 'flex-1 min-w-0'} ${!isOwnList && gift.takenUserId && (gift.giftType as string) !== 'UNLIMITED' && (gift.giftType as string) !== 'MULTIPLE' ? 'line-through text-gray-400' : ''}`}>
+                                            <span className={`font-medium ${viewMode === 'grid' ? 'w-full' : 'flex-1 min-w-0'} ${!isOwnList && gift.takenUserId && gift.giftType !== ('UNLIMITED' as GiftType) && gift.giftType !== ('MULTIPLE' as GiftType) ? 'line-through text-gray-400' : ''}`}>
                                                 {gift.name}
                                             </span>
                                             {gift.giftType === 'MULTIPLE' && (
@@ -308,7 +308,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                     🧩 {gift.subGiftsCount ?? 0} élément{(gift.subGiftsCount ?? 0) !== 1 ? 's' : ''}
                                                 </span>
                                             )}
-                                            {(gift.giftType as string) === 'UNLIMITED' && (
+                                            {gift.giftType === ('UNLIMITED' as GiftType) && (
                                                 <span className="shrink-0 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
                                                     {isOwnList ? '🔁 Illimité' : `🔁 ${(gift.takenByList ?? []).length} pris`}
                                                 </span>
@@ -400,7 +400,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                 }}
                                             />
                                         )}
-                                        {(selectedGift!.giftType as string) === 'UNLIMITED' && !isOwnList && (
+                                        {selectedGift!.giftType === ('UNLIMITED' as GiftType) && !isOwnList && (
                                             <UnlimitedGiftTakers
                                                 gift={selectedGift!}
                                                 userId={connectedUser?.userId}

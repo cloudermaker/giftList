@@ -27,39 +27,38 @@ export const takeGift = async (userId: string, giftId: string) => {
   
   const taken = [];
   
-  // Prendre le cadeau principal
-  try {
-    const takenGift = await prisma.userTakenGift.create({
-      data: {
-        userId,
-        giftId,
-        takenAt: new Date()
-      }
-    });
-    taken.push(takenGift);
-  } catch (error: any) {
-    // Pour SIMPLE/MULTIPLE : ignorer P2002 (déjà pris, c'est normal)
-    // Pour UNLIMITED : on doit pouvoir prendre plusieurs fois — relancer l'erreur
-    if (error.code !== 'P2002') throw error;
-    if (gift.giftType === 'UNLIMITED') throw error;
-    // SIMPLE/MULTIPLE : silently ignore
+  // Pour SIMPLE/MULTIPLE : vérifier qu'une réservation n'existe pas déjà (idempotence)
+  // Pour UNLIMITED : plusieurs réservations par le même user sont autorisées
+  if (gift.giftType !== 'UNLIMITED') {
+    const existing = await prisma.userTakenGift.findFirst({ where: { userId, giftId } });
+    if (existing) {
+      return { giftId, userId, subGiftsTaken: [giftId] };
+    }
   }
+
+  // Prendre le cadeau principal
+  const takenGift = await prisma.userTakenGift.create({
+    data: {
+      userId,
+      giftId,
+      takenAt: new Date()
+    }
+  });
+  taken.push(takenGift);
   
   // Si MULTIPLE, prendre aussi tous les sous-cadeaux
   if (gift.giftType === 'MULTIPLE' && gift.subGifts.length > 0) {
     for (const subGift of gift.subGifts) {
-      try {
-        const takenSubGift = await prisma.userTakenGift.create({
-          data: {
-            userId,
-            giftId: subGift.id,
-            takenAt: new Date()
-          }
-        });
-        taken.push(takenSubGift);
-      } catch (error: any) {
-        if (error.code !== 'P2002') throw error;
-      }
+      const subExisting = await prisma.userTakenGift.findFirst({ where: { userId, giftId: subGift.id } });
+      if (subExisting) continue;
+      const takenSubGift = await prisma.userTakenGift.create({
+        data: {
+          userId,
+          giftId: subGift.id,
+          takenAt: new Date()
+        }
+      });
+      taken.push(takenSubGift);
     }
   }
   

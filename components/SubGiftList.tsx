@@ -5,7 +5,7 @@
  */
 
 import { GiftWithTakenUserId } from '@/lib/db/giftManager';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import CustomButton from './atoms/customButton';
 import Swal from 'sweetalert2';
@@ -33,15 +33,7 @@ export default function SubGiftList({
 
   const isOwner = parentGift.userId === userId;
 
-  // Charger les sous-cadeaux quand le composant est expanded
-  useEffect(() => {
-    if (expanded && parentGift.giftType === 'MULTIPLE') {
-      loadSubGifts();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expanded, parentGift.id]);
-
-  const loadSubGifts = async () => {
+  const loadSubGifts = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axios.get(`/api/gift/${parentGift.id}/subgifts`);
@@ -53,7 +45,14 @@ export default function SubGiftList({
     } finally {
       setLoading(false);
     }
-  };
+  }, [parentGift.id]);
+
+  // Charger les sous-cadeaux quand le composant est expanded
+  useEffect(() => {
+    if (expanded && parentGift.giftType === 'MULTIPLE') {
+      loadSubGifts();
+    }
+  }, [expanded, parentGift.giftType, loadSubGifts]);
 
   const handleCreateSubGift = async () => {
     if (!newSubGiftName.trim()) {
@@ -113,7 +112,8 @@ export default function SubGiftList({
       setSubGifts((prev) => prev.filter((g) => g.id !== subGift.id));
       if (onGiftUpdate) onGiftUpdate();
     } catch (error) {
-      Swal.fire({ title: 'Erreur', text: `Erreur lors de la suppression: ${error}`, icon: 'error' });
+      const msg = (error as any)?.response?.data?.error ?? 'Impossible de supprimer ce sous-cadeau.';
+      Swal.fire({ title: 'Erreur', text: msg, icon: 'error' });
     }
   };
 
@@ -163,7 +163,7 @@ export default function SubGiftList({
         </span>
         {(subGifts.length > 0 || (initialCount ?? 0) > 0) && (
           <span className="text-xs bg-indigo-200 text-indigo-700 px-2 py-0.5 rounded-full font-semibold">
-            {subGifts.length || initialCount}
+            {loading ? (initialCount ?? 0) : subGifts.length}
           </span>
         )}
       </div>
