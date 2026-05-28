@@ -4,6 +4,12 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [4.1.1] - 2026-05-28
+
+### Corrigé
+
+- La page se bloquait parfois après la connexion, sans afficher d'erreur. C'est corrigé.
+
 ## [4.1.0] - 2026-05-22
 
 ### Ajouté

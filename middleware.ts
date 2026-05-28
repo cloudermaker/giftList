@@ -18,8 +18,13 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/', request.url));
     }
 
-    const encryptedCurrentUser = request.cookies.get(COOKIE_NAME)?.value ?? '';
-    const currentUser = atob(encryptedCurrentUser);
+    const rawCookieValue = request.cookies.get(COOKIE_NAME)?.value ?? '';
+    let currentUser = '';
+    try {
+        currentUser = atob(decodeURIComponent(rawCookieValue));
+    } catch {
+        // malformed or stale cookie → treat as unauthenticated
+    }
 
     // This page is only to debug the groups => very touchy page
     if (request.nextUrl.pathname === '/backoffice' && request.headers.get('host') !== 'localhost:3000') {
