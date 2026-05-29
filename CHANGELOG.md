@@ -8,7 +8,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ### Corrigé
 
-- La page se bloquait parfois après la connexion, sans afficher d'erreur. C'est corrigé.
+- La page se bloquait après la connexion sur certains navigateurs. C'est corrigé.
 
 ## [4.1.0] - 2026-05-22
 

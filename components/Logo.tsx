@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 
 interface LogoProps {
     size?: 'small' | 'medium' | 'large';
@@ -7,6 +8,9 @@ interface LogoProps {
 }
 
 export const Logo = ({ size = 'medium', showText = true, className = '' }: LogoProps): JSX.Element => {
+    const { connectedUser } = useCurrentUser();
+    const href = connectedUser ? '/home' : '/';
+
     const sizeClasses = {
         small: 'h-8 w-8',
         medium: 'h-12 w-12',
@@ -21,7 +25,7 @@ export const Logo = ({ size = 'medium', showText = true, className = '' }: LogoP
 
     return (
         <Link
-            href="/home"
+            href={href}
             className={`inline-flex items-center gap-3 no-underline hover:no-underline hover:opacity-80 transition-opacity ${className}`}
         >
             {/* Icône de cadeau comme logo temporaire */}
