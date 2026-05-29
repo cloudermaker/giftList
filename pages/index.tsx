@@ -1,4 +1,4 @@
-
+import NProgress from 'nprogress';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
@@ -70,6 +70,7 @@ export default function Index(): JSX.Element {
         setFormData((prev) => ({ ...prev, error: '' }));
         setIsLoading(true);
 
+        let navigating = false;
         try {
             if (!formData.groupName) {
                 setFormData((prev) => ({ ...prev, error: ERROR_MESSAGES.NO_GROUP }));
@@ -101,13 +102,17 @@ export default function Index(): JSX.Element {
             const data = await login(formData.name, formData.groupName, mode === 'creating', formData.password);
 
             if (data?.success) {
+                navigating = true;
+                NProgress.start();
                 window.location.href = '/home';
                 return;
             } else if (data) {
                 setFormData((prev) => ({ ...prev, error: data?.error ?? ERROR_MESSAGES.GENERIC }));
             }
         } finally {
-            setIsLoading(false);
+            if (!navigating) {
+                setIsLoading(false);
+            }
         }
     };
 
