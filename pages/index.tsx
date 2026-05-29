@@ -1,4 +1,4 @@
-import Router from 'next/router';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
@@ -101,7 +101,8 @@ export default function Index(): JSX.Element {
             const data = await login(formData.name, formData.groupName, mode === 'creating', formData.password);
 
             if (data?.success) {
-                Router.push('/home');
+                window.location.href = '/home';
+                return;
             } else if (data) {
                 setFormData((prev) => ({ ...prev, error: data?.error ?? ERROR_MESSAGES.GENERIC }));
             }
