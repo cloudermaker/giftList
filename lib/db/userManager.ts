@@ -56,28 +56,15 @@ export const getUsersFromGroupId = async (groupId: string): Promise<User[]> => {
     return users;
 };
 
-export const createUser = async (userName: string, userGroupId: string): Promise<User> => {
+export const createUser = async (userName: string, userGroupId: string, isAdmin = true): Promise<User> => {
     const user = await prisma.user.create({
         data: {
             name: userName.toLowerCase().trim(),
-            isAdmin: true
+            isAdmin
         }
     });
 
-    await addUserToGroup(user.id, userGroupId, 'ADMIN');
-
-    return user;
-};
-
-export const createMemberUser = async (userName: string, userGroupId: string): Promise<User> => {
-    const user = await prisma.user.create({
-        data: {
-            name: userName.toLowerCase().trim(),
-            isAdmin: false
-        }
-    });
-
-    await addUserToGroup(user.id, userGroupId, 'MEMBER');
+    await addUserToGroup(user.id, userGroupId, isAdmin ? 'ADMIN' : 'MEMBER');
 
     return user;
 };

@@ -1,9 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getGroupByInviteToken } from '@/lib/db/groupManager';
-import { getUserByGroupAndName, createMemberUser } from '@/lib/db/userManager';
+import { getUserByGroupAndName, createUser } from '@/lib/db/userManager';
 import { TAuthenticateResult } from '@/pages/api/authenticate';
 
-export type TInviteJoinResult = TAuthenticateResult & { needsConfirmation?: boolean };
+export type TInviteJoinResult = TAuthenticateResult & {
+    needsConfirmation?: boolean;
+    userExists?: boolean;
+};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TInviteJoinResult>) {
     if (req.method !== 'POST') {
@@ -25,12 +28,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
         const user = await getUserByGroupAndName(userName, group.id);
 
-        if (!user && !confirm) {
-            // Prénom inconnu : demander confirmation avant de créer un nouveau membre
-            return res.status(200).json({ success: false, needsConfirmation: true, error: '' });
+        if (!confirm) {
+            // Toujours demander confirmation : évite l'usurpation d'un membre existant
+            return res.status(200).json({ success: false, needsConfirmation: true, userExists: !!user, error: '' });
         }
 
-        const finalUser = user ?? (await createMemberUser(userName, group.id));
+        const finalUser = user ?? (await createUser(userName, group.id, false));
 
         return res.status(200).json({
             success: true,
@@ -45,6 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             }
         });
     } catch (e) {
-        return res.status(500).json({ success: false, error: e as string });
+        const message = e instanceof Error ? e.message : String(e);
+        return res.status(500).json({ success: false, error: message });
     }
 }

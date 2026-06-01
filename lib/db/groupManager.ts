@@ -61,12 +61,16 @@ export const getGroupByInviteToken = async (token: string): Promise<Group | null
 };
 
 export const ensureGroupInviteToken = async (groupId: string): Promise<string> => {
-    const group = await getGroupById(groupId);
-    if (group?.inviteToken) return group.inviteToken;
-
     const token = generateInviteToken();
-    await prisma.group.update({ where: { id: groupId }, data: { inviteToken: token } });
-    return token;
+    // Update atomique : n'écrase pas un token déjà présent
+    const result = await prisma.group.updateMany({
+        where: { id: groupId, inviteToken: null },
+        data: { inviteToken: token }
+    });
+    if (result.count > 0) return token;
+    // Un token existait déjà (écrit par une requête concurrente) : on le relit
+    const group = await getGroupById(groupId);
+    return group!.inviteToken!;
 };
 
 export const createGroup = async (groupName: string, password: string, description = '', imageUrl = ''): Promise<Group> => {

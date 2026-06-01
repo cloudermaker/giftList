@@ -292,6 +292,11 @@ export async function getServerSideProps(context: NextPageContext) {
     }
 
     const group = await getGroupById(groupId);
+
+    if (!group) {
+        return { notFound: true };
+    }
+
     const groupUsers = await getUsersFromGroupId(groupId);
     const inviteToken = await ensureGroupInviteToken(groupId);
 

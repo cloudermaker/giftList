@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { GetServerSideProps } from 'next';
 import NProgress from 'nprogress';
-import Cookies from 'js-cookie';
 import { Layout } from '@/components/layout';
 import { CustomInput } from '@/components/atoms/customInput';
 import CustomButton from '@/components/atoms/customButton';
 import { ErrorAlert } from '@/components/atoms/ErrorAlert';
-import { COOKIE_NAME } from '@/lib/auth/authService';
+import { setAuthCookie } from '@/lib/auth/authService';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import { TInviteJoinResult } from '@/pages/api/invite/join';
 import { getGroupByInviteToken } from '@/lib/db/groupManager';
@@ -21,6 +20,7 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [needsConfirmation, setNeedsConfirmation] = useState(false);
+    const [userExists, setUserExists] = useState(false);
 
     const callJoinApi = async (confirm: boolean): Promise<void> => {
         setError('');
@@ -32,12 +32,13 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
             const data = res?.data as TInviteJoinResult;
 
             if (data?.needsConfirmation) {
+                setUserExists(data.userExists ?? false);
                 setNeedsConfirmation(true);
                 return;
             }
 
             if (data?.success && data.groupUser) {
-                Cookies.set(COOKIE_NAME, btoa(JSON.stringify(data.groupUser)), { sameSite: 'Strict' });
+                setAuthCookie(data.groupUser);
                 navigating = true;
                 NProgress.start();
                 window.location.href = '/home';
@@ -110,15 +111,24 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
                             {needsConfirmation && (
                                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-2">
                                     <p className="text-sm font-semibold text-amber-800 mb-1">
-                                        ⚠️ Prénom non reconnu
+                                        ⚠️ Confirmation
                                     </p>
-                                    <p className="text-sm text-amber-700">
-                                        Le prénom <strong>&quot;{userName}&quot;</strong> n&apos;existe pas encore dans ce groupe.
-                                        Vérifie que tu n&apos;as pas fait de faute de frappe.
-                                    </p>
-                                    <p className="text-sm text-amber-700 mt-2">
-                                        Si tu es bien un nouveau membre, confirme pour rejoindre le groupe.
-                                    </p>
+                                    {userExists ? (
+                                        <p className="text-sm text-amber-700">
+                                            Le prénom <strong>&quot;{userName}&quot;</strong> est déjà membre de ce groupe.
+                                            Es-tu bien cette personne ?
+                                        </p>
+                                    ) : (
+                                        <>
+                                            <p className="text-sm text-amber-700">
+                                                Le prénom <strong>&quot;{userName}&quot;</strong> n&apos;existe pas encore dans ce groupe.
+                                                Vérifie que tu n&apos;as pas fait de faute de frappe.
+                                            </p>
+                                            <p className="text-sm text-amber-700 mt-2">
+                                                Si tu es bien un nouveau membre, confirme pour rejoindre le groupe.
+                                            </p>
+                                        </>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -133,7 +143,7 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
                             {needsConfirmation && (
                                 <>
                                     <CustomButton className="w-full p-3 green-button" onClick={handleConfirm} disabled={isLoading}>
-                                        {isLoading ? '⏳ Chargement...' : 'Oui, je suis un nouveau membre'}
+                                        {isLoading ? '⏳ Chargement...' : userExists ? `Oui, je suis ${userName}` : 'Oui, je suis un nouveau membre'}
                                     </CustomButton>
                                     <CustomButton className="w-full p-3" onClick={handleCancelConfirmation} disabled={isLoading}>
                                         Corriger mon prénom

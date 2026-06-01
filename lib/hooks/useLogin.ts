@@ -1,6 +1,5 @@
 import { TAuthenticateResult } from '@/pages/api/authenticate';
-import Cookies from 'js-cookie';
-import { COOKIE_NAME } from '../auth/authService';
+import { setAuthCookie } from '../auth/authService';
 import AxiosWrapper from '../wrappers/axiosWrapper';
 
 export const useLogin = () => {
@@ -19,7 +18,7 @@ export const useLogin = () => {
         const data = res?.data as TAuthenticateResult;
 
         if (data?.success && data.groupUser) {
-            Cookies.set(COOKIE_NAME, btoa(JSON.stringify(data.groupUser)), { sameSite: 'Strict' });
+            setAuthCookie(data.groupUser);
         }
 
         return data;
