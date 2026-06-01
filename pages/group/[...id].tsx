@@ -4,7 +4,7 @@ import { EHeader } from '@/components/customHeader';
 import { NextPageContext } from 'next';
 import CustomButton from '@/components/atoms/customButton';
 import { TUserApiResult } from '@/pages/api/user';
-import { getGroupById } from '@/lib/db/groupManager';
+import { getGroupById, ensureGroupInviteToken } from '@/lib/db/groupManager';
 import { getUsersFromGroupId } from '@/lib/db/userManager';
 import { User, Group } from '@prisma/client';
 import Router from 'next/router';
@@ -12,10 +12,37 @@ import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Swal from 'sweetalert2';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 
-const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: User[] }): JSX.Element => {
+const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group; groupUsers: User[]; inviteToken: string }): JSX.Element => {
     const { connectedUser } = useCurrentUser();
 
     const [localUsers, setLocalUsers] = useState<User[]>(groupUsers);
+    const [copiedInvite, setCopiedInvite] = useState(false);
+
+    const inviteUrl = typeof window !== 'undefined' ? `${window.location.origin}/join/${inviteToken}` : `/join/${inviteToken}`;
+
+    const shareInviteLink = async () => {
+        const shareData = {
+            title: `Rejoins le groupe ${group.name}`,
+            text: `Clique pour rejoindre la liste de cadeaux du groupe "${group.name}" !`,
+            url: inviteUrl
+        };
+        if (typeof navigator !== 'undefined' && navigator.share) {
+            try {
+                await navigator.share(shareData);
+                return;
+            } catch {
+                // annulé par l'utilisateur, on ne fait rien
+                return;
+            }
+        }
+        try {
+            await navigator.clipboard.writeText(inviteUrl);
+            setCopiedInvite(true);
+            setTimeout(() => setCopiedInvite(false), 2000);
+        } catch {
+            // ignore
+        }
+    };
     const [creatingUser, setCreatingUser] = useState<boolean>(false);
     const [updatingUserId, setUpdatingUserId] = useState<string | undefined>(undefined);
     const [newUserName, setNewUserName] = useState<string>('');
@@ -128,6 +155,15 @@ const GroupComponent = ({ group, groupUsers = [] }: { group: Group; groupUsers: 
         <Layout selectedHeader={EHeader.Group}>
             <div className="mb-10">
                 <h1 className="pb-5">{`Voici le groupe: ${group.name}`}</h1>
+
+                <div className="flex justify-end mb-4">
+                    <button
+                        onClick={shareInviteLink}
+                        className="text-sm transition-colors flex items-center gap-1"
+                    >
+                        {copiedInvite ? '✓ Lien copié !' : '🔗 Inviter des proches'}
+                    </button>
+                </div>
 
                 {localUsers.map((user) => (
                     <div className="item" key={`group_${user.id}`}>
@@ -257,6 +293,7 @@ export async function getServerSideProps(context: NextPageContext) {
 
     const group = await getGroupById(groupId);
     const groupUsers = await getUsersFromGroupId(groupId);
+    const inviteToken = await ensureGroupInviteToken(groupId);
 
     return {
         props: {
@@ -269,7 +306,8 @@ export async function getServerSideProps(context: NextPageContext) {
                 ...groupUser,
                 updatedAt: groupUser.updatedAt?.toISOString() ?? '',
                 createdAt: groupUser.createdAt?.toISOString() ?? ''
-            }))
+            })),
+            inviteToken
         }
     };
 }

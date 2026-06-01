@@ -122,13 +122,30 @@ export default function Help(): JSX.Element {
 
                 <div className="item">
                     <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
+                        Comment inviter des proches facilement ?
+                    </h3>
+                    <p>
+                        Depuis la page de ton groupe, clique sur <strong>🔗 Inviter des proches</strong>. Un lien unique
+                        est copié dans ton presse-papier (ou le menu de partage de ton téléphone s&apos;ouvre directement).
+                        Envoie ce lien par SMS, WhatsApp ou email : tes proches n&apos;auront plus qu&apos;à saisir leur
+                        prénom pour rejoindre le groupe, sans se souvenir du nom exact.
+                    </p>
+                </div>
+
+                <div className="item">
+                    <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
                         Comment rajouter/supprimer des utilisateurs ?
                     </h3>
                     <p>
-                        Il faut être administrateur pour avoir ce droit. Si tu as un soucis, n&apos;hésite pas à nous
+                        Pour <strong>ajouter</strong> quelqu&apos;un, deux options : partage le lien d&apos;invitation (bouton
+                        &laquo;&nbsp;🔗 Inviter des proches&nbsp;&raquo; sur la page du groupe) ou, si tu es administrateur,
+                        ajoute-le manuellement depuis cette même page.
+                    </p>
+                    <p className="mt-2">
+                        Pour <strong>supprimer</strong> un utilisateur, il faut être administrateur. Si tu as un souci, n&apos;hésite pas à nous
                         <Link href={'/contact'} className="pl-2">
                             contacter
-                        </Link>
+                        </Link>.
                     </p>
                 </div>
             </section>

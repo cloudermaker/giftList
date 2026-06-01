@@ -32,6 +32,7 @@ model Group {
   description   String?
   imageUrl      String?
   adminPassword String  @default("admin")
+  inviteToken   String? @unique
 
   // Relations
   userMemberships UserGroupMapping[]

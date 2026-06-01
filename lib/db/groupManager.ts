@@ -1,4 +1,5 @@
 import { Group } from '@prisma/client';
+import { randomBytes } from 'crypto';
 import prisma from './dbSingleton';
 
 export const buildDefaultGroup = () => {
@@ -8,10 +9,13 @@ export const buildDefaultGroup = () => {
         description: '',
         imageUrl: '',
         adminPassword: '',
+        inviteToken: null,
         updatedAt: new Date(),
         createdAt: new Date()
     };
 };
+
+const generateInviteToken = (): string => randomBytes(5).toString('hex');
 
 export const getGroups = async (): Promise<Group[]> => {
     var groups = await prisma.group.findMany();
@@ -52,13 +56,27 @@ export const deleteGroup = async (groupId: string): Promise<boolean> => {
     return !!groups;
 };
 
+export const getGroupByInviteToken = async (token: string): Promise<Group | null> => {
+    return prisma.group.findUnique({ where: { inviteToken: token } });
+};
+
+export const ensureGroupInviteToken = async (groupId: string): Promise<string> => {
+    const group = await getGroupById(groupId);
+    if (group?.inviteToken) return group.inviteToken;
+
+    const token = generateInviteToken();
+    await prisma.group.update({ where: { id: groupId }, data: { inviteToken: token } });
+    return token;
+};
+
 export const createGroup = async (groupName: string, password: string, description = '', imageUrl = ''): Promise<Group> => {
     var group = await prisma.group.create({
         data: {
             name: groupName.trim(),
             adminPassword: password,
             description,
-            imageUrl
+            imageUrl,
+            inviteToken: generateInviteToken()
         }
     });
 

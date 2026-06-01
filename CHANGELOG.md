@@ -4,6 +4,12 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [4.2.0] - 2026-06-01
+
+### Ajouté
+
+- Lien d'invitation partageable : bouton « 🔗 Inviter des proches » sur la page du groupe, les proches n'ont plus qu'à saisir leur prénom pour rejoindre
+
 ## [4.1.2] - 2026-06-01
 
 ### Modifié

@@ -69,6 +69,19 @@ export const createUser = async (userName: string, userGroupId: string): Promise
     return user;
 };
 
+export const createMemberUser = async (userName: string, userGroupId: string): Promise<User> => {
+    const user = await prisma.user.create({
+        data: {
+            name: userName.toLowerCase().trim(),
+            isAdmin: false
+        }
+    });
+
+    await addUserToGroup(user.id, userGroupId, 'MEMBER');
+
+    return user;
+};
+
 export const upsertUser = async (user: User): Promise<User> => {
     const { id, createdAt, updatedAt, gifts, groupMemberships, takenGifts, personalGifts, personalGiftsReceived, userTakenGifts, personalGiftsFor, ...userData } = user as any;
     
