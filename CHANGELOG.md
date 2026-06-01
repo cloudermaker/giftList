@@ -4,6 +4,18 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [4.1.2] - 2026-06-01
+
+### Modifié
+
+- Les actions sur les cadeaux (ajout, modification, suppression, réservation) affichent une confirmation visuelle qui se ferme toute seule.
+- Les messages d'erreur sont désormais génériques et ne divulguent plus de détails techniques.
+
+### Corrigé
+
+- La mise à jour d'un cadeau échouait avec une erreur si certains champs internes étaient présents.
+- Le réordonnancement par glisser-déposer ne plante plus si un cadeau a été supprimé entre-temps.
+
 ## [4.1.1] - 2026-05-28
 
 ### Corrigé

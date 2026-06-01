@@ -78,19 +78,10 @@ export default function SubGiftList({
           onGiftUpdate();
         }
         
-        Swal.fire({
-          title: 'Succès',
-          text: 'Sous-cadeau ajouté !',
-          icon: 'success',
-          timer: 2000
-        });
+        Swal.fire({ title: 'Sous-cadeau ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
       }
     } catch (error) {
-      Swal.fire({
-        title: 'Erreur',
-        text: `Erreur lors de la création: ${error}`,
-        icon: 'error'
-      });
+      Swal.fire({ title: 'Erreur', text: 'Impossible de créer ce sous-cadeau.', icon: 'error' });
     }
   };
 
@@ -112,8 +103,7 @@ export default function SubGiftList({
       setSubGifts((prev) => prev.filter((g) => g.id !== subGift.id));
       if (onGiftUpdate) onGiftUpdate();
     } catch (error) {
-      const msg = (error as any)?.response?.data?.error ?? 'Impossible de supprimer ce sous-cadeau.';
-      Swal.fire({ title: 'Erreur', text: msg, icon: 'error' });
+      Swal.fire({ title: 'Erreur', text: 'Impossible de supprimer ce sous-cadeau.', icon: 'error' });
     }
   };
 
@@ -128,18 +118,11 @@ export default function SubGiftList({
         await axios.post(endpoint, { userId });
       }
 
-      // Recharger les sous-cadeaux
       await loadSubGifts();
-      
-      if (onGiftUpdate) {
-        onGiftUpdate();
-      }
+      if (onGiftUpdate) onGiftUpdate();
+      Swal.fire({ title: isTaken ? 'Cadeau libéré !' : 'Cadeau réservé !', icon: 'success', timer: 1500, showConfirmButton: false });
     } catch (error) {
-      Swal.fire({
-        title: 'Erreur',
-        text: `Erreur lors de la réservation: ${error}`,
-        icon: 'error'
-      });
+      Swal.fire({ title: 'Erreur', text: 'Impossible de réserver ce sous-cadeau.', icon: 'error' });
     }
   };
 

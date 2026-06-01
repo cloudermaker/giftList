@@ -67,12 +67,9 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
             if (data && data.success) {
                 // Retirer uniquement cette entrée (par userTakenGiftId pour éviter de supprimer les doublons UNLIMITED)
                 setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => (gift.userTakenGiftId ?? gift.id) !== uniqueKey));
+                Swal.fire({ title: 'Cadeau libéré !', icon: 'success', timer: 1500, showConfirmButton: false });
             } else {
-                Swal.fire({
-                    title: 'Erreur',
-                    text: data?.error || 'Impossible de libérer ce cadeau. Réessayez dans quelques instants.',
-                    icon: 'error'
-                });
+                Swal.fire({ title: 'Erreur', text: 'Impossible de libérer ce cadeau. Réessayez dans quelques instants.', icon: 'error' });
             }
         } finally {
             setReleasingGiftId(null);
@@ -132,12 +129,9 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                 
                 setLocalTakenGifts((oldGifts) => [...oldGifts, giftFromPersonal]);
                 clearAllFields();
+                Swal.fire({ title: 'Cadeau ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
             } else {
-                Swal.fire({
-                    title: 'Erreur',
-                    text: data?.error || 'Impossible d\'ajouter ce cadeau. Réessayez dans quelques instants.',
-                    icon: 'error'
-                });
+                Swal.fire({ title: 'Erreur', text: "Impossible d'ajouter ce cadeau. Réessayez dans quelques instants.", icon: 'error' });
             }
         } finally {
             setIsCreatingGift(false);
@@ -170,17 +164,9 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
 
                 if (data && data.success === true) {
                     setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftId));
-                    swalWithBootstrapButtons.fire({
-                        title: 'Supprimé!',
-                        text: 'Le cadeau a été supprimé.',
-                        icon: 'success'
-                    });
+                    swalWithBootstrapButtons.fire({ title: 'Supprimé !', icon: 'success', timer: 1500, showConfirmButton: false });
                 } else {
-                    swalWithBootstrapButtons.fire({
-                        title: 'Erreur!',
-                        text: data?.error || "Le cadeau n'a pas pu être supprimé.",
-                        icon: 'error'
-                    });
+                    swalWithBootstrapButtons.fire({ title: 'Erreur', text: "Impossible de supprimer ce cadeau.", icon: 'error' });
                 }
             } finally {
                 setDeletingGiftId(null);

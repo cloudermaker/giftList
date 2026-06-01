@@ -15,21 +15,22 @@ export const Home = (): JSX.Element => {
     const [group, setGroup] = useState<Group>();
     const [description, setDescription] = useState<string | null>();
     const [updatingDescription, setUpdatingDescription] = useState<boolean>(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!connectedUser) return;
         const fetchData = async () => {
-            if (connectedUser?.groupId) {
+            if (connectedUser.groupId) {
                 const response = await AxiosWrapper.get(`/api/group/${connectedUser.groupId}`);
                 const groupInfoResponse = response?.data as TGroupApiResult;
-
                 if (groupInfoResponse && groupInfoResponse.success && groupInfoResponse.group) {
                     setGroup(groupInfoResponse.group);
                 }
             }
+            setLoading(false);
         };
-
         fetchData();
-    }, [connectedUser?.groupId]);
+    }, [connectedUser]);
 
     const onUpdateDescriptionClick = (): void => {
         setUpdatingDescription(true);
@@ -74,13 +75,24 @@ export const Home = (): JSX.Element => {
                 <div className="bg-white rounded-xl shadow-sm p-8 mb-8 flex items-center justify-center">
                     <div className="max-w-2xl w-full">
                         <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-2">Bienvenue sur le groupe</h1>
-                        <p className="text-2xl text-center text-rose-500 font-medium">{group?.name}</p>
+                        {loading
+                            ? <div className="h-7 w-48 bg-gray-200 rounded-full animate-pulse mx-auto mt-1" />
+                            : <p className="text-2xl text-center text-rose-500 font-medium">{group?.name}</p>
+                        }
                     </div>
                 </div>
 
                 {/* Description Section */}
                 <div className="mb-8">
-                    {!group?.description && !updatingDescription && (
+                    {loading && (
+                        <div className="bg-white rounded-xl shadow-sm p-8 space-y-3">
+                            <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
+                            <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2" />
+                            <div className="h-4 bg-gray-200 rounded animate-pulse w-2/3" />
+                        </div>
+                    )}
+
+                    {!loading && !group?.description && !updatingDescription && (
                         <div className="bg-white rounded-xl shadow-sm p-8 text-center">
                             <p className="text-xl text-gray-600">
                                 Si tu es ici pour remplir ta liste de cadeaux, tu es au bon endroit
@@ -88,7 +100,7 @@ export const Home = (): JSX.Element => {
                         </div>
                     )}
 
-                    {group?.description && !updatingDescription && (
+                    {!loading && group?.description && !updatingDescription && (
                         <div className="bg-white rounded-xl shadow-sm p-8">
                             <div
                                 dangerouslySetInnerHTML={{ __html: group.description }}
