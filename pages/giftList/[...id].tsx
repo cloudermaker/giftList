@@ -1,4 +1,4 @@
-import { ReactNode, Suspense, useEffect, useState } from 'react';
+import { ReactNode, Suspense, useCallback, useEffect, useState } from 'react';
 import { Layout } from '@/components/layout';
 import { EHeader } from '@/components/customHeader';
 import ModernLink from '@/components/atoms/ModernLink';
@@ -76,20 +76,25 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     const [loadingGroupUsers, setLoadingGroupUsers] = useState(true);
     const [takingGiftId, setTakingGiftId] = useState<string | null>(null);
 
+    const clearForm = useCallback(() => {
+        setFormName(''); setFormDescription(''); setFormLink(''); setFormType('SIMPLE'); setEditingGiftId('');
+    }, []);
+
+    const closeModal = useCallback(() => { clearForm(); setSelectedGiftId(null); }, [clearForm]);
+    const openCreateModal = () => { clearForm(); setSelectedGiftId(NEW_GIFT_SENTINEL); };
+
     // Resync à la navigation vers une autre liste
     useEffect(() => {
         setLocalGifts(giftList);
         closeModal();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user.id]);
+    }, [user.id, giftList, closeModal]);
 
     // Fermer avec Escape
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeModal(); };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [closeModal]);
 
     useEffect(() => {
         const load = async () => {
@@ -106,13 +111,6 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
         };
         load();
     }, [connectedUser?.groupId]);
-
-    const clearForm = () => {
-        setFormName(''); setFormDescription(''); setFormLink(''); setFormType('SIMPLE'); setEditingGiftId('');
-    };
-
-    const closeModal = () => { clearForm(); setSelectedGiftId(null); };
-    const openCreateModal = () => { clearForm(); setSelectedGiftId(NEW_GIFT_SENTINEL); };
 
     const startEditing = (gift: Gift) => {
         setFormName(gift.name);
@@ -137,12 +135,12 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 if (data?.success) {
                     setLocalGifts((prev) => prev.filter((g) => g.id !== giftId));
                     closeModal();
-                    swal.fire({ title: 'Supprimé!', text: 'Le cadeau a été supprimé.', icon: 'success' });
+                    swal.fire({ title: 'Supprimé !', icon: 'success', timer: 1500, showConfirmButton: false });
                 } else {
-                    swal.fire({ title: 'Erreur', text: data?.error || 'Impossible de supprimer ce cadeau.', icon: 'error' });
+                    swal.fire({ title: 'Erreur', text: 'Impossible de supprimer ce cadeau.', icon: 'error' });
                 }
             } catch (err: any) {
-                swal.fire({ title: 'Erreur', text: err?.response?.data?.error || err?.message || 'Impossible de supprimer.', icon: 'error' });
+                swal.fire({ title: 'Erreur', text: 'Impossible de supprimer.', icon: 'error' });
             }
         });
     };
@@ -172,8 +170,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 if (data?.success && data.gift) {
                     const updated: GiftWithTakenUserId = { ...data.gift, takenUserId: (data.gift as any).takenUserId ?? null };
                     setLocalGifts((prev) => prev.map((g) => g.id === giftId ? updated : g));
+                    Swal.fire({ title: 'Cadeau modifié !', icon: 'success', timer: 1500, showConfirmButton: false });
                 } else {
-                    Swal.fire({ title: 'Erreur', text: data?.error || 'Impossible de modifier ce cadeau.', icon: 'error' }); return;
+                    Swal.fire({ title: 'Erreur', text: 'Impossible de modifier ce cadeau.', icon: 'error' }); return;
                 }
             } else {
                 const res = await AxiosWrapper.post('/api/gift', { gift: giftToSave, initiatorUserId: connectedUser?.userId, userGiftId: user.id });
@@ -181,12 +180,13 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 if (data?.success && data.gift) {
                     const created: GiftWithTakenUserId = { ...data.gift, takenUserId: (data.gift as any).takenUserId ?? null };
                     setLocalGifts((prev) => [...prev, created]);
+                    Swal.fire({ title: 'Cadeau ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
                 } else {
-                    Swal.fire({ title: 'Erreur', text: data?.error || "Impossible d'ajouter ce cadeau.", icon: 'error' }); return;
+                    Swal.fire({ title: 'Erreur', text: "Impossible d'ajouter ce cadeau.", icon: 'error' }); return;
                 }
             }
         } catch (err: any) {
-            Swal.fire({ title: 'Erreur', text: err?.response?.data?.error || err?.message || 'Impossible de sauvegarder.', icon: 'error' }); return;
+            Swal.fire({ title: 'Erreur', text: 'Impossible de sauvegarder', icon: 'error' }); return;
         }
         closeModal();
     };
@@ -204,12 +204,13 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 if (refreshData?.success && refreshData.gift) {
                     const updated: GiftWithTakenUserId = { ...refreshData.gift, takenUserId: (refreshData.gift as any).takenUserId ?? null };
                     setLocalGifts((prev) => prev.map((g) => g.id === giftToUpdate.id ? updated : g));
+                    Swal.fire({ title: isTaken ? 'Cadeau libéré !' : 'Cadeau réservé !', icon: 'success', timer: 1500, showConfirmButton: false });
                 }
             } else {
-                Swal.fire({ title: 'Erreur', text: res?.data?.error || 'Impossible de réserver ce cadeau.', icon: 'error' });
+                Swal.fire({ title: 'Erreur', text: 'Impossible de réserver ce cadeau.', icon: 'error' });
             }
         } catch (err) {
-            Swal.fire({ title: 'Erreur', text: `Erreur lors de la réservation: ${err}`, icon: 'error' });
+            Swal.fire({ title: 'Erreur', text: 'Erreur lors de la réservation', icon: 'error' });
         } finally {
             setTakingGiftId(null);
         }

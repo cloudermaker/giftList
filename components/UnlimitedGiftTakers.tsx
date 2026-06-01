@@ -32,11 +32,12 @@ export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, o
             const res = await axios.post(`/api/gift/${gift.id}/take`, { userId });
             if (res.data?.success) {
                 onGiftUpdate?.();
+                Swal.fire({ title: 'Cadeau réservé !', icon: 'success', timer: 1500, showConfirmButton: false });
             } else {
-                Swal.fire({ title: 'Erreur', text: res.data?.error || 'Impossible de réserver.', icon: 'error' });
+                Swal.fire({ title: 'Erreur', text: 'Impossible de réserver ce cadeau.', icon: 'error' });
             }
-        } catch (err: any) {
-            Swal.fire({ title: 'Erreur', text: err?.response?.data?.error || String(err), icon: 'error' });
+        } catch {
+            Swal.fire({ title: 'Erreur', text: 'Impossible de réserver ce cadeau.', icon: 'error' });
         } finally {
             setTaking(false);
         }
@@ -49,11 +50,12 @@ export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, o
             const res = await axios.delete(`/api/gift/${gift.id}/take`, { data: { userId, takenGiftId } });
             if (res.data?.success) {
                 onGiftUpdate?.();
+                Swal.fire({ title: 'Cadeau libéré !', icon: 'success', timer: 1500, showConfirmButton: false });
             } else {
-                Swal.fire({ title: 'Erreur', text: res.data?.error || 'Impossible de libérer.', icon: 'error' });
+                Swal.fire({ title: 'Erreur', text: 'Impossible de libérer ce cadeau.', icon: 'error' });
             }
-        } catch (err: any) {
-            Swal.fire({ title: 'Erreur', text: err?.response?.data?.error || String(err), icon: 'error' });
+        } catch {
+            Swal.fire({ title: 'Erreur', text: 'Impossible de libérer ce cadeau.', icon: 'error' });
         } finally {
             setTaking(false);
         }

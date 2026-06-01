@@ -1,4 +1,4 @@
-import { Gift, User, GiftType } from '@prisma/client';
+import { Gift, User, GiftType, Prisma } from '@prisma/client';
 import prisma from './dbSingleton';
 
 export type TakenByEntry = { id: string; userId: string; takenAt: Date | string };
@@ -99,7 +99,7 @@ export const getGiftsFromUserId = async (userId: string): Promise<GiftWithTakenU
 };
 
 export const updateGift = async (giftId: string, gift: Gift): Promise<Gift> => {
-    const { id, createdAt, updatedAt, userId, parentGiftId, takenUserId, user, subGifts, parentGift, takenBy, subGiftsCount, ...giftData } = gift as any;
+    const { id, createdAt, updatedAt, userId, parentGiftId, takenUserId, user, subGifts, parentGift, takenBy, subGiftsCount, takenByList, userTakenGiftId, ...giftData } = gift as any;
     
     const result = await prisma.gift.update({
         where: {
@@ -115,14 +115,17 @@ export const updateGifts = async (gifts: Gift[]): Promise<Gift[]> => {
     let updatedGifts: Gift[] = [];
     for (const gift of gifts) {
         const { id, createdAt, updatedAt, userId, parentGiftId, takenUserId, user, subGifts, parentGift, takenBy, subGiftsCount, takenByList, ...giftData } = gift as any;
-        
-        const updatedGift = await prisma.gift.update({
-            where: {
-                id: gift.id
-            },
-            data: { ...giftData, name: gift.name.trim(), userId, parentGiftId, updatedAt: new Date() }
-        });
-        updatedGifts.push(updatedGift);
+
+        try {
+            const updatedGift = await prisma.gift.update({
+                where: { id: gift.id },
+                data: { ...giftData, name: gift.name.trim(), userId, parentGiftId, updatedAt: new Date() }
+            });
+            updatedGifts.push(updatedGift);
+        } catch (e) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') continue;
+            throw e;
+        }
     }
 
     return updatedGifts;
@@ -136,7 +139,7 @@ export const upsertGift = async (gift: Gift): Promise<Gift> => {
     });
 
     // Extraire les champs à gérer séparément
-    const { userId, id, createdAt, updatedAt, takenUserId, parentGiftId, subGiftsCount, takenByList, ...giftData } = gift as any;
+    const { userId, id, createdAt, updatedAt, takenUserId, parentGiftId, subGiftsCount, takenByList, userTakenGiftId, user, subGifts, parentGift, takenBy, ...giftData } = gift as any;
     
     const result = await prisma.gift.upsert({
         where: {
