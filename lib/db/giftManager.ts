@@ -75,7 +75,8 @@ export const getGiftsFromUserId = async (userId: string): Promise<GiftWithTakenU
     // Charger les cadeaux avec les réservations depuis UserTakenGift
     const gifts = await prisma.gift.findMany({
         where: {
-            userId
+            userId,
+            parentGiftId: null
         },
         include: {
             takenBy: true,  // Relation UserTakenGift
