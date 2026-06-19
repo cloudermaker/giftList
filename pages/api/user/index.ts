@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { User } from '@prisma/client';
-import { upsertUser } from '@/lib/db/userManager';
+import { upsertUser, getUserByGroupAndName } from '@/lib/db/userManager';
 import { getGroupUsers, addUserToGroup } from '@/lib/db/userGroupManager';
 import { COOKIE_NAME, BACKOFFICE_SECRET } from '@/lib/auth/authService';
 import { TGroupAndUser } from '../authenticate';
@@ -40,9 +40,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         }
 
         if (req.method === 'POST' && body.user) {
+            const isCreation = !body.user.id || body.user.id === '';
+            if (body.groupId && body.user.name) {
+                const existing = await getUserByGroupAndName(body.user.name, body.groupId as string);
+                if (existing && existing.id !== body.user.id) {
+                    res.status(409).json({ success: false, error: 'Un membre avec ce prénom existe déjà dans ce groupe.' });
+                    return;
+                }
+            }
+
             const user = await upsertUser(body.user as User);
 
-            const isCreation = !body.user.id || body.user.id === '';
             if (isCreation && body.groupId) {
                 await addUserToGroup(user.id, body.groupId as string, 'MEMBER');
             }

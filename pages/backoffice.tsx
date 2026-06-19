@@ -9,9 +9,8 @@ import Swal from 'sweetalert2';
 import Router from 'next/router';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
-import { BACKOFFICE_SECRET } from '@/lib/auth/authService';
+import { BACKOFFICE_SECRET, BACKOFFICE_SESSION_KEY } from '@/lib/auth/authService';
 
-const BACKOFFICE_SESSION_KEY = 'backoffice_auth';
 const BACKOFFICE_HEADERS = { 'x-backoffice-secret': BACKOFFICE_SECRET };
 
 type TMember = { id: string; name: string; isAdmin: boolean; createdAt?: string };
@@ -86,7 +85,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
             cancelButtonText: 'Annuler',
         });
         if (!newName || newName === member.name) return;
-        const result = await AxiosWrapper.patch(`/api/user/${member.id}`, { user: { name: newName } }, BACKOFFICE_HEADERS);
+        const result = await AxiosWrapper.patch(`/api/user/${member.id}`, { user: { name: newName }, groupId: group.id }, BACKOFFICE_HEADERS);
         if (result?.data?.success) {
             setMembers((m) => m.map((m2) => (m2.id === member.id ? { ...m2, name: newName } : m2)));
             Swal.fire({ title: 'Renommé !', icon: 'success', timer: 1500, showConfirmButton: false });

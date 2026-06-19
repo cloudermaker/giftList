@@ -99,7 +99,7 @@ export const updateUser = async (userId: string, user: User): Promise<User> => {
 };
 
 export const deleteUser = async (userId: string): Promise<void> => {
-    await prisma.user.delete({
+    await prisma.user.deleteMany({
         where: {
             id: userId
         }

@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { COOKIE_NAME, BACKOFFICE_SECRET } from '@/lib/auth/authService';
 import { User } from '@prisma/client';
-import { deleteUser, getUserById, updateUser } from '@/lib/db/userManager';
+import { deleteUser, getUserById, getUserByGroupAndName, updateUser } from '@/lib/db/userManager';
 import { getUserGroups, countGroupAdmins, isUserGroupAdmin } from '@/lib/db/userGroupManager';
 
 export type TUserApiResult = {
@@ -44,6 +44,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             res.status(200).json({ success: true });
         } else if (method === 'PATCH' && userId && body.user && (cookies[COOKIE_NAME] || req.headers['x-backoffice-secret'] === BACKOFFICE_SECRET)) {
+            if (body.groupId && body.user.name) {
+                const existing = await getUserByGroupAndName(body.user.name, body.groupId as string);
+                if (existing && existing.id !== userId) {
+                    res.status(409).json({ success: false, error: 'Un membre avec ce prénom existe déjà dans ce groupe.' });
+                    return;
+                }
+            }
+
             const user = await updateUser(userId, body.user as User);
 
             res.status(200).json({ success: true, user });

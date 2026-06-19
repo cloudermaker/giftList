@@ -376,12 +376,6 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                 )}
                                             </div>
                                         )}
-                                        {connectedUser?.isAdmin && (
-                                            <i className="text-xs text-gray-400 block space-y-0.5">
-                                                <div>Créé : {selectedGift!.createdAt?.toLocaleString()}</div>
-                                                <div>Mis à jour : {selectedGift!.updatedAt?.toString()}</div>
-                                            </i>
-                                        )}
                                         {selectedGift!.giftType === 'MULTIPLE' && (
                                             <SubGiftList
                                                 parentGift={selectedGift!}
@@ -476,15 +470,9 @@ export async function getServerSideProps(context: NextPageContext) {
 
     return {
         props: {
-            user: {
-                ...user,
-                updatedAt: user?.updatedAt?.toISOString() ?? '',
-                createdAt: user?.createdAt?.toISOString() ?? ''
-            },
-            giftList: giftList.map((gift) => ({
+            user: (({ updatedAt, createdAt, ...u }) => u)(user!),
+            giftList: giftList.map(({ updatedAt, createdAt, ...gift }) => ({
                 ...gift,
-                updatedAt: gift.updatedAt?.toISOString() ?? '',
-                createdAt: gift.createdAt?.toISOString() ?? '',
                 takenByList: (gift.takenByList ?? []).map((t) => ({
                     ...t,
                     takenAt: t.takenAt instanceof Date ? t.takenAt.toISOString() : t.takenAt

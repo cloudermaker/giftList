@@ -43,10 +43,6 @@ const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group;
             // ignore
         }
     };
-    const [creatingUser, setCreatingUser] = useState<boolean>(false);
-    const [updatingUserId, setUpdatingUserId] = useState<string | undefined>(undefined);
-    const [newUserName, setNewUserName] = useState<string>('');
-    const [addError, setAddError] = useState<string>('');
 
     const removeUser = async (userId: string): Promise<void> => {
         const swalWithBootstrapButtons = Swal.mixin({
@@ -87,68 +83,55 @@ const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group;
             });
     };
 
-    const addOrUpdateUser = async (userId?: string): Promise<void> => {
-        const currentUserToAdd = localUsers.filter((user) => user.id === userId)[0];
-
-        let userToAdd: User = currentUserToAdd ?? {
-            id: '',
-            name: newUserName.trim(),
-            isAdmin: false,
-            acceptSuggestedGift: false,
-            updatedAt: new Date(),
-            createdAt: new Date()
-        };
-        userToAdd.name = newUserName.trim();
+    const addUser = async (): Promise<void> => {
+        const { value: name } = await Swal.fire({
+            title: 'Ajouter un utilisateur',
+            input: 'text',
+            inputPlaceholder: 'Prénom',
+            showCancelButton: true,
+            confirmButtonText: 'Ajouter',
+            cancelButtonText: 'Annuler',
+        });
+        if (!name) return;
 
         const response = await AxiosWrapper.post('/api/user', {
-            user: userToAdd,
+            user: { id: '', name: name.trim(), isAdmin: false, acceptSuggestedGift: false, updatedAt: new Date(), createdAt: new Date() },
             initiatorUserId: connectedUser?.userId ?? '',
             groupId: group.id
         });
         const data = response?.data as TUserApiResult;
 
         if (data?.success === true && data?.user) {
-            let newUsers: User[] = localUsers;
-
-            if (userId) {
-                // Update
-                const currentUserToUpdateId = newUsers.findIndex((user) => user.id === userId);
-                newUsers[currentUserToUpdateId] = data.user;
-            } else {
-                // Create
-                newUsers.push(data.user);
-            }
-
-            setLocalUsers(newUsers);
+            setLocalUsers((users) => [...users, data.user!]);
+            Swal.fire({ title: 'Utilisateur ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
         } else {
-            Swal.fire({
-                title: 'Erreur',
-                text: data?.error || 'Impossible de créer cet utilisateur. Réessayez dans quelques instants.',
-                icon: 'error'
-            });
+            Swal.fire({ title: 'Erreur', text: data?.error || 'Impossible de créer cet utilisateur. Réessayez dans quelques instants.', icon: 'error' });
         }
-
-        clearAllFields();
     };
 
-    const updatingUser = (user: User): void => {
-        setUpdatingUserId(user.id);
-        setNewUserName(user.name);
-    };
+    const renameUser = async (user: User): Promise<void> => {
+        const { value: newName } = await Swal.fire({
+            title: `Renommer ${user.name}`,
+            input: 'text',
+            inputValue: user.name,
+            showCancelButton: true,
+            confirmButtonText: 'Renommer',
+            cancelButtonText: 'Annuler',
+        });
+        if (!newName || newName.trim() === user.name) return;
 
-    const onCreatingUserButtonClick = (): void => {
-        setCreatingUser(true);
+        const response = await AxiosWrapper.post('/api/user', {
+            user: { ...user, name: newName.trim() },
+            groupId: group.id
+        });
+        const data = response?.data as TUserApiResult;
 
-        window.setTimeout(function () {
-            document.getElementById('newUserInputId')?.focus();
-        }, 0);
-    };
-
-    const clearAllFields = (): void => {
-        setCreatingUser(false);
-        setNewUserName('');
-        setUpdatingUserId(undefined);
-        setAddError('');
+        if (data?.success && data.user) {
+            setLocalUsers((users) => users.map((u) => (u.id === user.id ? { ...u, name: data.user!.name } : u)));
+            Swal.fire({ title: 'Renommé !', icon: 'success', timer: 1500, showConfirmButton: false });
+        } else {
+            Swal.fire({ title: 'Erreur', text: data?.error || 'Impossible de renommer.', icon: 'error' });
+        }
     };
 
     return (
@@ -170,110 +153,41 @@ const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group;
                         <div className="flex justify-between items-center">
                             <span className="w-full md:w-auto">
                                 <b className="pr-2">Nom:</b>
-
-                                {updatingUserId === user.id && (
-                                    <input
-                                        name="updateUserInput"
-                                        className="w-full px-3 py-1.5 bg-white/50 border border-neutral-200 rounded-lg focus:outline-none focus:border-vertNoel focus:ring-1 focus:ring-vertNoel transition-all duration-200"
-                                        value={newUserName}
-                                        onChange={(e) => setNewUserName(e.target.value)}
-                                    />
-                                )}
-                                {updatingUserId !== user.id && <span>{user.name}</span>}
+                                <span>{user.name}</span>
                             </span>
 
                             <div className="block md:flex items-center text-center">
-                                {updatingUserId !== user.id && (
-                                    <>
+                                <CustomButton
+                                    className="green-button mt-3 md:mt-0"
+                                    onClick={() => Router.push(`/giftList/${user.id}`)}
+                                >
+                                    Liste de cadeaux
+                                </CustomButton>
+
+                                {connectedUser?.isAdmin && (
+                                    <div className="md:flex">
                                         <CustomButton
                                             className="green-button mt-3 md:mt-0"
-                                            onClick={() => Router.push(`/giftList/${user.id}`)}
+                                            onClick={() => renameUser(user)}
                                         >
-                                            Liste de cadeaux
+                                            Modifier
                                         </CustomButton>
 
-                                        {connectedUser?.isAdmin && (
-                                            <div className="md:flex">
-                                                <CustomButton
-                                                    className="green-button mt-3 md:mt-0"
-                                                    onClick={() => updatingUser(user)}
-                                                >
-                                                    Modifier
-                                                </CustomButton>
-
-                                                <CustomButton className="mt-3 md:mt-0" onClick={() => removeUser(user.id)}>
-                                                    Supprimer
-                                                </CustomButton>
-                                            </div>
-                                        )}
-                                    </>
-                                )}
-
-                                {connectedUser?.isAdmin && updatingUserId === user.id && (
-                                    <>
-                                        <div className="md:flex">
-                                            <CustomButton
-                                                className="green-button mt-3 md:mt-0"
-                                                onClick={() => addOrUpdateUser(user.id)}
-                                                disabled={newUserName == null || newUserName === ''}
-                                            >
-                                                Valider
-                                            </CustomButton>
-
-                                            <CustomButton className="mt-3 md:mt-0" onClick={clearAllFields}>
-                                                Annuler
-                                            </CustomButton>
-                                        </div>
-                                    </>
+                                        <CustomButton className="mt-3 md:mt-0" onClick={() => removeUser(user.id)}>
+                                            Supprimer
+                                        </CustomButton>
+                                    </div>
                                 )}
                             </div>
                         </div>
 
-                        {connectedUser?.isAdmin && (
-                            <i className="flex pt-4">
-                                <span className="pr-2">Créé:</span>
-                                {user.createdAt?.toLocaleString()}
-                            </i>
-                        )}
                     </div>
                 ))}
 
                 {connectedUser?.isAdmin && (
-                    <>
-                        {!creatingUser && (
-                            <CustomButton className="green-button" onClick={onCreatingUserButtonClick}>
-                                Ajouter un utilisateur
-                            </CustomButton>
-                        )}
-
-                        {creatingUser && (
-                            <div className="pb-5 pl-3 item">
-                                {addError && <div className="text-red-500 font-bold">{addError}</div>}
-
-                                <div className="input-group">
-                                    <label className="input-label">Nom:</label>
-                                    <input
-                                        id="newUserInputId"
-                                        className="input-field"
-                                        value={newUserName}
-                                        onChange={(e) => setNewUserName(e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="mt-2">
-                                    <CustomButton
-                                        className="green-button"
-                                        onClick={() => addOrUpdateUser()}
-                                        disabled={newUserName === ''}
-                                    >
-                                        Ajouter
-                                    </CustomButton>
-
-                                    <CustomButton onClick={() => clearAllFields()}>Annuler</CustomButton>
-                                </div>
-                            </div>
-                        )}
-                    </>
+                    <CustomButton className="green-button" onClick={addUser}>
+                        Ajouter un utilisateur
+                    </CustomButton>
                 )}
             </div>
         </Layout>
@@ -302,16 +216,8 @@ export async function getServerSideProps(context: NextPageContext) {
 
     return {
         props: {
-            group: {
-                ...group,
-                updatedAt: group?.updatedAt?.toISOString() ?? '',
-                createdAt: group?.createdAt?.toISOString() ?? ''
-            },
-            groupUsers: groupUsers.map((groupUser) => ({
-                ...groupUser,
-                updatedAt: groupUser.updatedAt?.toISOString() ?? '',
-                createdAt: groupUser.createdAt?.toISOString() ?? ''
-            })),
+            group: (({ updatedAt, createdAt, ...g }) => g)(group),
+            groupUsers: groupUsers.map(({ updatedAt, createdAt, ...u }) => u),
             inviteToken
         }
     };
