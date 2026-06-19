@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { COOKIE_NAME } from '@/lib/auth/authService';
+import { COOKIE_NAME, BACKOFFICE_SECRET } from '@/lib/auth/authService';
 import { User } from '@prisma/client';
 import { deleteUser, getUserById, updateUser } from '@/lib/db/userManager';
 import { getUserGroups, countGroupAdmins, isUserGroupAdmin } from '@/lib/db/userGroupManager';
@@ -24,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             } else {
                 res.status(404).json({ success: false });
             }
-        } else if (method === 'DELETE' && userId && cookies[COOKIE_NAME]) {
+        } else if (method === 'DELETE' && userId && (cookies[COOKIE_NAME] || req.headers['x-backoffice-secret'] === BACKOFFICE_SECRET)) {
             const userGroups = await getUserGroups(userId);
             
             for (const group of userGroups) {
@@ -43,11 +43,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             await deleteUser(userId);
 
             res.status(200).json({ success: true });
-        } else if (method === 'PATCH' && userId && body.user && cookies[COOKIE_NAME]) {
+        } else if (method === 'PATCH' && userId && body.user && (cookies[COOKIE_NAME] || req.headers['x-backoffice-secret'] === BACKOFFICE_SECRET)) {
             const user = await updateUser(userId, body.user as User);
 
             res.status(200).json({ success: true, user });
-        } else if (req.method === 'PUT' && userId && body.user && cookies[COOKIE_NAME]) {
+        } else if (req.method === 'PUT' && userId && body.user && (cookies[COOKIE_NAME] || req.headers['x-backoffice-secret'] === BACKOFFICE_SECRET)) {
             const userToUpdate = await getUserById(userId);
 
             if (userToUpdate) {

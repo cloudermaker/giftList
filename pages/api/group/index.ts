@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Group } from '@prisma/client';
-import { upsertGroup } from '@/lib/db/groupManager';
-import { COOKIE_NAME } from '@/lib/auth/authService';
+import { upsertGroup, getGroupByName } from '@/lib/db/groupManager';
+import { COOKIE_NAME, BACKOFFICE_SECRET } from '@/lib/auth/authService';
 import { TGroupAndUser } from '../authenticate';
 
 export type TGroupApiResult = {
@@ -14,6 +14,10 @@ export type TGroupApiResult = {
 const verbsWithAuthorization = ['POST', 'PATCH', 'PUT', 'DELETE'];
 const isAuthorized = async (req: NextApiRequest) => {
     if (!verbsWithAuthorization.includes(req.method as string)) {
+        return true;
+    }
+
+    if (req.headers['x-backoffice-secret'] === BACKOFFICE_SECRET) {
         return true;
     }
 
@@ -34,6 +38,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         }
 
         if (req.method === 'POST' && body.group) {
+            const existing = await getGroupByName((body.group as Group).name);
+            if (existing) {
+                res.status(409).json({ success: false, error: 'Un groupe avec ce nom existe déjà.' });
+                return;
+            }
+
             const group = await upsertGroup(body.group as Group);
 
             res.status(200).json({ success: true, group });

@@ -21,9 +21,9 @@ export default class AxiosWrapper {
         }
     }
 
-    static async post(url: string, data?: any): Promise<AxiosResponse<any, any> | undefined> {
+    static async post(url: string, data?: any, headers?: Record<string, string>): Promise<AxiosResponse<any, any> | undefined> {
         try {
-            return await axios.post(url, data, { withCredentials: true });
+            return await axios.post(url, data, { withCredentials: true, headers });
         } catch (ex: any) {
             // Si l'erreur contient une réponse du serveur (400, 500, etc.), la retourner
             if (ex.response) {
@@ -59,9 +59,9 @@ export default class AxiosWrapper {
         }
     }
 
-    static async patch(url: string, data?: any): Promise<AxiosResponse<any, any> | undefined> {
+    static async patch(url: string, data?: any, headers?: Record<string, string>): Promise<AxiosResponse<any, any> | undefined> {
         try {
-            return await axios.patch(url, data, { withCredentials: true });
+            return await axios.patch(url, data, { withCredentials: true, headers });
         } catch (ex: any) {
             // Si l'erreur contient une réponse du serveur (400, 500, etc.), la retourner
             if (ex.response) {
@@ -78,11 +78,12 @@ export default class AxiosWrapper {
         }
     }
 
-    static async delete(url: string, data?: any): Promise<AxiosResponse<any, any> | undefined> {
+    static async delete(url: string, data?: any, headers?: Record<string, string>): Promise<AxiosResponse<any, any> | undefined> {
         try {
-            return await axios.delete(url, { 
+            return await axios.delete(url, {
                 data,
-                withCredentials: true 
+                withCredentials: true,
+                headers
             });
         } catch (ex: any) {
             // Si l'erreur contient une réponse du serveur (400, 500, etc.), la retourner

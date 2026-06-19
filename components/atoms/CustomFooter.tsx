@@ -35,6 +35,15 @@ export const CustomFooter = (): JSX.Element => {
                             <span className="mr-1.5">❓</span>
                             Aide
                         </Link>
+                        {connectedUser && (
+                            <Link
+                                href="/backoffice"
+                                className="flex items-center text-sm font-medium text-neutral-700 hover:text-rougeNoel active:scale-95 transition-all duration-300"
+                            >
+                                <span className="mr-1.5">⚙️</span>
+                                Backoffice
+                            </Link>
+                        )}
                     </nav>
 
                     {/* Social Links */}
@@ -100,6 +109,15 @@ export const CustomFooter = (): JSX.Element => {
                             <span className="mr-1.5">❓</span>
                             Aide
                         </Link>
+                        {connectedUser && (
+                            <Link
+                                href="/backoffice"
+                                className="flex items-center text-sm font-medium text-neutral-700 hover:text-rougeNoel active:scale-95 transition-all duration-300"
+                            >
+                                <span className="mr-1.5">⚙️</span>
+                                Backoffice
+                            </Link>
+                        )}
                     </nav>
 
                     {/* Social Links and Copyright */}

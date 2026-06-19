@@ -4,6 +4,14 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [4.3.0] - 2026-06-19
+
+### Ajouté
+
+- Backoffice : renommer un groupe ou un membre, ajouter un membre, supprimer un membre
+- Backoffice : date de création affichée pour chaque membre
+- Backoffice : protection contre la création ou le renommage d'un groupe avec un nom déjà existant
+
 ## [4.2.0] - 2026-06-01
 
 ### Ajouté

@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { User } from '@prisma/client';
 import { upsertUser } from '@/lib/db/userManager';
 import { getGroupUsers, addUserToGroup } from '@/lib/db/userGroupManager';
-import { COOKIE_NAME } from '@/lib/auth/authService';
+import { COOKIE_NAME, BACKOFFICE_SECRET } from '@/lib/auth/authService';
 import { TGroupAndUser } from '../authenticate';
 
 export type TUserApiResult = {
@@ -16,6 +16,10 @@ export type TUserApiResult = {
 const verbsWithAuthorization = ['POST', 'PATCH', 'PUT', 'DELETE'];
 const isAuthorized = async (req: NextApiRequest) => {
     if (!verbsWithAuthorization.includes(req.method as string)) {
+        return true;
+    }
+
+    if (req.headers['x-backoffice-secret'] === BACKOFFICE_SECRET) {
         return true;
     }
 

@@ -71,16 +71,18 @@ export const createUser = async (userName: string, userGroupId: string, isAdmin 
 
 export const upsertUser = async (user: User): Promise<User> => {
     const { id, createdAt, updatedAt, gifts, groupMemberships, takenGifts, personalGifts, personalGiftsReceived, userTakenGifts, personalGiftsFor, ...userData } = user as any;
-    
-    const result = await prisma.user.upsert({
-        where: {
-            id: user.id
-        },
+
+    if (!id) {
+        return prisma.user.create({
+            data: { ...userData, name: user.name.toLowerCase().trim() }
+        });
+    }
+
+    return prisma.user.upsert({
+        where: { id },
         create: { ...userData, name: user.name.toLowerCase().trim() },
         update: { ...userData, name: user.name.toLowerCase().trim(), updatedAt: new Date() }
     });
-
-    return result;
 };
 
 export const updateUser = async (userId: string, user: User): Promise<User> => {
