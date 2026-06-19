@@ -121,16 +121,18 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
                 <div className="flex items-center gap-3">
                     <span className={`text-indigo-400 transition-transform duration-200 text-xs ${expanded ? 'rotate-90' : ''}`}>▶</span>
                     <span className="font-semibold">{groupName}</span>
-                    <span className="text-xs text-neutral-400">{group.createdAt ? new Date(group.createdAt).toLocaleString() : ''}</span>
+                    <span className="hidden md:inline text-xs text-neutral-400">{group.createdAt ? new Date(group.createdAt).toLocaleString() : ''}</span>
                 </div>
-                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                    <CustomButton onClick={renameGroup}>Renommer</CustomButton>
-                    <CustomButton onClick={() => onRemove(group.id)}>Supprimer</CustomButton>
+                <div className="flex gap-0.5 md:gap-2" onClick={(e) => e.stopPropagation()}>
+                    <CustomButton className="icon-btn md:hidden" onClick={renameGroup}>✏️</CustomButton>
+                    <CustomButton className="hidden md:inline-flex" onClick={renameGroup}>Renommer</CustomButton>
+                    <CustomButton className="icon-btn md:hidden" onClick={() => onRemove(group.id)}>🗑️</CustomButton>
+                    <CustomButton className="hidden md:inline-flex" onClick={() => onRemove(group.id)}>Supprimer</CustomButton>
                 </div>
             </div>
 
             {expanded && (
-                <div className="border-t border-neutral-100 bg-neutral-50 px-4 py-3">
+                <div className="bg-neutral-50 px-4 py-3 mx-3 mb-3 rounded-lg border border-neutral-200">
                     {loading ? (
                         <p className="text-sm text-neutral-500">Chargement des membres…</p>
                     ) : (
@@ -138,27 +140,28 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
                             {members.length === 0 && (
                                 <p className="text-sm text-neutral-400">Aucun membre</p>
                             )}
-                            {members.map((member) => (
-                                <div key={member.id} className="flex justify-between items-center">
+                            {members.map((member, index) => (
+                                <div key={member.id} className={`flex justify-between items-center ${index > 0 ? 'border-t border-neutral-200 pt-2' : ''}`}>
                                     <span className="text-sm">
                                         {member.name}
                                         {member.isAdmin && (
                                             <span className="ml-2 text-xs text-rougeNoel font-medium">(admin)</span>
                                         )}
                                         {member.createdAt && (
-                                            <span className="ml-2 text-xs text-neutral-400">{new Date(member.createdAt).toLocaleString()}</span>
+                                            <span className="hidden md:inline ml-2 text-xs text-neutral-400">{new Date(member.createdAt).toLocaleString()}</span>
                                         )}
                                     </span>
-                                    <div className="flex gap-2">
-                                        <CustomButton className="green-button" onClick={() => Router.push(`/giftList/${member.id}`)}>
-                                            Voir liste
-                                        </CustomButton>
-                                        <CustomButton onClick={() => renameMember(member)}>Renommer</CustomButton>
-                                        <CustomButton onClick={() => removeMember(member)}>Supprimer</CustomButton>
+                                    <div className="flex gap-0.5 md:gap-2">
+                                        <CustomButton className="icon-btn md:hidden" onClick={() => Router.push(`/giftList/${member.id}`)}>👁</CustomButton>
+                                        <CustomButton className="green-button hidden md:inline-flex" onClick={() => Router.push(`/giftList/${member.id}`)}>Voir liste</CustomButton>
+                                        <CustomButton className="icon-btn md:hidden" onClick={() => renameMember(member)}>✏️</CustomButton>
+                                        <CustomButton className="hidden md:inline-flex" onClick={() => renameMember(member)}>Renommer</CustomButton>
+                                        <CustomButton className="icon-btn md:hidden" onClick={() => removeMember(member)}>🗑️</CustomButton>
+                                        <CustomButton className="hidden md:inline-flex" onClick={() => removeMember(member)}>Supprimer</CustomButton>
                                     </div>
                                 </div>
                             ))}
-                            <div className="pt-1">
+                            <div className="border-t border-neutral-200 pt-2">
                                 <CustomButton className="green-button" onClick={addMember}>
                                     Ajouter un membre
                                 </CustomButton>
