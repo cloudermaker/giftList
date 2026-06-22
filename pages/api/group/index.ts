@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Group } from '@prisma/client';
 import { upsertGroup, getGroupByName } from '@/lib/db/groupManager';
-import { COOKIE_NAME, BACKOFFICE_SECRET } from '@/lib/auth/authService';
+import { COOKIE_NAME } from '@/lib/auth/authService';
 import { TGroupAndUser } from '../authenticate';
 
 export type TGroupApiResult = {
@@ -17,7 +17,7 @@ const isAuthorized = async (req: NextApiRequest) => {
         return true;
     }
 
-    if (req.headers['x-backoffice-secret'] === BACKOFFICE_SECRET) {
+    if (req.cookies['backoffice_session'] === '1') {
         return true;
     }
 
@@ -32,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     try {
         const isAuthorizedRequest = await isAuthorized(req);
 
-        if (!isAuthorizedRequest || !cookies[COOKIE_NAME]) {
+        if (!isAuthorizedRequest || (!cookies[COOKIE_NAME] && cookies['backoffice_session'] !== '1')) {
             res.status(403).json({ success: false });
             return;
         }

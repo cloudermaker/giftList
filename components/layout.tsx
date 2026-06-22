@@ -20,9 +20,8 @@ export const Layout = ({
     const { logout } = useLogout();
     const { connectedUser } = useCurrentUser();
 
-    const onDisconnectClick = (): void => {
-        logout();
-
+    const onDisconnectClick = async (): Promise<void> => {
+        await logout();
         Router.push('/');
     };
 

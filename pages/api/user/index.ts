@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { User } from '@prisma/client';
 import { upsertUser, getUserByGroupAndName } from '@/lib/db/userManager';
 import { getGroupUsers, addUserToGroup } from '@/lib/db/userGroupManager';
-import { COOKIE_NAME, BACKOFFICE_SECRET } from '@/lib/auth/authService';
+import { COOKIE_NAME } from '@/lib/auth/authService';
 import { TGroupAndUser } from '../authenticate';
 
 export type TUserApiResult = {
@@ -19,7 +19,7 @@ const isAuthorized = async (req: NextApiRequest) => {
         return true;
     }
 
-    if (req.headers['x-backoffice-secret'] === BACKOFFICE_SECRET) {
+    if (req.cookies['backoffice_session'] === '1') {
         return true;
     }
 

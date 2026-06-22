@@ -9,9 +9,7 @@ import Swal from 'sweetalert2';
 import Router from 'next/router';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
-import { BACKOFFICE_SECRET, BACKOFFICE_SESSION_KEY } from '@/lib/auth/authService';
-
-const BACKOFFICE_HEADERS = { 'x-backoffice-secret': BACKOFFICE_SECRET };
+import { GetServerSidePropsContext } from 'next';
 
 type TMember = { id: string; name: string; isAdmin: boolean; createdAt?: string };
 
@@ -45,7 +43,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
             cancelButtonText: 'Annuler',
         });
         if (!newName || newName === groupName) return;
-        const result = await AxiosWrapper.patch(`/api/group/${group.id}`, { group: { name: newName } }, BACKOFFICE_HEADERS);
+        const result = await AxiosWrapper.patch(`/api/group/${group.id}`, { group: { name: newName } });
         if (result?.data?.success) {
             setGroupName(newName);
             onRename(group.id, newName);
@@ -65,7 +63,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
             cancelButtonText: 'Annuler',
         });
         if (!name) return;
-        const result = await AxiosWrapper.post('/api/user', { user: { name }, groupId: group.id }, BACKOFFICE_HEADERS);
+        const result = await AxiosWrapper.post('/api/user', { user: { name }, groupId: group.id });
         const data = result?.data;
         if (data?.success && data.user) {
             setMembers((m) => [...m, { id: data.user.id, name: data.user.name, isAdmin: false }]);
@@ -85,7 +83,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
             cancelButtonText: 'Annuler',
         });
         if (!newName || newName === member.name) return;
-        const result = await AxiosWrapper.patch(`/api/user/${member.id}`, { user: { name: newName }, groupId: group.id }, BACKOFFICE_HEADERS);
+        const result = await AxiosWrapper.patch(`/api/user/${member.id}`, { user: { name: newName }, groupId: group.id });
         if (result?.data?.success) {
             setMembers((m) => m.map((m2) => (m2.id === member.id ? { ...m2, name: newName } : m2)));
             Swal.fire({ title: 'Renommé !', icon: 'success', timer: 1500, showConfirmButton: false });
@@ -104,7 +102,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
             cancelButtonText: 'Non',
         });
         if (!isConfirmed) return;
-        const result = await AxiosWrapper.delete(`/api/user/${member.id}`, undefined, BACKOFFICE_HEADERS);
+        const result = await AxiosWrapper.delete(`/api/user/${member.id}`);
         if (result?.data?.success) {
             setMembers((m) => m.filter((m2) => m2.id !== member.id));
         } else {
@@ -174,57 +172,59 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
     );
 };
 
-const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
+const Backoffice = ({ groups = [], isAuthenticated: initialAuth = false }: { groups: Group[]; isAuthenticated: boolean }): JSX.Element => {
     useCurrentUser();
 
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+    const [isAuthenticated] = useState<boolean>(initialAuth);
     const [localGroups, setLocalGroups] = useState<Group[]>(groups);
     const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
     const [newGroupName, setNewGroupName] = useState<string>('');
     const [newPassword, setNewPassword] = useState<string>('');
 
     const showLoginModal = useCallback(async (): Promise<void> => {
-        const { value: formValues, isDismissed } = await Swal.fire({
-            title: 'Accès backoffice',
-            html: `<input id="swal-login" class="swal2-input" placeholder="Identifiant" autocomplete="username">
-                   <input id="swal-pass" class="swal2-input" type="password" placeholder="Mot de passe" autocomplete="current-password">`,
-            confirmButtonText: 'Connexion',
-            showCancelButton: false,
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            focusConfirm: false,
-            preConfirm: () => {
-                const login = (document.getElementById('swal-login') as HTMLInputElement)?.value;
-                const pass = (document.getElementById('swal-pass') as HTMLInputElement)?.value;
-                if (!login || !pass) {
-                    Swal.showValidationMessage('Identifiant et mot de passe requis');
-                    return false;
+        while (true) {
+            const { value: formValues, isDismissed } = await Swal.fire({
+                title: 'Accès backoffice',
+                html: `<input id="swal-login" class="swal2-input" placeholder="Identifiant" autocomplete="username">
+                       <input id="swal-pass" class="swal2-input" type="password" placeholder="Mot de passe" autocomplete="current-password">`,
+                confirmButtonText: 'Connexion',
+                showCancelButton: true,
+                showCloseButton: false,
+                allowOutsideClick: true,
+                icon: "question",
+                allowEscapeKey: true,
+                focusConfirm: true,
+                preConfirm: () => {
+                    const login = (document.getElementById('swal-login') as HTMLInputElement)?.value;
+                    const pass = (document.getElementById('swal-pass') as HTMLInputElement)?.value;
+                    if (!login || !pass) {
+                        Swal.showValidationMessage('Identifiant et mot de passe requis');
+                        return false;
+                    }
+                    return { login, pass };
                 }
-                return { login, pass };
+            });
+
+            if (isDismissed || !formValues) {
+                Router.push('/');
+                return;
             }
-        });
 
-        if (isDismissed || !formValues) {
-            Router.push('/');
-            return;
-        }
+            const result = await AxiosWrapper.post('/api/backoffice/auth', { login: formValues.login, pass: formValues.pass });
+            if (result?.status === 200) {
+                Router.push('/backoffice');
+                return;
+            }
 
-        if (formValues.login === 'pierre' && formValues.pass === BACKOFFICE_SECRET) {
-            sessionStorage.setItem(BACKOFFICE_SESSION_KEY, 'true');
-            Router.push('/backoffice');
-        } else {
             await Swal.fire({ title: 'Accès refusé', icon: 'error', text: 'Identifiants incorrects.' });
-            showLoginModal();
         }
     }, []);
 
     useEffect(() => {
-        if (sessionStorage.getItem(BACKOFFICE_SESSION_KEY) === 'true') {
-            setIsAuthenticated(true);
-            return;
+        if (!isAuthenticated) {
+            showLoginModal();
         }
-        showLoginModal();
-    }, [showLoginModal]);
+    }, [isAuthenticated, showLoginModal]);
 
     if (!isAuthenticated) {
         return <></>;
@@ -267,7 +267,7 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
         groupToAdd.name = newGroupName;
         groupToAdd.adminPassword = newPassword;
 
-        const result = await AxiosWrapper.post('/api/group', { group: groupToAdd }, { 'x-backoffice-secret': BACKOFFICE_SECRET });
+        const result = await AxiosWrapper.post('/api/group', { group: groupToAdd });
         const data = result?.data as TGroupApiResult;
 
         if (data && data.success && data.group) {
@@ -293,9 +293,9 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
         setCreatingGroup(false);
     };
 
-    const logoutBackoffice = (): void => {
-        sessionStorage.removeItem(BACKOFFICE_SESSION_KEY);
-        Router.push('/home');
+    const logoutBackoffice = async (): Promise<void> => {
+        await AxiosWrapper.delete('/api/backoffice/auth');
+        Router.push('/');
     };
 
     return (
@@ -358,11 +358,18 @@ const Backoffice = ({ groups = [] }: { groups: Group[] }): JSX.Element => {
     );
 };
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+    const isAuthenticated = context.req.cookies['backoffice_session'] === '1';
+
+    if (!isAuthenticated) {
+        return { props: { groups: [], isAuthenticated: false } };
+    }
+
     const groups = await getGroups();
 
     return {
         props: {
+            isAuthenticated: true,
             groups: groups.map((group) => ({
                 ...group,
                 updatedAt: group.updatedAt?.toISOString() ?? '',

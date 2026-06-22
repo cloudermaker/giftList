@@ -124,6 +124,23 @@ button:active {
     transform: translateY(0);
 }
 
+button.icon-btn {
+    padding: 6px 8px;
+    box-shadow: none;
+    background: transparent;
+    background-image: none;
+    color: inherit;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+button.icon-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+    background-image: none;
+    transform: none;
+    box-shadow: none;
+}
+
 button:disabled {
     background-color: #9ca3af;
     background-image: none;

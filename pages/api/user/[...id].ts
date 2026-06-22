@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { COOKIE_NAME, BACKOFFICE_SECRET } from '@/lib/auth/authService';
+import { COOKIE_NAME } from '@/lib/auth/authService';
 import { User } from '@prisma/client';
 import { deleteUser, getUserById, getUserByGroupAndName, updateUser } from '@/lib/db/userManager';
 import { getUserGroups, countGroupAdmins, isUserGroupAdmin } from '@/lib/db/userGroupManager';
@@ -24,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             } else {
                 res.status(404).json({ success: false });
             }
-        } else if (method === 'DELETE' && userId && (cookies[COOKIE_NAME] || req.headers['x-backoffice-secret'] === BACKOFFICE_SECRET)) {
+        } else if (method === 'DELETE' && userId && (cookies[COOKIE_NAME] || cookies['backoffice_session'] === '1')) {
             const userGroups = await getUserGroups(userId);
             
             for (const group of userGroups) {
@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             await deleteUser(userId);
 
             res.status(200).json({ success: true });
-        } else if (method === 'PATCH' && userId && body.user && (cookies[COOKIE_NAME] || req.headers['x-backoffice-secret'] === BACKOFFICE_SECRET)) {
+        } else if (method === 'PATCH' && userId && body.user && (cookies[COOKIE_NAME] || cookies['backoffice_session'] === '1')) {
             if (body.groupId && body.user.name) {
                 const existing = await getUserByGroupAndName(body.user.name, body.groupId as string);
                 if (existing && existing.id !== userId) {
@@ -55,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const user = await updateUser(userId, body.user as User);
 
             res.status(200).json({ success: true, user });
-        } else if (req.method === 'PUT' && userId && body.user && (cookies[COOKIE_NAME] || req.headers['x-backoffice-secret'] === BACKOFFICE_SECRET)) {
+        } else if (req.method === 'PUT' && userId && body.user && (cookies[COOKIE_NAME] || cookies['backoffice_session'] === '1')) {
             const userToUpdate = await getUserById(userId);
 
             if (userToUpdate) {

@@ -120,8 +120,8 @@ const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group;
         });
         if (!newName || newName.trim() === user.name) return;
 
-        const response = await AxiosWrapper.post('/api/user', {
-            user: { ...user, name: newName.trim() },
+        const response = await AxiosWrapper.patch(`/api/user/${user.id}`, {
+            user: { name: newName.trim() },
             groupId: group.id
         });
         const data = response?.data as TUserApiResult;
