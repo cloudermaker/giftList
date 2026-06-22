@@ -8,7 +8,6 @@ import { Group } from '@prisma/client';
 import Swal from 'sweetalert2';
 import Router from 'next/router';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
-import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import { GetServerSidePropsContext } from 'next';
 
 type TMember = { id: string; name: string; isAdmin: boolean; createdAt?: string };
@@ -173,8 +172,6 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
 };
 
 const Backoffice = ({ groups = [], isAuthenticated: initialAuth = false }: { groups: Group[]; isAuthenticated: boolean }): JSX.Element => {
-    useCurrentUser();
-
     const [isAuthenticated] = useState<boolean>(initialAuth);
     const [localGroups, setLocalGroups] = useState<Group[]>(groups);
     const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
