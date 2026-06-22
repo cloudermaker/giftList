@@ -52,6 +52,39 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
         }
     };
 
+    const changePassword = async () => {
+        const { value: newPwd } = await Swal.fire({
+            title: 'Changer le mot de passe',
+            input: 'password',
+            inputPlaceholder: 'Nouveau mot de passe',
+            showCancelButton: true,
+            confirmButtonText: 'Enregistrer',
+            cancelButtonText: 'Annuler',
+            inputValidator: (v) => (!v ? 'Le mot de passe ne peut pas être vide.' : null),
+        });
+        if (!newPwd) return;
+        const result = await AxiosWrapper.patch(`/api/group/${group.id}`, { group: { adminPassword: newPwd } });
+        if (result?.data?.success) {
+            Swal.fire({ title: 'Mot de passe mis à jour !', icon: 'success', timer: 1500, showConfirmButton: false });
+        } else {
+            Swal.fire('Erreur', result?.data?.error || 'Impossible de changer le mot de passe.', 'error');
+        }
+    };
+
+    const toggleRole = async (member: TMember) => {
+        const newRole = member.isAdmin ? 'MEMBER' : 'ADMIN';
+        if (member.isAdmin && members.filter((m) => m.isAdmin).length <= 1) {
+            Swal.fire('Impossible', 'Il doit rester au moins un administrateur dans le groupe.', 'warning');
+            return;
+        }
+        const result = await AxiosWrapper.patch('/api/userGroup', { userId: member.id, groupId: group.id, role: newRole });
+        if (result?.data?.success) {
+            setMembers((m) => m.map((m2) => (m2.id === member.id ? { ...m2, isAdmin: !m2.isAdmin } : m2)));
+        } else {
+            Swal.fire('Erreur', result?.data?.error || 'Impossible de modifier le rôle.', 'error');
+        }
+    };
+
     const addMember = async () => {
         const { value: name } = await Swal.fire({
             title: 'Ajouter un membre',
@@ -123,6 +156,8 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
                 <div className="flex gap-0.5 md:gap-2" onClick={(e) => e.stopPropagation()}>
                     <CustomButton className="icon-btn md:hidden" onClick={renameGroup}>✏️</CustomButton>
                     <CustomButton className="hidden md:inline-flex" onClick={renameGroup}>Renommer</CustomButton>
+                    <CustomButton className="icon-btn md:hidden" onClick={changePassword}>🔑</CustomButton>
+                    <CustomButton className="hidden md:inline-flex" onClick={changePassword}>Mot de passe</CustomButton>
                     <CustomButton className="icon-btn md:hidden" onClick={() => onRemove(group.id)}>🗑️</CustomButton>
                     <CustomButton className="hidden md:inline-flex" onClick={() => onRemove(group.id)}>Supprimer</CustomButton>
                 </div>
@@ -153,6 +188,8 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
                                         <CustomButton className="green-button hidden md:inline-flex" onClick={() => Router.push(`/giftList/${member.id}`)}>Voir liste</CustomButton>
                                         <CustomButton className="icon-btn md:hidden" onClick={() => renameMember(member)}>✏️</CustomButton>
                                         <CustomButton className="hidden md:inline-flex" onClick={() => renameMember(member)}>Renommer</CustomButton>
+                                        <CustomButton className="icon-btn md:hidden" onClick={() => toggleRole(member)}>{member.isAdmin ? '⬇️' : '⭐'}</CustomButton>
+                                        <CustomButton className="hidden md:inline-flex" onClick={() => toggleRole(member)}>{member.isAdmin ? 'Rétrograder' : 'Promouvoir'}</CustomButton>
                                         <CustomButton className="icon-btn md:hidden" onClick={() => removeMember(member)}>🗑️</CustomButton>
                                         <CustomButton className="hidden md:inline-flex" onClick={() => removeMember(member)}>Supprimer</CustomButton>
                                     </div>
