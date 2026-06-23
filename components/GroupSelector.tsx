@@ -54,6 +54,7 @@ export default function GroupSelector({
         console.error('Error loading groups:', error);
         setLoading(false);
       });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
