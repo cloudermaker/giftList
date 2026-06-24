@@ -121,7 +121,7 @@ export const Home = (): JSX.Element => {
                                         </div>
                                     </div>
                                     <CustomButton
-                                        className="slate-button-light text-sm w-full"
+                                        className="slate-button text-sm w-full"
                                         onClick={() => Router.push(`/giftList/${member.id}`)}
                                     >
                                         Voir la liste
