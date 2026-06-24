@@ -191,7 +191,7 @@ export default function Index(): JSX.Element {
             </section>
 
             <section className="flex justify-center items-start px-4">
-                <div className="w-full max-w-6xl flex gap-8 items-center">
+                <div className="w-full max-w-6xl flex gap-8 items-stretch">
                     {/* Form Section */}
                     <div className="w-full md:w-1/2 card-container">
                         <div
@@ -361,8 +361,8 @@ export default function Index(): JSX.Element {
                     </div>
 
                     {/* Illustration Section - Hidden on mobile */}
-                    <div className="hidden md:block w-1/2">
-                        <div className="relative min-h-[600px]">
+                    <div className="hidden md:flex w-1/2">
+                        <div className="relative w-full rounded-2xl overflow-hidden">
                             <Image
                             src="/login2.jpg"
                             alt="Interface de création de liste de cadeaux en ligne - Organisez vos cadeaux en famille facilement"
@@ -372,6 +372,10 @@ export default function Index(): JSX.Element {
                             sizes="50vw"
                             placeholder="blur"
                             blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABgUE/8QAIRAAAQQCAgMAAAAAAAAAAAAAAQIDBBEABRIhMUH/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8Amk3eMp2hx7SrC5lwXFpQ2VpSQUJGgSeJPAA4HbnVF7Q9oZN3ckQ5hU6ESSVJI2oHkAcD4GtKUB//2Q=="
+                            />
+                            {/* Edge fade to blend into background */}
+                            <div className="absolute inset-0 pointer-events-none"
+                                style={{ boxShadow: 'inset 0 0 60px 20px #f8f3eb' }}
                             />
                         </div>
                     </div>

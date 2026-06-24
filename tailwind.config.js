@@ -9,6 +9,7 @@ module.exports = {
             colors: {
                 vertNoel: '#3EB489', // Mint green
                 rougeNoel: '#E63946', // Bright red
+                bleuNoel: '#4A6FA5', // Steel blue
                 giftGold: '#FFD700',
                 giftBlue: '#219EBC',
                 giftPink: '#FF69B4',

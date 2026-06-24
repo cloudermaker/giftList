@@ -158,7 +158,7 @@ const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group;
 
                             <div className="block md:flex items-center text-center">
                                 <CustomButton
-                                    className="green-button mt-3 md:mt-0"
+                                    className="slate-button mt-3 md:mt-0"
                                     onClick={() => Router.push(`/giftList/${user.id}`)}
                                 >
                                     Liste de cadeaux

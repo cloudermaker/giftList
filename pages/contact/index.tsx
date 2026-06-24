@@ -222,12 +222,12 @@ export default function Contact(): JSX.Element {
                         {/* Action Buttons */}
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
                             <CustomButton
-                                className="green-button px-6 py-3"
+                                className="slate-button px-6 py-3"
                                 onClick={() => Router.push(connectedUser ? '/home' : '/')}
                             >
                                 🏠 Revenir à l&apos;accueil
                             </CustomButton>
-                            <CustomButton className="px-6 py-3" onClick={() => setIsSubmitted(false)}>
+                            <CustomButton className="green-button px-6 py-3" onClick={() => setIsSubmitted(false)}>
                                 ✉️ Envoyer un autre message
                             </CustomButton>
                         </div>
@@ -274,7 +274,7 @@ export default function Contact(): JSX.Element {
                             >
                                 🔄 Réessayer
                             </CustomButton>
-                            <CustomButton className="px-6 py-3" onClick={() => Router.push(connectedUser ? '/home' : '/')}>
+                            <CustomButton className="slate-button px-6 py-3" onClick={() => Router.push(connectedUser ? '/home' : '/')}>
                                 🏠 Retour à l&apos;accueil
                             </CustomButton>
                         </div>

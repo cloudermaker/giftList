@@ -174,7 +174,7 @@ export default function Help(): JSX.Element {
             </section>
 
             <section className="text-center my-8">
-                <CustomButton className="green-button mt-5" onClick={() => Router.push('/')}>
+                <CustomButton className="slate-button mt-5" onClick={() => Router.push('/')}>
                     Retourner à l&apos;accueil
                 </CustomButton>
             </section>

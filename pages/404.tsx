@@ -28,10 +28,10 @@ export default function Custom404() {
                 <p className="text-gray-600 mb-8">Oups ! On dirait que la page que vous recherchez a été déballée ailleurs.</p>
 
                 <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                    <CustomButton className="green-button" onClick={() => Router.push('/')}>
+                    <CustomButton className="slate-button" onClick={() => Router.push('/')}>
                         {"Retour à l'accueil"}
                     </CustomButton>
-                    <CustomButton className="green-button" onClick={() => Router.push('/help')}>
+                    <CustomButton className="slate-button" onClick={() => Router.push('/help')}>
                         {"Page d'aide"}
                     </CustomButton>
                 </div>

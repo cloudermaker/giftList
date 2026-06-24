@@ -87,8 +87,8 @@ export const Home = (): JSX.Element => {
                         }
                     </div>
                     {group?.inviteToken && (
-                        <CustomButton className="green-button shrink-0" onClick={shareInviteLink}>
-                            Inviter quelqu'un
+                        <CustomButton className="slate-button shrink-0" onClick={shareInviteLink}>
+                            Inviter quelqu&apos;un
                         </CustomButton>
                     )}
                 </div>
@@ -121,7 +121,7 @@ export const Home = (): JSX.Element => {
                                         </div>
                                     </div>
                                     <CustomButton
-                                        className="green-button text-sm w-full"
+                                        className="slate-button-light text-sm w-full"
                                         onClick={() => Router.push(`/giftList/${member.id}`)}
                                     >
                                         Voir la liste
