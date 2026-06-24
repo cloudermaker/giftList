@@ -64,7 +64,13 @@ export default function Help(): JSX.Element {
                 )}
             />
 
-            <section className="home-section">
+            <div>
+                <div className="mb-8">
+                    <p className="text-sm text-gray-500 mb-1">Support</p>
+                    <h1 className="text-2xl font-bold text-gray-800">Questions fréquentes</h1>
+                </div>
+
+            <section className="home-section" style={{ margin: 0, padding: 0, textAlign: 'left' }}>
                 <h2 className="text-center font-bold">❓ Questions fréquentes sur les listes de cadeaux</h2>
                 <div className="item">
                     <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
@@ -178,6 +184,7 @@ export default function Help(): JSX.Element {
                     Retourner à l&apos;accueil
                 </CustomButton>
             </section>
+            </div>
         </Layout>
     );
 }

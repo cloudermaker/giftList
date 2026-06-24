@@ -166,7 +166,18 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
             {expanded && (
                 <div className="bg-neutral-50 px-4 py-3 mx-3 mb-3 rounded-lg border border-neutral-200">
                     {loading ? (
-                        <p className="text-sm text-neutral-500">Chargement des membres…</p>
+                        <div className="flex flex-col gap-3">
+                            {[...Array(3)].map((_, i) => (
+                                <div key={i} className="flex justify-between items-center">
+                                    <div className="h-4 bg-gray-200 rounded animate-pulse w-1/4" />
+                                    <div className="flex gap-2">
+                                        <div className="h-8 w-20 bg-gray-200 rounded-xl animate-pulse" />
+                                        <div className="h-8 w-20 bg-gray-200 rounded-xl animate-pulse" />
+                                        <div className="h-8 w-24 bg-gray-200 rounded-xl animate-pulse" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     ) : (
                         <div className="flex flex-col gap-2">
                             {members.length === 0 && (
@@ -334,9 +345,9 @@ const Backoffice = ({ groups = [], isAuthenticated: initialAuth = false }: { gro
 
     return (
         <Layout selectedHeader={EHeader.Backoffice}>
-            <div className="mb-10">
-                <div className="flex justify-between items-center pb-5">
-                    <h1>Backoffice</h1>
+            <div>
+                <div className="flex justify-between items-center mb-8">
+                    <h1 className="text-2xl font-bold text-gray-800">Backoffice</h1>
                     <button
                         onClick={logoutBackoffice}
                         className="text-white text-sm bg-rougeNoel/80 hover:bg-rougeNoel px-3 py-1.5 rounded transition-colors"
@@ -345,7 +356,7 @@ const Backoffice = ({ groups = [], isAuthenticated: initialAuth = false }: { gro
                     </button>
                 </div>
 
-                <h2 className="pb-3">Groupes:</h2>
+                <h2 className="text-base font-semibold text-gray-600 uppercase tracking-wide mb-4">Groupes</h2>
 
                 {localGroups.map((group) => (
                     <GroupRow

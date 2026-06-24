@@ -136,8 +136,11 @@ const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group;
 
     return (
         <Layout selectedHeader={EHeader.Group}>
-            <div className="mb-10">
-                <h1 className="pb-5">{`Voici le groupe: ${group.name}`}</h1>
+            <div>
+                <div className="mb-8">
+                    <p className="text-sm text-gray-500 mb-1">Gestion du groupe</p>
+                    <h1 className="text-2xl font-bold text-gray-800">{group.name}</h1>
+                </div>
 
                 <div className="flex justify-end mb-4">
                     <button

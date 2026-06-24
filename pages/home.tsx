@@ -75,7 +75,7 @@ export const Home = (): JSX.Element => {
                 description="Gérez votre liste de cadeaux en famille ou entre amis."
                 noIndex={true}
             />
-            <div className="max-w-4xl mx-auto px-4">
+            <div>
 
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">

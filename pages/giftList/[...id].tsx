@@ -241,8 +241,11 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
 
     return (
         <Layout selectedHeader={EHeader.GiftList} pageTitle={pageTitle}>
-            <div className="mb-10">
-                <h1>{`Voici la liste de cadeaux pour ${user.name}:`}</h1>
+            <div>
+                <div className="mb-8">
+                    <p className="text-sm text-gray-500 mb-1">Liste de cadeaux</p>
+                    <h1 className="text-2xl font-bold text-gray-800">{user.name}</h1>
+                </div>
 
                 {!isOwnList && (
                     <div className="flex pb-4">
@@ -369,11 +372,14 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                             : <p className="text-gray-700 italic">Pas de lien</p>
                                         }
                                         {!isOwnList && selectedGift!.takenUserId && selectedGift!.takenUserId !== connectedUser?.userId && (
-                                            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                                            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 flex items-center gap-2">
                                                 Ce cadeau est déjà pris
-                                                {!loadingGroupUsers && groupUserMap[selectedGift!.takenUserId] && (
-                                                    <> — par <b>{groupUserMap[selectedGift!.takenUserId]?.name}</b></>
-                                                )}
+                                                {loadingGroupUsers
+                                                    ? <span className="inline-block h-3 w-20 bg-red-200 rounded animate-pulse" />
+                                                    : groupUserMap[selectedGift!.takenUserId] && (
+                                                        <> — par <b>{groupUserMap[selectedGift!.takenUserId]?.name}</b></>
+                                                    )
+                                                }
                                             </div>
                                         )}
                                         {selectedGift!.giftType === 'MULTIPLE' && (

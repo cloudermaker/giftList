@@ -14,16 +14,15 @@ export default function Custom404() {
                 noIndex={true}
             />
 
-            <div className="item text-center w-fit justify-self-center mt-10">
-                <h1 className="text-4xl font-bold text-rougeNoel mb-6">404</h1>
+            <div className="text-center mt-10">
+                <p className="text-sm text-gray-500 mb-1">Erreur</p>
+                <h1 className="text-2xl font-bold text-gray-800 mb-6">Page non trouvée</h1>
 
                 <div className="mb-6 justify-self-center">
                     <video autoPlay loop muted playsInline width={300} height={300}>
                         <source src="https://media.giphy.com/media/g01ZnwAUvutuK8GIQn/giphy.mp4" type="video/mp4" />
                     </video>
                 </div>
-
-                <h2 className="text-2xl font-semibold mb-4">Page non trouvée</h2>
 
                 <p className="text-gray-600 mb-8">Oups ! On dirait que la page que vous recherchez a été déballée ailleurs.</p>
 

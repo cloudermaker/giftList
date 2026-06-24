@@ -48,7 +48,9 @@ body {
 
 
 .body-padding {
-    padding: 0.5rem 2.5rem;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+    padding-top: 0.5rem;
 }
 
 div {
@@ -334,9 +336,11 @@ button:disabled {
 
 .home-section {
     justify-self: center;
+    max-width: 56rem;
+    width: 100%;
     padding: 20px;
     text-align: center;
-    margin: 40px 0;
+    margin: 40px auto;
 }
 
 .home-section h2 {
@@ -502,7 +506,9 @@ select.input-field option {
 
 @media screen and (max-width: 640px) {
     .body-padding {
-        padding: 0.5rem 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-top: 0.5rem;
     }
 
     .bg-shadow {

@@ -176,8 +176,8 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
 
     return (
         <Layout selectedHeader={EHeader.TakenGiftList}>
-            <div className="mb-10">
-                <h1>{`Voici la liste des cadeaux que je prends:`}</h1>
+            <div>
+                <h1 className="text-2xl font-bold text-gray-800 mb-8">Mes réservations</h1>
 
                 {/* Cadeaux sélectionnés depuis les listes d'autres utilisateurs */}
                 <h2 className="text-2xl font-semibold mt-6 mb-4">🎁 Cadeaux réservés</h2>

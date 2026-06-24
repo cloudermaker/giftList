@@ -58,7 +58,7 @@ export const Layout = ({
                 </div>
             </div>
 
-            <div className="body-padding flex-grow">
+            <div className="body-padding flex-grow pb-16">
                 {withHeader && connectedUser && (
                     <CustomHeader
                         selectedHeader={selectedHeader}
@@ -69,7 +69,9 @@ export const Layout = ({
                     />
                 )}
 
-                {children}
+                <div className="max-w-4xl mx-auto px-4">
+                    {children}
+                </div>
             </div>
 
             <CustomFooter />

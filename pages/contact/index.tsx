@@ -72,26 +72,14 @@ export default function Contact(): JSX.Element {
             />
             <script type="application/ld+json" dangerouslySetInnerHTML={contactSchemaData} />
 
-            <div className="home-section my-8 item w-full md:w-2/3 lg:w-1/2 relative overflow-hidden">
-                {/* Decorative background elements */}
-                <div className="absolute -top-4 -left-4 w-20 h-20 bg-vertNoel/10 rounded-full blur-2xl"></div>
-                <div className="absolute -top-4 -right-4 w-20 h-20 bg-rougeNoel/10 rounded-full blur-2xl"></div>
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-vertNoel/20 to-transparent rounded-bl-full"></div>
-
-                {/* Header Section */}
-                <div className="text-center mb-10 relative">
-                    <div className="flex items-center justify-center gap-3 mb-4 relative">
-                        <QuestionMarkIcon className="-rotate-12 w-10 h-10 fill-vertNoel" />
-                        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-vertNoel via-green-500 to-rougeNoel bg-clip-text text-transparent">
-                            Contactez-nous
-                        </h1>
-                        <QuestionMarkIcon className="rotate-12 w-10 h-10 fill-rougeNoel" />
-                    </div>
-                    <p className="text-gray-700 text-sm md:text-base max-w-lg mx-auto font-medium">
-                        Une question, une suggestion ou besoin d&apos;aide ? <br className="hidden sm:block" />
-                        Notre équipe est là pour vous répondre ! 💌
-                    </p>
+            <div>
+                <div className="mb-8">
+                    <p className="text-sm text-gray-500 mb-1">Support</p>
+                    <h1 className="text-2xl font-bold text-gray-800">Contactez-nous</h1>
+                    <p className="text-gray-500 text-sm mt-2">Une question, une suggestion ou besoin d&apos;aide ? Notre équipe est là pour vous répondre.</p>
                 </div>
+
+            <div className="item w-full md:w-2/3 lg:w-1/2 mx-auto relative overflow-hidden">
 
                 {!isSubmitted && !hasError && (
                     <form
@@ -280,6 +268,7 @@ export default function Contact(): JSX.Element {
                         </div>
                     </div>
                 )}
+            </div>
             </div>
         </Layout>
     );
