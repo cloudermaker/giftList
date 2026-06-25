@@ -34,11 +34,6 @@ body {
     height: 100%;
 }
 
-/* Layout structure to ensure footer is visible */
-.min-h-body {
-    min-height: calc(100vh - 80px); /* Subtract footer height */
-    padding-bottom: 1rem;
-}
 
 /* Make sure content doesn't push footer off the screen on short pages */
 .flex-grow {
@@ -259,10 +254,6 @@ button:disabled {
     transform-style: preserve-3d;
 }
 
-.animate-flip-in-reverse {
-    animation: flip-in-reverse 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-style: preserve-3d;
-}
 
 /* Container for 3D perspective */
 .card-container {
