@@ -150,37 +150,27 @@ const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group;
 
                 {localUsers.map((user) => (
                     <div className="item" key={`group_${user.id}`}>
-                        <div className="flex justify-between items-center">
-                            <span className="w-full md:w-auto">
-                                <b className="pr-2">Nom:</b>
-                                <span>{user.name}</span>
-                            </span>
-
-                            <div className="block md:flex items-center text-center">
+                        <div className="flex items-center justify-between gap-2">
+                            <span className="font-medium text-gray-800 flex-1 min-w-0 truncate">{user.name}</span>
+                            <div className="flex items-center gap-1 shrink-0">
                                 <CustomButton
-                                    className="slate-button mt-3 md:mt-0"
+                                    className="slate-button"
                                     onClick={() => Router.push(`/giftList/${user.id}`)}
                                 >
-                                    Liste de cadeaux
+                                    <span>🎁</span><span className="hidden sm:inline ml-1">Liste</span>
                                 </CustomButton>
-
                                 {connectedUser?.isAdmin && (
-                                    <div className="md:flex">
-                                        <CustomButton
-                                            className="green-button mt-3 md:mt-0"
-                                            onClick={() => renameUser(user)}
-                                        >
-                                            Modifier
+                                    <>
+                                        <CustomButton className="green-button" onClick={() => renameUser(user)}>
+                                            <span>✏️</span><span className="hidden sm:inline ml-1">Modifier</span>
                                         </CustomButton>
-
-                                        <CustomButton className="mt-3 md:mt-0" onClick={() => removeUser(user.id)}>
-                                            Supprimer
+                                        <CustomButton onClick={() => removeUser(user.id)}>
+                                            <span>🗑️</span><span className="hidden sm:inline ml-1">Supprimer</span>
                                         </CustomButton>
-                                    </div>
+                                    </>
                                 )}
                             </div>
                         </div>
-
                     </div>
                 ))}
 

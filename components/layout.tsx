@@ -1,4 +1,6 @@
 import { ReactNode } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPowerOff } from '@fortawesome/free-solid-svg-icons';
 import { CustomFooter } from './atoms/CustomFooter';
 import { CustomHeader, EHeader } from './customHeader';
 import { Logo } from './Logo';
@@ -35,14 +37,21 @@ export const Layout = ({
                     {connectedUser && (
                         <div className="relative group">
                             {/* Indicator */}
-                            <div className="flex items-center gap-2 text-sm cursor-default">
+                            <div className="flex items-center gap-2 text-sm cursor-default flex-nowrap">
                                 <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
                                 <span>Connecté</span>
                                 {connectedUser.isAdmin && (
-                                    <span className="text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-300 px-2 py-0.5 rounded-full select-none">
-                                        🛡️ Admin
+                                    <span className="text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-300 px-2 py-0.5 rounded-full select-none inline-flex items-center gap-1">
+                                        🛡️<span className="hidden sm:inline">Admin</span>
                                     </span>
                                 )}
+                                <button
+                                    className="icon-btn text-gray-400 hover:text-rougeNoel transition-colors ml-1"
+                                    onClick={onDisconnectClick}
+                                    title="Se déconnecter"
+                                >
+                                    <FontAwesomeIcon icon={faPowerOff} className="w-4 h-4" />
+                                </button>
                             </div>
                             {/* Tooltip with details on hover */}
                             <div className="absolute right-0 top-full mt-1 w-48 p-2 bg-white border border-gray-200 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
@@ -64,7 +73,6 @@ export const Layout = ({
                         selectedHeader={selectedHeader}
                         groupId={connectedUser.groupId}
                         userId={connectedUser.userId}
-                        onDisconnectClick={onDisconnectClick}
                         customTitle={pageTitle}
                     />
                 )}

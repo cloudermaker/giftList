@@ -290,7 +290,7 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
 
                 {!formData.isCreating && (
                     <CustomButton className="green-button mt-4" onClick={onCreatingPersonalGiftClick}>
-                        ➕ Ajouter un cadeau personnel
+                        Ajouter un cadeau personnel
                     </CustomButton>
                 )}
 
