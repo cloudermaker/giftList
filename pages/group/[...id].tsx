@@ -143,12 +143,9 @@ const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group;
                 </div>
 
                 <div className="flex justify-end mb-4">
-                    <button
-                        onClick={shareInviteLink}
-                        className="text-sm transition-colors flex items-center gap-1"
-                    >
-                        {copiedInvite ? '✓ Lien copié !' : '🔗 Inviter des proches'}
-                    </button>
+                    <CustomButton className="slate-button" onClick={shareInviteLink}>
+                        {copiedInvite ? '✓ Lien copié !' : 'Inviter des proches'}
+                    </CustomButton>
                 </div>
 
                 {localUsers.map((user) => (

@@ -9,6 +9,7 @@ import CustomButton from '@/components/atoms/customButton';
 import Swal from 'sweetalert2';
 import GiftIdeasGenerator from '@/components/GiftIdeasGenerator';
 import Router from 'next/router';
+import { OnboardingModal } from '@/components/OnboardingModal';
 
 type TMember = { id: string; name: string; isAdmin: boolean };
 
@@ -17,6 +18,7 @@ export const Home = (): JSX.Element => {
     const [group, setGroup] = useState<Group>();
     const [members, setMembers] = useState<TMember[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showOnboarding, setShowOnboarding] = useState(false);
 
     useEffect(() => {
         if (!connectedUser?.groupId) return;
@@ -28,7 +30,9 @@ export const Home = (): JSX.Element => {
             if (groupData?.success && groupData.group) {
                 setGroup(groupData.group);
     }
-            setMembers(usersRes?.data?.users ?? []);
+            const users = usersRes?.data?.users ?? [];
+            setMembers(users);
+            if (users.length === 1 && connectedUser?.isAdmin) setShowOnboarding(true);
         }).finally(() => setLoading(false));
     }, [connectedUser]);
 
@@ -150,6 +154,15 @@ export const Home = (): JSX.Element => {
                 {/* Gift Ideas Generator */}
                 <GiftIdeasGenerator />
             </div>
+
+            {showOnboarding && group?.inviteToken && (
+                <OnboardingModal
+                    userName={connectedUser?.userName ?? ''}
+                    groupName={group.name}
+                    inviteToken={group.inviteToken}
+                    onClose={() => setShowOnboarding(false)}
+                />
+            )}
         </Layout>
     );
 };
