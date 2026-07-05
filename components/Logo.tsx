@@ -40,7 +40,7 @@ export const Logo = ({ size = 'medium', showText = true, className = '' }: LogoP
             </div>
 
             {showText && (
-                <div className="flex flex-col leading-tight">
+                <div className="hidden sm:flex flex-col leading-tight">
                     <span className={`${textSizeClasses[size]} font-bold text-gray-800`}>Ma Liste</span>
                     <span className={`text-sm font-normal text-gray-400 tracking-wide`}>de cadeaux</span>
                 </div>

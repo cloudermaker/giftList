@@ -15,13 +15,19 @@ export const Modal = ({ title, emoji, onClose, children, footer }: ModalProps): 
     }, []);
 
     return (
-        <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
-            onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-        >
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-                <div className="p-8 pb-4">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div
+                className="absolute inset-0 bg-black/50"
+                style={{ backdropFilter: 'blur(4px)' }}
+                onClick={onClose}
+            />
+            <div className="relative bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden">
+                {/* Drag handle on mobile */}
+                <div className="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                    <div className="w-10 h-1 rounded-full bg-gray-300" />
+                </div>
+
+                <div className="p-6 sm:p-8 pb-4 overflow-y-auto">
                     <div className="flex justify-between items-start mb-5">
                         {emoji ? <span className="text-4xl">{emoji}</span> : <span />}
                         <button className="icon-btn text-gray-400 hover:text-gray-600" onClick={onClose}>✕</button>
@@ -30,7 +36,7 @@ export const Modal = ({ title, emoji, onClose, children, footer }: ModalProps): 
                     {children}
                 </div>
                 {footer && (
-                    <div className="px-8 py-6 border-t border-gray-100 mt-4">
+                    <div className="px-6 sm:px-8 py-5 border-t border-gray-100 shrink-0">
                         {footer}
                     </div>
                 )}
