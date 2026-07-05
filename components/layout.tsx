@@ -30,16 +30,22 @@ export const Layout = ({
     return (
         <div className="flex flex-col min-h-screen">
             {/* Logo et statut utilisateur en haut */}
-            <div className="bg-white shadow-sm border-b border-gray-100">
-                <div className="body-padding py-4 flex justify-between items-center">
+            <div className="border-b border-black/[.06]" style={{ background: '#f2ebe0' }}>
+                <div className="body-padding py-5 grid grid-cols-3 items-center">
                     <Logo size="medium" showText={true} />
 
                     {connectedUser && (
-                        <div className="relative group">
+                        <div className="flex flex-col items-center">
+                            <p className="text-xs font-medium tracking-widest uppercase text-gray-400 leading-none mb-1">Groupe</p>
+                            <p className="text-base font-bold text-gray-800 leading-none">{connectedUser.groupName}</p>
+                        </div>
+                    )}
+
+                    {connectedUser && (
+                        <div className="relative group flex justify-end">
                             {/* Indicator */}
                             <div className="flex items-center gap-2 text-sm cursor-default flex-nowrap">
                                 <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
-                                <span>Connecté</span>
                                 {connectedUser.isAdmin && (
                                     <span className="text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-300 px-2 py-0.5 rounded-full select-none inline-flex items-center gap-1">
                                         🛡️<span className="hidden sm:inline">Admin</span>
@@ -67,7 +73,7 @@ export const Layout = ({
                 </div>
             </div>
 
-            <div className="body-padding flex-grow pb-16">
+            <div className="body-padding flex-grow pb-16 mt-4">
                 {withHeader && connectedUser && (
                     <CustomHeader
                         selectedHeader={selectedHeader}

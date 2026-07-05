@@ -13,6 +13,15 @@ import { OnboardingModal } from '@/components/OnboardingModal';
 
 type TMember = { id: string; name: string; isAdmin: boolean };
 
+const AVATAR_COLORS = [
+    { bg: '#fde8e6', text: '#c0392b' },
+    { bg: '#e8f2ec', text: '#4a7c59' },
+    { bg: '#e8edf5', text: '#4a6fa5' },
+    { bg: '#fef3cd', text: '#b8860b' },
+    { bg: '#f0ebf8', text: '#7b5ea7' },
+    { bg: '#e6f3f5', text: '#2e7d8a' },
+];
+
 export const Home = (): JSX.Element => {
     const { connectedUser } = useCurrentUser();
     const [group, setGroup] = useState<Group>();
@@ -112,11 +121,19 @@ export const Home = (): JSX.Element => {
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
                         {members.slice(0, 5).map((member) => {
                             const isMe = member.id === connectedUser?.userId;
+                            const avatarColor = AVATAR_COLORS[member.name.charCodeAt(0) % AVATAR_COLORS.length];
                             return (
                                 <div
                                     key={member.id}
-                                    className={`bg-white rounded-xl shadow-sm p-5 flex flex-col gap-3 border-2 transition-colors ${isMe ? 'border-rose-200' : 'border-transparent'}`}
+                                    onClick={() => Router.push(`/giftList/${member.id}`)}
+                                    className={`bg-white rounded-xl shadow-sm p-5 flex flex-col gap-3 border-2 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 ${isMe ? 'border-rose-200' : 'border-transparent hover:border-gray-100'}`}
                                 >
+                                    <div
+                                        className="w-11 h-11 rounded-full flex items-center justify-center text-lg font-bold"
+                                        style={{ background: avatarColor.bg, color: avatarColor.text }}
+                                    >
+                                        {member.name.charAt(0).toUpperCase()}
+                                    </div>
                                     <div className="flex-1">
                                         <p className="font-semibold text-gray-800 truncate">{member.name}</p>
                                         <div className="flex gap-2 mt-0.5">
@@ -124,12 +141,7 @@ export const Home = (): JSX.Element => {
                                             {member.isAdmin && <span className="text-xs text-rose-400">Admin</span>}
                                         </div>
                                     </div>
-                                    <CustomButton
-                                        className="slate-button text-sm w-full"
-                                        onClick={() => Router.push(`/giftList/${member.id}`)}
-                                    >
-                                        Voir la liste
-                                    </CustomButton>
+                                    <p className="text-xs text-gray-400">Voir les cadeaux →</p>
                                 </div>
                             );
                         })}
