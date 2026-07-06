@@ -53,7 +53,7 @@ export const OnboardingModal = ({ userName, groupName, inviteToken, onClose }: P
             content: (
                 <div className="text-gray-600 space-y-4 text-base">
                     <p>Votre groupe <strong className="text-gray-800">{groupName}</strong> est prêt.</p>
-                    <p>Pour l'instant, vous êtes le seul membre. Une liste de cadeaux prend tout son sens quand vos proches peuvent la voir — et partager la leur avec vous.</p>
+                    <p>Pour l&apos;instant, vous êtes le seul membre. Une liste de cadeaux prend tout son sens quand vos proches peuvent la voir — et partager la leur avec vous.</p>
                     <p>Voici comment bien démarrer.</p>
                 </div>
             ),
@@ -67,11 +67,11 @@ export const OnboardingModal = ({ userName, groupName, inviteToken, onClose }: P
                     <div className="bg-gray-50 border border-gray-200 rounded-xl p-3">
                         <p className="text-sm text-gray-500 font-mono truncate mb-3">{inviteUrl}</p>
                         <CustomButton className="green-button w-full" onClick={share}>
-                            Partager le lien d'invitation
+                            Partager le lien d&apos;invitation
                         </CustomButton>
                     </div>
                     <p className="text-base text-gray-600">
-                        En tant qu'administrateur, vous pouvez aussi ajouter des membres directement depuis la page d'accueil — utile si quelqu'un n'a pas de smartphone.
+                        En tant qu&apos;administrateur, vous pouvez aussi ajouter des membres directement depuis la page d&apos;accueil — utile si quelqu&apos;un n&apos;a pas de smartphone.
                     </p>
                 </div>
             ),
@@ -91,7 +91,7 @@ export const OnboardingModal = ({ userName, groupName, inviteToken, onClose }: P
                         href={mailtoLink}
                         className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl border-2 border-bleuNoel text-bleuNoel font-semibold text-base hover:bg-bleuNoel hover:text-white transition-colors"
                     >
-                        ✉️ M'envoyer le lien par email
+                        ✉️ M&apos;envoyer le lien par email
                     </a>
                     <p className="text-base text-gray-600 text-center">Ou ajoutez cette page en favori dans votre navigateur.</p>
                 </div>
