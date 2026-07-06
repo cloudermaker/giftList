@@ -8,7 +8,7 @@ import CustomButton from '../components/atoms/customButton';
 import { ErrorAlert } from '../components/atoms/ErrorAlert';
 import { useLogin } from '@/lib/hooks/useLogin';
 import SEO from '@/components/SEO';
-import { generatePageSchema, generateFAQSchema } from '@/lib/schema/schemaGenerators';
+import { generatePageSchema, generateFAQSchema, generateWebAppSchema } from '@/lib/schema/schemaGenerators';
 import GiftIdeasGenerator from '@/components/GiftIdeasGenerator';
 
 // Constants
@@ -34,9 +34,9 @@ export default function Index(): JSX.Element {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [showCookieBanner, setShowCookieBanner] = useState(false);
 
-    const pageTitle = 'Liste de cadeaux en ligne gratuite';
+    const pageTitle = 'Liste de cadeaux gratuite en ligne — Noël, anniversaire, mariage, naissance';
     const pageDescription =
-        'Créez et partagez facilement une liste de cadeaux en famille ou entre amis. Service 100% gratuit, sans inscription par email. Idéal pour les fêtes, anniversaires et événements spéciaux.';
+        'Créez gratuitement votre liste de cadeaux en ligne pour Noël, anniversaire, mariage ou naissance. Partagez-la en famille ou entre amis, réservez en secret. Sans inscription email, accessible partout.';
 
     // Form data consolidated - load from localStorage on init for joining mode
     const [formData, setFormData] = useState(() => ({
@@ -161,6 +161,10 @@ export default function Index(): JSX.Element {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={generatePageSchema('WebPage', pageTitle, '/', pageDescription)}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={generateWebAppSchema()}
             />
             <script
                 type="application/ld+json"
@@ -382,6 +386,35 @@ export default function Index(): JSX.Element {
                 </div>
             </section>
 
+            {/* Occasions — long-tail keyword anchors */}
+            <section className="home-section" id="occasions">
+                <h2 className="font-bold text-center text-2xl md:text-3xl mb-2">Pour quelle occasion ?</h2>
+                <p className="text-center text-gray-500 mb-8">Une seule plateforme pour toutes vos listes de cadeaux</p>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="item bg-white p-5 rounded-xl text-center">
+                        <div className="text-3xl mb-2">🎄</div>
+                        <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux de Noël</h3>
+                        <p className="text-sm text-gray-500">Organisez les échanges de cadeaux en famille sans doublons ni mauvaises surprises.</p>
+                    </div>
+                    <div className="item bg-white p-5 rounded-xl text-center">
+                        <div className="text-3xl mb-2">👶</div>
+                        <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux de naissance</h3>
+                        <p className="text-sm text-gray-500">Créez votre liste de naissance gratuite, sans boutique imposée, partageable en un lien.</p>
+                    </div>
+                    <div className="item bg-white p-5 rounded-xl text-center">
+                        <div className="text-3xl mb-2">🎂</div>
+                        <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux anniversaire</h3>
+                        <p className="text-sm text-gray-500">Fini les doublons pour les anniversaires enfants ou adultes — chacun réserve en secret.</p>
+                    </div>
+                    <div className="item bg-white p-5 rounded-xl text-center">
+                        <div className="text-3xl mb-2">💍</div>
+                        <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux mariage</h3>
+                        <p className="text-sm text-gray-500">Partagez vos envies avec vos invités et laissez chacun choisir librement ce qu&apos;il offrira.</p>
+                    </div>
+                </div>
+            </section>
+
             {/* Pourquoi choisir Ma liste de cadeaux */}
             <section className="home-section">
                 <h2 className="font-bold">Pourquoi choisir Ma liste de cadeaux ? ✅</h2>
@@ -422,43 +455,6 @@ export default function Index(): JSX.Element {
                     </div>
                 </div>
 
-                <div className="item">
-                    <ul className="space-y-3 text-left">
-                        <li className="flex items-start gap-3">
-                            <span className="text-green-500 font-bold text-xl">✓</span>
-                            <span>
-                                <strong>100% gratuit</strong>
-                                {" - Créez votre liste de cadeaux en ligne sans frais cachés, sans abonnement"}
-                            </span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                            <span className="text-green-500 font-bold text-xl">✓</span>
-                            <span>
-                                <strong>Sans inscription compliquée</strong>
-                                {" - Démarrez en 2 minutes sans email. Juste un nom de groupe et votre prénom"}
-                            </span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                            <span className="text-green-500 font-bold text-xl">✓</span>
-                            <span>
-                                <strong>Gestion secrète et sécurisée</strong> - Les cadeaux réservés restent cachés du destinataire pour préserver la surprise
-                            </span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                            <span className="text-green-500 font-bold text-xl">✓</span>
-                            <span>
-                                <strong>Multi-événements</strong> - Une seule liste partagée pour tous les membres de votre groupe familial ou entre amis
-                            </span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                            <span className="text-green-500 font-bold text-xl">✓</span>
-                            <span>
-                                <strong>Accessible partout</strong> - Gérez vos listes de cadeaux sur mobile, tablette ou ordinateur
-                            </span>
-                        </li>
-                    </ul>
-                </div>
-
                 <div className="mt-6">
                     <CustomButton
                         className="green-button p-3"
@@ -470,44 +466,6 @@ export default function Index(): JSX.Element {
                     >
                         🎁 Créer ma liste maintenant
                     </CustomButton>
-                </div>
-            </section>
-
-            {/* SEO-optimized content section */}
-            <section className="home-section">
-                <h2 className="font-bold text-center text-2xl md:text-3xl mb-6">
-                    🎁 La solution idéale pour vos listes de cadeaux en famille
-                </h2>
-
-                <div className="grid md:grid-cols-3 gap-6 my-6">
-                    <div className="item bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                        <div className="text-4xl mb-3">🎄</div>
-                        <h3 className="text-lg font-semibold text-vertNoel mb-2">Pour Noël</h3>
-                        <p className="text-gray-600 text-sm">
-                            Organisez vos échanges de cadeaux de Noël en famille sans stress. Chacun indique ses envies et peut
-                            réserver secrètement les cadeaux des autres.
-                        </p>
-                    </div>
-
-                    <div className="item bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                        <div className="text-4xl mb-3">🎂</div>
-                        <h3 className="text-lg font-semibold text-rougeNoel mb-2">Pour les anniversaires</h3>
-                        <p className="text-gray-600 text-sm">
-                            {
-                                "Créez une liste d'anniversaire pour ne plus jamais recevoir de doublons. Vos proches savent exactement quoi offrir !"
-                            }
-                        </p>
-                    </div>
-
-                    <div className="item bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                        <div className="text-4xl mb-3">💝</div>
-                        <h3 className="text-lg font-semibold text-vertNoel mb-2">Toutes occasions</h3>
-                        <p className="text-gray-600 text-sm">
-                            {
-                                "Mariage, naissance, fête des mères... Notre outil s'adapte à toutes vos célébrations et événements spéciaux."
-                            }
-                        </p>
-                    </div>
                 </div>
             </section>
 

@@ -31,7 +31,7 @@ export const Layout = ({
         <div className="flex flex-col min-h-screen">
             {/* Logo et statut utilisateur en haut */}
             <div className="border-b border-black/[.06]" style={{ background: '#f2ebe0' }}>
-                <div className="body-padding py-5 grid grid-cols-3 items-center">
+                <div className="body-padding py-3 sm:py-5 grid grid-cols-3 items-center">
                     <Logo size="medium" showText={true} />
 
                     {connectedUser && (
@@ -43,30 +43,24 @@ export const Layout = ({
 
                     {connectedUser && (
                         <div className="relative group flex justify-end">
-                            {/* Indicator */}
                             <div className="flex items-center gap-2 text-sm cursor-default flex-nowrap">
-                                <span className="inline-block w-2 h-2 bg-green-500 rounded-full" />
+                                <span className="hidden sm:inline-block w-2 h-2 bg-green-500 rounded-full" />
                                 {connectedUser.isAdmin && (
-                                    <span className="text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-300 px-2 py-0.5 rounded-full select-none inline-flex items-center gap-1">
-                                        🛡️<span className="hidden sm:inline">Admin</span>
+                                    <span className="hidden sm:inline-flex text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-300 px-2 py-0.5 rounded-full select-none items-center gap-1">
+                                        🛡️ Admin
                                     </span>
                                 )}
                                 <button
-                                    className="icon-btn text-gray-400 hover:text-rougeNoel transition-colors ml-1"
+                                    className="icon-btn text-gray-400 hover:text-rougeNoel transition-colors"
                                     onClick={onDisconnectClick}
                                     title="Se déconnecter"
                                 >
                                     <FontAwesomeIcon icon={faPowerOff} className="w-4 h-4" />
                                 </button>
                             </div>
-                            {/* Tooltip with details on hover */}
                             <div className="absolute right-0 top-full mt-1 w-48 p-2 bg-white border border-gray-200 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                <p className="text-xs">
-                                    <span className="font-semibold">Nom :</span> {connectedUser.userName}
-                                </p>
-                                <p className="text-xs">
-                                    <span className="font-semibold">Groupe :</span> {connectedUser.groupName}
-                                </p>
+                                <p className="text-xs"><span className="font-semibold">Nom :</span> {connectedUser.userName}</p>
+                                <p className="text-xs"><span className="font-semibold">Groupe :</span> {connectedUser.groupName}</p>
                             </div>
                         </div>
                     )}
