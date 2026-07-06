@@ -329,6 +329,23 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                     </DndContext>
                 </Suspense>
 
+                {localGifts.filter((g) => !filteringTakenGifts || !g.takenUserId).length === 0 && (
+                    <div className="text-center py-12">
+                        <p className="text-4xl mb-3">🎁</p>
+                        {isOwnList ? (
+                            <>
+                                <p className="font-semibold text-gray-700 mb-1">Ta liste est vide pour l&apos;instant</p>
+                                <p className="text-sm text-gray-400">Ajoute tes premières envies — tes proches pourront les réserver en secret !</p>
+                            </>
+                        ) : (
+                            <>
+                                <p className="font-semibold text-gray-700 mb-1">Cette liste est encore vide</p>
+                                <p className="text-sm text-gray-400">Revenez plus tard, des idées cadeaux seront bientôt ajoutées.</p>
+                            </>
+                        )}
+                    </div>
+                )}
+
                 {userCanAddGift && (
                     <CustomButton className="green-button" onClick={openCreateModal}>
                         Ajouter un cadeau

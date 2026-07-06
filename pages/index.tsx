@@ -1,6 +1,5 @@
 import NProgress from 'nprogress';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Layout } from '../components/layout';
 import { CustomInput } from '../components/atoms/customInput';
@@ -26,6 +25,66 @@ const STORAGE_KEY_COOKIE_BANNER = 'cookieBannerDismissed';
 
 export default function Index(): JSX.Element {
     const { login } = useLogin();
+
+    const MOCKUPS = [
+        {
+            group: 'Famille Dupont',
+            groupInitial: 'F',
+            groupColor: '#C0392B',
+            featured: { name: 'Marie', initial: 'M', bg: '#fde8e6', color: '#c0392b', count: 4,
+                items: [
+                    { label: 'AirPods Pro', reserved: true },
+                    { label: 'Livre de cuisine', reserved: false },
+                    { label: 'Bougie parfumée', reserved: false },
+                    { label: 'Écharpe en laine', reserved: false },
+                ],
+            },
+            others: [
+                { name: 'Thomas', initial: 'T', bg: '#e8f2ec', color: '#4a7c59', count: 2 },
+                { name: 'Sophie', initial: 'S', bg: '#e8edf5', color: '#4a6fa5', count: 5 },
+            ],
+        },
+        {
+            group: 'Les Amis de Pierre',
+            groupInitial: 'A',
+            groupColor: '#4A6FA5',
+            featured: { name: 'Lucas', initial: 'L', bg: '#e8edf5', color: '#4a6fa5', count: 3,
+                items: [
+                    { label: 'Nintendo Switch', reserved: true },
+                    { label: 'Abonnement Spotify', reserved: true },
+                    { label: 'Baskets Nike', reserved: false },
+                ],
+            },
+            others: [
+                { name: 'Camille', initial: 'C', bg: '#f0ebf8', color: '#7b5ea7', count: 6 },
+                { name: 'Julien', initial: 'J', bg: '#fef3cd', color: '#b8860b', count: 3 },
+            ],
+        },
+        {
+            group: 'Mariage de Julie & Tom 💍',
+            groupInitial: 'M',
+            groupColor: '#4A7C59',
+            featured: { name: 'Julie', initial: 'J', bg: '#e8f2ec', color: '#4a7c59', count: 4,
+                items: [
+                    { label: 'Robot pâtissier KitchenAid', reserved: true },
+                    { label: 'Séjour en Toscane', reserved: false },
+                    { label: 'Service de vaisselle', reserved: true },
+                    { label: 'Cours de poterie', reserved: false },
+                ],
+            },
+            others: [
+                { name: 'Tom', initial: 'T', bg: '#fef3cd', color: '#b8860b', count: 3 },
+                { name: 'Famille', initial: 'F', bg: '#f0ebf8', color: '#7b5ea7', count: 5 },
+            ],
+        },
+    ];
+
+    const [mockupIndex, setMockupIndex] = useState(0);
+
+    useEffect(() => {
+        setMockupIndex(Math.floor(Math.random() * MOCKUPS.length));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // UI state consolidated
     const [mode, setMode] = useState<'creating' | 'joining'>('joining');
@@ -364,24 +423,55 @@ export default function Index(): JSX.Element {
                         </div>
                     </div>
 
-                    {/* Illustration Section - Hidden on mobile */}
-                    <div className="hidden md:flex w-1/2">
-                        <div className="relative w-full rounded-2xl overflow-hidden">
-                            <Image
-                            src="/login2.jpg"
-                            alt="Interface de création de liste de cadeaux en ligne - Organisez vos cadeaux en famille facilement"
-                            fill
-                            className="object-contain"
-                            priority
-                            sizes="50vw"
-                            placeholder="blur"
-                            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABgUE/8QAIRAAAQQCAgMAAAAAAAAAAAAAAQIDBBEABRIhMUH/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8Amk3eMp2hx7SrC5lwXFpQ2VpSQUJGgSeJPAA4HbnVF7Q9oZN3ckQ5hU6ESSVJI2oHkAcD4GtKUB//2Q=="
-                            />
-                            {/* Edge fade to blend into background */}
-                            <div className="absolute inset-0 pointer-events-none"
-                                style={{ boxShadow: 'inset 0 0 60px 20px #f8f3eb' }}
-                            />
-                        </div>
+                    {/* App mockup — hidden on mobile */}
+                    <div className="hidden md:flex w-1/2 items-center justify-center">
+                        {(() => {
+                            const m = MOCKUPS[mockupIndex];
+                            return (
+                                <div className="w-full max-w-sm space-y-3">
+                                    {/* Group header */}
+                                    <div className="flex items-center gap-3 px-1 mb-4">
+                                        <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-base font-bold" style={{ background: m.groupColor }}>{m.groupInitial}</div>
+                                        <div>
+                                            <p className="text-xs text-gray-400 uppercase tracking-widest leading-none mb-0.5">Groupe</p>
+                                            <p className="font-bold text-gray-800 leading-none">{m.group}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Featured member — open list */}
+                                    <div className="item px-5 py-4">
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" style={{ background: m.featured.bg, color: m.featured.color }}>{m.featured.initial}</div>
+                                            <div>
+                                                <p className="font-semibold text-gray-800 text-sm leading-none">{m.featured.name}</p>
+                                                <p className="text-xs text-gray-400 mt-0.5">{m.featured.count} cadeaux</p>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            {m.featured.items.map((item, i) => (
+                                                <div key={i} className={`flex items-center gap-2 text-sm ${item.reserved ? 'text-gray-700' : 'text-gray-700'}`}>
+                                                    <span className="text-vertNoel font-bold">✓</span>
+                                                    <span>{item.label}</span>
+                                                    {item.reserved && <span className="ml-auto text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">Réservé 🤫</span>}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Other members */}
+                                    {m.others.map((o, i) => (
+                                        <div key={i} className="bg-white rounded-xl border border-gray-100 px-5 py-4 shadow-sm flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" style={{ background: o.bg, color: o.color }}>{o.initial}</div>
+                                            <div className="flex-1">
+                                                <p className="font-semibold text-gray-800 text-sm">{o.name}</p>
+                                                <p className="text-xs text-gray-400">{o.count} cadeaux</p>
+                                            </div>
+                                            <p className="text-xs text-gray-400">Voir →</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            );
+                        })()}
                     </div>
                 </div>
             </section>
