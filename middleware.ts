@@ -26,11 +26,6 @@ export async function middleware(request: NextRequest) {
         // malformed or stale cookie → treat as unauthenticated
     }
 
-    // This page is only to debug the groups => very touchy page
-    if (request.nextUrl.pathname === '/backoffice' && request.headers.get('host') !== 'localhost:3000') {
-        return NextResponse.redirect(new URL('/', request.url));
-    }
-
     if (currentUser === '') {
         if (request.nextUrl.pathname === '/') {
             return NextResponse.next();

@@ -3,146 +3,178 @@ import { Layout } from '@/components/layout';
 import SEO from '@/components/SEO';
 import { useEffect, useState } from 'react';
 import { Group } from '@prisma/client';
-import { TGroupApiResult } from './api/group';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import CustomButton from '@/components/atoms/customButton';
 import Swal from 'sweetalert2';
 import GiftIdeasGenerator from '@/components/GiftIdeasGenerator';
+import Router from 'next/router';
+import { OnboardingModal } from '@/components/OnboardingModal';
+
+type TMember = { id: string; name: string; isAdmin: boolean };
+
+const AVATAR_COLORS = [
+    { bg: '#fde8e6', text: '#c0392b' },
+    { bg: '#e8f2ec', text: '#4a7c59' },
+    { bg: '#e8edf5', text: '#4a6fa5' },
+    { bg: '#fef3cd', text: '#b8860b' },
+    { bg: '#f0ebf8', text: '#7b5ea7' },
+    { bg: '#e6f3f5', text: '#2e7d8a' },
+];
 
 export const Home = (): JSX.Element => {
     const { connectedUser } = useCurrentUser();
     const [group, setGroup] = useState<Group>();
-    const [description, setDescription] = useState<string | null>();
-    const [updatingDescription, setUpdatingDescription] = useState<boolean>(false);
+    const [members, setMembers] = useState<TMember[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showOnboarding, setShowOnboarding] = useState(false);
 
     useEffect(() => {
-        if (!connectedUser) return;
-        const fetchData = async () => {
-            if (connectedUser.groupId) {
-                const response = await AxiosWrapper.get(`/api/group/${connectedUser.groupId}`);
-                const groupInfoResponse = response?.data as TGroupApiResult;
-                if (groupInfoResponse && groupInfoResponse.success && groupInfoResponse.group) {
-                    setGroup(groupInfoResponse.group);
-                }
-            }
-            setLoading(false);
-        };
-        fetchData();
+        if (!connectedUser?.groupId) return;
+        Promise.all([
+            AxiosWrapper.get(`/api/group/${connectedUser.groupId}`),
+            AxiosWrapper.get(`/api/user?groupid=${connectedUser.groupId}`),
+        ]).then(([groupRes, usersRes]) => {
+            const groupData = groupRes?.data as { success: boolean; group?: Group };
+            if (groupData?.success && groupData.group) {
+                setGroup(groupData.group);
+    }
+            const users = usersRes?.data?.users ?? [];
+            setMembers(users);
+            if (users.length === 1 && connectedUser?.isAdmin) setShowOnboarding(true);
+        }).finally(() => setLoading(false));
     }, [connectedUser]);
 
-    const onUpdateDescriptionClick = (): void => {
-        setUpdatingDescription(true);
-        window.setTimeout(() => document.getElementById('newDescriptionInputId')?.focus(), 0);
-    };
-
-    const updateDescription = async (): Promise<void> => {
-        const response = await AxiosWrapper.put(`/api/group/${group?.id}`, {
-            group: { description }
-        });
-        const data = response?.data as TGroupApiResult;
-
-        if (data && data.success) {
-            setGroup((value: Group | undefined) => ({
-                ...value!,
-                description: description ?? ''
-            }));
-        } else {
-            Swal.fire({
-                title: 'Erreur',
-                text: data?.error || 'Impossible de sauvegarder la description. Réessayez dans quelques instants.',
-                icon: 'error'
-            });
+    const shareInviteLink = async () => {
+        if (!group?.inviteToken) return;
+        const url = `${window.location.origin}/join/${group.inviteToken}`;
+        const shareData = {
+            title: `Rejoins le groupe ${group.name}`,
+            text: `Clique pour rejoindre la liste de cadeaux du groupe "${group.name}" !`,
+            url,
+        };
+        if (navigator.share) {
+            try { await navigator.share(shareData); return; } catch {}
         }
-
-        clearAllFields();
+        await navigator.clipboard.writeText(url);
+        Swal.fire({ title: 'Lien copié !', icon: 'success', timer: 1500, showConfirmButton: false });
     };
 
-    const clearAllFields = (): void => {
-        setUpdatingDescription(false);
+    const addMember = async () => {
+        const { value: name } = await Swal.fire({
+            title: 'Ajouter un membre',
+            input: 'text',
+            inputPlaceholder: 'Prénom',
+            showCancelButton: true,
+            confirmButtonText: 'Ajouter',
+            cancelButtonText: 'Annuler',
+        });
+        if (!name) return;
+        const result = await AxiosWrapper.post('/api/user', { user: { name }, groupId: group?.id });
+        const data = result?.data;
+        if (data?.success && data.user) {
+            setMembers((m) => [...m, { id: data.user.id, name: data.user.name, isAdmin: false }]);
+            Swal.fire({ title: 'Membre ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
+        } else {
+            Swal.fire('Erreur', data?.error || "Impossible d'ajouter le membre.", 'error');
+        }
     };
+
 
     return (
         <Layout selectedHeader={EHeader.Homepage}>
-            <SEO 
+            <SEO
                 title="Mon groupe de cadeaux"
-                description="Gérez votre liste de cadeaux en famille ou entre amis. Ajoutez vos envies, réservez secrètement les cadeaux des autres et organisez vos événements facilement."
+                description="Gérez votre liste de cadeaux en famille ou entre amis."
                 noIndex={true}
             />
-            <div className="max-w-6xl mx-auto px-4">
-                {/* Header Section with Group Name */}
-                <div className="bg-white rounded-xl shadow-sm p-8 mb-8 flex items-center justify-center">
-                    <div className="max-w-2xl w-full">
-                        <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-2">Bienvenue sur le groupe</h1>
+            <div>
+
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
+                    <div>
+                        <p className="text-sm text-gray-500">Bonjour, {connectedUser?.userName}</p>
                         {loading
-                            ? <div className="h-7 w-48 bg-gray-200 rounded-full animate-pulse mx-auto mt-1" />
-                            : <p className="text-2xl text-center text-rose-500 font-medium">{group?.name}</p>
+                            ? <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mt-1" />
+                            : <h1 className="text-2xl font-bold text-gray-800">{group?.name}</h1>
                         }
                     </div>
+                    {group?.inviteToken && (
+                        <CustomButton className="slate-button shrink-0" onClick={shareInviteLink}>
+                            Inviter quelqu&apos;un
+                        </CustomButton>
+                    )}
                 </div>
 
-                {/* Description Section */}
-                <div className="mb-8">
-                    {loading && (
-                        <div className="bg-white rounded-xl shadow-sm p-8 space-y-3">
-                            <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
-                            <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2" />
-                            <div className="h-4 bg-gray-200 rounded animate-pulse w-2/3" />
-                        </div>
-                    )}
-
-                    {!loading && !group?.description && !updatingDescription && (
-                        <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-                            <p className="text-xl text-gray-600">
-                                Si tu es ici pour remplir ta liste de cadeaux, tu es au bon endroit
-                            </p>
-                        </div>
-                    )}
-
-                    {!loading && group?.description && !updatingDescription && (
-                        <div className="bg-white rounded-xl shadow-sm p-8">
-                            <div
-                                dangerouslySetInnerHTML={{ __html: group.description }}
-                                className="prose max-w-none text-gray-600"
-                            />
-                            {connectedUser?.isAdmin && (
-                                <div className="mt-6 text-center">
-                                    <CustomButton onClick={onUpdateDescriptionClick} className="green-button">
-                                        Modifier la description
-                                    </CustomButton>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {updatingDescription && (
-                        <div className="bg-white rounded-xl shadow-sm p-8">
-                            <textarea
-                                id="newDescriptionInputId"
-                                className="w-full min-h-[200px] p-4 text-gray-700 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 transition-all duration-200"
-                                value={description ?? group?.description ?? ''}
-                                onChange={(e) => setDescription(e.target.value)}
-                                placeholder="Entrez votre description ici..."
-                            />
-                            <div className="flex justify-end space-x-4 mt-6">
-                                <CustomButton
-                                    onClick={clearAllFields}
-                                    className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-200"
-                                >
-                                    Annuler
-                                </CustomButton>
-                                <CustomButton onClick={updateDescription} className="green-button px-6 py-2.5">
-                                    Valider
-                                </CustomButton>
+                {/* Member cards */}
+                <h2 className="text-base font-semibold text-gray-600 uppercase tracking-wide mb-4">Listes de cadeaux</h2>
+                {loading ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className="bg-white rounded-xl shadow-sm p-5 animate-pulse">
+                                <div className="h-5 bg-gray-200 rounded w-2/3 mb-4" />
+                                <div className="h-8 bg-gray-100 rounded" />
                             </div>
-                        </div>
-                    )}
-                </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
+                        {members.slice(0, 5).map((member) => {
+                            const isMe = member.id === connectedUser?.userId;
+                            const avatarColor = AVATAR_COLORS[member.name.charCodeAt(0) % AVATAR_COLORS.length];
+                            return (
+                                <div
+                                    key={member.id}
+                                    onClick={() => Router.push(`/giftList/${member.id}`)}
+                                    className={`bg-white rounded-xl shadow-sm p-5 flex flex-col gap-3 border-2 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 ${isMe ? 'border-rose-200' : 'border-transparent hover:border-gray-100'}`}
+                                >
+                                    <div
+                                        className="w-11 h-11 rounded-full flex items-center justify-center text-lg font-bold"
+                                        style={{ background: avatarColor.bg, color: avatarColor.text }}
+                                    >
+                                        {member.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-gray-800 truncate">{member.name}</p>
+                                        <div className="flex gap-2 mt-0.5">
+                                            {isMe && <span className="text-xs text-gray-400">Vous</span>}
+                                            {member.isAdmin && <span className="text-xs text-rose-400">Admin</span>}
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-gray-400">Voir les cadeaux →</p>
+                                </div>
+                            );
+                        })}
+                        {members.length > 5 && (
+                            <div
+                                onClick={() => Router.push(`/group/${group?.id}`)}
+                                className="bg-white rounded-xl shadow-sm p-5 flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-200 hover:border-gray-300 transition-colors cursor-pointer"
+                            >
+                                <span className="text-2xl text-gray-300">+{members.length - 5}</span>
+                                <p className="text-sm text-gray-400">Voir tous les membres</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+                {!loading && connectedUser?.isAdmin && (
+                    <div className="mb-10 -mt-6">
+                        <CustomButton className="green-button" onClick={addMember}>Ajouter un membre</CustomButton>
+                    </div>
+                )}
+
 
                 {/* Gift Ideas Generator */}
                 <GiftIdeasGenerator />
             </div>
+
+            {showOnboarding && group?.inviteToken && (
+                <OnboardingModal
+                    userName={connectedUser?.userName ?? ''}
+                    groupName={group.name}
+                    inviteToken={group.inviteToken}
+                    onClose={() => setShowOnboarding(false)}
+                />
+            )}
         </Layout>
     );
 };

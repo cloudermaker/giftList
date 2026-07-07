@@ -29,16 +29,11 @@ body {
         Helvetica Neue,
         sans-serif;
     position: relative;
-    background-color: #fff1f2;
+    background-color: #f8f3eb;
     min-height: 100vh;
     height: 100%;
 }
 
-/* Layout structure to ensure footer is visible */
-.min-h-body {
-    min-height: calc(100vh - 80px); /* Subtract footer height */
-    padding-bottom: 1rem;
-}
 
 /* Make sure content doesn't push footer off the screen on short pages */
 .flex-grow {
@@ -48,7 +43,9 @@ body {
 
 
 .body-padding {
-    padding: 0.5rem 2.5rem;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+    padding-top: 0.5rem;
 }
 
 div {
@@ -72,8 +69,8 @@ button[type='submit'] {
         0 2px 4px -1px rgba(0, 0, 0, 0.08);
     padding: 10px 18px;
     border-radius: 0.75rem;
-    background-color: var(--button-color, #e63946);
-    background-image: linear-gradient(45deg, #e63946, #ff5a5f);
+    background-color: var(--button-color, #c0392b);
+    background-image: linear-gradient(45deg, #c0392b, #d9534f);
     color: white;
     margin-left: 8px;
     margin-right: 8px;
@@ -85,8 +82,8 @@ button[type='submit'] {
 }
 
 button.green-button {
-    background-color: var(--button-color, #39a667);
-    background-image: linear-gradient(45deg, #39a667, #4eb883);
+    background-color: var(--button-color, #4a7c59);
+    background-image: linear-gradient(45deg, #4a7c59, #5a9169);
 }
 
 button::before {
@@ -101,7 +98,7 @@ button::before {
 }
 
 button:hover {
-    background-image: linear-gradient(45deg, #d42a37, #ff7a7f);
+    background-image: linear-gradient(45deg, #c0392b, #e8604a);
     transform: translateY(-3px);
     box-shadow:
         0 20px 25px -5px rgba(0, 0, 0, 0.15),
@@ -109,7 +106,20 @@ button:hover {
 }
 
 button.green-button:hover {
-    background-image: linear-gradient(45deg, #36c07d, #70d6a3);
+    background-image: linear-gradient(45deg, #4a7c59, #6aab7a);
+    transform: translateY(-3px);
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.15),
+        0 10px 10px -5px rgba(0, 0, 0, 0.07);
+}
+
+button.slate-button {
+    background-color: var(--button-color, #4a6fa5);
+    background-image: linear-gradient(45deg, #4a6fa5, #6087c4);
+}
+
+button.slate-button:hover {
+    background-image: linear-gradient(45deg, #3a5f95, #7097d4);
     transform: translateY(-3px);
     box-shadow:
         0 20px 25px -5px rgba(0, 0, 0, 0.15),
@@ -122,6 +132,23 @@ button:hover::before {
 
 button:active {
     transform: translateY(0);
+}
+
+button.icon-btn {
+    padding: 6px 8px;
+    box-shadow: none;
+    background: transparent;
+    background-image: none;
+    color: inherit;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+button.icon-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+    background-image: none;
+    transform: none;
+    box-shadow: none;
 }
 
 button:disabled {
@@ -232,6 +259,7 @@ button:disabled {
     transform-style: preserve-3d;
 }
 
+
 /* Container for 3D perspective */
 .card-container {
     perspective: 1000px;
@@ -304,9 +332,11 @@ button:disabled {
 
 .home-section {
     justify-self: center;
+    max-width: 56rem;
+    width: 100%;
     padding: 20px;
     text-align: center;
-    margin: 40px 0;
+    margin: 40px auto;
 }
 
 .home-section h2 {
@@ -324,7 +354,7 @@ button:disabled {
         0 4px 6px -2px rgba(0, 0, 0, 0.05);
     position: relative;
     overflow: hidden;
-    border-left: 3px solid #e63946;
+    border-left: 3px solid #c0392b;
     padding: 0.5rem 2rem;
 }
 
@@ -454,7 +484,7 @@ select.input-field {
 }
 
 select.input-field:hover {
-    border-color: #39a667;
+    border-color: #4a7c59;
     background-color: rgba(255, 255, 255, 0.9);
 }
 
@@ -466,13 +496,15 @@ select.input-field option {
 
 .input-field:focus {
     outline: none;
-    border-color: #39a667;
-    box-shadow: 0 0 0 2px rgba(57, 166, 103, 0.2);
+    border-color: #4a7c59;
+    box-shadow: 0 0 0 2px rgba(74, 124, 89, 0.2);
 }
 
 @media screen and (max-width: 640px) {
     .body-padding {
-        padding: 0.5rem 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-top: 0.5rem;
     }
 
     .bg-shadow {
@@ -503,17 +535,17 @@ select.input-field option {
 
 /* Custom NProgress styling to match website color scheme */
 #nprogress .bar {
-    background: #d42a37 !important; /* Red color to match your rouge Noel theme */
+    background: #c0392b !important;
     height: 3px !important;
 }
 
 #nprogress .peg {
     box-shadow:
-        0 0 10px #d42a37,
-        0 0 5px #d42a37 !important;
+        0 0 10px #c0392b,
+        0 0 5px #c0392b !important;
 }
 
 #nprogress .spinner-icon {
-    border-top-color: #d42a37 !important;
-    border-left-color: #d42a37 !important;
+    border-top-color: #c0392b !important;
+    border-left-color: #c0392b !important;
 }

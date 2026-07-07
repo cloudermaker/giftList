@@ -7,8 +7,9 @@ module.exports = {
                 body: 'calc(100vh - 80px)'
             },
             colors: {
-                vertNoel: '#3EB489', // Mint green
-                rougeNoel: '#E63946', // Bright red
+                vertNoel: '#4A7C59', // Sage green
+                rougeNoel: '#C0392B', // Terracotta
+                bleuNoel: '#4A6FA5', // Steel blue
                 giftGold: '#FFD700',
                 giftBlue: '#219EBC',
                 giftPink: '#FF69B4',

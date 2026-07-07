@@ -8,7 +8,7 @@ export const CustomFooter = (): JSX.Element => {
     const { connectedUser } = useCurrentUser();
 
     return (
-        <footer className="mt-auto inset-x-0 bottom-0 bg-gradient-to-r from-vertNoel/5 to-rougeNoel/5 border-t border-neutral-100">
+        <footer className="mt-auto inset-x-0 bottom-0 border-t border-neutral-200">
             <div className="container mx-auto max-w-5xl px-4 py-6">
                 {/* Mobile Layout */}
                 <div className="flex flex-col items-center gap-6 md:hidden">
@@ -35,6 +35,15 @@ export const CustomFooter = (): JSX.Element => {
                             <span className="mr-1.5">❓</span>
                             Aide
                         </Link>
+                        {connectedUser && (
+                            <Link
+                                href="/backoffice"
+                                className="flex items-center text-sm font-medium text-neutral-700 hover:text-rougeNoel active:scale-95 transition-all duration-300"
+                            >
+                                <span className="mr-1.5">⚙️</span>
+                                Backoffice
+                            </Link>
+                        )}
                     </nav>
 
                     {/* Social Links */}
@@ -100,6 +109,15 @@ export const CustomFooter = (): JSX.Element => {
                             <span className="mr-1.5">❓</span>
                             Aide
                         </Link>
+                        {connectedUser && (
+                            <Link
+                                href="/backoffice"
+                                className="flex items-center text-sm font-medium text-neutral-700 hover:text-rougeNoel active:scale-95 transition-all duration-300"
+                            >
+                                <span className="mr-1.5">⚙️</span>
+                                Backoffice
+                            </Link>
+                        )}
                     </nav>
 
                     {/* Social Links and Copyright */}

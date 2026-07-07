@@ -145,7 +145,7 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
                                     <CustomButton className="w-full p-3 green-button" onClick={handleConfirm} disabled={isLoading}>
                                         {isLoading ? '⏳ Chargement...' : userExists ? `Oui, je suis ${userName}` : 'Oui, je suis un nouveau membre'}
                                     </CustomButton>
-                                    <CustomButton className="w-full p-3" onClick={handleCancelConfirmation} disabled={isLoading}>
+                                    <CustomButton className="w-full p-3 green-button" onClick={handleCancelConfirmation} disabled={isLoading}>
                                         Corriger mon prénom
                                     </CustomButton>
                                 </>

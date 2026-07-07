@@ -1,17 +1,27 @@
 import CustomButton from '@/components/atoms/customButton';
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
+import { PersonalGiftModal } from '@/components/PersonalGiftModal';
 import { getTakenGiftsFromUserId, GiftWithTakenUserId } from '@/lib/db/giftManager';
 import { getPersonalGiftsByUser } from '@/lib/db/personalGiftManager';
-import { Gift, User, GiftType } from '@prisma/client';
+import { User, GiftType } from '@prisma/client';
 import { NextPageContext } from 'next';
 import { useState, useEffect } from 'react';
-import { TGiftApiResult } from '@/pages/api/gift';
 import Swal from 'sweetalert2';
-import { GiftIcon } from '@/components/icons/gift';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import ModernLink from '@/components/atoms/ModernLink';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
+
+const AVATAR_COLORS = [
+    { bg: '#fde8e6', text: '#c0392b' },
+    { bg: '#e8f2ec', text: '#4a7c59' },
+    { bg: '#e8edf5', text: '#4a6fa5' },
+    { bg: '#fef3cd', text: '#b8860b' },
+    { bg: '#f0ebf8', text: '#7b5ea7' },
+    { bg: '#e6f3f5', text: '#2e7d8a' },
+];
+
+const avatarColor = (name: string) => AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
 
 // Type étendu pour inclure forUser (pour les personal gifts)
 type GiftWithForUser = GiftWithTakenUserId & { 
@@ -24,16 +34,8 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
     const [localTakenGifts, setLocalTakenGifts] = useState<GiftWithForUser[]>(takenGifts);
     const [groupUsers, setGroupUsers] = useState<User[]>([]);
     const [releasingGiftId, setReleasingGiftId] = useState<string | null>(null);
-    const [isCreatingGift, setIsCreatingGift] = useState<boolean>(false);
     const [deletingGiftId, setDeletingGiftId] = useState<string | null>(null);
-    const [formData, setFormData] = useState({
-        isCreating: false,
-        name: '',
-        description: '',
-        link: '',
-        forUserId: '', // '' = personne, connectedUser.userId = moi, autre = user du groupe
-        error: ''
-    });
+    const [showPersonalGiftModal, setShowPersonalGiftModal] = useState(false);
     // Charger les users du groupe
     useEffect(() => {
         const loadGroupUsers = async () => {
@@ -76,65 +78,36 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
         }
     };
 
-    const onCreatingPersonalGiftClick = (): void => {
-        setFormData((prev) => ({ ...prev, isCreating: true }));
-        window.setTimeout(() => document.getElementById('newGiftInputId')?.focus(), 0);
-    };
 
-    const clearAllFields = (): void => {
-        setFormData({
-            isCreating: false,
-            name: '',
-            description: '',
-            link: '',
-            forUserId: '',
-            error: ''
-        });
-    };
 
-    const createPersonalGift = async (): Promise<void> => {
-        if (!formData.name) {
-            setFormData((prev) => ({ ...prev, error: 'Il faut rentrer un nom.' }));
-            return;
-        }
-
-        setIsCreatingGift(true);
-
-        try {
-            // Utiliser le nouveau endpoint /api/personalGift au lieu de /api/gift
-            const result = await AxiosWrapper.post('/api/personalGift', {
-                personalGift: {
-                    name: formData.name,
-                    description: formData.description || null,
-                    url: formData.link || null,
-                    userId: connectedUser?.userId,  // User qui crée le cadeau personnel
-                    groupId: connectedUser?.groupId, // Groupe du user
-                    forUserId: formData.forUserId || null  // Destinataire sélectionné (ou null si "Personne")
-                }
-            });
-            const data = result?.data;
-
-            if (data && data.success && data.personalGift) {
-                // Convertir PersonalGift en Gift pour compatibilité d'affichage
-                const giftFromPersonal: GiftWithForUser = {
-                    id: data.personalGift.id,
-                    name: data.personalGift.name,
-                    description: data.personalGift.description,
-                    url: data.personalGift.url,
-                    userId: null,  // PersonalGift n'a pas de userId (pour compatibilité)
-                    takenUserId: connectedUser?.userId,
-                    user: null,
-                    forUser: data.personalGift.forUser || null  // Garder l'info du destinataire
-                } as GiftWithForUser;
-                
-                setLocalTakenGifts((oldGifts) => [...oldGifts, giftFromPersonal]);
-                clearAllFields();
-                Swal.fire({ title: 'Cadeau ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
-            } else {
-                Swal.fire({ title: 'Erreur', text: "Impossible d'ajouter ce cadeau. Réessayez dans quelques instants.", icon: 'error' });
+    const handleCreatePersonalGift = async (data: { name: string; description: string; link: string; forUserId: string }): Promise<void> => {
+        const result = await AxiosWrapper.post('/api/personalGift', {
+            personalGift: {
+                name: data.name,
+                description: data.description || null,
+                url: data.link || null,
+                userId: connectedUser?.userId,
+                groupId: connectedUser?.groupId,
+                forUserId: data.forUserId || null
             }
-        } finally {
-            setIsCreatingGift(false);
+        });
+        const res = result?.data;
+        if (res && res.success && res.personalGift) {
+            const giftFromPersonal: GiftWithForUser = {
+                id: res.personalGift.id,
+                name: res.personalGift.name,
+                description: res.personalGift.description,
+                url: res.personalGift.url,
+                userId: null,
+                takenUserId: connectedUser?.userId,
+                user: null,
+                forUser: res.personalGift.forUser || null
+            } as GiftWithForUser;
+            setLocalTakenGifts((old) => [...old, giftFromPersonal]);
+            Swal.fire({ title: 'Cadeau ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
+        } else {
+            Swal.fire({ title: 'Erreur', text: "Impossible d'ajouter ce cadeau. Réessayez dans quelques instants.", icon: 'error' });
+            throw new Error('api error');
         }
     };
 
@@ -174,196 +147,111 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
         }
     };
 
+    const reservedGifts = localTakenGifts.filter((g) => g.user !== null);
+    const personalGifts = localTakenGifts.filter((g) => g.user === null);
+
     return (
         <Layout selectedHeader={EHeader.TakenGiftList}>
-            <div className="mb-10">
-                <h1>{`Voici la liste des cadeaux que je prends:`}</h1>
+            <div>
+                {/* Title */}
+                <div className="mb-8">
+                    <h1 className="text-2xl font-bold text-gray-800">Mes réservations</h1>
+                </div>
 
-                {/* Cadeaux sélectionnés depuis les listes d'autres utilisateurs */}
-                <h2 className="text-2xl font-semibold mt-6 mb-4">🎁 Cadeaux réservés</h2>
-                {localTakenGifts.filter((gift) => gift.user !== null).length === 0 ? (
-                    <p className="text-gray-500 italic mb-6">Aucun cadeau réservé pour le moment</p>
+                {/* ── Cadeaux réservés ── */}
+                <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Cadeaux réservés</p>
+                {reservedGifts.length === 0 ? (
+                    <div className="bg-white rounded-xl p-8 text-center mb-8 shadow-sm">
+                        <p className="text-3xl mb-2">🎁</p>
+                        <p className="text-sm text-gray-400">Aucun cadeau réservé pour le moment</p>
+                    </div>
                 ) : (
-                    localTakenGifts
-                        .filter((gift) => gift.user !== null)
-                        .map((gift, idx) => (
-                            <div key={`takenGift_${idx}`} className="item flex justify-between items-center w-full">
-                                <div className="w-full block">
-                                    <p className="mb-2 text-xl flex">
-                                        <GiftIcon className="pr-3 w-9" />
-                                        <b className="pr-2">Pour:</b>
-                                        {gift.user?.name}
-                                    </p>
-                                    <p>
-                                        <b className="pr-2">Nom:</b>
-                                        {(gift as any).parentGift ? (
-                                            <>
-                                                <span className="text-gray-500">{(gift as any).parentGift.name}</span>
-                                                <span className="mx-1 text-gray-400">›</span>
-                                                <span>{gift.name}</span>
-                                            </>
-                                        ) : (
-                                            gift.name
-                                        )}
-                                    </p>
-
-                                    {gift.description && (
-                                        <p>
-                                            <b className="pr-2">Description:</b>
-                                            {gift.description}
-                                        </p>
-                                    )}
-
-                                    {gift.url && (
-                                        <div className="mt-2">
-                                            <ModernLink href={gift.url} />
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <CustomButton 
-                                        onClick={() => onUnBlockGiftClick(gift)}
-                                        disabled={releasingGiftId === (gift.userTakenGiftId ?? gift.id)}
+                    <div className="mb-8">
+                        {reservedGifts.map((gift, idx) => {
+                            const color = avatarColor(gift.user?.name ?? 'A');
+                            const uniqueKey = gift.userTakenGiftId ?? gift.id;
+                            return (
+                                <div key={`takenGift_${idx}`} className="item flex items-center gap-4">
+                                    <div
+                                        className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                                        style={{ background: color.bg, color: color.text }}
                                     >
-                                        {releasingGiftId === (gift.userTakenGiftId ?? gift.id) ? 'Libération...' : 'Je ne prends plus ce cadeau'}
+                                        {gift.user?.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        {(gift as any).parentGift ? (
+                                            <p className="font-semibold text-gray-800 truncate">
+                                                <span className="font-normal text-gray-400">{(gift as any).parentGift.name} › </span>
+                                                {gift.name}
+                                            </p>
+                                        ) : (
+                                            <p className="font-semibold text-gray-800 truncate">{gift.name}</p>
+                                        )}
+                                        <p className="text-sm text-gray-400 mt-0.5">Pour {gift.user?.name}</p>
+                                        {gift.description && <p className="text-sm text-gray-500 mt-1">{gift.description}</p>}
+                                        {gift.url && <div className="mt-1"><ModernLink href={gift.url} /></div>}
+                                    </div>
+                                    <CustomButton
+                                        onClick={() => onUnBlockGiftClick(gift)}
+                                        disabled={releasingGiftId === uniqueKey}
+                                    >
+                                        {releasingGiftId === uniqueKey ? '...' : 'Libérer'}
                                     </CustomButton>
                                 </div>
-                            </div>
-                        ))
+                            );
+                        })}
+                    </div>
                 )}
 
-                {/* Cadeaux personnels */}
-                <h2 className="text-2xl font-semibold mt-8 mb-4">📝 Mes cadeaux personnels</h2>
-                <p className="text-sm text-gray-600 mb-4">
-                    Ces cadeaux ne sont visibles que par toi et ne sont pas associés à une liste d&apos;utilisateur
-                </p>
-                {localTakenGifts.filter((gift) => gift.user === null).length === 0 ? (
-                    <p className="text-gray-500 italic mb-4">Aucun cadeau personnel</p>
+                {/* ── Cadeaux personnels ── */}
+                <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1 mt-8">Cadeaux personnels</p>
+                <p className="text-sm text-gray-400 mb-4">Visibles uniquement par toi</p>
+                {personalGifts.length === 0 ? (
+                    <div className="bg-white rounded-xl p-8 text-center mb-6 shadow-sm">
+                        <p className="text-3xl mb-2">📝</p>
+                        <p className="text-sm text-gray-400">Aucun cadeau personnel ajouté</p>
+                    </div>
                 ) : (
-                    localTakenGifts
-                        .filter((gift) => gift.user === null)
-                        .map((gift, idx) => (
-                            <div key={`personalGift_${idx}`} className="item flex justify-between items-center w-full">
-                                <div className="w-full block">
-                                    <p className="mb-2 text-xl flex">
-                                        <GiftIcon className="pr-3 w-9" />
-                                        <b className="pr-2">Cadeau personnel</b>
-                                    </p>
-                                    <p>
-                                        <b className="pr-2">Nom:</b>
-                                        {gift.name}
-                                    </p>
-
-                                    {gift.forUser && (
-                                        <p>
-                                            <b className="pr-2">Pour:</b>
-                                            {gift.forUser.name}
-                                        </p>
-                                    )}
-
-                                    {gift.description && (
-                                        <p>
-                                            <b className="pr-2">Description:</b>
-                                            {gift.description}
-                                        </p>
-                                    )}
-
-                                    {gift.url && (
-                                        <div className="mt-2">
-                                            <ModernLink href={gift.url} />
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <CustomButton 
+                    <div className="mb-6">
+                        {personalGifts.map((gift, idx) => {
+                            const color = gift.forUser ? avatarColor(gift.forUser.name) : { bg: '#f3f4f6', text: '#6b7280' };
+                            return (
+                                <div key={`personalGift_${idx}`} className="item flex items-center gap-4">
+                                    <div
+                                        className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                                        style={{ background: color.bg, color: color.text }}
+                                    >
+                                        {gift.forUser ? gift.forUser.name.charAt(0).toUpperCase() : '📝'}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-semibold text-gray-800 truncate">{gift.name}</p>
+                                        {gift.forUser && <p className="text-sm text-gray-400 mt-0.5">Pour {gift.forUser.name}</p>}
+                                        {gift.description && <p className="text-sm text-gray-500 mt-1">{gift.description}</p>}
+                                        {gift.url && <div className="mt-1"><ModernLink href={gift.url} /></div>}
+                                    </div>
+                                    <CustomButton
                                         onClick={() => deletePersonalGift(gift.id)}
                                         disabled={deletingGiftId === gift.id}
                                     >
-                                        {deletingGiftId === gift.id ? 'Suppression...' : 'Supprimer'}
+                                        {deletingGiftId === gift.id ? '...' : 'Supprimer'}
                                     </CustomButton>
                                 </div>
-                            </div>
-                        ))
-                )}
-
-                {!formData.isCreating && (
-                    <CustomButton className="green-button mt-4" onClick={onCreatingPersonalGiftClick}>
-                        ➕ Ajouter un cadeau personnel
-                    </CustomButton>
-                )}
-
-                {formData.isCreating && (
-                    <div className="block pt-3 item">
-                        <b>Ajouter un cadeau personnel:</b>
-                        <p className="text-sm text-gray-600 mb-2">
-                            Ce cadeau ne sera visible que par toi
-                        </p>
-                        {formData.error && <p className="text-red-500">{formData.error}</p>}
-
-                        <div className="input-group pt-3">
-                            <label className="input-label">Nom du cadeau:</label>
-                            <textarea
-                                id="newGiftInputId"
-                                className="input-field"
-                                value={formData.name}
-                                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                                placeholder="Ex: Livre Harry Potter"
-                            />
-                        </div>
-
-                        <div className="input-group">
-                            <label className="input-label">Pour qui ?</label>
-                            <select
-                                className="input-field"
-                                value={formData.forUserId}
-                                onChange={(e) => setFormData((prev) => ({ ...prev, forUserId: e.target.value }))}
-                            >
-                                <option value="">Personne en particulier</option>
-                                <option value={connectedUser?.userId}>Moi-même</option>
-                                <option disabled>──────────</option>
-                                {groupUsers
-                                    .filter(u => u.id !== connectedUser?.userId)
-                                    .map(user => (
-                                        <option key={user.id} value={user.id}>
-                                            {user.name}
-                                        </option>
-                                    ))
-                                }
-                            </select>
-                        </div>
-
-                        <div className="input-group">
-                            <label className="input-label">Description:</label>
-                            <textarea
-                                className="input-field"
-                                value={formData.description}
-                                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-                            />
-                        </div>
-
-                        <div className="input-group">
-                            <label className="input-label">Lien:</label>
-                            <textarea
-                                className="input-field"
-                                value={formData.link}
-                                onChange={(e) => setFormData((prev) => ({ ...prev, link: e.target.value }))}
-                            />
-                        </div>
-
-                        <div className="py-2">
-                            <CustomButton 
-                                className="green-button" 
-                                onClick={createPersonalGift} 
-                                disabled={formData.name === '' || isCreatingGift}
-                            >
-                                {isCreatingGift ? 'Ajout en cours...' : 'Valider'}
-                            </CustomButton>
-
-                            <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
-                        </div>
+                            );
+                        })}
                     </div>
+                )}
+
+                <CustomButton className="green-button" onClick={() => setShowPersonalGiftModal(true)}>
+                    Ajouter un cadeau personnel
+                </CustomButton>
+
+                {showPersonalGiftModal && (
+                    <PersonalGiftModal
+                        groupUsers={groupUsers}
+                        currentUserId={connectedUser?.userId}
+                        onClose={() => setShowPersonalGiftModal(false)}
+                        onSubmit={handleCreatePersonalGift}
+                    />
                 )}
             </div>
         </Layout>

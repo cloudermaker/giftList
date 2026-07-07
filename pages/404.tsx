@@ -14,8 +14,9 @@ export default function Custom404() {
                 noIndex={true}
             />
 
-            <div className="item text-center w-fit justify-self-center mt-10">
-                <h1 className="text-4xl font-bold text-rougeNoel mb-6">404</h1>
+            <div className="text-center mt-10">
+                <p className="text-sm text-gray-500 mb-1">Erreur</p>
+                <h1 className="text-2xl font-bold text-gray-800 mb-6">Page non trouvée</h1>
 
                 <div className="mb-6 justify-self-center">
                     <video autoPlay loop muted playsInline width={300} height={300}>
@@ -23,15 +24,13 @@ export default function Custom404() {
                     </video>
                 </div>
 
-                <h2 className="text-2xl font-semibold mb-4">Page non trouvée</h2>
-
                 <p className="text-gray-600 mb-8">Oups ! On dirait que la page que vous recherchez a été déballée ailleurs.</p>
 
                 <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                    <CustomButton className="green-button" onClick={() => Router.push('/')}>
+                    <CustomButton className="slate-button" onClick={() => Router.push('/')}>
                         {"Retour à l'accueil"}
                     </CustomButton>
-                    <CustomButton className="green-button" onClick={() => Router.push('/help')}>
+                    <CustomButton className="slate-button" onClick={() => Router.push('/help')}>
                         {"Page d'aide"}
                     </CustomButton>
                 </div>

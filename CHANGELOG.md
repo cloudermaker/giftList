@@ -4,6 +4,30 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.0.0] - 2026-07-07
+
+### Modifié
+
+- Refonte visuelle complète : nouvelle palette de couleurs (terracotta, vert sauge, bleu ardoise), fond crème, cartes avec effet de survol animé
+- Navigation redessinée avec un indicateur blanc qui glisse entre les onglets
+- En-tête repensé : logo, nom du groupe centré, déconnexion en icône — plus compact sur mobile
+- Page d'accueil connecté : cartes membres cliquables avec avatar coloré
+- Page réservations : cartes redessinées, bouton "Libérer" plus court, ajout de cadeau personnel dans une modale
+- Page de connexion : colonne droite remplacée par une maquette animée de l'appli (3 scénarios aléatoires)
+- Liste de cadeaux : message affiché quand la liste est vide
+
+### Ajouté
+
+- SEO : nouvelle section "Pour quelle occasion ?" (Noël, naissance, anniversaire, mariage), titre et description enrichis
+
+## [4.3.0] - 2026-06-19
+
+### Ajouté
+
+- Backoffice : renommer un groupe ou un membre, ajouter un membre, supprimer un membre
+- Backoffice : date de création affichée pour chaque membre
+- Backoffice : protection contre la création ou le renommage d'un groupe avec un nom déjà existant
+
 ## [4.2.0] - 2026-06-01
 
 ### Ajouté
