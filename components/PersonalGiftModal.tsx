@@ -25,6 +25,8 @@ export const PersonalGiftModal = ({ groupUsers, currentUserId, onClose, onSubmit
         try {
             await onSubmit({ name, description, link, forUserId });
             onClose();
+        } catch {
+            setError("Une erreur est survenue. Réessayez dans quelques instants.");
         } finally {
             setIsSubmitting(false);
         }
@@ -69,7 +71,7 @@ export const PersonalGiftModal = ({ groupUsers, currentUserId, onClose, onSubmit
                         onChange={(e) => setForUserId(e.target.value)}
                     >
                         <option value="">Personne en particulier</option>
-                        <option value={currentUserId}>Moi-même</option>
+                        {currentUserId && <option value={currentUserId}>Moi-même</option>}
                         <option disabled>──────────</option>
                         {groupUsers.filter(u => u.id !== currentUserId).map(user => (
                             <option key={user.id} value={user.id}>{user.name}</option>
