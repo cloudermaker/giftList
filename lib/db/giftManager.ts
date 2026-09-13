@@ -134,6 +134,7 @@ export const updateGifts = async (gifts: Gift[]): Promise<Gift[]> => {
 
 export const upsertGift = async (gift: Gift): Promise<Gift> => {
     const latestGift = await prisma.gift.aggregate({
+        where: { userId: gift.userId },
         _max: {
             order: true
         }

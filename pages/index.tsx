@@ -8,7 +8,9 @@ import { ErrorAlert } from '../components/atoms/ErrorAlert';
 import { useLogin } from '@/lib/hooks/useLogin';
 import SEO from '@/components/SEO';
 import { generatePageSchema, generateFAQSchema, generateWebAppSchema } from '@/lib/schema/schemaGenerators';
-import GiftIdeasGenerator from '@/components/GiftIdeasGenerator';
+import dynamic from 'next/dynamic';
+
+const GiftIdeasGenerator = dynamic(() => import('@/components/GiftIdeasGenerator'), { ssr: false });
 
 // Constants
 const ERROR_MESSAGES = {
@@ -23,10 +25,7 @@ const STORAGE_KEY_GROUP = 'recentGroupName';
 const STORAGE_KEY_NAME = 'recentUserName';
 const STORAGE_KEY_COOKIE_BANNER = 'cookieBannerDismissed';
 
-export default function Index(): JSX.Element {
-    const { login } = useLogin();
-
-    const MOCKUPS = [
+const MOCKUPS = [
         {
             group: 'Famille Dupont',
             groupInitial: 'F',
@@ -77,7 +76,10 @@ export default function Index(): JSX.Element {
                 { name: 'Famille', initial: 'F', bg: '#f0ebf8', color: '#7b5ea7', count: 5 },
             ],
         },
-    ];
+];
+
+export default function Index(): JSX.Element {
+    const { login } = useLogin();
 
     const [mockupIndex, setMockupIndex] = useState(0);
 

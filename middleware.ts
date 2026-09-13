@@ -41,7 +41,7 @@ export async function middleware(request: NextRequest) {
     }
 }
 
-// List secured path to check
+// List secured path to check (backoffice manages its own backoffice_session auth)
 export const config = {
-    matcher: ['/', '/home', '/group/:path*', '/giftList/:path*', '/backoffice', '/takenGiftList/:path*', '/maintenance']
+    matcher: ['/', '/home', '/group/:path*', '/giftList/:path*', '/takenGiftList/:path*', '/maintenance']
 };
