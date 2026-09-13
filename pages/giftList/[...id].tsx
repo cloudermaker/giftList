@@ -198,13 +198,20 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 ? await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`, { userId: connectedUser?.userId })
                 : await AxiosWrapper.post(`/api/gift/${giftToUpdate.id}/take`, { userId: connectedUser?.userId });
             if (res?.data?.success) {
-                const refreshRes = await AxiosWrapper.get(`/api/gift?giftId=${giftToUpdate.id}`);
-                const refreshData = refreshRes?.data as TGiftApiResult;
-                if (refreshData?.success && refreshData.gift) {
-                    const updated: GiftWithTakenUserId = { ...refreshData.gift, takenUserId: (refreshData.gift as any).takenUserId ?? null };
-                    setLocalGifts((prev) => prev.map((g) => g.id === giftToUpdate.id ? updated : g));
-                    Swal.fire({ title: isTaken ? 'Cadeau libéré !' : 'Cadeau réservé !', icon: 'success', timer: 1500, showConfirmButton: false });
+                if (giftToUpdate.giftType === ('SIMPLE' as GiftType)) {
+                    // Cas simple : mise à jour locale, pas besoin de re-fetch
+                    const takenUserId = isTaken ? null : connectedUser?.userId ?? null;
+                    setLocalGifts((prev) => prev.map((g) => g.id === giftToUpdate.id ? { ...g, takenUserId, takenByList: takenUserId ? [{ id: '', userId: takenUserId, takenAt: new Date().toISOString() }] : [] } as GiftWithTakenUserId : g));
+                } else {
+                    // MULTIPLE/UNLIMITED : état serveur plus riche (sous-cadeaux, multi-réservations) → re-fetch
+                    const refreshRes = await AxiosWrapper.get(`/api/gift?giftId=${giftToUpdate.id}`);
+                    const refreshData = refreshRes?.data as TGiftApiResult;
+                    if (refreshData?.success && refreshData.gift) {
+                        const updated: GiftWithTakenUserId = { ...refreshData.gift, takenUserId: (refreshData.gift as any).takenUserId ?? null };
+                        setLocalGifts((prev) => prev.map((g) => g.id === giftToUpdate.id ? updated : g));
+                    }
                 }
+                Swal.fire({ title: isTaken ? 'Cadeau libéré !' : 'Cadeau réservé !', icon: 'success', timer: 1500, showConfirmButton: false });
             } else {
                 Swal.fire({ title: 'Erreur', text: 'Impossible de réserver ce cadeau.', icon: 'error' });
             }

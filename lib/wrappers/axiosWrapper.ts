@@ -1,5 +1,10 @@
 import axios, { AxiosResponse } from 'axios';
-import Swal from 'sweetalert2';
+
+// sweetalert2 chargé à la demande : sinon il embarque ~40 kB dans le bundle de chaque page
+const showNetworkError = async (text: string): Promise<void> => {
+    const { default: Swal } = await import('sweetalert2');
+    Swal.fire('Erreur', text, 'error');
+};
 
 export default class AxiosWrapper {
     static async get(url: string): Promise<AxiosResponse<any, any> | undefined> {
@@ -13,11 +18,7 @@ export default class AxiosWrapper {
             
             // Sinon, erreur réseau ou autre - afficher le Swal générique
             console.log(`get: ${ex.message}`);
-            Swal.fire(
-                'Erreur',
-                "Désolé, une erreur imprévue est arrivée lors de la récupération du groupe.\r\nVeuillez prévenir l'équipe de développement.",
-                'error'
-            );
+            showNetworkError("Désolé, une erreur imprévue est arrivée lors de la récupération du groupe.\r\nVeuillez prévenir l'équipe de développement.");
         }
     }
 
@@ -32,11 +33,7 @@ export default class AxiosWrapper {
             
             // Sinon, erreur réseau ou autre - afficher le Swal générique
             console.log(`post: ${ex.message}`);
-            Swal.fire(
-                'Erreur',
-                "Désolé, une erreur imprévue est arrivée.\r\nVeuillez prévenir l'équipe de développement.",
-                'error'
-            );
+            showNetworkError("Désolé, une erreur imprévue est arrivée.\r\nVeuillez prévenir l'équipe de développement.");
         }
     }
 
@@ -51,11 +48,7 @@ export default class AxiosWrapper {
             
             // Sinon, erreur réseau ou autre - afficher le Swal générique
             console.log(`put: ${ex.message}`);
-            Swal.fire(
-                'Erreur',
-                "Désolé, une erreur imprévue est arrivée lors de la mise à jour.\r\nVeuillez prévenir l'équipe de développement.",
-                'error'
-            );
+            showNetworkError("Désolé, une erreur imprévue est arrivée lors de la mise à jour.\r\nVeuillez prévenir l'équipe de développement.");
         }
     }
 
@@ -70,11 +63,7 @@ export default class AxiosWrapper {
             
             // Sinon, erreur réseau ou autre - afficher le Swal générique
             console.log(`patch: ${ex.message}`);
-            Swal.fire(
-                'Erreur',
-                "Désolé, une erreur imprévue est arrivée lors du patch.\r\nVeuillez prévenir l'équipe de développement.",
-                'error'
-            );
+            showNetworkError("Désolé, une erreur imprévue est arrivée lors du patch.\r\nVeuillez prévenir l'équipe de développement.");
         }
     }
 
@@ -94,11 +83,7 @@ export default class AxiosWrapper {
             
             // Sinon, erreur réseau ou autre - afficher le Swal générique
             console.log(`delete: ${ex.message}`);
-            Swal.fire(
-                'Erreur',
-                "Désolé, une erreur imprévue est arrivée lors de la suppression.\r\nVeuillez prévenir l'équipe de développement.",
-                'error'
-            );
+            showNetworkError("Désolé, une erreur imprévue est arrivée lors de la suppression.\r\nVeuillez prévenir l'équipe de développement.");
         }
     }
 }
