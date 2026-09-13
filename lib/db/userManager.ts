@@ -2,12 +2,6 @@ import { User } from '@prisma/client';
 import prisma from './dbSingleton';
 import { addUserToGroup } from './userGroupManager';
 
-export const getUsers = async (): Promise<User[]> => {
-    var users = await prisma.user.findMany();
-
-    return users;
-};
-
 export const getUserByGroupAndName = async (userName: string, groupId: string): Promise<User | null> => {
     const user = await prisma.user.findFirst({
         where: {

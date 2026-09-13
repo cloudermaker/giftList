@@ -231,36 +231,6 @@ export const createSubGift = async (
     });
 };
 
-/**
- * Récupérer un cadeau avec ses sous-cadeaux et réservations
- */
-export const getGiftWithDetails = async (giftId: string) => {
-    return await prisma.gift.findUnique({
-        where: { id: giftId },
-        include: {
-            user: true,
-            subGifts: {
-                include: {
-                    takenBy: {
-                        include: {
-                            user: true
-                        }
-                    }
-                },
-                orderBy: {
-                    order: 'asc'
-                }
-            },
-            takenBy: {
-                include: {
-                    user: true
-                }
-            },
-            parentGift: true
-        }
-    });
-};
-
 export const deleteGift = async (giftId: string): Promise<void> => {
     await prisma.gift.delete({
         where: {

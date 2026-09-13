@@ -40,7 +40,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             error: '',
             groupUser: {
                 groupId: group.id,
-                groupIds: [group.id],
                 groupName: group.name,
                 userId: finalUser.id,
                 userName: finalUser.name,

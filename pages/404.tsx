@@ -2,7 +2,6 @@ import CustomButton from '@/components/atoms/customButton';
 import { Layout } from '@/components/layout';
 import SEO from '@/components/SEO';
 import Router from 'next/router';
-import Image from 'next/image';
 
 export default function Custom404() {
     return (
