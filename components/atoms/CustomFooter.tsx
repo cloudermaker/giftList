@@ -60,6 +60,12 @@ export const CustomFooter = (): JSX.Element => {
                         </div>
                     </div>
                 </div>
+
+                <div className="mt-4 text-center text-xs text-neutral-400">
+                    <Link href="/mentions-legales" className="hover:underline">Mentions légales</Link>
+                    <span className="mx-2">·</span>
+                    <Link href="/confidentialite" className="hover:underline">Confidentialité</Link>
+                </div>
             </div>
         </footer>
     );

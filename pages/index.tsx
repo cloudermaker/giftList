@@ -734,8 +734,9 @@ export default function Index(): JSX.Element {
                     <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:justify-between gap-3">
                         <div className="flex-1 text-sm text-gray-700 text-center md:text-left">
                             <p>
-                                🍪 Ce site n&apos;utilise <strong>aucun cookie de tracking</strong> ni de publicité. Nous
-                                utilisons uniquement le stockage local de votre navigateur pour améliorer votre expérience.
+                                🍪 Ce site n&apos;utilise <strong>aucun cookie publicitaire</strong>. Un cookie technique sert à la
+                                connexion et la fréquentation est mesurée sans cookie ni donnée personnelle ({' '}
+                                <Link href="/confidentialite" className="underline">en savoir plus</Link>).
                             </p>
                         </div>
                         <button onClick={handleDismissCookieBanner} aria-label="Fermer le bandeau">
