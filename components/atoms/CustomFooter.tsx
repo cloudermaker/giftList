@@ -49,7 +49,7 @@ export const CustomFooter = (): JSX.Element => {
                     {/* Social Links */}
                     <div className="flex gap-4">
                         <Link
-                            href={'https://www.facebook.com/'}
+                            href={'https://www.facebook.com/malistedecadeaux'}
                             className="p-2 rounded-full bg-white/30 hover:bg-white/50 transition-all duration-300 hover:scale-110 active:scale-95"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -57,7 +57,7 @@ export const CustomFooter = (): JSX.Element => {
                             <FacebookIcon className="w-5 text-neutral-600 hover:text-rougeNoel" />
                         </Link>
                         <Link
-                            href={'https://www.twitter.com/'}
+                            href={'https://twitter.com/malistedecadeaux'}
                             className="p-2 rounded-full bg-white/30 hover:bg-white/50 transition-all duration-300 hover:scale-110 active:scale-95"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -124,7 +124,7 @@ export const CustomFooter = (): JSX.Element => {
                     <div className="flex items-center gap-6">
                         <div className="flex gap-3">
                             <Link
-                                href={'https://www.facebook.com/'}
+                                href={'https://www.facebook.com/malistedecadeaux'}
                                 className="p-2 rounded-full bg-white/30 hover:bg-white/50 transition-all duration-300 hover:scale-110 active:scale-95"
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -132,7 +132,7 @@ export const CustomFooter = (): JSX.Element => {
                                 <FacebookIcon className="w-5 text-neutral-600 hover:text-rougeNoel" />
                             </Link>
                             <Link
-                                href={'https://www.twitter.com/'}
+                                href={'https://twitter.com/malistedecadeaux'}
                                 className="p-2 rounded-full bg-white/30 hover:bg-white/50 transition-all duration-300 hover:scale-110 active:scale-95"
                                 target="_blank"
                                 rel="noopener noreferrer"

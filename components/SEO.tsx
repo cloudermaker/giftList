@@ -31,18 +31,13 @@ export default function SEO({
             <meta name="description" content={description} />
             {keywords && <meta name="keywords" content={keywords} />}
             {noIndex ? <meta name="robots" content="noindex, nofollow" /> : <meta name="robots" content="index, follow" />}
-            <meta name="author" content="PLR" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <meta name="theme-color" content="#D42A37" />
-            <link rel="manifest" href="/manifest.json" />
-
             {/* Open Graph Tags */}
             <meta property="og:title" content={fullTitle} />
             <meta property="og:description" content={description} />
             <meta property="og:type" content={ogType} />
             <meta property="og:url" content={fullCanonicalUrl} />
             <meta property="og:site_name" content={siteName} />
-            <meta property="og:locale" content="fr" />
+            <meta property="og:locale" content="fr_FR" />
             {ogImage && <meta property="og:image" content={`${siteUrl}${ogImage}`} />}
 
             {/* Twitter Card Tags */}
@@ -57,9 +52,6 @@ export default function SEO({
 
             {/* Canonical Link */}
             <link rel="canonical" href={fullCanonicalUrl} />
-
-            {/* Favicon */}
-            <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         </Head>
     );
 }

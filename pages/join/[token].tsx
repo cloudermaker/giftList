@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { GetServerSideProps } from 'next';
 import NProgress from 'nprogress';
 import { Layout } from '@/components/layout';
+import SEO from '@/components/SEO';
 import { CustomInput } from '@/components/atoms/customInput';
 import CustomButton from '@/components/atoms/customButton';
 import { ErrorAlert } from '@/components/atoms/ErrorAlert';
@@ -71,6 +72,7 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
 
     return (
         <Layout withHeader={false}>
+            <SEO title="Rejoindre un groupe" noIndex />
             <section className="flex justify-center items-start px-4 py-8">
                 <div className="w-full max-w-md">
                     <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
