@@ -12,6 +12,9 @@ import { GetServerSidePropsContext } from 'next';
 
 type TMember = { id: string; name: string; isAdmin: boolean; createdAt?: string };
 
+// Formatage déterministe (locale + fuseau fixes) pour éviter les mismatchs d'hydratation SSR
+const DATE_FMT = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Europe/Paris' });
+
 type TGroupItem = { id: string; name: string; createdAt: string };
 
 type TGroupRowProps = {
@@ -153,7 +156,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
                 <div className="flex items-center gap-3">
                     <span className={`text-indigo-400 transition-transform duration-200 text-xs ${expanded ? 'rotate-90' : ''}`}>▶</span>
                     <span className="font-semibold">{groupName}</span>
-                    <span className="hidden md:inline text-xs text-neutral-400">{group.createdAt ? new Date(group.createdAt).toLocaleString() : ''}</span>
+                    <span className="hidden md:inline text-xs text-neutral-400">{group.createdAt ? DATE_FMT.format(new Date(group.createdAt)) : ''}</span>
                 </div>
                 <div className="flex gap-0.5 md:gap-2" onClick={(e) => e.stopPropagation()}>
                     <CustomButton className="icon-btn md:hidden" onClick={renameGroup}>✏️</CustomButton>
@@ -193,7 +196,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
                                             <span className="ml-2 text-xs text-rougeNoel font-medium">(admin)</span>
                                         )}
                                         {member.createdAt && (
-                                            <span className="hidden md:inline ml-2 text-xs text-neutral-400">{new Date(member.createdAt).toLocaleString()}</span>
+                                            <span className="hidden md:inline ml-2 text-xs text-neutral-400">{DATE_FMT.format(new Date(member.createdAt))}</span>
                                         )}
                                     </span>
                                     <div className="flex gap-0.5 md:gap-2">
