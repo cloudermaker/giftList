@@ -1,6 +1,4 @@
 import { ReactNode } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPowerOff } from '@fortawesome/free-solid-svg-icons';
 import { CustomFooter } from './atoms/CustomFooter';
 import { CustomHeader, EHeader } from './customHeader';
 import { Logo } from './Logo';
@@ -55,7 +53,10 @@ export const Layout = ({
                                     onClick={onDisconnectClick}
                                     title="Se déconnecter"
                                 >
-                                    <FontAwesomeIcon icon={faPowerOff} className="w-4 h-4" />
+                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                        <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                                        <line x1="12" y1="2" x2="12" y2="12" />
+                                    </svg>
                                 </button>
                             </div>
                             <div className="absolute right-0 top-full mt-1 w-48 p-2 bg-white border border-gray-200 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
