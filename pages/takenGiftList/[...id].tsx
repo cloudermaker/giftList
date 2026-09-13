@@ -269,9 +269,9 @@ export async function getServerSideProps(context: NextPageContext) {
         };
     }
 
-    // Charger les cadeaux réservés (takenUserId)
-    const takenGifts = await getTakenGiftsFromUserId(userId);
-    
+    // Charger en parallèle les cadeaux réservés et les cadeaux personnels
+    const [takenGifts, personalGifts] = await Promise.all([getTakenGiftsFromUserId(userId), getPersonalGiftsByUser(userId)]);
+
     // Filtrer pour ne garder QUE les cadeaux qui ont un user (vraies listes)
     // Les cadeaux orphelins (user=null) ne doivent plus apparaître ici
     const takenGiftsWithForUser = takenGifts
@@ -281,9 +281,6 @@ export async function getServerSideProps(context: NextPageContext) {
             forUser: null,
             parentGift: (gift as any).parentGift ?? null
         }));
-    
-    // Charger les cadeaux personnels créés par le user (depuis PersonalGift)
-    const personalGifts = await getPersonalGiftsByUser(userId);
     
     // Convertir PersonalGifts en format Gift pour compatibilité
     const personalGiftsAsGifts = personalGifts.map(pg => ({
