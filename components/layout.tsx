@@ -35,7 +35,7 @@ export const Layout = ({
                     {connectedUser && (
                         <div className="flex flex-col items-center">
                             <p className="text-xs font-medium tracking-widest uppercase text-gray-400 leading-none mb-1">Groupe</p>
-                            <p className="text-base font-bold text-gray-800 leading-none">{connectedUser.groupName}</p>
+                            <p className="text-base text-center font-bold text-gray-800 leading-none">{connectedUser.groupName}</p>
                         </div>
                     )}
 
