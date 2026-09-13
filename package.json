@@ -14,7 +14,7 @@
         "maintenance:off": "powershell -Command \"(Get-Content .env.local) | Where-Object { $_ -notmatch 'MAINTENANCE_MODE' } | Set-Content .env.local\""
     },
     "engines": {
-        "node": ">=22.x"
+        "node": "24.x"
     },
     "dependencies": {
         "@dnd-kit/core": "^6.1.0",
