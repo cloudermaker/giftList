@@ -8,6 +8,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { takeGift, releaseGift, releaseOneTakenGift } from '../../../../lib/db/userTakenGiftManager';
 import prisma from '../../../../lib/db/dbSingleton';
+import { getSession } from '@/lib/auth/session';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -17,12 +18,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Gift ID required' });
     }
 
+    // Le user vient de la session signée : impossible de réserver/libérer au nom d'un autre
+    const session = getSession(req);
+    const userId = session?.userId;
+
     // POST - Réserver un cadeau
     if (req.method === 'POST') {
-      const { userId } = req.body;
-
       if (!userId) {
-        return res.status(400).json({ error: 'userId required' });
+        return res.status(401).json({ error: 'Authentification requise' });
       }
 
       try {
@@ -45,10 +48,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // DELETE - Libérer un cadeau réservé
     if (req.method === 'DELETE') {
-      const { userId, takenGiftId } = req.body;
+      const { takenGiftId } = req.body;
 
       if (!userId) {
-        return res.status(400).json({ error: 'userId required' });
+        return res.status(401).json({ error: 'Authentification requise' });
       }
 
       // Pour les cadeaux UNLIMITED : supprimer une réservation spécifique par son id
@@ -73,9 +76,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   } catch (error) {
     console.error('Error in /api/gift/[id]/take:', error);
-    return res.status(500).json({ 
-      error: 'Internal server error',
-      details: String(error)
-    });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }

@@ -116,7 +116,7 @@ export const updateGroup = async (groupId: string, group: Group): Promise<Group>
         where: {
             id: groupId
         },
-        data: { ...groupData, name: group.name.trim(), updatedAt: new Date() }
+        data: { ...groupData, ...(group.name ? { name: group.name.trim() } : {}), updatedAt: new Date() }
     });
 
     return newGroup;

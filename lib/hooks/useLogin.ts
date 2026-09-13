@@ -1,5 +1,4 @@
 import { TAuthenticateResult } from '@/pages/api/authenticate';
-import { setAuthCookie } from '../auth/authService';
 import AxiosWrapper from '../wrappers/axiosWrapper';
 
 export const useLogin = () => {
@@ -15,13 +14,8 @@ export const useLogin = () => {
             isCreating,
             password
         });
-        const data = res?.data as TAuthenticateResult;
-
-        if (data?.success && data.groupUser) {
-            setAuthCookie(data.groupUser);
-        }
-
-        return data;
+        // Le cookie de session signé est posé par le serveur (Set-Cookie)
+        return res?.data as TAuthenticateResult;
     };
 
     return { login };

@@ -33,7 +33,7 @@ export const createPersonalGift = async (data: PersonalGiftData) => {
     include: {
       user: true,
       forUser: true,
-      group: true
+      group: { select: { id: true, name: true } }
     }
   });
 };
@@ -49,7 +49,7 @@ export const getPersonalGiftsByUser = async (userId: string, groupId?: string) =
     },
     include: {
       forUser: true,
-      group: true
+      group: { select: { id: true, name: true } }
     },
     orderBy: { createdAt: 'desc' }
   });
@@ -80,7 +80,7 @@ export const getPersonalGiftsForUser = async (forUserId: string, groupId?: strin
     },
     include: {
       user: true,
-      group: true
+      group: { select: { id: true, name: true } }
     },
     orderBy: { createdAt: 'desc' }
   });
@@ -95,7 +95,7 @@ export const getPersonalGiftById = async (id: string) => {
     include: {
       user: true,
       forUser: true,
-      group: true
+      group: { select: { id: true, name: true } }
     }
   });
 };
@@ -123,7 +123,7 @@ export const updatePersonalGift = async (
     include: {
       user: true,
       forUser: true,
-      group: true
+      group: { select: { id: true, name: true } }
     }
   });
 };

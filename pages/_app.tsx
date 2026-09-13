@@ -2,6 +2,7 @@ import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { Analytics } from '@vercel/analytics/react';
+import { UserProvider } from '@/lib/context/UserContext';
 
 import Router from 'next/router';
 import NProgress from 'nprogress';
@@ -78,7 +79,9 @@ export default function App({ Component, pageProps }: AppProps) {
                 <script type="application/ld+json" dangerouslySetInnerHTML={addJsonLd()} key="item-jsonld" />
             </Head>
 
-            <Component {...pageProps} />
+            <UserProvider>
+                <Component {...pageProps} />
+            </UserProvider>
             <Analytics />
         </>
     );

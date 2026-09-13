@@ -16,6 +16,14 @@ import {
   removeUserFromGroup,
   updateUserRole
 } from '../../lib/db/userGroupManager';
+import { getSession, isBackofficeSession } from '@/lib/auth/session';
+
+// Écritures (ajout, promotion, retrait) : backoffice, ou admin (session signée) du groupe visé
+const canWriteMembership = (req: NextApiRequest, groupId: string): boolean => {
+  if (isBackofficeSession(req)) return true;
+  const session = getSession(req);
+  return (session?.isAdmin ?? false) && session?.groupId === groupId;
+};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -45,6 +53,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (!userId || !groupId) {
         return res.status(400).json({ error: 'userId and groupId required' });
       }
+      if (!canWriteMembership(req, groupId)) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
 
       const membership = await addUserToGroup(
         userId, 
@@ -65,6 +76,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (!userId || !groupId || !role) {
         return res.status(400).json({ error: 'userId, groupId and role required' });
       }
+      if (!canWriteMembership(req, groupId)) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
 
       const membership = await updateUserRole(userId, groupId, role as Role);
 
@@ -81,6 +95,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (!userId || !groupId || typeof userId !== 'string' || typeof groupId !== 'string') {
         return res.status(400).json({ error: 'userId and groupId required' });
       }
+      if (!canWriteMembership(req, groupId)) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
 
       await removeUserFromGroup(userId, groupId);
 
@@ -94,9 +111,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   } catch (error) {
     console.error('Error in /api/userGroup:', error);
-    return res.status(500).json({ 
-      error: 'Internal server error',
-      details: String(error)
-    });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }

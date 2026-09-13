@@ -13,6 +13,7 @@ import {
   getPersonalGiftsByGroup,
   getPersonalGiftsForUser
 } from '../../../lib/db/personalGiftManager';
+import { getSession } from '@/lib/auth/session';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -55,17 +56,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ error: 'personalGift object required' });
       }
 
-      const { name, description, url, userId, forUserId, groupId } = personalGift;
+      const { name, description, url, forUserId, groupId } = personalGift;
 
-      if (!name || !userId || !groupId) {
-        return res.status(400).json({ error: 'name, userId and groupId required' });
+      // Le propriétaire vient de la session signée, pas du body
+      const session = getSession(req);
+      if (!session) {
+        return res.status(401).json({ error: 'Authentification requise' });
+      }
+
+      if (!name || !groupId) {
+        return res.status(400).json({ error: 'name and groupId required' });
       }
 
       const gift = await createPersonalGift({
         name: name.trim(),
         description: description?.trim(),
         url: url?.trim(),
-        userId,
+        userId: session.userId,
         forUserId: forUserId || undefined,
         groupId
       });
@@ -80,9 +87,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   } catch (error) {
     console.error('Error in /api/personalGift:', error);
-    return res.status(500).json({ 
-      error: 'Internal server error',
-      details: String(error)
-    });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
