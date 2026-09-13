@@ -17,10 +17,20 @@ export const buildDefaultGroup = () => {
 
 const generateInviteToken = (): string => randomBytes(5).toString('hex');
 
-export const getGroups = async (): Promise<Group[]> => {
-    var groups = await prisma.group.findMany();
+export type TGroupSummary = { id: string; name: string; createdAt: Date | null };
 
-    return groups;
+export const getGroupsPage = async (page: number, pageSize = 10): Promise<{ groups: TGroupSummary[]; totalCount: number }> => {
+    const [groups, totalCount] = await prisma.$transaction([
+        prisma.group.findMany({
+            skip: (page - 1) * pageSize,
+            take: pageSize,
+            orderBy: { createdAt: 'desc' },
+            select: { id: true, name: true, createdAt: true }
+        }),
+        prisma.group.count()
+    ]);
+
+    return { groups, totalCount };
 };
 
 export const getGroupById = async (groupId: string): Promise<Group | null> => {

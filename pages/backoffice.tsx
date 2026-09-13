@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Layout } from '@/components/layout';
 import { EHeader } from '@/components/customHeader';
 import CustomButton from '@/components/atoms/customButton';
-import { buildDefaultGroup, getGroups } from '@/lib/db/groupManager';
+import { buildDefaultGroup, getGroupsPage } from '@/lib/db/groupManager';
 import { TGroupApiResult } from './api/group';
 import { Group } from '@prisma/client';
 import Swal from 'sweetalert2';
@@ -12,8 +12,10 @@ import { GetServerSidePropsContext } from 'next';
 
 type TMember = { id: string; name: string; isAdmin: boolean; createdAt?: string };
 
+type TGroupItem = { id: string; name: string; createdAt: string };
+
 type TGroupRowProps = {
-    group: Group;
+    group: TGroupItem;
     onRemove: (id: string) => void;
     onRename: (id: string, newName: string) => void;
 };
@@ -219,9 +221,18 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
     );
 };
 
-const Backoffice = ({ groups = [], isAuthenticated: initialAuth = false }: { groups: Group[]; isAuthenticated: boolean }): JSX.Element => {
+type TBackofficeProps = {
+    groups: TGroupItem[];
+    isAuthenticated: boolean;
+    page: number;
+    totalCount: number;
+    pageSize: number;
+};
+
+const Backoffice = ({ groups = [], isAuthenticated: initialAuth = false, page = 1, totalCount = 0, pageSize = 10 }: TBackofficeProps): JSX.Element => {
     const [isAuthenticated] = useState<boolean>(initialAuth);
-    const [localGroups, setLocalGroups] = useState<Group[]>(groups);
+    const [localGroups, setLocalGroups] = useState<TGroupItem[]>(groups);
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
     const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
     const [newGroupName, setNewGroupName] = useState<string>('');
     const [newPassword, setNewPassword] = useState<string>('');
@@ -316,8 +327,8 @@ const Backoffice = ({ groups = [], isAuthenticated: initialAuth = false }: { gro
         const data = result?.data as TGroupApiResult;
 
         if (data && data.success && data.group) {
-            setLocalGroups((value) => [...value, data.group!]);
             clearAllFields();
+            Router.push('/backoffice'); // newest first: the new group shows on page 1
         } else {
             Swal.fire({
                 title: 'Erreur',
@@ -367,6 +378,20 @@ const Backoffice = ({ groups = [], isAuthenticated: initialAuth = false }: { gro
                     />
                 ))}
 
+                {totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-4 mt-4 mb-2">
+                        <CustomButton disabled={page <= 1} onClick={() => Router.push(`/backoffice?page=${page - 1}`)}>
+                            ← Précédent
+                        </CustomButton>
+                        <span className="text-sm text-neutral-500">
+                            Page {page} / {totalPages}
+                        </span>
+                        <CustomButton disabled={page >= totalPages} onClick={() => Router.push(`/backoffice?page=${page + 1}`)}>
+                            Suivant →
+                        </CustomButton>
+                    </div>
+                )}
+
                 {!creatingGroup && (
                     <CustomButton className="green-button mt-2" onClick={onCreatingGroupButtonClick}>
                         Ajouter
@@ -403,21 +428,26 @@ const Backoffice = ({ groups = [], isAuthenticated: initialAuth = false }: { gro
     );
 };
 
+const PAGE_SIZE = 10;
+
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const isAuthenticated = context.req.cookies['backoffice_session'] === '1';
 
     if (!isAuthenticated) {
-        return { props: { groups: [], isAuthenticated: false } };
+        return { props: { groups: [], isAuthenticated: false, page: 1, totalCount: 0, pageSize: PAGE_SIZE } };
     }
 
-    const groups = await getGroups();
+    const page = Math.max(1, parseInt((context.query.page as string) ?? '1', 10) || 1);
+    const { groups, totalCount } = await getGroupsPage(page, PAGE_SIZE);
 
     return {
         props: {
             isAuthenticated: true,
+            page,
+            totalCount,
+            pageSize: PAGE_SIZE,
             groups: groups.map((group) => ({
                 ...group,
-                updatedAt: group.updatedAt?.toISOString() ?? '',
                 createdAt: group.createdAt?.toISOString() ?? ''
             }))
         }
