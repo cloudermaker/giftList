@@ -4,6 +4,23 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.2.0] - 2026-09-13
+
+### Ajouté
+
+- Quatre pages d'atterrissage par occasion : Noël, naissance, anniversaire, mariage — reliées depuis l'accueil et le sitemap
+- Pages mentions légales et politique de confidentialité, reliées depuis l'aide et le pied de page
+
+### Modifié
+
+- Sécurité : cookie de session signé côté serveur — il n'est plus possible de forger un accès admin
+- Sécurité : les actions destructrices (suppression de groupe/membre/cadeau, promotion admin) exigent une session valide
+- Sécurité : le mot de passe admin d'un groupe n'est plus renvoyé par l'API ni intégré dans la page du groupe
+- Formulaire de contact : limite d'envois par heure, validation et échappement des champs
+- Performance : sweetalert2 chargé à la demande — pages publiques nettement plus légères
+- Performance : réservation/libération d'un cadeau simple sans rechargement serveur
+- Bandeau cookies reformulé (mesure d'audience sans cookie mentionnée)
+
 ## [5.1.0] - 2026-09-13
 
 ### Modifié
