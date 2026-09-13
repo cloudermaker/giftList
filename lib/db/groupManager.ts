@@ -34,13 +34,11 @@ export const getGroupsPage = async (page: number, pageSize = 10): Promise<{ grou
 };
 
 export const getGroupById = async (groupId: string): Promise<Group | null> => {
-    var groups = await prisma.group.findFirst({
+    return prisma.group.findUnique({
         where: {
             id: groupId
         }
     });
-
-    return groups;
 };
 
 export const getGroupByName = async (groupName: string): Promise<Group | null> => {

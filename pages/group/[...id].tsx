@@ -195,14 +195,13 @@ export async function getServerSideProps(context: NextPageContext) {
         };
     }
 
-    const group = await getGroupById(groupId);
+    const [group, groupUsers] = await Promise.all([getGroupById(groupId), getUsersFromGroupId(groupId)]);
 
     if (!group) {
         return { notFound: true };
     }
 
-    const groupUsers = await getUsersFromGroupId(groupId);
-    const inviteToken = await ensureGroupInviteToken(groupId);
+    const inviteToken = group.inviteToken ?? (await ensureGroupInviteToken(groupId));
 
     return {
         props: {
