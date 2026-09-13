@@ -232,10 +232,14 @@ type TBackofficeProps = {
     pageSize: number;
 };
 
-const Backoffice = ({ groups = [], isAuthenticated: initialAuth = false, page = 1, totalCount = 0, pageSize = 10 }: TBackofficeProps): JSX.Element => {
-    const [isAuthenticated] = useState<boolean>(initialAuth);
+const Backoffice = ({ groups = [], isAuthenticated = false, page = 1, totalCount = 0, pageSize = 10 }: TBackofficeProps): JSX.Element => {
     const [localGroups, setLocalGroups] = useState<TGroupItem[]>(groups);
     const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+
+    // Resynchronise l'état local quand les props SSR changent (navigation client : login, pagination)
+    useEffect(() => {
+        setLocalGroups(groups);
+    }, [groups]);
     const [creatingGroup, setCreatingGroup] = useState<boolean>(false);
     const [newGroupName, setNewGroupName] = useState<string>('');
     const [newPassword, setNewPassword] = useState<string>('');
