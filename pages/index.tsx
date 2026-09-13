@@ -484,26 +484,26 @@ export default function Index(): JSX.Element {
                 <p className="text-center text-gray-500 mb-8">Une seule plateforme pour toutes vos listes de cadeaux</p>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="item bg-white p-5 rounded-xl text-center">
+                    <Link href="/liste-de-noel" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">🎄</div>
                         <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux de Noël</h3>
                         <p className="text-sm text-gray-500">Organisez les échanges de cadeaux en famille sans doublons ni mauvaises surprises.</p>
-                    </div>
-                    <div className="item bg-white p-5 rounded-xl text-center">
+                    </Link>
+                    <Link href="/liste-de-naissance" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">👶</div>
                         <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux de naissance</h3>
                         <p className="text-sm text-gray-500">Créez votre liste de naissance gratuite, sans boutique imposée, partageable en un lien.</p>
-                    </div>
-                    <div className="item bg-white p-5 rounded-xl text-center">
+                    </Link>
+                    <Link href="/liste-anniversaire" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">🎂</div>
                         <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux anniversaire</h3>
                         <p className="text-sm text-gray-500">Fini les doublons pour les anniversaires enfants ou adultes — chacun réserve en secret.</p>
-                    </div>
-                    <div className="item bg-white p-5 rounded-xl text-center">
+                    </Link>
+                    <Link href="/liste-de-mariage" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">💍</div>
                         <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux mariage</h3>
                         <p className="text-sm text-gray-500">Partagez vos envies avec vos invités et laissez chacun choisir librement ce qu&apos;il offrira.</p>
-                    </div>
+                    </Link>
                 </div>
             </section>
 
