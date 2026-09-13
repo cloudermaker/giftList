@@ -48,10 +48,6 @@ body {
     padding-top: 0.5rem;
 }
 
-div {
-    display: block;
-}
-
 a {
     color: #4f46e5;
     text-decoration: none;
@@ -265,51 +261,6 @@ button:disabled {
     perspective: 1000px;
 }
 
-.header {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(230, 57, 70, 0.1);
-    box-shadow:
-        0 4px 6px -1px rgba(0, 0, 0, 0.1),
-        0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    padding: 1rem 2rem;
-    border-radius: 0.75rem;
-    align-items: center;
-    font-size: 1.25rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.header::before {
-    content: '🎀';
-    position: absolute;
-    top: -10px;
-    left: -10px;
-    font-size: 40px;
-    opacity: 0.2;
-    transform: rotate(-15deg);
-}
-
-.header::after {
-    content: '🎄';
-    position: absolute;
-    bottom: -10px;
-    right: -10px;
-    font-size: 40px;
-    opacity: 0.2;
-    transform: rotate(15deg);
-}
-
-.header:hover::before,
-.header:hover::after {
-    opacity: 0.3;
-    transition: opacity 0.5s ease;
-}
-
-.header div {
-    transition: all 0.3s ease-in-out;
-}
-
 .step-number {
     background: linear-gradient(45deg, #667eea, #764ba2);
     color: white;
@@ -344,26 +295,6 @@ button:disabled {
     margin-bottom: 20px;
 }
 
-.bg-shadow {
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 0.75rem;
-    width: auto;
-    display: block;
-    box-shadow:
-        0 8px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    position: relative;
-    overflow: hidden;
-    border-left: 3px solid #c0392b;
-    padding: 0.5rem 2rem;
-}
-
-.footer {
-    background-color: white;
-    border-top: 1px solid #f3f4f6;
-    box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05);
-}
-
 h1 {
     font-size: x-large;
     padding-bottom: 10px;
@@ -387,64 +318,6 @@ input {
 * {
     box-sizing: border-box;
 }
-
-/* SPINNER */
-.loading {
-    display: inline-block;
-    position: relative;
-    width: 80px;
-    height: 80px;
-}
-.loading div {
-    position: absolute;
-    top: 33px;
-    width: 13px;
-    height: 13px;
-    border-radius: 50%;
-    background: #fff;
-    animation-timing-function: cubic-bezier(0, 1, 1, 0);
-}
-.loading div:nth-child(1) {
-    left: 8px;
-    animation: lds-ellipsis1 0.6s infinite;
-}
-.loading div:nth-child(2) {
-    left: 8px;
-    animation: lds-ellipsis2 0.6s infinite;
-}
-.loading div:nth-child(3) {
-    left: 32px;
-    animation: lds-ellipsis2 0.6s infinite;
-}
-.loading div:nth-child(4) {
-    left: 56px;
-    animation: lds-ellipsis3 0.6s infinite;
-}
-@keyframes lds-ellipsis1 {
-    0% {
-        transform: scale(0);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-@keyframes lds-ellipsis3 {
-    0% {
-        transform: scale(1);
-    }
-    100% {
-        transform: scale(0);
-    }
-}
-@keyframes lds-ellipsis2 {
-    0% {
-        transform: translate(0, 0);
-    }
-    100% {
-        transform: translate(24px, 0);
-    }
-}
-/* END OF SPINNER */
 
 /* Form input styling */
 .input-group {
@@ -505,18 +378,6 @@ select.input-field option {
         padding-left: 1rem;
         padding-right: 1rem;
         padding-top: 0.5rem;
-    }
-
-    .bg-shadow {
-        background-color: rgba(255, 255, 255, 0.8);
-        border-radius: 0.75rem;
-        width: auto;
-        display: block;
-    }
-
-    .header {
-        padding: 0.75rem;
-        font-size: 1rem;
     }
 
     .input-group {

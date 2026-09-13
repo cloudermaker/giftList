@@ -20,10 +20,10 @@ We are using prisma as ORM.
 - npx prisma format
 - npx prisma db push (no rollback)
 
-## Todo
+## Environment
 
-- Add a proxy to hide easily the api calls (can be used for caching ? And with bearer)
-- Ajouter anniversaire en base + quand créé
-- Afficher anniversaire sur page principale
-- Ajouter calendrier sur la page
-- Changer la couleur des boutons + fond d'écran
+Copy `.env.example` to `.env.local` and fill in the values.
+
+## Roadmap
+
+See [docs/GLOBAL_STATUS_2026-09.md](docs/GLOBAL_STATUS_2026-09.md) for the categorised improvement plan and ideas backlog.

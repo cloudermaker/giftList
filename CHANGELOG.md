@@ -4,6 +4,29 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.1.0] - 2026-09-13
+
+### Modifié
+
+- Backoffice : liste des groupes paginée (10 par page, plus récents d'abord) — chargement bien plus rapide
+- Pages groupe et listes : requêtes serveur parallélisées, affichage plus rapide
+- Accueil : générateur d'idées cadeaux chargé à la demande, pages plus légères
+
+### Corrigé
+
+- Le pied de page ne disparaissait plus entre 640 et 768px (tablette)
+- Les aperçus de partage (Facebook, WhatsApp…) affichent le bon titre et la bonne image pour chaque page
+- La page de connexion du backoffice est accessible sans être connecté à un groupe
+
+### Ajouté
+
+- SEO : sitemap généré automatiquement, langue française déclarée, icônes d'application (PWA), redirection de l'ancienne URL /login
+- Fichier `.env.example` pour l'installation
+
+### Supprimé
+
+- Endpoints techniques obsolètes (migration, snapshot), scripts de migration legacy et dépendances inutilisées
+
 ## [5.0.0] - 2026-07-07
 
 ### Modifié

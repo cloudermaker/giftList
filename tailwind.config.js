@@ -3,23 +3,15 @@ module.exports = {
     content: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
     theme: {
         extend: {
-            minHeight: {
-                body: 'calc(100vh - 80px)'
-            },
             colors: {
                 vertNoel: '#4A7C59', // Sage green
                 rougeNoel: '#C0392B', // Terracotta
-                bleuNoel: '#4A6FA5', // Steel blue
-                giftGold: '#FFD700',
-                giftBlue: '#219EBC',
-                giftPink: '#FF69B4',
-                giftPurple: '#9370DB'
+                bleuNoel: '#4A6FA5' // Steel blue
             },
             boxShadow: {
                 'gift': '0 4px 10px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.08)',
                 'card': '0 10px 20px -3px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.07)',
-                'hover': '0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.07)',
-                'glow': '0 0 15px rgba(255, 215, 0, 0.5)'
+                'hover': '0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.07)'
             },
             keyframes: {
                 wiggle: {
@@ -39,9 +31,6 @@ module.exports = {
                 wiggle: 'wiggle 1s ease-in-out infinite',
                 bounce: 'bounce 1s ease-in-out infinite',
                 shimmer: 'shimmer 3s linear infinite'
-            },
-            maxWidth: {
-                'mid': '50%',
             },
             borderRadius: {
                 'xl': '1rem',

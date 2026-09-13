@@ -7,7 +7,9 @@ import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import CustomButton from '@/components/atoms/customButton';
 import Swal from 'sweetalert2';
-import GiftIdeasGenerator from '@/components/GiftIdeasGenerator';
+import dynamic from 'next/dynamic';
+
+const GiftIdeasGenerator = dynamic(() => import('@/components/GiftIdeasGenerator'), { ssr: false });
 import Router from 'next/router';
 import { OnboardingModal } from '@/components/OnboardingModal';
 

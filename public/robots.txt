@@ -12,6 +12,7 @@ Disallow: /giftList
 Disallow: /group
 Disallow: /takenGiftList
 Disallow: /backoffice
+Disallow: /join
 Disallow: /api/
 
 # For Google's image indexing

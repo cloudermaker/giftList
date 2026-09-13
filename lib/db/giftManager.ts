@@ -134,6 +134,7 @@ export const updateGifts = async (gifts: Gift[]): Promise<Gift[]> => {
 
 export const upsertGift = async (gift: Gift): Promise<Gift> => {
     const latestGift = await prisma.gift.aggregate({
+        where: { userId: gift.userId },
         _max: {
             order: true
         }
@@ -227,36 +228,6 @@ export const createSubGift = async (
             order: (maxOrder._max.order ?? -1) + 1,
             createdAt: new Date(),
             updatedAt: new Date()
-        }
-    });
-};
-
-/**
- * Récupérer un cadeau avec ses sous-cadeaux et réservations
- */
-export const getGiftWithDetails = async (giftId: string) => {
-    return await prisma.gift.findUnique({
-        where: { id: giftId },
-        include: {
-            user: true,
-            subGifts: {
-                include: {
-                    takenBy: {
-                        include: {
-                            user: true
-                        }
-                    }
-                },
-                orderBy: {
-                    order: 'asc'
-                }
-            },
-            takenBy: {
-                include: {
-                    user: true
-                }
-            },
-            parentGift: true
         }
     });
 };

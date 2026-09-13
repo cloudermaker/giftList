@@ -5,7 +5,6 @@ import { createUser, getUserByGroupAndName } from '@/lib/db/userManager';
 export type TGroupAndUser = {
     groupName: string;
     groupId: string;
-    groupIds: string[];     // NOUVEAU: Liste de tous les groupes du user
     userName: string;
     userId: string;
     isAdmin: boolean;
@@ -36,7 +35,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 error: '',
                 groupUser: {
                     groupId: group.id,
-                    groupIds: [group.id],
                     groupName: group.name,
                     userId: user.id,
                     userName: user.name,
@@ -57,7 +55,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                     error: '',
                     groupUser: {
                         groupId: group.id,
-                        groupIds: [group.id],
                         groupName: group.name,
                         userId: user.id,
                         userName: user.name,
@@ -77,7 +74,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                     error: '',
                     groupUser: {
                         groupId: group.id,
-                        groupIds: [group.id],
                         groupName: group.name,
                         userId: user.id,
                         userName: user.name,

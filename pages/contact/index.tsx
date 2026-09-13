@@ -1,5 +1,4 @@
 import CustomButton from '@/components/atoms/customButton';
-import { QuestionMarkIcon } from '@/components/icons/questionMark';
 import { Layout } from '@/components/layout';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Router from 'next/router';

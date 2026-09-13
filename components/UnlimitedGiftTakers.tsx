@@ -14,7 +14,7 @@ interface UnlimitedGiftTakersProps {
 
 function formatDate(date: Date | string): string {
     const d = typeof date === 'string' ? new Date(date) : date;
-    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Paris' });
 }
 
 export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, onGiftUpdate }: UnlimitedGiftTakersProps) {

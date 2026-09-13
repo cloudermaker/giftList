@@ -107,22 +107,6 @@ export const removeUserFromGroup = async (userId: string, groupId: string) => {
 };
 
 /**
- * Vérifier si un user est dans un groupe
- */
-export const isUserInGroup = async (userId: string, groupId: string) => {
-  const membership = await prisma.userGroupMapping.findUnique({
-    where: {
-      userId_groupId: {
-        userId,
-        groupId
-      }
-    }
-  });
-  
-  return membership !== null;
-};
-
-/**
  * Changer le rôle d'un user dans un groupe
  */
 export const updateUserRole = async (
@@ -139,33 +123,4 @@ export const updateUserRole = async (
     },
     data: { role }
   });
-};
-
-/**
- * Récupérer le premier groupe d'un user (pour compatibilité)
- */
-export const getUserPrimaryGroup = async (userId: string) => {
-  const membership = await prisma.userGroupMapping.findFirst({
-    where: { userId },
-    include: { group: true },
-    orderBy: { joinedAt: 'asc' }
-  });
-  
-  return membership?.group || null;
-};
-
-/**
- * Récupérer le rôle d'un user dans un groupe spécifique
- */
-export const getUserRole = async (userId: string, groupId: string): Promise<Role | null> => {
-  const membership = await prisma.userGroupMapping.findUnique({
-    where: {
-      userId_groupId: {
-        userId,
-        groupId
-      }
-    }
-  });
-  
-  return membership?.role || null;
 };

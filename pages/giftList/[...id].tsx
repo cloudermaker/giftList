@@ -17,7 +17,6 @@ import { getUserById } from '@/lib/db/userManager';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Swal from 'sweetalert2';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
-import { cloneDeep } from 'lodash';
 import { TUserApiResult } from '../api/user';
 import SubGiftList from '@/components/SubGiftList';
 import UnlimitedGiftTakers from '@/components/UnlimitedGiftTakers';
@@ -146,7 +145,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     };
 
     const saveGift = async (giftId: string | null = null) => {
-        const currentGift: GiftWithTakenUserId = cloneDeep(localGifts.find((g) => g.id === giftId)!);
+        const currentGift: GiftWithTakenUserId = structuredClone(localGifts.find((g) => g.id === giftId)!);
 
         if (giftId && currentGift?.giftType === 'MULTIPLE' && formType === 'SIMPLE' && (currentGift.subGiftsCount ?? 0) > 0) {
             Swal.fire({
@@ -488,8 +487,7 @@ export async function getServerSideProps(context: NextPageContext) {
 
     if (Number.isNaN(userId)) return { notFound: true };
 
-    const user = await getUserById(userId);
-    const giftList = await getGiftsFromUserId(userId);
+    const [user, giftList] = await Promise.all([getUserById(userId), getGiftsFromUserId(userId)]);
 
     return {
         props: {
