@@ -9,6 +9,11 @@ const parseUserCookie = (): TGroupAndUser | null => {
     try {
         const raw = Cookies.get(COOKIE_NAME);
         if (!raw) return null;
+        if (!raw.includes('.')) {
+            // Ancien cookie non signé (avant v5.2.0) : invalide côté serveur, on le supprime
+            Cookies.remove(COOKIE_NAME);
+            return null;
+        }
         const payload = raw.split('.')[0].replace(/-/g, '+').replace(/_/g, '/');
         return JSON.parse(atob(payload)) as TGroupAndUser;
     } catch {
