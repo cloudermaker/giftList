@@ -9,6 +9,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ### Ajouté
 
 - Quatre pages d'atterrissage par occasion : Noël, naissance, anniversaire, mariage — reliées depuis l'accueil et le sitemap
+- Tests e2e Playwright (smoke : pages publiques, création/connexion/suppression de groupe, redirections)
 - Pages mentions légales et politique de confidentialité, reliées depuis l'aide et le pied de page
 
 ### Modifié
