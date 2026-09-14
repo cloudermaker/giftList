@@ -7,12 +7,15 @@ dotenv.config({ path: path.resolve(__dirname, '.env.test.local') });
 
 export default defineConfig({
     testDir: './e2e',
-    timeout: 30_000,
+    timeout: 45_000,
     retries: process.env.CI ? 2 : 0,
+    // 1 worker en CI : runner 2 vCPU + base Neon partagée → la parallélisation crée plus de flakiness qu'elle ne fait gagner
+    workers: process.env.CI ? 1 : undefined,
     reporter: process.env.CI ? 'github' : 'list',
     use: {
         baseURL: 'http://localhost:3000',
-        trace: 'retain-on-failure'
+        trace: 'retain-on-failure',
+        screenshot: 'only-on-failure'
     },
     projects: [
         { name: 'desktop' },

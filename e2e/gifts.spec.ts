@@ -66,6 +66,8 @@ test.describe.serial('Cadeaux et réservations', () => {
         // Bob voit le cadeau « Libre » sur la liste d'Alice
         await pageB.goto(`/giftList/${aliceUserId}`);
         await expect(pageB.getByText('Libre')).toBeVisible();
+        // Diagnostic explicite : la ligne doit porter le nom édité au test précédent
+        await expect(pageB.locator('.item', { hasText: 'Cadeau Modifié' })).toBeVisible();
 
         // Bob réserve depuis la modale
         await pageB.locator('.item', { hasText: 'Cadeau Modifié' }).click();
