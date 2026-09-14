@@ -24,6 +24,8 @@ export default defineConfig({
             ...(process.env as Record<string, string>),
             POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL ?? '',
             SESSION_SECRET: process.env.SESSION_SECRET ?? 'e2e-test-secret',
+            BACKOFFICE_USERNAME: process.env.BACKOFFICE_USERNAME ?? 'e2e-backoffice',
+            BACKOFFICE_PASSWORD: process.env.BACKOFFICE_PASSWORD ?? 'e2e-backoffice-password',
             MAINTENANCE_MODE: 'false'
         }
     }

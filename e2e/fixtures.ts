@@ -2,6 +2,11 @@ import { Page, expect } from '@playwright/test';
 
 export const uniqueName = (prefix: string): string => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
+// Les confirmations sweetalert2 (timer 1500ms) bloquent les clics tant que leur backdrop est affiché
+export const waitForToastGone = async (page: Page): Promise<void> => {
+    await expect(page.locator('.swal2-container')).toHaveCount(0);
+};
+
 export const createGroup = async (page: Page, groupName: string, userName: string, password: string): Promise<void> => {
     await page.goto('/');
     await page.getByText('Créer un groupe', { exact: true }).click();

@@ -32,6 +32,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             } else {
                 res.status(404).json({ success: false });
             }
+        } else if ((method === 'DELETE' || method === 'PATCH' || method === 'PUT') && groupId && !isAuthorized(req, groupId)) {
+            res.status(403).json({ success: false, error: "Vous n'avez pas les droits pour modifier ce groupe." });
         } else if (method === 'DELETE' && groupId && isAuthorized(req, groupId)) {
             await deleteGroup(groupId);
 

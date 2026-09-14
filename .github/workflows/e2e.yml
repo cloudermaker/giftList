@@ -16,6 +16,8 @@ jobs:
     env:
       POSTGRES_PRISMA_URL: ${{ secrets.E2E_POSTGRES_PRISMA_URL }}
       SESSION_SECRET: ci-e2e-secret
+      BACKOFFICE_USERNAME: e2e-backoffice
+      BACKOFFICE_PASSWORD: e2e-backoffice-password
       MAINTENANCE_MODE: 'false'
     steps:
       - uses: actions/checkout@v4
