@@ -60,13 +60,18 @@ test.describe.serial('Cadeaux et réservations', () => {
         await pageA.getByRole('button', { name: 'Valider' }).click();
         await waitForToastGone(pageA);
         await expect(pageA.getByText('Cadeau Modifié')).toBeVisible();
+
+        // Sonde CI : un reload re-lit la base — si ça échoue ici, l'édition n'a pas été persistée côté serveur
+        await pageA.reload();
+        await expect(pageA.locator('.item', { hasText: 'Cadeau Modifié' })).toBeVisible();
     });
 
     test('Bob réserve le cadeau en secret : Alice ne voit rien', async () => {
         // Bob voit le cadeau « Libre » sur la liste d'Alice
         await pageB.goto(`/giftList/${aliceUserId}`);
         await expect(pageB.getByText('Libre')).toBeVisible();
-        // Diagnostic explicite : la ligne doit porter le nom édité au test précédent
+        // Diagnostic CI : afficher le contenu réel des lignes avant l'assertion
+        console.log('Lignes vues par Bob :', JSON.stringify(await pageB.locator('.item').allInnerTexts()));
         await expect(pageB.locator('.item', { hasText: 'Cadeau Modifié' })).toBeVisible();
 
         // Bob réserve depuis la modale
