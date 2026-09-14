@@ -30,6 +30,12 @@ test.describe('Smoke', () => {
         });
     }
 
+    test('le pied de page est visible (toutes largeurs)', async ({ page }) => {
+        await page.goto('/');
+        await expect(page.locator('footer').getByRole('link', { name: /Aide/ })).toBeVisible();
+        await expect(page.locator('footer').getByRole('link', { name: 'Mentions légales' })).toBeVisible();
+    });
+
     test('un visiteur non connecté est redirigé de /home vers l’accueil', async ({ page }) => {
         await page.goto('/home');
         await page.waitForURL((url) => url.pathname === '/');

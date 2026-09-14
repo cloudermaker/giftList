@@ -14,6 +14,11 @@ export default defineConfig({
         baseURL: 'http://localhost:3000',
         trace: 'retain-on-failure'
     },
+    projects: [
+        { name: 'desktop' },
+        // Régression responsive (le footer avait disparu entre 640 et 768px) : smoke sur viewport tablette
+        { name: 'tablette', use: { viewport: { width: 700, height: 900 } }, testMatch: /smoke\.spec\.ts/ }
+    ],
     webServer: {
         // En CI : build de prod (déterministe) ; en local : dev server (itération rapide)
         command: process.env.CI ? 'npm run build && npm run start' : 'npm run dev',
