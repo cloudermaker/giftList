@@ -1,6 +1,6 @@
 # Global status & improvement plan — malistedecadeaux.fr (Sept 2026)
 
-Effort tags: **S** < 1h · **M** half-day · **L** 1 day+. ✅ = done in v5.1.0 (branch `chore/quick-wins`, 2026-09-13).
+Effort tags: **S** < 1h · **M** half-day · **L** 1 day+. ✅ = done (v5.1.0 2026-09-13, v5.2.0 2026-09-14 — both merged & deployed).
 
 ## Snapshot — what's already good
 
@@ -16,6 +16,15 @@ Effort tags: **S** < 1h · **M** half-day · **L** 1 day+. ✅ = done in v5.1.0 
 - **SEO**: duplicate `og:` tags removed from `_app` (per-page previews work now); og-images fixed; `<html lang="fr">`; noindex + Disallow on `/join`; generated sitemap (`next-sitemap`); real PWA icons + fixed manifest; 301 on stale `/login`; `og:locale fr_FR`; footer social links fixed; postalCode fixed.
 - **Fixes**: footer visible at all widths (markup deduped); `/backoffice` login reachable without group cookie.
 - **Docs**: `.env.example`; README todo → roadmap link; migration-era docs archived; TODO.md folded in here; changelog 5.1.0.
+
+## ✅ Done in v5.2.0 (P1–P4 + tests)
+
+- **P1 Security**: signed session cookie (HMAC, `SESSION_SECRET` set in Vercel), verified auth on all destructive routes, `adminPassword` no longer leaked anywhere, contact form hardened (rate limit, escaping, validation). Password hashing skipped by choice (stays clear in DB).
+- **P2 Legal**: `/mentions-legales` + `/confidentialite`, dead `/terms`+`/privacy` links fixed, honest cookie banner.
+- **P3 Perf**: sweetalert2 lazy (landing ~300→114 kB), `useCurrentUser` context (one cookie parse), no refetch on simple take/release. Deferred: dnd-kit code-split (needs P6 giftList refactor).
+- **P4 SEO growth**: 4 occasion landing pages (Noël, naissance, anniversaire, mariage), linked + in sitemap.
+- **Tests**: 26 Playwright e2e tests (smoke, auth, gifts, MULTIPLE/UNLIMITED, secrecy invariant, invite, backoffice, security regressions, tablet viewport) + GitHub Actions CI on every PR. Found & fixed 2 real bugs (backoffice blank page after login, subGiftsCount reset on refetch). Test DB = Neon with `pgbouncer=true` (required — without it, CI flaked with lost reads).
+- **Monitoring**: Vercel Speed Insights installed; Google Search Console verified (DNS TXT @ OVH), sitemap submitted, occasion pages indexing requested.
 
 ---
 
@@ -44,7 +53,13 @@ Effort tags: **S** < 1h · **M** half-day · **L** 1 day+. ✅ = done in v5.1.0 
 
 11. **Four occasion landing pages** — `/liste-de-noel`, `/liste-de-naissance`, `/liste-anniversaire`, `/liste-de-mariage` (SSG, 600–900 words, FAQ schema, linked from the occasion cards, in sitemap). Competitors win those queries with exactly this; we're absent on "liste de naissance". Best done **before the Christmas season**. (L)
 
-### P5 — Data layer robustness — 1–2 days
+### Housekeeping (quick, anytime)
+
+- Remove the CI diagnostic `console.log`s in `e2e/gifts.spec.ts` after a quiet week of green runs.
+- Rotate the Neon test-DB and Vercel prod-DB passwords (both were pasted in chats/tools), update secrets after.
+- Watch Search Console: sitemap status → "Success, 10 URLs"; occasion pages indexed; stale `/login` dropping out.
+
+### P5 — Data layer robustness — 1–2 days ← NEXT
 
 12. Schema constraints: `@@unique` on `Group.name`; `onDelete: Cascade` on `Gift.user` (orphans accumulate today); `@@index([userId, order])`; non-null `order`/`isSuggestedGift`/timestamps. (M)
 13. Validation layer (zod) + unified `{ error }` envelope + correct status codes (today: wrong password = HTTP 200, missing cookie = 500, `details` leaks DB internals). (M/L)
