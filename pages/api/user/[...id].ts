@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { COOKIE_NAME } from '@/lib/auth/authService';
+import { getSession, isBackofficeSession } from '@/lib/auth/session';
 import { User } from '@prisma/client';
 import { deleteUser, getUserById, getUserByGroupAndName, updateUser } from '@/lib/db/userManager';
 import { getUserGroups, countGroupAdmins, isUserGroupAdmin } from '@/lib/db/userGroupManager';
@@ -11,8 +11,16 @@ export type TUserApiResult = {
     error?: string;
 };
 
+// Écritures réservées à un admin (session signée), au user lui-même ou au backoffice
+const canWriteUser = (req: NextApiRequest, targetUserId: string): boolean => {
+    if (isBackofficeSession(req)) return true;
+    const session = getSession(req);
+    if (!session) return false;
+    return session.isAdmin || session.userId === targetUserId;
+};
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TUserApiResult>) {
-    const { query, body, method, cookies } = req;
+    const { query, body, method } = req;
     const userId = query.id?.toString();
 
     try {
@@ -24,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             } else {
                 res.status(404).json({ success: false });
             }
-        } else if (method === 'DELETE' && userId && (cookies[COOKIE_NAME] || cookies['backoffice_session'] === '1')) {
+        } else if (method === 'DELETE' && userId && canWriteUser(req, userId)) {
             const userGroups = await getUserGroups(userId);
             
             for (const group of userGroups) {
@@ -43,7 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             await deleteUser(userId);
 
             res.status(200).json({ success: true });
-        } else if (method === 'PATCH' && userId && body.user && (cookies[COOKIE_NAME] || cookies['backoffice_session'] === '1')) {
+        } else if (method === 'PATCH' && userId && body.user && canWriteUser(req, userId)) {
             if (body.groupId && body.user.name) {
                 const existing = await getUserByGroupAndName(body.user.name, body.groupId as string);
                 if (existing && existing.id !== userId) {
@@ -55,7 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const user = await updateUser(userId, body.user as User);
 
             res.status(200).json({ success: true, user });
-        } else if (req.method === 'PUT' && userId && body.user && (cookies[COOKIE_NAME] || cookies['backoffice_session'] === '1')) {
+        } else if (req.method === 'PUT' && userId && body.user && canWriteUser(req, userId)) {
             const userToUpdate = await getUserById(userId);
 
             if (userToUpdate) {
@@ -70,6 +78,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         }
     } catch (e) {
         console.log(e);
-        res.status(500).json({ success: false, error: e as string });
+        res.status(500).json({ success: false, error: 'Erreur interne' });
     }
 }

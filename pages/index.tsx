@@ -484,26 +484,26 @@ export default function Index(): JSX.Element {
                 <p className="text-center text-gray-500 mb-8">Une seule plateforme pour toutes vos listes de cadeaux</p>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="item bg-white p-5 rounded-xl text-center">
+                    <Link href="/liste-de-noel" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">🎄</div>
                         <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux de Noël</h3>
                         <p className="text-sm text-gray-500">Organisez les échanges de cadeaux en famille sans doublons ni mauvaises surprises.</p>
-                    </div>
-                    <div className="item bg-white p-5 rounded-xl text-center">
+                    </Link>
+                    <Link href="/liste-de-naissance" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">👶</div>
                         <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux de naissance</h3>
                         <p className="text-sm text-gray-500">Créez votre liste de naissance gratuite, sans boutique imposée, partageable en un lien.</p>
-                    </div>
-                    <div className="item bg-white p-5 rounded-xl text-center">
+                    </Link>
+                    <Link href="/liste-anniversaire" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">🎂</div>
                         <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux anniversaire</h3>
                         <p className="text-sm text-gray-500">Fini les doublons pour les anniversaires enfants ou adultes — chacun réserve en secret.</p>
-                    </div>
-                    <div className="item bg-white p-5 rounded-xl text-center">
+                    </Link>
+                    <Link href="/liste-de-mariage" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">💍</div>
                         <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux mariage</h3>
                         <p className="text-sm text-gray-500">Partagez vos envies avec vos invités et laissez chacun choisir librement ce qu&apos;il offrira.</p>
-                    </div>
+                    </Link>
                 </div>
             </section>
 
@@ -734,8 +734,9 @@ export default function Index(): JSX.Element {
                     <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:justify-between gap-3">
                         <div className="flex-1 text-sm text-gray-700 text-center md:text-left">
                             <p>
-                                🍪 Ce site n&apos;utilise <strong>aucun cookie de tracking</strong> ni de publicité. Nous
-                                utilisons uniquement le stockage local de votre navigateur pour améliorer votre expérience.
+                                🍪 Ce site n&apos;utilise <strong>aucun cookie publicitaire</strong>. Un cookie technique sert à la
+                                connexion et la fréquentation est mesurée sans cookie ni donnée personnelle ({' '}
+                                <Link href="/confidentialite" className="underline">en savoir plus</Link>).
                             </p>
                         </div>
                         <button onClick={handleDismissCookieBanner} aria-label="Fermer le bandeau">

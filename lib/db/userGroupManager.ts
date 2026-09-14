@@ -13,7 +13,8 @@ export const getUserGroups = async (userId: string) => {
   const memberships = await prisma.userGroupMapping.findMany({
     where: { userId },
     include: {
-      group: true
+      // Jamais adminPassword : cette fonction alimente des réponses API publiques
+      group: { select: { id: true, name: true, createdAt: true, updatedAt: true } }
     },
     orderBy: { joinedAt: 'asc' }
   });
@@ -61,7 +62,7 @@ export const addUserToGroup = async (
     },
     include: {
       user: true,
-      group: true
+      group: { select: { id: true, name: true } }
     }
   });
 };

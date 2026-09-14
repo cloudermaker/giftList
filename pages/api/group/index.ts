@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Group } from '@prisma/client';
 import { upsertGroup, getGroupByName } from '@/lib/db/groupManager';
-import { COOKIE_NAME } from '@/lib/auth/authService';
-import { TGroupAndUser } from '../authenticate';
+import { getSession, isBackofficeSession } from '@/lib/auth/session';
 
 export type TGroupApiResult = {
     success: boolean;
@@ -12,27 +11,23 @@ export type TGroupApiResult = {
 };
 
 const verbsWithAuthorization = ['POST', 'PATCH', 'PUT', 'DELETE'];
-const isAuthorized = async (req: NextApiRequest) => {
+const isAuthorized = (req: NextApiRequest): boolean => {
     if (!verbsWithAuthorization.includes(req.method as string)) {
         return true;
     }
 
-    if (req.cookies['backoffice_session'] === '1') {
+    if (isBackofficeSession(req)) {
         return true;
     }
 
-    const connectedUser = JSON.parse(atob(req.cookies[COOKIE_NAME] as string)) as TGroupAndUser;
-
-    return connectedUser?.isAdmin ?? false;
+    return getSession(req)?.isAdmin ?? false;
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TGroupApiResult>) {
-    const { body, cookies } = req;
+    const { body } = req;
 
     try {
-        const isAuthorizedRequest = await isAuthorized(req);
-
-        if (!isAuthorizedRequest || (!cookies[COOKIE_NAME] && cookies['backoffice_session'] !== '1')) {
+        if (!isAuthorized(req)) {
             res.status(403).json({ success: false });
             return;
         }
@@ -52,6 +47,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         }
     } catch (e) {
         console.log(e);
-        res.status(500).json({ success: false, error: e as string });
+        res.status(500).json({ success: false, error: 'Erreur interne' });
     }
 }

@@ -21,7 +21,7 @@ Effort tags: **S** < 1h · **M** half-day · **L** 1 day+. ✅ = done in v5.1.0 
 
 ## Remaining work — priority order
 
-### P1 — Security core (writes/destruction; open reads stay by design) — 1–2 days
+### ✅ P1 — Security core (done in v5.2.0 — password hashing skipped by choice: stays clear in DB)
 
 1. **Stop leaking `adminPassword`** — returned by `GET /api/group/{id}`, `/api/userGroup`, `/api/personalGift`, and embedded in `__NEXT_DATA__` of every group page (`pages/group/[...id].tsx`). It's the credential granting write rights. (S/M)
 2. **Sign the session cookie** — `currentUser` is client-written base64 JSON; forged `{"isAdmin":true}` grants group/user deletion and all writes. Server-issued HttpOnly signed cookie in `/api/authenticate`. (M)
@@ -29,18 +29,18 @@ Effort tags: **S** < 1h · **M** half-day · **L** 1 day+. ✅ = done in v5.1.0 
 4. **Harden `sendEmail.ts`** — rate-limit by IP, validate/escape inputs (HTML injection), server-side size cap, drop `|| 'v'` fallback. (S/M)
 5. Hash `Group.adminPassword` (bcrypt), drop `@default("admin")`. (M — after #2)
 
-### P2 — Legal pages + last SEO gaps — ½–1 day
+### ✅ P2 — Legal pages (done in v5.2.0)
 
 6. **`/mentions-legales` + `/confidentialite`** — `/help` still links to `/terms` and `/privacy` which 404; French consumer site needs them (GDPR/E-E-A-T); cookie banner claims "no tracking" while Vercel Analytics loads — reword or make it accurate. (M)
 
-### P3 — Perf, remaining big wins — 1 day
+### P3 — Perf (done in v5.2.0 except #9: dnd-kit code-split deferred — needs a giftList refactor, see P6)
 
 7. **Lazy-load sweetalert2** behind a `lib/ui/alert.ts` facade — ~40 kB gz in every page's bundle via `axiosWrapper.ts`. (S/M)
 8. **`useCurrentUser` → context provider** in `_app` — kills 3-4 cookie parses/renders per page, auth flicker, and the un-guarded `atob/JSON.parse` that blanks the page on a bad cookie. (M)
 9. Dynamic-import dnd-kit subtree on giftList; plain list for visitors. (M)
 10. Stop mutation → full-refetch round-trips (giftList take/update; SubGiftList 3 requests per click). (M)
 
-### P4 — SEO growth play — 1–2 days
+### ✅ P4 — Occasion landing pages (done in v5.2.0)
 
 11. **Four occasion landing pages** — `/liste-de-noel`, `/liste-de-naissance`, `/liste-anniversaire`, `/liste-de-mariage` (SSG, 600–900 words, FAQ schema, linked from the occasion cards, in sitemap). Competitors win those queries with exactly this; we're absent on "liste de naissance". Best done **before the Christmas season**. (L)
 

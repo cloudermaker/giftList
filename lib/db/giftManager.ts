@@ -29,18 +29,20 @@ export const getGiftFromId = async (id: string): Promise<GiftWithTakenUserId | n
             id
         },
         include: {
-            takenBy: true  // Relation UserTakenGift
+            takenBy: true,  // Relation UserTakenGift
+            _count: { select: { subGifts: true } }
         }
     });
 
     if (!gift) return null;
 
     // Ajouter takenUserId depuis UserTakenGift
-    const { takenBy, ...giftWithoutTakenBy } = gift;
+    const { takenBy, _count, ...giftWithoutTakenBy } = gift as any;
     return {
         ...giftWithoutTakenBy,
         takenUserId: takenBy.length > 0 ? takenBy[0].userId : null,
-        takenByList: takenBy.map((t) => ({ id: t.id, userId: t.userId, takenAt: t.takenAt }))
+        takenByList: takenBy.map((t: any) => ({ id: t.id, userId: t.userId, takenAt: t.takenAt })),
+        subGiftsCount: _count?.subGifts ?? 0
     } as GiftWithTakenUserId;
 };
 

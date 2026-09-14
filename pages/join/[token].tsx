@@ -6,7 +6,6 @@ import SEO from '@/components/SEO';
 import { CustomInput } from '@/components/atoms/customInput';
 import CustomButton from '@/components/atoms/customButton';
 import { ErrorAlert } from '@/components/atoms/ErrorAlert';
-import { setAuthCookie } from '@/lib/auth/authService';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import { TInviteJoinResult } from '@/pages/api/invite/join';
 import { getGroupByInviteToken } from '@/lib/db/groupManager';
@@ -39,7 +38,7 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
             }
 
             if (data?.success && data.groupUser) {
-                setAuthCookie(data.groupUser);
+                // Le cookie de session signé est posé par le serveur (Set-Cookie)
                 navigating = true;
                 NProgress.start();
                 window.location.href = '/home';

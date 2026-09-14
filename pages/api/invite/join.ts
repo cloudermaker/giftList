@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getGroupByInviteToken } from '@/lib/db/groupManager';
 import { getUserByGroupAndName, createUser } from '@/lib/db/userManager';
 import { TAuthenticateResult } from '@/pages/api/authenticate';
+import { sessionCookieHeader } from '@/lib/auth/session';
 
 export type TInviteJoinResult = TAuthenticateResult & {
     needsConfirmation?: boolean;
@@ -35,17 +36,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
         const finalUser = user ?? (await createUser(userName, group.id, false));
 
-        return res.status(200).json({
-            success: true,
-            error: '',
-            groupUser: {
-                groupId: group.id,
-                groupName: group.name,
-                userId: finalUser.id,
-                userName: finalUser.name,
-                isAdmin: false
-            }
-        });
+        const groupUser = {
+            groupId: group.id,
+            groupName: group.name,
+            userId: finalUser.id,
+            userName: finalUser.name,
+            isAdmin: false
+        };
+        res.setHeader('Set-Cookie', sessionCookieHeader(groupUser));
+        return res.status(200).json({ success: true, error: '', groupUser });
     } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
         return res.status(500).json({ success: false, error: message });

@@ -170,10 +170,10 @@ export default function Help(): JSX.Element {
             <section className="home-section">
                 <h2 className="text-center font-bold">🔗 Liens utiles</h2>
                 <div className="flex justify-center gap-4">
-                    <Link href="/terms" className="text-blue-500 hover:underline">
-                        Conditions d&apos;utilisation
+                    <Link href="/mentions-legales" className="text-blue-500 hover:underline">
+                        Mentions légales
                     </Link>
-                    <Link href="/privacy" className="text-blue-500 hover:underline">
+                    <Link href="/confidentialite" className="text-blue-500 hover:underline">
                         Politique de confidentialité
                     </Link>
                 </div>

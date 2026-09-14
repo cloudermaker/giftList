@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getGiftFromId, updateGifts, upsertGift } from '@/lib/db/giftManager';
 import { Gift } from '@prisma/client';
-import { COOKIE_NAME } from '@/lib/auth/authService';
-import { TGroupAndUser } from '../authenticate';
+import { getSession, isBackofficeSession } from '@/lib/auth/session';
 
 export type TGiftApiResult = {
     success: boolean;
@@ -13,22 +12,30 @@ export type TGiftApiResult = {
 };
 
 const verbsWithAuthorization = ['POST'];
-const isAuthorized = async (req: NextApiRequest) => {
+const isAuthorized = (req: NextApiRequest): boolean => {
     if (!verbsWithAuthorization.includes(req.method as string)) {
         return true;
     }
+    if (isBackofficeSession(req)) {
+        return true;
+    }
 
-    const connectedUser = JSON.parse(atob(req.cookies[COOKIE_NAME] as string)) as TGroupAndUser;
+    // Session signée : le contenu du cookie ne peut plus être forgé côté client
+    const connectedUser = getSession(req);
+    if (!connectedUser) return false;
+
     const userGiftId = req.body?.userGiftId ?? req.query?.userGiftId ?? 'None';
+    const giftOwnerId = req.body?.gift?.userId ?? req.body?.gifts?.[0]?.userId;
     const takenUserId = req.body?.gift?.takenUserId;
 
-    // Allow if admin, or if user owns the gift list, or if it's a personal gift (userId null) created by the user
-    const isGiftAdmin =
-        connectedUser?.isAdmin ||
-        connectedUser?.userId === userGiftId ||
-        (req.body?.gift?.userId === null && takenUserId === connectedUser?.userId);
-
-    return isGiftAdmin;
+    // Autorisé si admin du groupe, propriétaire de la liste, cadeau suggéré sur la liste d'un autre,
+    // ou cadeau personnel (userId null) créé par le user connecté
+    return (
+        connectedUser.isAdmin ||
+        connectedUser.userId === userGiftId ||
+        typeof giftOwnerId === 'string' ||
+        (req.body?.gift?.userId === null && takenUserId === connectedUser.userId)
+    );
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TGiftApiResult>) {
@@ -64,6 +71,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         }
     } catch (e) {
         console.log(e);
-        res.status(500).json({ success: false, error: e as string });
+        res.status(500).json({ success: false, error: 'Erreur interne' });
     }
 }

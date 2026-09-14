@@ -13,6 +13,7 @@ import {
   deletePersonalGift,
   isPersonalGiftOwner
 } from '../../../lib/db/personalGiftManager';
+import { getSession } from '@/lib/auth/session';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -35,17 +36,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({ gift });
     }
 
-    // PUT - Modifier un cadeau personnel
+    // PUT - Modifier un cadeau personnel (propriétaire uniquement, via session signée)
     if (req.method === 'PUT') {
-      const { name, description, url, forUserId, userId } = req.body;
+      const { name, description, url, forUserId } = req.body;
 
-      // Vérification d'autorisation simplifiée
-      // TODO: Ajouter vérification du userId connecté
-      if (userId) {
-        const isOwner = await isPersonalGiftOwner(id, userId);
-        if (!isOwner) {
-          return res.status(403).json({ error: 'Forbidden: not the owner' });
-        }
+      const session = getSession(req);
+      if (!session) {
+        return res.status(401).json({ error: 'Authentification requise' });
+      }
+      const isOwner = await isPersonalGiftOwner(id, session.userId);
+      if (!isOwner) {
+        return res.status(403).json({ error: 'Forbidden: not the owner' });
       }
 
       const gift = await updatePersonalGift(id, {
@@ -61,16 +62,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    // DELETE - Supprimer un cadeau personnel
+    // DELETE - Supprimer un cadeau personnel (propriétaire uniquement, via session signée)
     if (req.method === 'DELETE') {
-      const { userId } = req.body;
-
-      // Vérification d'autorisation
-      if (userId) {
-        const isOwner = await isPersonalGiftOwner(id, userId);
-        if (!isOwner) {
-          return res.status(403).json({ error: 'Forbidden: not the owner' });
-        }
+      const session = getSession(req);
+      if (!session) {
+        return res.status(401).json({ error: 'Authentification requise' });
+      }
+      const isOwner = await isPersonalGiftOwner(id, session.userId);
+      if (!isOwner) {
+        return res.status(403).json({ error: 'Forbidden: not the owner' });
       }
 
       await deletePersonalGift(id);
@@ -85,9 +85,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   } catch (error) {
     console.error('Error in /api/personalGift/[id]:', error);
-    return res.status(500).json({ 
-      error: 'Internal server error',
-      details: String(error)
-    });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }

@@ -17,7 +17,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     const { groupId, userId } = req.query;
 
     try {
-        if ((groupId && userId) || req.method !== 'GET') {
+        if (req.method !== 'GET') {
+            return res.status(405).json({ success: false, error: 'Method not allowed' });
+        }
+
+        if (groupId && userId) {
             const group = await getGroupById(groupId as string);
             const user = await getUserById(userId as string);
 
@@ -41,6 +45,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         }
     } catch (e) {
         console.log(e);
-        res.status(500).json({ success: false, error: e as string });
+        res.status(500).json({ success: false, error: 'Erreur interne' });
     }
 }

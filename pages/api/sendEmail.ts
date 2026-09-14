@@ -12,11 +12,49 @@ type TSendEmailInput = {
     message: string;
 };
 
+const escapeHtml = (value: string): string =>
+    value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Rate limit simple en mémoire (par instance lambda) : 5 envois / heure / IP
+const RATE_LIMIT = 5;
+const RATE_WINDOW_MS = 60 * 60 * 1000;
+const sendsByIp = new Map<string, number[]>();
+const isRateLimited = (ip: string): boolean => {
+    const now = Date.now();
+    const recent = (sendsByIp.get(ip) ?? []).filter((t) => now - t < RATE_WINDOW_MS);
+    if (recent.length >= RATE_LIMIT) return true;
+    recent.push(now);
+    sendsByIp.set(ip, recent);
+    return false;
+};
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TSendEmailResult>) {
-    const { senderEmail, subject, message }: TSendEmailInput = req.body;
+    const { senderEmail: rawEmail, subject: rawSubject, message: rawMessage }: TSendEmailInput = req.body;
 
     try {
         if (req.method === 'POST') {
+            if (typeof rawEmail !== 'string' || !EMAIL_REGEX.test(rawEmail) || rawEmail.length > 254) {
+                return res.status(400).json({ success: false, error: 'Adresse email invalide.' });
+            }
+            if (typeof rawSubject !== 'string' || !rawSubject.trim() || rawSubject.length > 200) {
+                return res.status(400).json({ success: false, error: 'Sujet invalide (200 caractères max).' });
+            }
+            if (typeof rawMessage !== 'string' || !rawMessage.trim() || rawMessage.length > 2000) {
+                return res.status(400).json({ success: false, error: 'Message invalide (2000 caractères max).' });
+            }
+
+            const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+            if (isRateLimited(ip)) {
+                return res.status(429).json({ success: false, error: 'Trop de messages envoyés. Réessayez plus tard.' });
+            }
+
+            // Valeurs échappées pour l'interpolation HTML
+            const senderEmail = escapeHtml(rawEmail);
+            const subject = escapeHtml(rawSubject.trim());
+            const message = escapeHtml(rawMessage.trim());
+
             // Configuration du transporteur SMTP MailerSend
             const transporter = nodemailer.createTransport({
                 host: 'smtp.mailersend.net',
@@ -24,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 secure: false, // true pour 465, false pour autres ports
                 auth: {
                     user: process.env.MAILERSEND_SMTP_USERNAME || '',
-                    pass: process.env.MAILERSEND_SMTP_PASSWORD || 'v'
+                    pass: process.env.MAILERSEND_SMTP_PASSWORD || ''
                 }
             });
 
@@ -38,9 +76,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                     address: 'contact@malistedecadeaux.fr'
                 },
                 to: 'contact@malistedecadeaux.fr',
-                replyTo: senderEmail,
-                subject: `${subject} [#${uniqueId}]`, // Sujet unique avec ID aléatoire
-                text: `Nouveau message reçu via le formulaire de contact\n\nDe: ${senderEmail}\nSujet: ${subject}\nDate: ${new Date().toLocaleString('fr-FR')}\n\nMessage:\n${message}`,
+                replyTo: rawEmail,
+                subject: `${rawSubject.trim()} [#${uniqueId}]`, // Sujet unique avec ID aléatoire
+                text: `Nouveau message reçu via le formulaire de contact\n\nDe: ${rawEmail}\nSujet: ${rawSubject.trim()}\nDate: ${new Date().toLocaleString('fr-FR')}\n\nMessage:\n${rawMessage.trim()}`,
                 html: `
                     <!DOCTYPE html>
                     <html lang="fr">
@@ -146,16 +184,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             res.status(200).json({ success: true, error: '' });
         } else {
-            res.status(400).json({
+            res.status(405).json({
                 success: false,
-                error: 'Bad request'
+                error: 'Method not allowed'
             });
         }
     } catch (e) {
         console.error('Email sending error:', e);
         res.status(500).json({
             success: false,
-            error: e instanceof Error ? e.message : 'Unknown error occurred'
+            error: "L'envoi a échoué. Réessayez plus tard."
         });
     }
 }

@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createGroup, getGroupByName } from '@/lib/db/groupManager';
 import { createUser, getUserByGroupAndName } from '@/lib/db/userManager';
+import { sessionCookieHeader } from '@/lib/auth/session';
 
 export type TGroupAndUser = {
     groupName: string;
@@ -19,6 +20,18 @@ export type TAuthenticateResult = {
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TAuthenticateResult>) {
     const { groupName, userName, isCreating, password } = req.body;
 
+    const loginSuccess = (groupUser: TGroupAndUser) => {
+        res.setHeader('Set-Cookie', sessionCookieHeader(groupUser));
+        res.status(200).json({ success: true, error: '', groupUser });
+    };
+
+    if (req.method !== 'POST') {
+        return res.status(405).json({ success: false, error: 'Method not allowed' });
+    }
+    if (typeof groupName !== 'string' || typeof userName !== 'string' || !groupName.trim() || !userName.trim()) {
+        return res.status(400).json({ success: false, error: 'Groupe et prénom requis.' });
+    }
+
     try {
         const group = await getGroupByName(groupName);
         const user = await getUserByGroupAndName(userName, group?.id ?? '-1');
@@ -30,17 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const group = await createGroup(groupName, password);
             const user = await createUser(userName, group.id);
 
-            res.status(200).json({
-                success: true,
-                error: '',
-                groupUser: {
-                    groupId: group.id,
-                    groupName: group.name,
-                    userId: user.id,
-                    userName: user.name,
-                    isAdmin: true
-                }
-            });
+            loginSuccess({ groupId: group.id, groupName: group.name, userId: user.id, userName: user.name, isAdmin: true });
         } else if (!isCreating && group == null) {
             res.status(200).json({ success: false, error: "Ce nom de groupe n'existe pas." });
         } else if (!isCreating && user == null) {
@@ -50,17 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             });
         } else if (!isCreating && group && user) {
             if (password && group.adminPassword === password) {
-                res.status(200).json({
-                    success: true,
-                    error: '',
-                    groupUser: {
-                        groupId: group.id,
-                        groupName: group.name,
-                        userId: user.id,
-                        userName: user.name,
-                        isAdmin: true
-                    }
-                });
+                loginSuccess({ groupId: group.id, groupName: group.name, userId: user.id, userName: user.name, isAdmin: true });
             } else if (password && group.adminPassword !== password) {
                 res.status(200).json({
                     success: false,
@@ -69,20 +62,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             } else {
                 // Connexion sans mot de passe = toujours mode user normal (isAdmin: false)
                 // même si le user a un rôle ADMIN dans UserGroupMapping
-                res.status(200).json({
-                    success: true,
-                    error: '',
-                    groupUser: {
-                        groupId: group.id,
-                        groupName: group.name,
-                        userId: user.id,
-                        userName: user.name,
-                        isAdmin: false
-                    }
-                });
+                loginSuccess({ groupId: group.id, groupName: group.name, userId: user.id, userName: user.name, isAdmin: false });
             }
         }
     } catch (e) {
-        res.status(500).json({ success: false, error: e as string });
+        res.status(500).json({ success: false, error: 'Erreur interne' });
     }
 }
