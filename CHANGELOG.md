@@ -9,7 +9,12 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ### Ajouté
 
 - Quatre pages d'atterrissage par occasion : Noël, naissance, anniversaire, mariage — reliées depuis l'accueil et le sitemap
-- Tests e2e Playwright (23 tests : pages publiques, connexion, cadeaux, réservation secrète, invitation, backoffice, régressions de sécurité) + CI GitHub Actions
+- Tests e2e Playwright (26 tests : pages publiques, connexion, cadeaux simples/multiples/illimités, réservation secrète, invitation, backoffice, régressions de sécurité, viewport tablette) + CI GitHub Actions
+- Suivi des performances avec Vercel Speed Insights
+
+### Corrigé
+
+- Le compteur de sous-cadeaux ne retombait plus à zéro après l'ajout d'un sous-élément
 - Pages mentions légales et politique de confidentialité, reliées depuis l'aide et le pied de page
 
 ### Modifié
