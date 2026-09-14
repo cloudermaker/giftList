@@ -15,7 +15,8 @@ export default defineConfig({
         trace: 'retain-on-failure'
     },
     webServer: {
-        command: 'npm run dev',
+        // En CI : build de prod (déterministe) ; en local : dev server (itération rapide)
+        command: process.env.CI ? 'npm run build && npm run start' : 'npm run dev',
         url: 'http://localhost:3000',
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
