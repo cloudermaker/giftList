@@ -9,6 +9,7 @@
         "start": "next start",
         "lint": "next lint",
         "format": "prettier --loglevel warn --write .",
+        "test:e2e": "playwright test",
         "postinstall": "prisma generate",
         "maintenance:on": "echo MAINTENANCE_MODE=true >> .env.local",
         "maintenance:off": "powershell -Command \"(Get-Content .env.local) | Where-Object { $_ -notmatch 'MAINTENANCE_MODE' } | Set-Content .env.local\""
@@ -38,6 +39,7 @@
         "typescript": "^5.2.0"
     },
     "devDependencies": {
+        "@playwright/test": "^1.63.0",
         "@types/js-cookie": "^3.0.2",
         "@types/nprogress": "^0.2.0",
         "@types/react": "18.0.26",
