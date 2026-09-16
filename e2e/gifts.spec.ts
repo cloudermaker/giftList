@@ -57,18 +57,12 @@ test.describe.serial('Cadeaux et réservations', () => {
         await pageA.locator('.item', { hasText: 'Cadeau Test' }).click();
         await pageA.getByRole('button', { name: 'Modifier' }).click();
         await pageA.locator('#giftFormNameInput').fill('Cadeau Modifié');
-        // Sonde CI : capturer la réponse serveur du PATCH
-        const patchResponse = pageA.waitForResponse((r) => r.url().includes('/api/gift/') && r.request().method() === 'PATCH');
         await pageA.getByRole('button', { name: 'Valider' }).click();
-        const patchResult = await patchResponse;
-        console.log('PATCH status:', patchResult.status(), '| body:', JSON.stringify(await patchResult.json()).slice(0, 300));
         await waitForToastGone(pageA);
         await expect(pageA.getByText('Cadeau Modifié')).toBeVisible();
 
-        // Sonde CI : un reload re-lit la base — si ça échoue ici, l'édition n'a pas été persistée côté serveur
+        // Persistance : un reload re-lit la base, pas seulement l'état local
         await pageA.reload();
-        console.log('URL après reload:', pageA.url());
-        console.log('Lignes après reload:', JSON.stringify(await pageA.locator('.item').allInnerTexts()));
         await expect(pageA.locator('.item', { hasText: 'Cadeau Modifié' })).toBeVisible();
     });
 
@@ -76,8 +70,6 @@ test.describe.serial('Cadeaux et réservations', () => {
         // Bob voit le cadeau « Libre » sur la liste d'Alice
         await pageB.goto(`/giftList/${aliceUserId}`);
         await expect(pageB.getByText('Libre')).toBeVisible();
-        // Diagnostic CI : afficher le contenu réel des lignes avant l'assertion
-        console.log('Lignes vues par Bob :', JSON.stringify(await pageB.locator('.item').allInnerTexts()));
         await expect(pageB.locator('.item', { hasText: 'Cadeau Modifié' })).toBeVisible();
 
         // Bob réserve depuis la modale
