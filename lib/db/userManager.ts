@@ -1,6 +1,5 @@
 import { User } from '@prisma/client';
 import prisma from './dbSingleton';
-import { addUserToGroup } from './userGroupManager';
 
 export const getUserByGroupAndName = async (userName: string, groupId: string): Promise<User | null> => {
     const user = await prisma.user.findFirst({
@@ -50,21 +49,21 @@ export const getUsersFromGroupId = async (groupId: string): Promise<User[]> => {
     return users;
 };
 
+// Création atomique user + membership
 export const createUser = async (userName: string, userGroupId: string, isAdmin = true): Promise<User> => {
-    const user = await prisma.user.create({
-        data: {
-            name: userName.toLowerCase().trim(),
-            isAdmin
-        }
+    return prisma.$transaction(async (tx) => {
+        const user = await tx.user.create({
+            data: { name: userName.toLowerCase().trim() }
+        });
+        await tx.userGroupMapping.create({
+            data: { userId: user.id, groupId: userGroupId, role: isAdmin ? 'ADMIN' : 'MEMBER', joinedAt: new Date() }
+        });
+        return user;
     });
-
-    await addUserToGroup(user.id, userGroupId, isAdmin ? 'ADMIN' : 'MEMBER');
-
-    return user;
 };
 
 export const upsertUser = async (user: User): Promise<User> => {
-    const { id, createdAt, updatedAt, gifts, groupMemberships, takenGifts, personalGifts, personalGiftsReceived, userTakenGifts, personalGiftsFor, ...userData } = user as any;
+    const { id, createdAt, updatedAt, gifts, groupMemberships, takenGifts, personalGifts, personalGiftsReceived, userTakenGifts, personalGiftsFor, isAdmin, ...userData } = user as any;
 
     if (!id) {
         return prisma.user.create({
@@ -80,7 +79,7 @@ export const upsertUser = async (user: User): Promise<User> => {
 };
 
 export const updateUser = async (userId: string, user: User): Promise<User> => {
-    const { id, createdAt, updatedAt, gifts, groupMemberships, takenGifts, personalGifts, personalGiftsReceived, userTakenGifts, personalGiftsFor, ...userData } = user as any;
+    const { id, createdAt, updatedAt, gifts, groupMemberships, takenGifts, personalGifts, personalGiftsReceived, userTakenGifts, personalGiftsFor, isAdmin, ...userData } = user as any;
     
     const result = await prisma.user.update({
         where: {

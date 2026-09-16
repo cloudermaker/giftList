@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { User } from '@prisma/client';
-import { upsertUser, getUserByGroupAndName } from '@/lib/db/userManager';
-import { getGroupUsers, addUserToGroup } from '@/lib/db/userGroupManager';
+import { upsertUser, createUser, getUserByGroupAndName } from '@/lib/db/userManager';
+import { getGroupUsers } from '@/lib/db/userGroupManager';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
 
 export type TUserApiResult = {
@@ -46,11 +46,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 }
             }
 
-            const user = await upsertUser(body.user as User);
-
-            if (isCreation && body.groupId) {
-                await addUserToGroup(user.id, body.groupId as string, 'MEMBER');
-            }
+            // Création : user + membership atomiques ; sinon simple mise à jour
+            const user = isCreation && body.groupId
+                ? await createUser(body.user.name, body.groupId as string, false)
+                : await upsertUser(body.user as User);
 
             res.status(200).json({ success: true, user });
         } else if (req.method === 'GET' && req.query['groupid']) {

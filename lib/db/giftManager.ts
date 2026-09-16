@@ -115,23 +115,21 @@ export const updateGift = async (giftId: string, gift: Gift): Promise<Gift> => {
 };
 
 export const updateGifts = async (gifts: Gift[]): Promise<Gift[]> => {
-    let updatedGifts: Gift[] = [];
-    for (const gift of gifts) {
-        const { id, createdAt, updatedAt, userId, parentGiftId, takenUserId, user, subGifts, parentGift, takenBy, subGiftsCount, takenByList, ...giftData } = gift as any;
-
-        try {
-            const updatedGift = await prisma.gift.update({
-                where: { id: gift.id },
-                data: { ...giftData, name: gift.name.trim(), userId, parentGiftId, updatedAt: new Date() }
-            });
-            updatedGifts.push(updatedGift);
-        } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') continue;
-            throw e;
-        }
+    // Réordonnancement atomique : tout ou rien (un cadeau supprimé entre-temps annule proprement)
+    try {
+        return await prisma.$transaction(
+            gifts.map((gift) => {
+                const { id, createdAt, updatedAt, userId, parentGiftId, takenUserId, user, subGifts, parentGift, takenBy, subGiftsCount, takenByList, ...giftData } = gift as any;
+                return prisma.gift.update({
+                    where: { id: gift.id },
+                    data: { ...giftData, name: gift.name.trim(), userId, parentGiftId, updatedAt: new Date() }
+                });
+            })
+        );
+    } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') return [];
+        throw e;
     }
-
-    return updatedGifts;
 };
 
 export const upsertGift = async (gift: Gift): Promise<Gift> => {
