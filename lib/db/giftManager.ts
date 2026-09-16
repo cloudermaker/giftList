@@ -101,37 +101,42 @@ export const getGiftsFromUserId = async (userId: string): Promise<GiftWithTakenU
     }) as GiftWithTakenUserId[];
 };
 
+// Seuls les champs éditables passent à Prisma (liste blanche — tout le reste du body est ignoré)
+const editableGiftFields = (gift: Gift) => ({
+    ...(gift.name ? { name: gift.name.trim() } : {}),
+    ...(gift.description !== undefined ? { description: gift.description } : {}),
+    ...(gift.url !== undefined ? { url: gift.url } : {}),
+    ...(gift.giftType !== undefined ? { giftType: gift.giftType } : {}),
+    ...(gift.isSuggestedGift !== undefined && gift.isSuggestedGift !== null ? { isSuggestedGift: gift.isSuggestedGift } : {}),
+    ...(gift.order !== undefined && gift.order !== null ? { order: gift.order } : {})
+});
+
 export const updateGift = async (giftId: string, gift: Gift): Promise<Gift> => {
-    const { id, createdAt, updatedAt, userId, parentGiftId, takenUserId, user, subGifts, parentGift, takenBy, subGiftsCount, takenByList, userTakenGiftId, ...giftData } = gift as any;
-    
     const result = await prisma.gift.update({
         where: {
             id: giftId
         },
-        data: { ...giftData, name: gift.name.trim(), userId, parentGiftId, updatedAt: new Date() }
+        data: { ...editableGiftFields(gift), updatedAt: new Date() }
     });
 
     return result;
 };
 
 export const updateGifts = async (gifts: Gift[]): Promise<Gift[]> => {
-    let updatedGifts: Gift[] = [];
-    for (const gift of gifts) {
-        const { id, createdAt, updatedAt, userId, parentGiftId, takenUserId, user, subGifts, parentGift, takenBy, subGiftsCount, takenByList, ...giftData } = gift as any;
-
-        try {
-            const updatedGift = await prisma.gift.update({
-                where: { id: gift.id },
-                data: { ...giftData, name: gift.name.trim(), userId, parentGiftId, updatedAt: new Date() }
-            });
-            updatedGifts.push(updatedGift);
-        } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') continue;
-            throw e;
-        }
+    // Réordonnancement atomique : tout ou rien (un cadeau supprimé entre-temps annule proprement)
+    try {
+        return await prisma.$transaction(
+            gifts.map((gift) =>
+                prisma.gift.update({
+                    where: { id: gift.id },
+                    data: { ...editableGiftFields(gift), updatedAt: new Date() }
+                })
+            )
+        );
+    } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') return [];
+        throw e;
     }
-
-    return updatedGifts;
 };
 
 export const upsertGift = async (gift: Gift): Promise<Gift> => {
@@ -142,25 +147,20 @@ export const upsertGift = async (gift: Gift): Promise<Gift> => {
         }
     });
 
-    // Extraire les champs à gérer séparément
-    const { userId, id, createdAt, updatedAt, takenUserId, parentGiftId, subGiftsCount, takenByList, userTakenGiftId, user, subGifts, parentGift, takenBy, ...giftData } = gift as any;
-    
     const result = await prisma.gift.upsert({
         where: {
-            id: id ?? 'new-gift-placeholder'
+            id: gift.id || 'new-gift-placeholder'
         },
-        create: { 
-            ...giftData,
-            user: { connect: { id: userId } },
-            ...(parentGiftId && { parentGift: { connect: { id: parentGiftId } } }),
+        create: {
+            ...editableGiftFields(gift),
+            name: gift.name.trim(),
+            user: { connect: { id: gift.userId as string } },
+            ...(gift.parentGiftId && { parentGift: { connect: { id: gift.parentGiftId } } }),
             updatedAt: new Date(),
-            order: (latestGift._max.order ?? 0) + 1 
+            order: (latestGift._max.order ?? 0) + 1
         },
-        update: { 
-            ...giftData, 
-            name: gift.name.trim(), 
-            userId,
-            parentGiftId,
+        update: {
+            ...editableGiftFields(gift),
             updatedAt: new Date()
         }
     });

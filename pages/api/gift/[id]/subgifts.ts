@@ -8,6 +8,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSubGifts, createSubGift, getGiftFromId } from '../../../../lib/db/giftManager';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
+import { parseBody, subGiftSchema } from '@/lib/api/validation';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -26,11 +27,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // POST - Créer un sous-cadeau (propriétaire de la liste, admin ou backoffice)
     if (req.method === 'POST') {
-      const { name, description, url } = req.body;
-
-      if (!name) {
-        return res.status(400).json({ error: 'name required' });
-      }
+      const parsed = parseBody(subGiftSchema, req, res);
+      if (!parsed) return;
+      const { name, description, url } = parsed;
 
       const session = getSession(req);
       if (!isBackofficeSession(req)) {

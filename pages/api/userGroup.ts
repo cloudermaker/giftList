@@ -17,6 +17,7 @@ import {
   updateUserRole
 } from '../../lib/db/userGroupManager';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
+import { parseBody, membershipSchema } from '@/lib/api/validation';
 
 // Écritures (ajout, promotion, retrait) : backoffice, ou admin (session signée) du groupe visé
 const canWriteMembership = (req: NextApiRequest, groupId: string): boolean => {
@@ -48,11 +49,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // POST - Ajouter un user à un groupe
     if (req.method === 'POST') {
-      const { userId, groupId, role } = req.body;
-
-      if (!userId || !groupId) {
-        return res.status(400).json({ error: 'userId and groupId required' });
-      }
+      const parsed = parseBody(membershipSchema, req, res);
+      if (!parsed) return;
+      const { userId, groupId, role } = parsed;
       if (!canWriteMembership(req, groupId)) {
         return res.status(403).json({ error: 'Forbidden' });
       }
@@ -71,9 +70,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // PATCH - Modifier le rôle d'un user dans un groupe
     if (req.method === 'PATCH') {
-      const { userId, groupId, role } = req.body;
-
-      if (!userId || !groupId || !role) {
+      const parsed = parseBody(membershipSchema, req, res);
+      if (!parsed) return;
+      const { userId, groupId, role } = parsed;
+      if (!role) {
         return res.status(400).json({ error: 'userId, groupId and role required' });
       }
       if (!canWriteMembership(req, groupId)) {

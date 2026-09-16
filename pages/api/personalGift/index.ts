@@ -14,6 +14,7 @@ import {
   getPersonalGiftsForUser
 } from '../../../lib/db/personalGiftManager';
 import { getSession } from '@/lib/auth/session';
+import { parseBody, personalGiftCreateSchema } from '@/lib/api/validation';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -50,22 +51,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // POST - Créer un cadeau personnel
     if (req.method === 'POST') {
-      const { personalGift } = req.body;
-      
-      if (!personalGift) {
-        return res.status(400).json({ error: 'personalGift object required' });
-      }
-
-      const { name, description, url, forUserId, groupId } = personalGift;
+      const parsed = parseBody(personalGiftCreateSchema, req, res);
+      if (!parsed) return;
+      const { name, description, url, forUserId, groupId } = parsed.personalGift;
 
       // Le propriétaire vient de la session signée, pas du body
       const session = getSession(req);
       if (!session) {
         return res.status(401).json({ error: 'Authentification requise' });
-      }
-
-      if (!name || !groupId) {
-        return res.status(400).json({ error: 'name and groupId required' });
       }
 
       const gift = await createPersonalGift({

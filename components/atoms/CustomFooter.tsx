@@ -31,10 +31,12 @@ export const CustomFooter = (): JSX.Element => {
             <div className="container mx-auto max-w-5xl px-4 py-6">
                 <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between">
                     {/* Navigation Links */}
-                    <nav className="flex flex-wrap justify-center gap-5 md:gap-8">
+                    <nav className="flex flex-wrap justify-center gap-5 md:gap-6">
                         <FooterLink href={connectedUser ? '/home' : '/'} emoji="🏠">Accueil</FooterLink>
                         <FooterLink href="/contact" emoji="✉️">Nous contacter</FooterLink>
                         <FooterLink href="/help" emoji="❓">Aide</FooterLink>
+                        <FooterLink href="/mentions-legales" emoji="⚖️">Mentions légales</FooterLink>
+                        <FooterLink href="/confidentialite" emoji="🔒">Confidentialité</FooterLink>
                         {connectedUser && <FooterLink href="/backoffice" emoji="⚙️">Backoffice</FooterLink>}
                     </nav>
 
@@ -59,12 +61,6 @@ export const CustomFooter = (): JSX.Element => {
                             </Link>
                         </div>
                     </div>
-                </div>
-
-                <div className="mt-4 text-center text-xs text-neutral-400">
-                    <Link href="/mentions-legales" className="hover:underline">Mentions légales</Link>
-                    <span className="mx-2">·</span>
-                    <Link href="/confidentialite" className="hover:underline">Confidentialité</Link>
                 </div>
             </div>
         </footer>

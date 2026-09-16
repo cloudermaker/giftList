@@ -6,8 +6,6 @@ export const buildDefaultGroup = () => {
     return {
         id: '-1',
         name: '',
-        description: '',
-        imageUrl: '',
         adminPassword: '',
         inviteToken: null,
         updatedAt: new Date(),
@@ -81,42 +79,52 @@ export const ensureGroupInviteToken = async (groupId: string): Promise<string> =
     return group!.inviteToken!;
 };
 
-export const createGroup = async (groupName: string, password: string, description = '', imageUrl = ''): Promise<Group> => {
-    var group = await prisma.group.create({
-        data: {
-            name: groupName.trim(),
-            adminPassword: password,
-            description,
-            imageUrl,
-            inviteToken: generateInviteToken()
-        }
+// Création atomique groupe + user admin + membership (utilisé par /api/authenticate)
+export const createGroupWithAdmin = async (groupName: string, password: string, userName: string) => {
+    return prisma.$transaction(async (tx) => {
+        const group = await tx.group.create({
+            data: {
+                name: groupName.trim(),
+                adminPassword: password,
+                inviteToken: generateInviteToken()
+            }
+        });
+        const user = await tx.user.create({
+            data: { name: userName.toLowerCase().trim() }
+        });
+        await tx.userGroupMapping.create({
+            data: { userId: user.id, groupId: group.id, role: 'ADMIN', joinedAt: new Date() }
+        });
+        return { group, user };
     });
-
-    return group;
 };
 
+// Seuls les champs éditables passent à Prisma (liste blanche — tout le reste du body est ignoré)
+const editableGroupFields = (group: Group) => ({
+    ...(group.name ? { name: group.name.trim() } : {}),
+    ...(group.adminPassword !== undefined ? { adminPassword: group.adminPassword } : {})
+});
+
 export const upsertGroup = async (group: Group): Promise<Group> => {
-    const { id, createdAt, updatedAt, users, personalGifts, userMemberships, ...groupData } = group as any;
-    
+    const data = editableGroupFields(group);
+
     const newGroup = await prisma.group.upsert({
         where: {
             id: group.id
         },
-        create: { ...groupData, name: group.name.trim() },
-        update: { ...groupData, name: group.name.trim(), updatedAt: new Date() }
+        create: { name: group.name.trim(), adminPassword: group.adminPassword ?? '' },
+        update: { ...data, updatedAt: new Date() }
     });
 
     return newGroup;
 };
 
 export const updateGroup = async (groupId: string, group: Group): Promise<Group> => {
-    const { id, createdAt, updatedAt, users, personalGifts, userMemberships, ...groupData } = group as any;
-    
     const newGroup = await prisma.group.update({
         where: {
             id: groupId
         },
-        data: { ...groupData, ...(group.name ? { name: group.name.trim() } : {}), updatedAt: new Date() }
+        data: { ...editableGroupFields(group), updatedAt: new Date() }
     });
 
     return newGroup;

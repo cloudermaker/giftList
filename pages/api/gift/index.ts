@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getGiftFromId, updateGifts, upsertGift } from '@/lib/db/giftManager';
 import { Gift } from '@prisma/client';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
+import { parseBody, giftUpsertSchema, giftsReorderSchema } from '@/lib/api/validation';
 
 export type TGiftApiResult = {
     success: boolean;
@@ -48,6 +49,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             res.status(403).json({ success: false });
             return;
         }
+
+        if (req.method === 'POST' && body.gift && !parseBody(giftUpsertSchema, req, res)) return;
+        if (req.method === 'POST' && body.gifts && !parseBody(giftsReorderSchema, req, res)) return;
 
         if (req.method === 'GET' && query.giftId) {
             const gift = await getGiftFromId(query.giftId as string);

@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
+import { parseBody, userPatchSchema } from '@/lib/api/validation';
 import { User } from '@prisma/client';
 import { deleteUser, getUserById, getUserByGroupAndName, updateUser } from '@/lib/db/userManager';
 import { getUserGroups, countGroupAdmins, isUserGroupAdmin } from '@/lib/db/userGroupManager';
@@ -52,6 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             res.status(200).json({ success: true });
         } else if (method === 'PATCH' && userId && body.user && canWriteUser(req, userId)) {
+            if (!parseBody(userPatchSchema, req, res)) return;
             if (body.groupId && body.user.name) {
                 const existing = await getUserByGroupAndName(body.user.name, body.groupId as string);
                 if (existing && existing.id !== userId) {

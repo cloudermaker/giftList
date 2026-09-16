@@ -25,8 +25,6 @@ export const takeGift = async (userId: string, giftId: string) => {
     throw new Error('Cannot take your own gift');
   }
   
-  const taken = [];
-  
   // Pour SIMPLE/MULTIPLE : vérifier qu'une réservation n'existe pas déjà (idempotence)
   // Pour UNLIMITED : plusieurs réservations par le même user sont autorisées
   if (gift.giftType !== 'UNLIMITED') {
@@ -36,32 +34,23 @@ export const takeGift = async (userId: string, giftId: string) => {
     }
   }
 
-  // Prendre le cadeau principal
-  const takenGift = await prisma.userTakenGift.create({
-    data: {
-      userId,
-      giftId,
-      takenAt: new Date()
-    }
-  });
-  taken.push(takenGift);
-  
-  // Si MULTIPLE, prendre aussi tous les sous-cadeaux
-  if (gift.giftType === 'MULTIPLE' && gift.subGifts.length > 0) {
-    for (const subGift of gift.subGifts) {
-      const subExisting = await prisma.userTakenGift.findFirst({ where: { userId, giftId: subGift.id } });
-      if (subExisting) continue;
-      const takenSubGift = await prisma.userTakenGift.create({
-        data: {
-          userId,
-          giftId: subGift.id,
-          takenAt: new Date()
-        }
+  // Réservation atomique du cadeau principal + sous-cadeaux
+  const taken = await prisma.$transaction(async (tx) => {
+    const created = [await tx.userTakenGift.create({ data: { userId, giftId, takenAt: new Date() } })];
+
+    if (gift.giftType === 'MULTIPLE' && gift.subGifts.length > 0) {
+      const alreadyTaken = await tx.userTakenGift.findMany({
+        where: { userId, giftId: { in: gift.subGifts.map((s) => s.id) } },
+        select: { giftId: true }
       });
-      taken.push(takenSubGift);
+      const takenIds = new Set(alreadyTaken.map((t) => t.giftId));
+      for (const subGift of gift.subGifts.filter((s) => !takenIds.has(s.id))) {
+        created.push(await tx.userTakenGift.create({ data: { userId, giftId: subGift.id, takenAt: new Date() } }));
+      }
     }
-  }
-  
+    return created;
+  });
+
   return {
     giftId,
     userId,
@@ -92,29 +81,15 @@ export const releaseGift = async (userId: string, giftId: string) => {
     throw new Error('Gift not found');
   }
   
-  // Libérer le cadeau principal
+  // Libération atomique : cadeau principal + sous-cadeaux en une seule requête
+  const released = [giftId, ...(gift.giftType === 'MULTIPLE' ? gift.subGifts.map((s) => s.id) : [])];
   await prisma.userTakenGift.deleteMany({
     where: {
       userId,
-      giftId
+      giftId: { in: released }
     }
   });
-  
-  const released = [giftId];
-  
-  // Si MULTIPLE, libérer aussi tous les sous-cadeaux
-  if (gift.giftType === 'MULTIPLE' && gift.subGifts.length > 0) {
-    for (const subGift of gift.subGifts) {
-      await prisma.userTakenGift.deleteMany({
-        where: {
-          userId,
-          giftId: subGift.id
-        }
-      });
-      released.push(subGift.id);
-    }
-  }
-  
+
   return {
     giftId,
     subGiftsReleased: released

@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { Group } from '@prisma/client';
 import { deleteGroup, getGroupById, getGroupByName, updateGroup } from '@/lib/db/groupManager';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
+import { parseBody, groupPatchSchema } from '@/lib/api/validation';
 
 export type TGroupApiResult = {
     success: boolean;
@@ -39,6 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             res.status(200).json({ success: true });
         } else if (method === 'PATCH' && groupId && body.group && isAuthorized(req, groupId)) {
+            if (!parseBody(groupPatchSchema, req, res)) return;
             if ((body.group as Group).name) {
                 const existing = await getGroupByName((body.group as Group).name);
                 if (existing && existing.id !== groupId) {
