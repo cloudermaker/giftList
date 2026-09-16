@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
+import { parseBody, giftPatchSchema } from '@/lib/api/validation';
 import { deleteGift, getGiftFromId, updateGift } from '@/lib/db/giftManager';
 import { Gift } from '@prisma/client';
 
@@ -42,6 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 res.status(403).json({ success: false, error: "Vous n'avez pas les droits pour modifier ce cadeau." });
                 return;
             }
+            if ((method === 'PATCH' || method === 'PUT') && body.gift && !parseBody(giftPatchSchema, req, res)) return;
         }
 
         if (method === 'DELETE' && giftId) {

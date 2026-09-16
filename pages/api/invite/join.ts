@@ -3,6 +3,7 @@ import { getGroupByInviteToken } from '@/lib/db/groupManager';
 import { getUserByGroupAndName, createUser } from '@/lib/db/userManager';
 import { TAuthenticateResult } from '@/pages/api/authenticate';
 import { sessionCookieHeader } from '@/lib/auth/session';
+import { parseBody, inviteJoinSchema } from '@/lib/api/validation';
 
 export type TInviteJoinResult = TAuthenticateResult & {
     needsConfirmation?: boolean;
@@ -14,11 +15,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         return res.status(405).json({ success: false, error: 'Method not allowed' });
     }
 
-    const { token, userName, confirm } = req.body;
-
-    if (!token || !userName) {
-        return res.status(400).json({ success: false, error: 'Token et prénom requis' });
-    }
+    const parsed = parseBody(inviteJoinSchema, req, res);
+    if (!parsed) return;
+    const { token, userName, confirm } = parsed;
 
     try {
         const group = await getGroupByInviteToken(token);

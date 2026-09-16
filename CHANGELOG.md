@@ -4,6 +4,15 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.3.0] - 2026-09-16
+
+### Modifié
+
+- Fiabilité renforcée : les actions importantes (création de groupe, réservations, réorganisation d'une liste) sont désormais enregistrées entièrement ou pas du tout — plus de données à moitié sauvegardées
+- Deux groupes ne peuvent plus porter le même nom
+- Supprimer un membre supprime aussi proprement sa liste de cadeaux
+- Les informations saisies sont mieux vérifiées (tailles maximales, messages d'erreur plus clairs)
+
 ## [5.2.0] - 2026-09-13
 
 ### Ajouté
