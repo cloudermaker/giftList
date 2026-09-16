@@ -8,14 +8,10 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ### Modifié
 
-- Base : contraintes d'intégrité (nom de groupe unique, suppression en cascade des cadeaux d'un membre supprimé, index de tri par liste, dates obligatoires) — ⚠️ exécuter `scripts/p5-migration.sql` sur la prod juste APRÈS le déploiement (le nouveau code tolère l'ancien schéma, pas l'inverse)
-- Opérations multi-écritures atomiques : création groupe+admin, ajout de membre, réservation/libération avec sous-cadeaux, réordonnancement
-- Validation systématique des entrées API (zod) : longueurs maximales, formats, 400 sur requête invalide
-- Mauvais mot de passe admin : réponse 401 (au lieu de 200)
-
-### Supprimé
-
-- Colonnes mortes `Group.description`, `Group.imageUrl` et `User.isAdmin` (le rôle par groupe fait foi)
+- Fiabilité renforcée : les actions importantes (création de groupe, réservations, réorganisation d'une liste) sont désormais enregistrées entièrement ou pas du tout — plus de données à moitié sauvegardées
+- Deux groupes ne peuvent plus porter le même nom
+- Supprimer un membre supprime aussi proprement sa liste de cadeaux
+- Les informations saisies sont mieux vérifiées (tailles maximales, messages d'erreur plus clairs)
 
 ## [5.2.0] - 2026-09-13
 
