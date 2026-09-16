@@ -23,8 +23,8 @@ UPDATE "Group" SET "adminPassword" = 'admin' WHERE "adminPassword" IS NULL;
 -- Cascade : supprimer un user supprime ses cadeaux (au lieu de les orpheliner)
 ALTER TABLE "Gift" DROP CONSTRAINT "Gift_userId_fkey";
 
-DROP INDEX "Gift_userId_idx";
-DROP INDEX "Gift_order_idx";
+DROP INDEX IF EXISTS "Gift_userId_idx";
+DROP INDEX IF EXISTS "Gift_order_idx";
 
 ALTER TABLE "Group" DROP COLUMN "description",
 DROP COLUMN "imageUrl",
