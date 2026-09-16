@@ -62,30 +62,34 @@ export const createUser = async (userName: string, userGroupId: string, isAdmin 
     });
 };
 
-export const upsertUser = async (user: User): Promise<User> => {
-    const { id, createdAt, updatedAt, gifts, groupMemberships, takenGifts, personalGifts, personalGiftsReceived, userTakenGifts, personalGiftsFor, isAdmin, ...userData } = user as any;
+// Seuls les champs éditables passent à Prisma (liste blanche — tout le reste du body est ignoré)
+const editableUserFields = (user: User) => ({
+    ...(user.name ? { name: user.name.toLowerCase().trim() } : {}),
+    ...(user.acceptSuggestedGift !== undefined ? { acceptSuggestedGift: user.acceptSuggestedGift } : {})
+});
 
-    if (!id) {
+export const upsertUser = async (user: User): Promise<User> => {
+    const data = editableUserFields(user);
+
+    if (!user.id) {
         return prisma.user.create({
-            data: { ...userData, name: user.name.toLowerCase().trim() }
+            data: { ...data, name: user.name.toLowerCase().trim() }
         });
     }
 
     return prisma.user.upsert({
-        where: { id },
-        create: { ...userData, name: user.name.toLowerCase().trim() },
-        update: { ...userData, name: user.name.toLowerCase().trim(), updatedAt: new Date() }
+        where: { id: user.id },
+        create: { ...data, name: user.name.toLowerCase().trim() },
+        update: { ...data, updatedAt: new Date() }
     });
 };
 
 export const updateUser = async (userId: string, user: User): Promise<User> => {
-    const { id, createdAt, updatedAt, gifts, groupMemberships, takenGifts, personalGifts, personalGiftsReceived, userTakenGifts, personalGiftsFor, isAdmin, ...userData } = user as any;
-    
     const result = await prisma.user.update({
         where: {
             id: userId
         },
-        data: { ...userData, ...(user.name ? { name: user.name.toLowerCase().trim() } : {}), updatedAt: new Date() }
+        data: { ...editableUserFields(user), updatedAt: new Date() }
     });
 
     return result;

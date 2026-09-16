@@ -99,28 +99,32 @@ export const createGroupWithAdmin = async (groupName: string, password: string, 
     });
 };
 
+// Seuls les champs éditables passent à Prisma (liste blanche — tout le reste du body est ignoré)
+const editableGroupFields = (group: Group) => ({
+    ...(group.name ? { name: group.name.trim() } : {}),
+    ...(group.adminPassword !== undefined ? { adminPassword: group.adminPassword } : {})
+});
+
 export const upsertGroup = async (group: Group): Promise<Group> => {
-    const { id, createdAt, updatedAt, users, personalGifts, userMemberships, description, imageUrl, ...groupData } = group as any;
-    
+    const data = editableGroupFields(group);
+
     const newGroup = await prisma.group.upsert({
         where: {
             id: group.id
         },
-        create: { ...groupData, name: group.name.trim() },
-        update: { ...groupData, name: group.name.trim(), updatedAt: new Date() }
+        create: { name: group.name.trim(), adminPassword: group.adminPassword ?? '' },
+        update: { ...data, updatedAt: new Date() }
     });
 
     return newGroup;
 };
 
 export const updateGroup = async (groupId: string, group: Group): Promise<Group> => {
-    const { id, createdAt, updatedAt, users, personalGifts, userMemberships, description, imageUrl, ...groupData } = group as any;
-    
     const newGroup = await prisma.group.update({
         where: {
             id: groupId
         },
-        data: { ...groupData, ...(group.name ? { name: group.name.trim() } : {}), updatedAt: new Date() }
+        data: { ...editableGroupFields(group), updatedAt: new Date() }
     });
 
     return newGroup;
