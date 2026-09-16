@@ -75,6 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             }
         }
     } catch (e) {
+        console.error('Error in /api/authenticate:', e);
         res.status(500).json({ success: false, error: 'Erreur interne' });
     }
 }
