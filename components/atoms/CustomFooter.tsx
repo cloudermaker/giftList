@@ -31,7 +31,7 @@ export const CustomFooter = (): JSX.Element => {
             <div className="container mx-auto max-w-5xl px-4 py-6">
                 <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between">
                     {/* Bloc gauche : tous les liens, sur plusieurs lignes si besoin */}
-                    <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 md:flex-1 md:justify-start md:gap-x-6">
+                    <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 md:flex-1 md:gap-x-6">
                         <FooterLink href={connectedUser ? '/home' : '/'} emoji="🏠">Accueil</FooterLink>
                         <FooterLink href="/contact" emoji="✉️">Nous contacter</FooterLink>
                         <FooterLink href="/help" emoji="❓">Aide</FooterLink>
