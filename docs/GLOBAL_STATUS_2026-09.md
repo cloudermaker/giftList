@@ -1,6 +1,6 @@
 # Global status & improvement plan — malistedecadeaux.fr (Sept 2026)
 
-Effort tags: **S** < 1h · **M** half-day · **L** 1 day+. ✅ = done (v5.1.0 2026-09-13, v5.2.0 2026-09-14 — both merged & deployed).
+Effort tags: **S** < 1h · **M** half-day · **L** 1 day+. ✅ = done (v5.1.0 2026-09-13, v5.2.0 2026-09-14, v5.3.0 2026-09-16 — all merged & deployed; v5.4.0 ideas board in PR).
 
 ## Snapshot — what's already good
 
@@ -55,18 +55,18 @@ Effort tags: **S** < 1h · **M** half-day · **L** 1 day+. ✅ = done (v5.1.0 20
 
 ### Housekeeping (quick, anytime)
 
-- Remove the CI diagnostic `console.log`s in `e2e/gifts.spec.ts` after a quiet week of green runs.
+- ✅ CI diagnostics stripped; CI stabilized (test DB on Neon DIRECT endpoint — the pooler caused stale-read flakes).
 - Rotate the Neon test-DB and Vercel prod-DB passwords (both were pasted in chats/tools), update secrets after.
-- Watch Search Console: sitemap status → "Success, 10 URLs"; occasion pages indexed; stale `/login` dropping out.
+- ✅ Search Console: sitemap "Success — 10 URLs". Still watch: occasion pages indexing, stale `/login` dropping out.
 
-### P5 — Data layer robustness — 1–2 days ← NEXT
+### ✅ P5 — Data layer robustness (done in v5.3.0 — schema migrated on prod via scripts/p5-migration.sql)
 
 12. Schema constraints: `@@unique` on `Group.name`; `onDelete: Cascade` on `Gift.user` (orphans accumulate today); `@@index([userId, order])`; non-null `order`/`isSuggestedGift`/timestamps. (M)
 13. Validation layer (zod) + unified `{ error }` envelope + correct status codes (today: wrong password = HTTP 200, missing cookie = 500, `details` leaks DB internals). (M/L)
 14. `$transaction` on multi-write ops (takeGift/releaseGift, reorder, createGroup+createUser, createUser+addUserToGroup). (M)
 15. Drop dead `Group.description`/`imageUrl` columns and `User.isAdmin` (duplicates `UserGroupMapping.role`). (M)
 
-### P6 — UI rationalization — 2–3 days
+### P6 — UI rationalization — 2–3 days ← NEXT
 
 16. One modal system (`Modal.tsx` shell + `confirmDestructive()`/`promptText()`/`toast()` helpers) — removes ~150 duplicated lines across 5 pages. (L)
 17. Button system: `variant` prop on `CustomButton`, kill the global red `button{}` CSS, collapse backoffice's 14 duplicated buttons into `<ActionButton icon label>`. (M/L)
