@@ -8,7 +8,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ### Modifié
 
-- Base : contraintes d'intégrité (nom de groupe unique, suppression en cascade des cadeaux d'un membre supprimé, index de tri par liste, dates obligatoires) — ⚠️ exécuter `scripts/p5-migration.sql` sur la prod avant de déployer
+- Base : contraintes d'intégrité (nom de groupe unique, suppression en cascade des cadeaux d'un membre supprimé, index de tri par liste, dates obligatoires) — ⚠️ exécuter `scripts/p5-migration.sql` sur la prod juste APRÈS le déploiement (le nouveau code tolère l'ancien schéma, pas l'inverse)
 - Opérations multi-écritures atomiques : création groupe+admin, ajout de membre, réservation/libération avec sous-cadeaux, réordonnancement
 - Validation systématique des entrées API (zod) : longueurs maximales, formats, 400 sur requête invalide
 - Mauvais mot de passe admin : réponse 401 (au lieu de 200)
