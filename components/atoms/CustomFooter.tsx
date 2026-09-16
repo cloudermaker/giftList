@@ -35,6 +35,7 @@ export const CustomFooter = (): JSX.Element => {
                         <FooterLink href={connectedUser ? '/home' : '/'} emoji="🏠">Accueil</FooterLink>
                         <FooterLink href="/contact" emoji="✉️">Nous contacter</FooterLink>
                         <FooterLink href="/help" emoji="❓">Aide</FooterLink>
+                        <FooterLink href="/ideas" emoji="💡">Idées</FooterLink>
                         <FooterLink href="/mentions-legales" emoji="⚖️">Mentions légales</FooterLink>
                         <FooterLink href="/confidentialite" emoji="🔒">Confidentialité</FooterLink>
                         {connectedUser && <FooterLink href="/backoffice" emoji="⚙️">Backoffice</FooterLink>}

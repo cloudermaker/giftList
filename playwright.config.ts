@@ -13,7 +13,8 @@ export default defineConfig({
     workers: process.env.CI ? 1 : undefined,
     reporter: process.env.CI ? 'github' : 'list',
     use: {
-        baseURL: 'http://localhost:3000',
+        // Port dédié 3100 : les tests ne réutilisent jamais le dev server manuel (3000)
+        baseURL: 'http://localhost:3100',
         trace: 'retain-on-failure',
         screenshot: 'only-on-failure'
     },
@@ -24,8 +25,8 @@ export default defineConfig({
     ],
     webServer: {
         // En CI : build de prod (déterministe) ; en local : dev server (itération rapide)
-        command: process.env.CI ? 'npm run build && npm run start' : 'npm run dev',
-        url: 'http://localhost:3000',
+        command: process.env.CI ? 'npm run build && npm run start -- -p 3100' : 'npm run dev -- -p 3100',
+        url: 'http://localhost:3100',
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
         env: {

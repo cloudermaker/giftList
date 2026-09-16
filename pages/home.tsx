@@ -169,10 +169,12 @@ export const Home = (): JSX.Element => {
                 {/* Gift Ideas Generator */}
                 <GiftIdeasGenerator />
 
-                <p className="mt-10 text-center text-sm text-gray-500">
-                    Une idée pour améliorer le site ?{' '}
-                    <Link href="/ideas" className="text-bleuNoel hover:underline">💡 Proposez-la et votez ici</Link>
-                </p>
+                <div className="mt-10 text-center">
+                    <p className="text-sm text-gray-500 mb-3">Une idée pour améliorer le site ?</p>
+                    <CustomButton className="slate-button" onClick={() => Router.push('/ideas')}>
+                        💡 Proposer une idée / voter
+                    </CustomButton>
+                </div>
             </div>
 
             {showOnboarding && group?.inviteToken && (

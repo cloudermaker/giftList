@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { uniqueName } from './fixtures';
+import { uniqueName, E2E_BASE_URL } from './fixtures';
 
 /**
  * Régressions de sécurité : le cookie signé et les gardes d'autorisation
@@ -24,7 +24,7 @@ test.describe('Sécurité', () => {
             JSON.stringify({ groupId, groupName: 'x', userId: 'x', userName: 'x', isAdmin: true })
         ).toString('base64');
         const forged = await playwright.request.newContext({
-            baseURL: 'http://localhost:3000',
+            baseURL: E2E_BASE_URL,
             extraHTTPHeaders: { cookie: `currentUser=${forgedPayload}` }
         });
 
@@ -53,14 +53,14 @@ test.describe('Sécurité', () => {
     });
 
     test('réserver un cadeau sans session renvoie 401', async ({ playwright }) => {
-        const anon = await playwright.request.newContext({ baseURL: 'http://localhost:3000' });
+        const anon = await playwright.request.newContext({ baseURL: E2E_BASE_URL });
         const res = await anon.post('/api/gift/some-gift-id/take', { data: {} });
         expect(res.status()).toBe(401);
         await anon.dispose();
     });
 
     test('promouvoir un membre admin sans session renvoie 403', async ({ playwright }) => {
-        const anon = await playwright.request.newContext({ baseURL: 'http://localhost:3000' });
+        const anon = await playwright.request.newContext({ baseURL: E2E_BASE_URL });
         const res = await anon.patch('/api/userGroup', { data: { userId: 'x', groupId: 'y', role: 'ADMIN' } });
         expect(res.status()).toBe(403);
         await anon.dispose();
@@ -71,7 +71,7 @@ test.describe('Sécurité', () => {
         const legacy = Buffer.from(
             JSON.stringify({ groupId: 'x', groupName: 'x', userId: 'x', userName: 'x', isAdmin: true })
         ).toString('base64');
-        await ctx.addCookies([{ name: 'currentUser', value: legacy, url: 'http://localhost:3000' }]);
+        await ctx.addCookies([{ name: 'currentUser', value: legacy, url: E2E_BASE_URL }]);
 
         const page = await ctx.newPage();
         await page.goto('/home');

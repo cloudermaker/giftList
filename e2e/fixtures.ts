@@ -1,5 +1,8 @@
 import { Page, expect } from '@playwright/test';
 
+// Port dédié aux e2e : ne rentre jamais en collision avec le `npm run dev` manuel (3000)
+export const E2E_BASE_URL = 'http://localhost:3100';
+
 export const uniqueName = (prefix: string): string => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
 // Les confirmations sweetalert2 (timer 1500ms) bloquent les clics tant que leur backdrop est affiché

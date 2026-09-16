@@ -24,7 +24,7 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
     const [localIdeas, setLocalIdeas] = useState<TIdeaItem[]>(ideas);
     const [votedIds, setVotedIds] = useState<string[]>([]);
     const [showDone, setShowDone] = useState(false);
-    const [minLikes, setMinLikes] = useState(0);
+    const [sortBy, setSortBy] = useState<'likes-desc' | 'likes-asc' | 'date-desc' | 'date-asc'>('likes-desc');
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
@@ -81,10 +81,16 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
         }
     };
 
+    const sorters: Record<typeof sortBy, (a: TIdeaItem, b: TIdeaItem) => number> = {
+        'likes-desc': (a, b) => b.likes - a.likes || (a.createdAt < b.createdAt ? 1 : -1),
+        'likes-asc': (a, b) => a.likes - b.likes || (a.createdAt < b.createdAt ? 1 : -1),
+        'date-desc': (a, b) => (a.createdAt < b.createdAt ? 1 : -1),
+        'date-asc': (a, b) => (a.createdAt > b.createdAt ? 1 : -1)
+    };
+
     const visibleIdeas = localIdeas
         .filter((i) => (showDone ? true : !i.doneAt))
-        .filter((i) => i.likes >= minLikes)
-        .sort((a, b) => b.likes - a.likes || (a.createdAt < b.createdAt ? 1 : -1));
+        .sort(sorters[sortBy]);
 
     return (
         <Layout withHeader={false}>
@@ -138,12 +144,12 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
                         Afficher les idées déjà réalisées
                     </label>
                     <label className="flex items-center gap-2 text-sm text-gray-600">
-                        Votes minimum :
-                        <select className="input-field !p-1.5 !flex-none w-20" value={minLikes} onChange={(e) => setMinLikes(Number(e.target.value))}>
-                            <option value={0}>Tous</option>
-                            <option value={5}>5+</option>
-                            <option value={10}>10+</option>
-                            <option value={25}>25+</option>
+                        Trier par :
+                        <select className="input-field !p-1.5 !flex-none w-44" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}>
+                            <option value="likes-desc">Les plus votées</option>
+                            <option value="likes-asc">Les moins votées</option>
+                            <option value="date-desc">Les plus récentes</option>
+                            <option value="date-asc">Les plus anciennes</option>
                         </select>
                     </label>
                 </div>
@@ -163,6 +169,7 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium text-gray-800">{idea.title}</p>
                                     {idea.description && <p className="text-sm text-gray-500 mt-1">{idea.description}</p>}
+                                    <p className="text-xs text-gray-400 mt-1">Ajoutée le {DATE_FMT.format(new Date(idea.createdAt))}</p>
                                     {idea.doneAt && (
                                         <span className="inline-block mt-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
                                             ✅ Réalisée le {DATE_FMT.format(new Date(idea.doneAt))}
@@ -172,14 +179,14 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
                                 <button
                                     onClick={() => toggleVote(idea)}
                                     aria-label={hasVoted ? 'Retirer mon vote' : 'Voter pour cette idée'}
-                                    className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors ${
+                                    className={`shrink-0 flex items-center gap-2 px-5 py-3 rounded-xl text-base font-semibold border-2 transition-colors ${
                                         hasVoted
                                             ? 'bg-vertNoel text-white border-vertNoel'
                                             : 'bg-white text-gray-600 border-gray-300 hover:border-vertNoel hover:text-vertNoel'
                                     }`}
                                     style={{ boxShadow: 'none', backgroundImage: 'none', margin: 0 }}
                                 >
-                                    👍 {idea.likes}
+                                    <span className="text-xl leading-none">👍</span> {idea.likes}
                                 </button>
                             </div>
                         </div>

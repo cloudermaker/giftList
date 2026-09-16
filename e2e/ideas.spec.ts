@@ -1,5 +1,5 @@
 import { test, expect, APIRequestContext } from '@playwright/test';
-import { uniqueName } from './fixtures';
+import { uniqueName, E2E_BASE_URL } from './fixtures';
 
 /**
  * Boîte à idées publique (/ideas) : proposition, vote, filtre "réalisées", modération backoffice.
@@ -11,7 +11,7 @@ test.describe.serial('Boîte à idées', () => {
     test.beforeAll(async ({ playwright }) => {
         ideaTitle = uniqueName('Idée e2e');
         // Contexte API authentifié backoffice (pour modérer et nettoyer)
-        backofficeCtx = await playwright.request.newContext({ baseURL: 'http://localhost:3000' });
+        backofficeCtx = await playwright.request.newContext({ baseURL: E2E_BASE_URL });
         const login = await backofficeCtx.post('/api/backoffice/auth', {
             data: { login: process.env.BACKOFFICE_USERNAME, pass: process.env.BACKOFFICE_PASSWORD }
         });
@@ -73,7 +73,7 @@ test.describe.serial('Boîte à idées', () => {
     });
 
     test('la modération exige la session backoffice', async ({ playwright }) => {
-        const anon = await playwright.request.newContext({ baseURL: 'http://localhost:3000' });
+        const anon = await playwright.request.newContext({ baseURL: E2E_BASE_URL });
         const list = await anon.get('/api/idea');
         const idea = ((await list.json()).ideas ?? [])[0];
 
@@ -87,7 +87,7 @@ test.describe.serial('Boîte à idées', () => {
     test('la création est limitée à 5 idées par heure et par IP', async ({ playwright }) => {
         // IP dédiée au test pour ne pas polluer les autres (le limiteur lit x-forwarded-for)
         const spam = await playwright.request.newContext({
-            baseURL: 'http://localhost:3000',
+            baseURL: E2E_BASE_URL,
             extraHTTPHeaders: { 'x-forwarded-for': `203.0.113.${Math.floor(Math.random() * 250)}` }
         });
 
