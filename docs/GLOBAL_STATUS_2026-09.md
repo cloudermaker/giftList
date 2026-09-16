@@ -96,6 +96,8 @@ Effort tags: **S** < 1h · **M** half-day · **L** 1 day+. ✅ = done (v5.1.0 20
 
 ### Ideas backlog (migrated from old TODO.md / README todo)
 
+- « Ajouter un cadeau » button also at the TOP of the gift list — scrolling to the bottom on long lists is annoying (S: duplicate the button, or make it sticky).
+
 - Show a link preview on gifts that have a URL (subset of #24). Laptop: aligned; mobile: column.
 - "?" help tooltips next to group/person name fields.
 - Vercel Speed Insights (`@vercel/speed-insights`) for perf tracking.
