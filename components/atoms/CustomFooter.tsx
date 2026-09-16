@@ -30,8 +30,8 @@ export const CustomFooter = (): JSX.Element => {
         <footer className="mt-auto inset-x-0 bottom-0 border-t border-neutral-200">
             <div className="container mx-auto max-w-5xl px-4 py-6">
                 <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between">
-                    {/* Navigation Links */}
-                    <nav className="flex flex-wrap justify-center gap-5 md:gap-6">
+                    {/* Bloc gauche : tous les liens, sur plusieurs lignes si besoin */}
+                    <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 md:flex-1 md:justify-start md:gap-x-6">
                         <FooterLink href={connectedUser ? '/home' : '/'} emoji="🏠">Accueil</FooterLink>
                         <FooterLink href="/contact" emoji="✉️">Nous contacter</FooterLink>
                         <FooterLink href="/help" emoji="❓">Aide</FooterLink>
@@ -40,8 +40,8 @@ export const CustomFooter = (): JSX.Element => {
                         {connectedUser && <FooterLink href="/backoffice" emoji="⚙️">Backoffice</FooterLink>}
                     </nav>
 
-                    {/* Social Links and Copyright */}
-                    <div className="flex flex-col items-center gap-6 md:flex-row">
+                    {/* Bloc droit : réseaux + copyright + version, jamais compressé */}
+                    <div className="flex flex-col items-center gap-6 md:flex-row md:shrink-0">
                         <div className="flex gap-3">
                             <SocialLink href="https://www.facebook.com/malistedecadeaux">
                                 <FacebookIcon className="w-5 text-neutral-600 hover:text-rougeNoel" />
@@ -50,7 +50,7 @@ export const CustomFooter = (): JSX.Element => {
                                 <TwitterIcon className="w-5 text-neutral-600 hover:text-rougeNoel" />
                             </SocialLink>
                         </div>
-                        <div className="text-sm text-neutral-600 flex items-center">
+                        <div className="text-sm text-neutral-600 flex items-center whitespace-nowrap">
                             <span className="mr-2">🎁</span>
                             <span className="hidden md:inline">Copyright&nbsp;</span>© {new Date().getFullYear()} PLR
                             <Link
