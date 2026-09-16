@@ -113,6 +113,18 @@ model UserTakenGift {
   @@index([giftId])
 }
 
+model Idea {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  likes       Int       @default(0)
+  doneAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([doneAt, likes])
+}
+
 model PersonalGift {
   id          String  @id @default(uuid())
   name        String

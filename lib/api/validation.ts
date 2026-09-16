@@ -82,6 +82,11 @@ export const personalGiftCreateSchema = z.object({
         .passthrough()
 });
 
+export const ideaCreateSchema = z.object({
+    title: z.string().trim().min(3).max(100),
+    description: z.string().trim().max(500).optional().or(z.literal(''))
+});
+
 export const personalGiftUpdateSchema = z
     .object({
         name: z.string().trim().min(1).max(200).optional(),

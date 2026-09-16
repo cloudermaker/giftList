@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
 import SEO from '@/components/SEO';
@@ -167,6 +168,11 @@ export const Home = (): JSX.Element => {
 
                 {/* Gift Ideas Generator */}
                 <GiftIdeasGenerator />
+
+                <p className="mt-10 text-center text-sm text-gray-500">
+                    Une idée pour améliorer le site ?{' '}
+                    <Link href="/ideas" className="text-bleuNoel hover:underline">💡 Proposez-la et votez ici</Link>
+                </p>
             </div>
 
             {showOnboarding && group?.inviteToken && (

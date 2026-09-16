@@ -264,8 +264,15 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                     </div>
                 )}
 
-                {/* Toggle vue liste / grille */}
-                <div className="flex justify-end mb-3">
+                {/* Ajouter (en haut, évite de scroller) + toggle vue liste / grille */}
+                <div className="flex justify-between items-center mb-3">
+                    <div>
+                        {userCanAddGift && (
+                            <CustomButton className="green-button" onClick={openCreateModal}>
+                                Ajouter un cadeau
+                            </CustomButton>
+                        )}
+                    </div>
                     <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden">
                         <span
                             role="button"

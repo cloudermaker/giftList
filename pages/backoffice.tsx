@@ -12,6 +12,8 @@ import { GetServerSidePropsContext } from 'next';
 
 type TMember = { id: string; name: string; isAdmin: boolean; createdAt?: string };
 
+type TIdeaAdminItem = { id: string; title: string; likes: number; doneAt: string | null };
+
 // Formatage déterministe (locale + fuseau fixes) pour éviter les mismatchs d'hydratation SSR
 const DATE_FMT = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Europe/Paris' });
 
@@ -430,8 +432,68 @@ const Backoffice = ({ groups = [], isAuthenticated = false, page = 1, totalCount
                         <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
                     </div>
                 )}
+
+                <IdeasAdmin />
             </div>
         </Layout>
+    );
+};
+
+// Modération de la boîte à idées (/ideas)
+const IdeasAdmin = (): JSX.Element => {
+    const [ideas, setIdeas] = useState<TIdeaAdminItem[]>([]);
+    const [loaded, setLoaded] = useState(false);
+
+    useEffect(() => {
+        AxiosWrapper.get('/api/idea')
+            .then((res) => setIdeas(res?.data?.ideas ?? []))
+            .finally(() => setLoaded(true));
+    }, []);
+
+    const toggleDone = async (idea: TIdeaAdminItem) => {
+        const result = await AxiosWrapper.patch(`/api/idea/${idea.id}`, { done: !idea.doneAt });
+        if (result?.data?.success && result.data.idea) {
+            setIdeas((prev) => prev.map((i) => (i.id === idea.id ? result.data.idea : i)));
+        }
+    };
+
+    const removeIdea = async (idea: TIdeaAdminItem) => {
+        const { isConfirmed } = await Swal.fire({
+            title: `Supprimer « ${idea.title} » ?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Oui',
+            cancelButtonText: 'Non'
+        });
+        if (!isConfirmed) return;
+        const result = await AxiosWrapper.delete(`/api/idea/${idea.id}`);
+        if (result?.data?.success) {
+            setIdeas((prev) => prev.filter((i) => i.id !== idea.id));
+        }
+    };
+
+    return (
+        <div className="mt-12">
+            <h2 className="text-base font-semibold text-gray-600 uppercase tracking-wide mb-4">Boîte à idées</h2>
+            {loaded && ideas.length === 0 && <p className="text-sm text-neutral-400">Aucune idée proposée.</p>}
+            {ideas.map((idea) => (
+                <div className="item" key={idea.id}>
+                    <div className="flex items-center justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                            <span className="font-medium text-gray-800">{idea.title}</span>
+                            <span className="ml-2 text-xs text-neutral-400">👍 {idea.likes}</span>
+                            {idea.doneAt && <span className="ml-2 text-xs text-green-600 font-medium">✅ Réalisée</span>}
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                            <CustomButton className="green-button" onClick={() => toggleDone(idea)}>
+                                {idea.doneAt ? 'Rouvrir' : 'Fait'}
+                            </CustomButton>
+                            <CustomButton onClick={() => removeIdea(idea)}>Supprimer</CustomButton>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
     );
 };
 

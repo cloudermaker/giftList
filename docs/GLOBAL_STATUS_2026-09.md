@@ -92,11 +92,11 @@ Effort tags: **S** < 1h · **M** half-day · **L** 1 day+. ✅ = done (v5.1.0 20
 28. Profile page (avatar, birthday, sizes). (M)
 29. Monetization: affiliate link rewriting (keeps "gratuit, zéro pub"), optional donation link. (M)
 30. PWA service worker → installable app. (M)
-31. **Public ideas board** — `/idees` : anyone (logged or not) can submit an idea and vote for others. Table sorted by likes desc; filter by like count; "done" ideas carry a done date and are hidden by default; linked from home page and login page. Guards: 1 vote/idea/browser (localStorage) + IP rate limit, length caps, backoffice moderation (delete, mark done). New `Idea` table (title, description, likes, createdAt, doneAt?) — pair with P5's `db push`. Page noindex. (L ~1 day incl. e2e)
+31. ✅ **Public ideas board** (done in v5.4.0) — `/idees` : anyone (logged or not) can submit an idea and vote for others. Table sorted by likes desc; filter by like count; "done" ideas carry a done date and are hidden by default; linked from home page and login page. Guards: 1 vote/idea/browser (localStorage) + IP rate limit, length caps, backoffice moderation (delete, mark done). New `Idea` table (title, description, likes, createdAt, doneAt?) — pair with P5's `db push`. Page noindex. (L ~1 day incl. e2e)
 
 ### Ideas backlog (migrated from old TODO.md / README todo)
 
-- « Ajouter un cadeau » button also at the TOP of the gift list — scrolling to the bottom on long lists is annoying (S: duplicate the button, or make it sticky).
+- ✅ (v5.4.0) « Ajouter un cadeau » button also at the TOP of the gift list — scrolling to the bottom on long lists is annoying (S: duplicate the button, or make it sticky).
 
 - Show a link preview on gifts that have a URL (subset of #24). Laptop: aligned; mobile: column.
 - "?" help tooltips next to group/person name fields.
