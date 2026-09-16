@@ -85,7 +85,7 @@ export const updateUser = async (userId: string, user: User): Promise<User> => {
         where: {
             id: userId
         },
-        data: { ...userData, name: user.name.toLowerCase().trim(), updatedAt: new Date() }
+        data: { ...userData, ...(user.name ? { name: user.name.toLowerCase().trim() } : {}), updatedAt: new Date() }
     });
 
     return result;

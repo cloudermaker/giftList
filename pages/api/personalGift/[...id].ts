@@ -14,6 +14,7 @@ import {
   isPersonalGiftOwner
 } from '../../../lib/db/personalGiftManager';
 import { getSession } from '@/lib/auth/session';
+import { parseBody, personalGiftUpdateSchema } from '@/lib/api/validation';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -38,7 +39,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // PUT - Modifier un cadeau personnel (propriétaire uniquement, via session signée)
     if (req.method === 'PUT') {
-      const { name, description, url, forUserId } = req.body;
+      const parsed = parseBody(personalGiftUpdateSchema, req, res);
+      if (!parsed) return;
+      const { name, description, url, forUserId } = parsed;
 
       const session = getSession(req);
       if (!session) {
@@ -53,7 +56,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ...(name && { name: name.trim() }),
         ...(description !== undefined && { description: description?.trim() }),
         ...(url !== undefined && { url: url?.trim() }),
-        ...(forUserId !== undefined && { forUserId })
+        // null = retirer le destinataire (disconnect) — le type du manager attend string|undefined
+        ...(forUserId !== undefined && { forUserId: forUserId as string | undefined })
       });
 
       return res.status(200).json({

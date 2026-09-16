@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { createGroupWithAdmin, getGroupByName } from '@/lib/db/groupManager';
 import { getUserByGroupAndName } from '@/lib/db/userManager';
 import { Prisma } from '@prisma/client';
+import { parseBody, authenticateSchema } from '@/lib/api/validation';
 import { sessionCookieHeader } from '@/lib/auth/session';
 
 export type TGroupAndUser = {
@@ -19,8 +20,6 @@ export type TAuthenticateResult = {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TAuthenticateResult>) {
-    const { groupName, userName, isCreating, password } = req.body;
-
     const loginSuccess = (groupUser: TGroupAndUser) => {
         res.setHeader('Set-Cookie', sessionCookieHeader(groupUser));
         res.status(200).json({ success: true, error: '', groupUser });
@@ -29,9 +28,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     if (req.method !== 'POST') {
         return res.status(405).json({ success: false, error: 'Method not allowed' });
     }
-    if (typeof groupName !== 'string' || typeof userName !== 'string' || !groupName.trim() || !userName.trim()) {
-        return res.status(400).json({ success: false, error: 'Groupe et prénom requis.' });
-    }
+    const parsed = parseBody(authenticateSchema, req, res);
+    if (!parsed) return;
+    const { groupName, userName, isCreating, password } = parsed;
 
     try {
         const group = await getGroupByName(groupName);
@@ -40,6 +39,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         if (isCreating && group != null) {
             res.status(200).json({ success: false, error: 'Ce nom de groupe existe déjà.' });
         } else if (isCreating) {
+            if (!password) {
+                return res.status(400).json({ success: false, error: 'Il faut rentrer un mot de passe.' });
+            }
             // Créer le groupe, le user admin et le membership atomiquement
             try {
                 const { group: newGroup, user: newUser } = await createGroupWithAdmin(groupName, password, userName);

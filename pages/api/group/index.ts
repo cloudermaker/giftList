@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { Group } from '@prisma/client';
 import { upsertGroup, getGroupByName } from '@/lib/db/groupManager';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
+import { parseBody, groupCreateSchema } from '@/lib/api/validation';
 
 export type TGroupApiResult = {
     success: boolean;
@@ -33,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         }
 
         if (req.method === 'POST' && body.group) {
+            if (!parseBody(groupCreateSchema, req, res)) return;
             const existing = await getGroupByName((body.group as Group).name);
             if (existing) {
                 res.status(409).json({ success: false, error: 'Un groupe avec ce nom existe déjà.' });

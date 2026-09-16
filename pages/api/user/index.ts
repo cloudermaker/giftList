@@ -3,6 +3,7 @@ import { User } from '@prisma/client';
 import { upsertUser, createUser, getUserByGroupAndName } from '@/lib/db/userManager';
 import { getGroupUsers } from '@/lib/db/userGroupManager';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
+import { parseBody, userCreateSchema } from '@/lib/api/validation';
 
 export type TUserApiResult = {
     success: boolean;
@@ -37,6 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         }
 
         if (req.method === 'POST' && body.user) {
+            if (!parseBody(userCreateSchema, req, res)) return;
             const isCreation = !body.user.id || body.user.id === '';
             if (body.groupId && body.user.name) {
                 const existing = await getUserByGroupAndName(body.user.name, body.groupId as string);
