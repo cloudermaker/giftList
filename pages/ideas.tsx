@@ -93,7 +93,7 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
         .sort(sorters[sortBy]);
 
     return (
-        <Layout withHeader={false}>
+        <Layout>
             <SEO title="Boîte à idées" description="Proposez vos idées pour améliorer Ma liste de cadeaux et votez pour celles des autres." canonicalPath="/ideas" noIndex />
             <div className="max-w-3xl mx-auto py-8">
                 <div className="mb-8 text-center">
@@ -138,13 +138,13 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
                 </div>
 
                 {/* Filtres */}
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                    <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                        <input type="checkbox" className="accent-vertNoel w-4 h-4" checked={showDone} onChange={() => setShowDone((v) => !v)} />
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+                    <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer whitespace-nowrap">
+                        <input type="checkbox" className="accent-vertNoel w-4 h-4 shrink-0" checked={showDone} onChange={() => setShowDone((v) => !v)} />
                         Afficher les idées déjà réalisées
                     </label>
                     <label className="flex items-center gap-2 text-sm text-gray-600">
-                        Trier par :
+                        <span className="whitespace-nowrap shrink-0">Trier par</span>
                         <select className="input-field !p-1.5 !flex-none w-44" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}>
                             <option value="likes-desc">Les plus votées</option>
                             <option value="likes-asc">Les moins votées</option>
