@@ -527,8 +527,14 @@ const IdeasAdmin = (): JSX.Element => {
                 '<input id="ideaEditTitle" class="swal2-input" maxlength="100" placeholder="Titre">' +
                 '<textarea id="ideaEditDescription" class="swal2-textarea" maxlength="500" placeholder="Description (optionnel)"></textarea>',
             didOpen: () => {
-                (document.getElementById('ideaEditTitle') as HTMLInputElement).value = idea.title;
+                const titleInput = document.getElementById('ideaEditTitle') as HTMLInputElement;
+                titleInput.value = idea.title;
                 (document.getElementById('ideaEditDescription') as HTMLTextAreaElement).value = idea.description ?? '';
+                titleInput.focus();
+                // Entrée dans le titre = valider (pas dans la description : retour à la ligne)
+                titleInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') Swal.clickConfirm();
+                });
             },
             showCancelButton: true,
             confirmButtonText: 'Enregistrer',
