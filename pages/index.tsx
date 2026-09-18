@@ -694,7 +694,7 @@ export default function Index(): JSX.Element {
             <section className="home-section">
                 <h2 className="text-center font-bold">Questions fréquentes sur les listes de cadeaux ❓</h2>
                 <div className="item m-4">
-                    <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
+                    <h3 className="text-lg font-semibold text-violetNoel mb-2.5">
                         Comment créer une liste de cadeaux pour ma famille ?
                     </h3>
                     <p>
@@ -709,7 +709,7 @@ export default function Index(): JSX.Element {
                 </div>
 
                 <div className="item m-4">
-                    <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
+                    <h3 className="text-lg font-semibold text-violetNoel mb-2.5">
                         Est-ce que le service est vraiment gratuit ?
                     </h3>
                     <p>
@@ -720,7 +720,7 @@ export default function Index(): JSX.Element {
                 </div>
 
                 <div className="item m-4">
-                    <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
+                    <h3 className="text-lg font-semibold text-violetNoel mb-2.5">
                         Puis-je utiliser cette liste pour Noël et les anniversaires ?
                     </h3>
                     <p>

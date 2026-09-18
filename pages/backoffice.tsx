@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Layout } from '@/components/layout';
+import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
 import CustomButton from '@/components/atoms/customButton';
 import { buildDefaultGroup, getGroupsPage } from '@/lib/db/groupManager';
@@ -425,7 +426,7 @@ const Backoffice = ({
         <Layout selectedHeader={EHeader.Backoffice}>
             <div>
                 <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-2xl font-bold text-gray-800">Backoffice</h1>
+                    <PageTitle className="">Backoffice</PageTitle>
                     <button
                         onClick={logoutBackoffice}
                         className="text-white text-sm bg-rougeNoel/80 hover:bg-rougeNoel px-3 py-1.5 rounded transition-colors"

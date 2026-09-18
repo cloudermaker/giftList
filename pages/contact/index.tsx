@@ -1,5 +1,6 @@
 import CustomButton from '@/components/atoms/customButton';
 import { Layout } from '@/components/layout';
+import { PageTitle } from '@/components/atoms/PageTitle';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Router from 'next/router';
 import { useState } from 'react';
@@ -73,8 +74,9 @@ export default function Contact(): JSX.Element {
 
             <div>
                 <div className="mb-8">
-                    <p className="text-sm text-gray-500 mb-1">Support</p>
-                    <h1 className="text-2xl font-bold text-gray-800">Contactez-nous</h1>
+                    <PageTitle className="" eyebrow="Support">
+                        Contactez-nous
+                    </PageTitle>
                     <p className="text-gray-500 text-sm mt-2">
                         Une question, une suggestion ou besoin d&apos;aide ? Notre équipe est là pour vous répondre.
                     </p>

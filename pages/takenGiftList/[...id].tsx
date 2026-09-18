@@ -1,6 +1,7 @@
 import CustomButton from '@/components/atoms/customButton';
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
+import { PageTitle } from '@/components/atoms/PageTitle';
 import { PersonalGiftModal } from '@/components/PersonalGiftModal';
 import { getTakenGiftsFromUserId, GiftWithTakenUserId } from '@/lib/db/giftManager';
 import { getPersonalGiftsByUser } from '@/lib/db/personalGiftManager';
@@ -11,17 +12,7 @@ import Swal from 'sweetalert2';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import ModernLink from '@/components/atoms/ModernLink';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
-
-const AVATAR_COLORS = [
-    { bg: '#fde8e6', text: '#c0392b' },
-    { bg: '#e8f2ec', text: '#4a7c59' },
-    { bg: '#e8edf5', text: '#4a6fa5' },
-    { bg: '#fef3cd', text: '#b8860b' },
-    { bg: '#f0ebf8', text: '#7b5ea7' },
-    { bg: '#e6f3f5', text: '#2e7d8a' }
-];
-
-const avatarColor = (name: string) => AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
+import { avatarColor } from '@/lib/ui/colors';
 
 // Type étendu pour inclure forUser (pour les personal gifts)
 type GiftWithForUser = GiftWithTakenUserId & {
@@ -169,10 +160,7 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
     return (
         <Layout selectedHeader={EHeader.TakenGiftList}>
             <div>
-                {/* Title */}
-                <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-gray-800">Mes réservations</h1>
-                </div>
+                <PageTitle>Mes réservations</PageTitle>
 
                 {/* ── Cadeaux réservés ── */}
                 <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Cadeaux réservés</p>

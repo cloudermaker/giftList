@@ -6,7 +6,8 @@ module.exports = {
             colors: {
                 vertNoel: '#4A7C59', // Sage green
                 rougeNoel: '#C0392B', // Terracotta
-                bleuNoel: '#4A6FA5' // Steel blue
+                bleuNoel: '#4A6FA5', // Steel blue
+                violetNoel: '#667EEA' // Soft indigo (FAQ headings)
             },
             boxShadow: {
                 gift: '0 4px 10px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.08)',

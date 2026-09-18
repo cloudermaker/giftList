@@ -13,16 +13,9 @@ const GiftIdeasGenerator = dynamic(() => import('@/components/GiftIdeasGenerator
 import Router from 'next/router';
 import { OnboardingModal } from '@/components/OnboardingModal';
 
-type TMember = { id: string; name: string; isAdmin: boolean };
+import { avatarColor } from '@/lib/ui/colors';
 
-const AVATAR_COLORS = [
-    { bg: '#fde8e6', text: '#c0392b' },
-    { bg: '#e8f2ec', text: '#4a7c59' },
-    { bg: '#e8edf5', text: '#4a6fa5' },
-    { bg: '#fef3cd', text: '#b8860b' },
-    { bg: '#f0ebf8', text: '#7b5ea7' },
-    { bg: '#e6f3f5', text: '#2e7d8a' }
-];
+type TMember = { id: string; name: string; isAdmin: boolean };
 
 export const Home = (): JSX.Element => {
     const { connectedUser } = useCurrentUser();
@@ -127,7 +120,7 @@ export const Home = (): JSX.Element => {
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
                         {members.slice(0, 5).map((member) => {
                             const isMe = member.id === connectedUser?.userId;
-                            const avatarColor = AVATAR_COLORS[member.name.charCodeAt(0) % AVATAR_COLORS.length];
+                            const color = avatarColor(member.name);
                             return (
                                 <div
                                     key={member.id}
@@ -136,7 +129,7 @@ export const Home = (): JSX.Element => {
                                 >
                                     <div
                                         className="w-11 h-11 rounded-full flex items-center justify-center text-lg font-bold"
-                                        style={{ background: avatarColor.bg, color: avatarColor.text }}
+                                        style={{ background: color.bg, color: color.text }}
                                     >
                                         {member.name.charAt(0).toUpperCase()}
                                     </div>

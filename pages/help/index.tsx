@@ -1,4 +1,5 @@
 import { Layout } from '@/components/layout';
+import { PageTitle } from '@/components/atoms/PageTitle';
 import Link from 'next/link';
 import Router from 'next/router';
 import SEO from '@/components/SEO';
@@ -65,15 +66,12 @@ export default function Help(): JSX.Element {
             />
 
             <div>
-                <div className="mb-8">
-                    <p className="text-sm text-gray-500 mb-1">Support</p>
-                    <h1 className="text-2xl font-bold text-gray-800">Questions fréquentes</h1>
-                </div>
+                <PageTitle eyebrow="Support">Questions fréquentes</PageTitle>
 
                 <section className="home-section" style={{ margin: 0, padding: 0, textAlign: 'left' }}>
                     <h2 className="text-center font-bold">❓ Questions fréquentes sur les listes de cadeaux</h2>
                     <div className="item">
-                        <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
+                        <h3 className="text-lg font-semibold text-violetNoel mb-2.5">
                             Comment créer une liste de cadeaux pour ma famille ?
                         </h3>
                         <p>
@@ -84,7 +82,7 @@ export default function Help(): JSX.Element {
                     </div>
 
                     <div className="item">
-                        <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
+                        <h3 className="text-lg font-semibold text-violetNoel mb-2.5">
                             Est-ce que le service est vraiment gratuit ?
                         </h3>
                         <p>
@@ -94,7 +92,7 @@ export default function Help(): JSX.Element {
                     </div>
 
                     <div className="item">
-                        <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
+                        <h3 className="text-lg font-semibold text-violetNoel mb-2.5">
                             Puis-je utiliser cette liste pour Noël et les anniversaires ?
                         </h3>
                         <p>
@@ -104,7 +102,7 @@ export default function Help(): JSX.Element {
                     </div>
 
                     <div className="item">
-                        <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
+                        <h3 className="text-lg font-semibold text-violetNoel mb-2.5">
                             Ai-je besoin d&apos;un mail ?
                         </h3>
                         <p>
@@ -114,7 +112,7 @@ export default function Help(): JSX.Element {
                     </div>
 
                     <div className="item">
-                        <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
+                        <h3 className="text-lg font-semibold text-violetNoel mb-2.5">
                             J&apos;ai oublié mon mot de passe administrateur!
                         </h3>
                         <p>
@@ -127,7 +125,7 @@ export default function Help(): JSX.Element {
                     </div>
 
                     <div className="item">
-                        <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
+                        <h3 className="text-lg font-semibold text-violetNoel mb-2.5">
                             Comment inviter des proches facilement ?
                         </h3>
                         <p>
@@ -139,7 +137,7 @@ export default function Help(): JSX.Element {
                     </div>
 
                     <div className="item">
-                        <h3 className="text-lg font-semibold" style={{ color: '#667eea', marginBottom: '10px' }}>
+                        <h3 className="text-lg font-semibold text-violetNoel mb-2.5">
                             Comment rajouter/supprimer des utilisateurs ?
                         </h3>
                         <p>

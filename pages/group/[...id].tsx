@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Layout } from '@/components/layout';
+import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
 import { NextPageContext } from 'next';
 import CustomButton from '@/components/atoms/customButton';
@@ -156,10 +157,7 @@ const GroupComponent = ({
     return (
         <Layout selectedHeader={EHeader.Group}>
             <div>
-                <div className="mb-8">
-                    <p className="text-sm text-gray-500 mb-1">Gestion du groupe</p>
-                    <h1 className="text-2xl font-bold text-gray-800">{group.name}</h1>
-                </div>
+                <PageTitle eyebrow="Gestion du groupe">{group.name}</PageTitle>
 
                 <div className="flex justify-end mb-4">
                     <CustomButton className="slate-button" onClick={shareInviteLink}>

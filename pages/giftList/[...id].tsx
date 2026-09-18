@@ -1,5 +1,6 @@
 import { ReactNode, Suspense, useCallback, useEffect, useState } from 'react';
 import { Layout } from '@/components/layout';
+import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
 import ModernLink from '@/components/atoms/ModernLink';
 import { NextPageContext } from 'next';
@@ -307,10 +308,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     return (
         <Layout selectedHeader={EHeader.GiftList} pageTitle={pageTitle}>
             <div>
-                <div className="mb-8">
-                    <p className="text-sm text-gray-500 mb-1">Liste de cadeaux</p>
-                    <h1 className="text-2xl font-bold text-gray-800">{user.name}</h1>
-                </div>
+                <PageTitle eyebrow="Liste de cadeaux">{user.name}</PageTitle>
 
                 {!isOwnList && (
                     <div className="flex pb-4">

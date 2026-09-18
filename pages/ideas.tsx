@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Idea } from '@prisma/client';
 import { Layout } from '@/components/layout';
+import { PageTitle } from '@/components/atoms/PageTitle';
 import SEO from '@/components/SEO';
 import CustomButton from '@/components/atoms/customButton';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
@@ -106,7 +107,7 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
                     <div className="text-4xl mb-2" role="img" aria-hidden="true">
                         💡
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-800 mb-2">Boîte à idées</h1>
+                    <PageTitle className="mb-2">Boîte à idées</PageTitle>
                     <p className="text-sm text-gray-500">
                         Une envie, une amélioration ? Proposez votre idée et votez pour celles des autres — les plus populaires
                         seront réalisées en priorité.
