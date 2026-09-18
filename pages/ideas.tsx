@@ -143,9 +143,14 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
                         <input type="checkbox" className="accent-vertNoel w-4 h-4 shrink-0" checked={showDone} onChange={() => setShowDone((v) => !v)} />
                         Afficher les idées déjà réalisées
                     </label>
-                    <label className="flex items-center gap-2 text-sm text-gray-600">
+                    <label className="flex w-full sm:w-auto items-center gap-2 text-sm text-gray-600">
                         <span className="whitespace-nowrap shrink-0">Trier par</span>
-                        <select className="input-field !p-1.5 !flex-none w-44" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}>
+                        <select
+                            className="input-field !p-1.5 flex-1 min-w-0 sm:flex-none sm:!w-44"
+                            style={{ maxWidth: '100%' }}
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                        >
                             <option value="likes-desc">Les plus votées</option>
                             <option value="likes-asc">Les moins votées</option>
                             <option value="date-desc">Les plus récentes</option>
