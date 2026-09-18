@@ -30,6 +30,16 @@ export const voteIdea = async (ideaId: string, delta: 1 | -1): Promise<Idea | nu
     return prisma.idea.findUnique({ where: { id: ideaId } });
 };
 
+export const updateIdea = async (ideaId: string, data: { title?: string; description?: string | null }): Promise<Idea> => {
+    return prisma.idea.update({
+        where: { id: ideaId },
+        data: {
+            ...(data.title !== undefined && { title: data.title.trim() }),
+            ...(data.description !== undefined && { description: data.description?.trim() || null })
+        }
+    });
+};
+
 export const setIdeaDone = async (ideaId: string, done: boolean): Promise<Idea> => {
     return prisma.idea.update({
         where: { id: ideaId },

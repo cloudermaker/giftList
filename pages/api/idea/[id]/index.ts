@@ -1,8 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { setIdeaDone, deleteIdea } from '@/lib/db/ideaManager';
+import { setIdeaDone, updateIdea, deleteIdea } from '@/lib/db/ideaManager';
 import { isBackofficeSession } from '@/lib/auth/session';
+import { ideaUpdateSchema, parseBody } from '@/lib/api/validation';
 
-// Modération (marquer réalisée, supprimer) : backoffice uniquement
+// Modération (marquer réalisée, modifier, supprimer) : backoffice uniquement
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
         const rawId = req.query.id;
@@ -16,8 +17,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         if (req.method === 'PATCH') {
-            const done = req.body?.done !== false;
-            const idea = await setIdeaDone(id, done);
+            const body = parseBody(ideaUpdateSchema, req, res);
+            if (!body) return;
+            let idea =
+                body.title !== undefined || body.description !== undefined
+                    ? await updateIdea(id, { title: body.title, description: body.description })
+                    : null;
+            if (body.done !== undefined) {
+                idea = await setIdeaDone(id, body.done);
+            }
             return res.status(200).json({ success: true, idea });
         }
 

@@ -74,6 +74,25 @@ test.describe.serial('Boîte à idées', () => {
         await expect(row.getByText(/✅ Réalisée le/)).toBeVisible();
     });
 
+    test("le backoffice peut modifier le titre et la description d'une idée", async () => {
+        const list = await backofficeCtx.get('/api/idea');
+        const idea = ((await list.json()).ideas ?? []).find((i: { title: string }) => i.title === ideaTitle);
+        expect(idea).toBeTruthy();
+
+        ideaTitle = uniqueName('Idée e2e modifiée');
+        const patch = await backofficeCtx.patch(`/api/idea/${idea.id}`, {
+            data: { title: ideaTitle, description: 'Description ajustée' }
+        });
+        expect(patch.ok()).toBeTruthy();
+        const updated = (await patch.json()).idea;
+        expect(updated.title).toBe(ideaTitle);
+        expect(updated.description).toBe('Description ajustée');
+        expect(updated.doneAt).toBe(idea.doneAt); // le statut réalisé n'est pas touché
+
+        // Titre trop court refusé
+        expect((await backofficeCtx.patch(`/api/idea/${idea.id}`, { data: { title: 'ab' } })).status()).toBe(400);
+    });
+
     test('la modération exige la session backoffice', async ({ playwright }) => {
         const anon = await playwright.request.newContext({ baseURL: E2E_BASE_URL });
         const list = await anon.get('/api/idea');

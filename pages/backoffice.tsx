@@ -12,7 +12,7 @@ import { GetServerSidePropsContext } from 'next';
 
 type TMember = { id: string; name: string; isAdmin: boolean; createdAt?: string };
 
-type TIdeaAdminItem = { id: string; title: string; likes: number; doneAt: string | null };
+type TIdeaAdminItem = { id: string; title: string; description: string | null; likes: number; doneAt: string | null };
 
 // Formatage déterministe (locale + fuseau fixes) pour éviter les mismatchs d'hydratation SSR
 const DATE_FMT = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Europe/Paris' });
@@ -519,6 +519,37 @@ const IdeasAdmin = (): JSX.Element => {
         }
     };
 
+    const editIdea = async (idea: TIdeaAdminItem) => {
+        // valeurs injectées via le DOM (pas dans le html), le contenu vient d'utilisateurs publics
+        const { isConfirmed, value } = await Swal.fire<{ title: string; description: string }>({
+            title: "Modifier l'idée",
+            html:
+                '<input id="ideaEditTitle" class="swal2-input" maxlength="100" placeholder="Titre">' +
+                '<textarea id="ideaEditDescription" class="swal2-textarea" maxlength="500" placeholder="Description (optionnel)"></textarea>',
+            didOpen: () => {
+                (document.getElementById('ideaEditTitle') as HTMLInputElement).value = idea.title;
+                (document.getElementById('ideaEditDescription') as HTMLTextAreaElement).value = idea.description ?? '';
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Enregistrer',
+            cancelButtonText: 'Annuler',
+            preConfirm: () => {
+                const title = (document.getElementById('ideaEditTitle') as HTMLInputElement).value.trim();
+                const description = (document.getElementById('ideaEditDescription') as HTMLTextAreaElement).value.trim();
+                if (title.length < 3) {
+                    Swal.showValidationMessage('Le titre doit faire au moins 3 caractères.');
+                    return false;
+                }
+                return { title, description };
+            }
+        });
+        if (!isConfirmed || !value) return;
+        const result = await AxiosWrapper.patch(`/api/idea/${idea.id}`, value);
+        if (result?.data?.success && result.data.idea) {
+            setIdeas((prev) => prev.map((i) => (i.id === idea.id ? result.data.idea : i)));
+        }
+    };
+
     const removeIdea = async (idea: TIdeaAdminItem) => {
         const { isConfirmed } = await Swal.fire({
             title: `Supprimer « ${idea.title} » ?`,
@@ -545,11 +576,13 @@ const IdeasAdmin = (): JSX.Element => {
                             <span className="font-medium text-gray-800">{idea.title}</span>
                             <span className="ml-2 text-xs text-neutral-400">👍 {idea.likes}</span>
                             {idea.doneAt && <span className="ml-2 text-xs text-green-600 font-medium">✅ Réalisée</span>}
+                            {idea.description && <p className="text-xs text-neutral-400 truncate">{idea.description}</p>}
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
                             <CustomButton className="green-button" onClick={() => toggleDone(idea)}>
                                 {idea.doneAt ? 'Rouvrir' : 'Fait'}
                             </CustomButton>
+                            <CustomButton onClick={() => editIdea(idea)}>Modifier</CustomButton>
                             <CustomButton onClick={() => removeIdea(idea)}>Supprimer</CustomButton>
                         </div>
                     </div>

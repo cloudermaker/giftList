@@ -11,6 +11,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 - 💡 Boîte à idées : proposez vos idées pour améliorer le site et votez pour celles des autres — accessible à tous, même sans
   connexion, depuis l'accueil
 - Les idées réalisées affichent leur date et peuvent être masquées ou affichées d'un clic
+- Les idées peuvent être corrigées après coup (fautes de frappe, précisions)
 
 ### Modifié
 
