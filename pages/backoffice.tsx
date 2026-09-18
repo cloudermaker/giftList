@@ -139,33 +139,27 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
                 className="flex justify-between items-center px-4 py-3 cursor-pointer hover:bg-neutral-50 transition-colors"
                 onClick={() => setExpanded((v) => !v)}
             >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-1 min-w-0 mr-2">
                     <span className={`text-indigo-400 transition-transform duration-200 text-xs ${expanded ? 'rotate-90' : ''}`}>
                         ▶
                     </span>
-                    <span className="font-semibold">{groupName}</span>
-                    <span className="hidden md:inline text-xs text-neutral-400">
+                    <span className="font-semibold truncate">{groupName}</span>
+                    <span className="hidden md:inline text-xs text-neutral-400 whitespace-nowrap">
                         {group.createdAt ? DATE_FMT.format(new Date(group.createdAt)) : ''}
                     </span>
                 </div>
-                <div className="flex gap-1.5 md:gap-3" onClick={(e) => e.stopPropagation()}>
-                    <CustomButton variant="icon" className="md:hidden" onClick={renameGroup}>
-                        ✏️
+                <div className="flex gap-2 md:gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <CustomButton variant="green" size="sm" onClick={renameGroup}>
+                        <span>✏️</span>
+                        <span className="hidden md:inline ml-1">Renommer</span>
                     </CustomButton>
-                    <CustomButton variant="green" size="sm" className="hidden md:inline-flex" onClick={renameGroup}>
-                        Renommer
+                    <CustomButton variant="green" size="sm" onClick={changePassword}>
+                        <span>🔑</span>
+                        <span className="hidden md:inline ml-1">Mot de passe</span>
                     </CustomButton>
-                    <CustomButton variant="icon" className="md:hidden" onClick={changePassword}>
-                        🔑
-                    </CustomButton>
-                    <CustomButton variant="green" size="sm" className="hidden md:inline-flex" onClick={changePassword}>
-                        Mot de passe
-                    </CustomButton>
-                    <CustomButton variant="icon" className="md:hidden" onClick={() => onRemove(group.id)}>
-                        🗑️
-                    </CustomButton>
-                    <CustomButton size="sm" className="hidden md:inline-flex" onClick={() => onRemove(group.id)}>
-                        Supprimer
+                    <CustomButton size="sm" onClick={() => onRemove(group.id)}>
+                        <span>🗑️</span>
+                        <span className="hidden md:inline ml-1">Supprimer</span>
                     </CustomButton>
                 </div>
             </div>
@@ -204,53 +198,32 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
                                             </span>
                                         )}
                                     </span>
-                                    <div className="flex gap-1.5 md:gap-3 shrink-0">
-                                        <CustomButton
-                                            variant="icon"
-                                            className="md:hidden"
-                                            onClick={() => Router.push(`/giftList/${member.id}`)}
-                                        >
-                                            👁
-                                        </CustomButton>
+                                    <div className="flex gap-2 md:gap-3 shrink-0">
                                         <CustomButton
                                             variant="slate"
                                             size="sm"
-                                            className="hidden md:inline-flex"
                                             onClick={() => Router.push(`/giftList/${member.id}`)}
                                         >
-                                            Voir liste
+                                            <span>🎁</span>
+                                            <span className="hidden md:inline ml-1">Voir liste</span>
                                         </CustomButton>
-                                        <CustomButton variant="icon" className="md:hidden" onClick={() => renameMember(member)}>
-                                            ✏️
-                                        </CustomButton>
-                                        <CustomButton
-                                            variant="green"
-                                            size="sm"
-                                            className="hidden md:inline-flex"
-                                            onClick={() => renameMember(member)}
-                                        >
-                                            Renommer
-                                        </CustomButton>
-                                        <CustomButton variant="icon" className="md:hidden" onClick={() => toggleRole(member)}>
-                                            {member.isAdmin ? '⬇️' : '⭐'}
+                                        <CustomButton variant="green" size="sm" onClick={() => renameMember(member)}>
+                                            <span>✏️</span>
+                                            <span className="hidden md:inline ml-1">Renommer</span>
                                         </CustomButton>
                                         <CustomButton
                                             variant={member.isAdmin ? 'red' : 'green'}
                                             size="sm"
-                                            className="hidden md:inline-flex"
                                             onClick={() => toggleRole(member)}
                                         >
-                                            {member.isAdmin ? 'Rétrograder' : 'Promouvoir'}
+                                            <span>{member.isAdmin ? '⬇️' : '⭐'}</span>
+                                            <span className="hidden md:inline ml-1">
+                                                {member.isAdmin ? 'Rétrograder' : 'Promouvoir'}
+                                            </span>
                                         </CustomButton>
-                                        <CustomButton variant="icon" className="md:hidden" onClick={() => removeMember(member)}>
-                                            🗑️
-                                        </CustomButton>
-                                        <CustomButton
-                                            size="sm"
-                                            className="hidden md:inline-flex"
-                                            onClick={() => removeMember(member)}
-                                        >
-                                            Supprimer
+                                        <CustomButton size="sm" onClick={() => removeMember(member)}>
+                                            <span>🗑️</span>
+                                            <span className="hidden md:inline ml-1">Supprimer</span>
                                         </CustomButton>
                                     </div>
                                 </div>
