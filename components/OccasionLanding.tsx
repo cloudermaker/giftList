@@ -53,7 +53,7 @@ export const OccasionLanding = (props: TOccasionLandingProps): JSX.Element => {
                         </p>
                     ))}
                     <div className="mt-6">
-                        <CustomButton className="green-button" onClick={goToCreate}>
+                        <CustomButton variant="green" onClick={goToCreate}>
                             {ctaLabel}
                         </CustomButton>
                     </div>
@@ -112,7 +112,7 @@ export const OccasionLanding = (props: TOccasionLandingProps): JSX.Element => {
                 {/* CTA final */}
                 <section className="text-center mb-10">
                     <h2 className="text-xl font-bold text-gray-800 mb-3">Prêt à commencer ?</h2>
-                    <CustomButton className="green-button" onClick={goToCreate}>
+                    <CustomButton variant="green" onClick={goToCreate}>
                         {ctaLabel}
                     </CustomButton>
                 </section>

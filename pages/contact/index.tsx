@@ -167,7 +167,7 @@ export default function Contact(): JSX.Element {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="green-button disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="btn green-button disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isLoading ? (
                                         <span className="flex items-center gap-2">⏳ Envoi...</span>
@@ -211,12 +211,13 @@ export default function Contact(): JSX.Element {
                             {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row gap-3 justify-center">
                                 <CustomButton
-                                    className="slate-button px-6 py-3"
+                                    variant="slate"
+                                    className="px-6 py-3"
                                     onClick={() => Router.push(connectedUser ? '/home' : '/')}
                                 >
                                     🏠 Revenir à l&apos;accueil
                                 </CustomButton>
-                                <CustomButton className="green-button px-6 py-3" onClick={() => setIsSubmitted(false)}>
+                                <CustomButton variant="green" className="px-6 py-3" onClick={() => setIsSubmitted(false)}>
                                     ✉️ Envoyer un autre message
                                 </CustomButton>
                             </div>
@@ -256,7 +257,8 @@ export default function Contact(): JSX.Element {
                             {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row gap-3 justify-center">
                                 <CustomButton
-                                    className="green-button px-6 py-3"
+                                    variant="green"
+                                    className="px-6 py-3"
                                     onClick={() => {
                                         setHasError(false);
                                     }}
@@ -264,7 +266,8 @@ export default function Contact(): JSX.Element {
                                     🔄 Réessayer
                                 </CustomButton>
                                 <CustomButton
-                                    className="slate-button px-6 py-3"
+                                    variant="slate"
+                                    className="px-6 py-3"
                                     onClick={() => Router.push(connectedUser ? '/home' : '/')}
                                 >
                                     🏠 Retour à l&apos;accueil

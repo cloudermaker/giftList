@@ -428,7 +428,8 @@ export default function Index(): JSX.Element {
                                 )}
 
                                 <CustomButton
-                                    className="flex-1 p-3 green-button"
+                                    variant="green"
+                                    className="flex-1 p-3"
                                     onClick={onValidateButtonClick}
                                     disabled={isLoading}
                                 >
@@ -600,7 +601,8 @@ export default function Index(): JSX.Element {
 
                 <div className="mt-6">
                     <CustomButton
-                        className="green-button p-3"
+                        variant="green"
+                        className="p-3"
                         onClick={() => {
                             const formSection = document.querySelector('.card-container');
                             formSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -709,9 +711,7 @@ export default function Index(): JSX.Element {
                 </div>
 
                 <div className="item m-4">
-                    <h3 className="text-lg font-semibold text-violetNoel mb-2.5">
-                        Est-ce que le service est vraiment gratuit ?
-                    </h3>
+                    <h3 className="text-lg font-semibold text-violetNoel mb-2.5">Est-ce que le service est vraiment gratuit ?</h3>
                     <p>
                         Oui ! Notre plateforme de gestion de listes de cadeaux en ligne est entièrement gratuite. Aucun
                         abonnement, aucune publicité intrusive, aucun frais caché. Vous pouvez créer autant de groupes et de
@@ -776,7 +776,8 @@ export default function Index(): JSX.Element {
 
                     <div className="mt-4">
                         <CustomButton
-                            className="green-button p-3 mx-3"
+                            variant="green"
+                            className="p-3 mx-3"
                             onClick={() => handleModeChange('creating')}
                             disabled={isLoading}
                         >
@@ -800,7 +801,7 @@ export default function Index(): JSX.Element {
                                 ).
                             </p>
                         </div>
-                        <button onClick={handleDismissCookieBanner} aria-label="Fermer le bandeau">
+                        <button className="btn" onClick={handleDismissCookieBanner} aria-label="Fermer le bandeau">
                             J&apos;ai compris
                         </button>
                     </div>

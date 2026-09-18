@@ -102,9 +102,7 @@ export default function Help(): JSX.Element {
                     </div>
 
                     <div className="item">
-                        <h3 className="text-lg font-semibold text-violetNoel mb-2.5">
-                            Ai-je besoin d&apos;un mail ?
-                        </h3>
+                        <h3 className="text-lg font-semibold text-violetNoel mb-2.5">Ai-je besoin d&apos;un mail ?</h3>
                         <p>
                             Non! Nous avons souhaité faire un site simple. Tu as juste besoin de connaitre ton nom de groupe, et
                             ton nom.
@@ -125,9 +123,7 @@ export default function Help(): JSX.Element {
                     </div>
 
                     <div className="item">
-                        <h3 className="text-lg font-semibold text-violetNoel mb-2.5">
-                            Comment inviter des proches facilement ?
-                        </h3>
+                        <h3 className="text-lg font-semibold text-violetNoel mb-2.5">Comment inviter des proches facilement ?</h3>
                         <p>
                             Depuis la page de ton groupe, clique sur <strong>🔗 Inviter des proches</strong>. Un lien unique est
                             copié dans ton presse-papier (ou le menu de partage de ton téléphone s&apos;ouvre directement). Envoie
@@ -180,7 +176,7 @@ export default function Help(): JSX.Element {
                 </section>
 
                 <section className="text-center my-8">
-                    <CustomButton className="slate-button mt-5" onClick={() => Router.push('/')}>
+                    <CustomButton variant="slate" className="mt-5" onClick={() => Router.push('/')}>
                         Retourner à l&apos;accueil
                     </CustomButton>
                 </section>

@@ -313,14 +313,14 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 <div className="flex justify-between items-center mb-3">
                     <div>
                         {userCanAddGift && (
-                            <CustomButton className="green-button" onClick={openCreateModal}>
+                            <CustomButton variant="green" onClick={openCreateModal}>
                                 Ajouter un cadeau
                             </CustomButton>
                         )}
                     </div>
                     <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden">
-                        <span
-                            role="button"
+                        <button
+                            type="button"
                             onClick={() => {
                                 setViewMode('list');
                                 localStorage.setItem('giftListViewMode', 'list');
@@ -340,9 +340,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                             >
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
-                        </span>
-                        <span
-                            role="button"
+                        </button>
+                        <button
+                            type="button"
                             onClick={() => {
                                 setViewMode('grid');
                                 localStorage.setItem('giftListViewMode', 'grid');
@@ -366,7 +366,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                     d="M4 5h6v6H4zM14 5h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"
                                 />
                             </svg>
-                        </span>
+                        </button>
                     </div>
                 </div>
 
@@ -450,7 +450,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
 
                 {/* Bouton du bas seulement quand la liste est assez longue pour scroller */}
                 {userCanAddGift && visibleGiftsCount >= 5 && (
-                    <CustomButton className="green-button" onClick={openCreateModal}>
+                    <CustomButton variant="green" onClick={openCreateModal}>
                         Ajouter un cadeau
                     </CustomButton>
                 )}
@@ -569,7 +569,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                             {/* Footer */}
                             <div className="border-t px-5 py-4 flex flex-wrap gap-2 justify-end">
                                 {isCreating && (
-                                    <CustomButton className="green-button" onClick={() => saveGift(null)} disabled={!formName}>
+                                    <CustomButton variant="green" onClick={() => saveGift(null)} disabled={!formName}>
                                         Créer
                                     </CustomButton>
                                 )}
@@ -578,7 +578,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                     (isEditing ? (
                                         <>
                                             <CustomButton
-                                                className="green-button"
+                                                variant="green"
                                                 onClick={() => saveGift(selectedGift!.id)}
                                                 disabled={!formName}
                                             >
@@ -588,7 +588,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                         </>
                                     ) : (
                                         <>
-                                            <CustomButton className="green-button" onClick={() => startEditing(selectedGift!)}>
+                                            <CustomButton variant="green" onClick={() => startEditing(selectedGift!)}>
                                                 Modifier
                                             </CustomButton>
                                             <CustomButton onClick={() => removeGift(selectedGift!.id)}>Supprimer</CustomButton>
@@ -610,7 +610,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                     selectedGift!.giftType === 'SIMPLE' &&
                                     !selectedGift!.takenUserId && (
                                         <CustomButton
-                                            className="green-button"
+                                            variant="green"
                                             onClick={() => onBlockUnBlockGiftClick(selectedGift!)}
                                             disabled={takingGiftId === selectedGift!.id}
                                         >

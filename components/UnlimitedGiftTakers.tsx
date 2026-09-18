@@ -134,7 +134,7 @@ export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, o
                                             <button
                                                 onClick={() => handleRelease(t.id)}
                                                 disabled={taking}
-                                                className="text-xs cursor-pointer disabled:opacity-50"
+                                                className="text-xs text-rougeNoel hover:underline cursor-pointer disabled:opacity-50"
                                             >
                                                 Retirer
                                             </button>
@@ -147,7 +147,7 @@ export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, o
 
                     {/* Bouton Je prends toujours visible */}
                     <div className="pt-2">
-                        <CustomButton onClick={handleTake} disabled={taking} className="green-button">
+                        <CustomButton onClick={handleTake} disabled={taking} variant="green">
                             {taking ? 'En cours...' : 'Je prends ce cadeau'}
                         </CustomButton>
                     </div>

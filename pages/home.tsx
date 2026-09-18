@@ -92,7 +92,7 @@ export const Home = (): JSX.Element => {
                         )}
                     </div>
                     {group?.inviteToken && (
-                        <CustomButton className="slate-button shrink-0" onClick={shareInviteLink}>
+                        <CustomButton variant="slate" className="shrink-0" onClick={shareInviteLink}>
                             Inviter quelqu&apos;un
                         </CustomButton>
                     )}
@@ -150,7 +150,7 @@ export const Home = (): JSX.Element => {
                 )}
                 {!loading && connectedUser?.isAdmin && (
                     <div className="mb-10 -mt-6">
-                        <CustomButton className="green-button" onClick={addMember}>
+                        <CustomButton variant="green" onClick={addMember}>
                             Ajouter un membre
                         </CustomButton>
                     </div>

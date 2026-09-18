@@ -102,7 +102,11 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
     };
 
     const renameMember = async (member: TMember) => {
-        const newName = await promptText({ title: `Renommer ${member.name}`, initialValue: member.name, confirmText: 'Renommer' });
+        const newName = await promptText({
+            title: `Renommer ${member.name}`,
+            initialValue: member.name,
+            confirmText: 'Renommer'
+        });
         if (!newName || newName === member.name) return;
         const result = await AxiosWrapper.patch(`/api/user/${member.id}`, { user: { name: newName }, groupId: group.id });
         if (result?.data?.success) {
@@ -145,19 +149,19 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
                     </span>
                 </div>
                 <div className="flex gap-0.5 md:gap-2" onClick={(e) => e.stopPropagation()}>
-                    <CustomButton className="icon-btn md:hidden" onClick={renameGroup}>
+                    <CustomButton variant="icon" className="md:hidden" onClick={renameGroup}>
                         ✏️
                     </CustomButton>
-                    <CustomButton className="green-button hidden md:inline-flex" onClick={renameGroup}>
+                    <CustomButton variant="green" className="hidden md:inline-flex" onClick={renameGroup}>
                         Renommer
                     </CustomButton>
-                    <CustomButton className="icon-btn md:hidden" onClick={changePassword}>
+                    <CustomButton variant="icon" className="md:hidden" onClick={changePassword}>
                         🔑
                     </CustomButton>
-                    <CustomButton className="green-button hidden md:inline-flex" onClick={changePassword}>
+                    <CustomButton variant="green" className="hidden md:inline-flex" onClick={changePassword}>
                         Mot de passe
                     </CustomButton>
-                    <CustomButton className="icon-btn md:hidden" onClick={() => onRemove(group.id)}>
+                    <CustomButton variant="icon" className="md:hidden" onClick={() => onRemove(group.id)}>
                         🗑️
                     </CustomButton>
                     <CustomButton className="hidden md:inline-flex" onClick={() => onRemove(group.id)}>
@@ -202,36 +206,40 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
                                     </span>
                                     <div className="flex gap-0.5 md:gap-2">
                                         <CustomButton
-                                            className="icon-btn md:hidden"
+                                            variant="icon"
+                                            className="md:hidden"
                                             onClick={() => Router.push(`/giftList/${member.id}`)}
                                         >
                                             👁
                                         </CustomButton>
                                         <CustomButton
-                                            className="slate-button hidden md:inline-flex"
+                                            variant="slate"
+                                            className="hidden md:inline-flex"
                                             onClick={() => Router.push(`/giftList/${member.id}`)}
                                         >
                                             Voir liste
                                         </CustomButton>
-                                        <CustomButton className="icon-btn md:hidden" onClick={() => renameMember(member)}>
+                                        <CustomButton variant="icon" className="md:hidden" onClick={() => renameMember(member)}>
                                             ✏️
                                         </CustomButton>
                                         <CustomButton
-                                            className="green-button hidden md:inline-flex"
+                                            variant="green"
+                                            className="hidden md:inline-flex"
                                             onClick={() => renameMember(member)}
                                         >
                                             Renommer
                                         </CustomButton>
-                                        <CustomButton className="icon-btn md:hidden" onClick={() => toggleRole(member)}>
+                                        <CustomButton variant="icon" className="md:hidden" onClick={() => toggleRole(member)}>
                                             {member.isAdmin ? '⬇️' : '⭐'}
                                         </CustomButton>
                                         <CustomButton
-                                            className={`hidden md:inline-flex${member.isAdmin ? '' : ' green-button'}`}
+                                            variant={member.isAdmin ? 'red' : 'green'}
+                                            className="hidden md:inline-flex"
                                             onClick={() => toggleRole(member)}
                                         >
                                             {member.isAdmin ? 'Rétrograder' : 'Promouvoir'}
                                         </CustomButton>
-                                        <CustomButton className="icon-btn md:hidden" onClick={() => removeMember(member)}>
+                                        <CustomButton variant="icon" className="md:hidden" onClick={() => removeMember(member)}>
                                             🗑️
                                         </CustomButton>
                                         <CustomButton className="hidden md:inline-flex" onClick={() => removeMember(member)}>
@@ -241,7 +249,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
                                 </div>
                             ))}
                             <div className="border-t border-neutral-200 pt-2">
-                                <CustomButton className="green-button" onClick={addMember}>
+                                <CustomButton variant="green" onClick={addMember}>
                                     Ajouter un membre
                                 </CustomButton>
                             </div>
@@ -420,7 +428,7 @@ const Backoffice = ({
                 )}
 
                 {!creatingGroup && (
-                    <CustomButton className="green-button mt-2" onClick={onCreatingGroupButtonClick}>
+                    <CustomButton variant="green" className="mt-2" onClick={onCreatingGroupButtonClick}>
                         Ajouter
                     </CustomButton>
                 )}
@@ -446,7 +454,7 @@ const Backoffice = ({
                                 type="password"
                             />
                         </div>
-                        <CustomButton className="green-button" onClick={addGroup}>
+                        <CustomButton variant="green" onClick={addGroup}>
                             Ajouter
                         </CustomButton>
                         <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
@@ -516,7 +524,11 @@ const IdeasAdmin = (): JSX.Element => {
     };
 
     const removeIdea = async (idea: TIdeaAdminItem) => {
-        const confirmed = await confirmDestructive({ title: `Supprimer « ${idea.title} » ?`, confirmText: 'Oui', cancelText: 'Non' });
+        const confirmed = await confirmDestructive({
+            title: `Supprimer « ${idea.title} » ?`,
+            confirmText: 'Oui',
+            cancelText: 'Non'
+        });
         if (!confirmed) return;
         const result = await AxiosWrapper.delete(`/api/idea/${idea.id}`);
         if (result?.data?.success) {
@@ -538,7 +550,7 @@ const IdeasAdmin = (): JSX.Element => {
                             {idea.description && <p className="text-xs text-neutral-400 truncate">{idea.description}</p>}
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
-                            <CustomButton className="green-button" onClick={() => toggleDone(idea)}>
+                            <CustomButton variant="green" onClick={() => toggleDone(idea)}>
                                 {idea.doneAt ? 'Rouvrir' : 'Fait'}
                             </CustomButton>
                             <CustomButton onClick={() => editIdea(idea)}>Modifier</CustomButton>

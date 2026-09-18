@@ -193,7 +193,7 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
                                                 Je ne prends plus
                                             </CustomButton>
                                         ) : !isTaken ? (
-                                            <CustomButton onClick={() => handleTakeSubGift(subGift)} className="green-button">
+                                            <CustomButton onClick={() => handleTakeSubGift(subGift)} variant="green">
                                                 Je le prends
                                             </CustomButton>
                                         ) : null}
@@ -207,7 +207,7 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
                     {(isAdmin || isOwner) && (
                         <div className="mt-2">
                             {!creatingSubGift ? (
-                                <CustomButton onClick={() => setCreatingSubGift(true)} className="green-button">
+                                <CustomButton onClick={() => setCreatingSubGift(true)} variant="green">
                                     Ajouter un sous-cadeau
                                 </CustomButton>
                             ) : (
@@ -221,7 +221,7 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
                                         className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
                                         autoFocus
                                     />
-                                    <CustomButton onClick={handleCreateSubGift} className="green-button">
+                                    <CustomButton onClick={handleCreateSubGift} variant="green">
                                         Ajouter
                                     </CustomButton>
                                     <CustomButton

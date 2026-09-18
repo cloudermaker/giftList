@@ -231,7 +231,7 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                     </div>
                 )}
 
-                <CustomButton className="green-button" onClick={() => setShowPersonalGiftModal(true)}>
+                <CustomButton variant="green" onClick={() => setShowPersonalGiftModal(true)}>
                     Ajouter un cadeau personnel
                 </CustomButton>
 

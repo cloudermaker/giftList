@@ -121,7 +121,7 @@ const GroupComponent = ({
                 <PageTitle eyebrow="Gestion du groupe">{group.name}</PageTitle>
 
                 <div className="flex justify-end mb-4">
-                    <CustomButton className="slate-button" onClick={shareInviteLink}>
+                    <CustomButton variant="slate" onClick={shareInviteLink}>
                         {copiedInvite ? '✓ Lien copié !' : 'Inviter des proches'}
                     </CustomButton>
                 </div>
@@ -131,13 +131,13 @@ const GroupComponent = ({
                         <div className="flex items-center justify-between gap-2">
                             <span className="font-medium text-gray-800 flex-1 min-w-0 truncate">{user.name}</span>
                             <div className="flex items-center gap-1 shrink-0">
-                                <CustomButton className="slate-button" onClick={() => Router.push(`/giftList/${user.id}`)}>
+                                <CustomButton variant="slate" onClick={() => Router.push(`/giftList/${user.id}`)}>
                                     <span>🎁</span>
                                     <span className="hidden sm:inline ml-1">Liste</span>
                                 </CustomButton>
                                 {connectedUser?.isAdmin && (
                                     <>
-                                        <CustomButton className="green-button" onClick={() => renameUser(user)}>
+                                        <CustomButton variant="green" onClick={() => renameUser(user)}>
                                             <span>✏️</span>
                                             <span className="hidden sm:inline ml-1">Modifier</span>
                                         </CustomButton>
@@ -153,7 +153,7 @@ const GroupComponent = ({
                 ))}
 
                 {connectedUser?.isAdmin && (
-                    <CustomButton className="green-button" onClick={addUser}>
+                    <CustomButton variant="green" onClick={addUser}>
                         Ajouter un utilisateur
                     </CustomButton>
                 )}

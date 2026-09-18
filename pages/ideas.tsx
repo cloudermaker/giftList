@@ -146,7 +146,7 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
                     {feedback && (
                         <p className={`text-sm mb-2 ${feedback.ok ? 'text-vertNoel' : 'text-rougeNoel'}`}>{feedback.text}</p>
                     )}
-                    <CustomButton className="green-button" onClick={submitIdea} disabled={submitting || !title.trim()}>
+                    <CustomButton variant="green" onClick={submitIdea} disabled={submitting || !title.trim()}>
                         Proposer mon idée
                     </CustomButton>
                 </div>
@@ -210,7 +210,6 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
                                             ? 'bg-vertNoel text-white border-vertNoel'
                                             : 'bg-white text-gray-600 border-gray-300 hover:border-vertNoel hover:text-vertNoel'
                                     }`}
-                                    style={{ boxShadow: 'none', backgroundImage: 'none', margin: 0 }}
                                 >
                                     <span className="text-xl leading-none">👍</span> {idea.likes}
                                 </button>
