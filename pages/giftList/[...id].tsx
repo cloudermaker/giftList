@@ -238,6 +238,8 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
             .catch((err) => console.error('Erreur mise à jour ordre:', err));
     };
 
+    const visibleGiftsCount = localGifts.filter((g) => !filteringTakenGifts || !g.takenUserId).length;
+
     const isCreating = selectedGiftId === NEW_GIFT_SENTINEL;
     const selectedGift = isCreating ? null : (localGifts.find((g) => g.id === selectedGiftId) ?? null);
     const isEditing = !!editingGiftId && editingGiftId === selectedGift?.id;
@@ -342,7 +344,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                     </DndContext>
                 </Suspense>
 
-                {localGifts.filter((g) => !filteringTakenGifts || !g.takenUserId).length === 0 && (
+                {visibleGiftsCount === 0 && (
                     <div className="text-center py-12">
                         <p className="text-4xl mb-3">🎁</p>
                         {isOwnList ? (
@@ -359,7 +361,8 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                     </div>
                 )}
 
-                {userCanAddGift && (
+                {/* Bouton du bas seulement quand la liste est assez longue pour scroller */}
+                {userCanAddGift && visibleGiftsCount >= 5 && (
                     <CustomButton className="green-button" onClick={openCreateModal}>
                         Ajouter un cadeau
                     </CustomButton>
