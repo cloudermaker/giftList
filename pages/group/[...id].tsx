@@ -12,7 +12,15 @@ import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Swal from 'sweetalert2';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 
-const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group; groupUsers: User[]; inviteToken: string }): JSX.Element => {
+const GroupComponent = ({
+    group,
+    groupUsers = [],
+    inviteToken
+}: {
+    group: Group;
+    groupUsers: User[];
+    inviteToken: string;
+}): JSX.Element => {
     const { connectedUser } = useCurrentUser();
 
     const [localUsers, setLocalUsers] = useState<User[]>(groupUsers);
@@ -90,12 +98,19 @@ const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group;
             inputPlaceholder: 'Prénom',
             showCancelButton: true,
             confirmButtonText: 'Ajouter',
-            cancelButtonText: 'Annuler',
+            cancelButtonText: 'Annuler'
         });
         if (!name) return;
 
         const response = await AxiosWrapper.post('/api/user', {
-            user: { id: '', name: name.trim(), isAdmin: false, acceptSuggestedGift: false, updatedAt: new Date(), createdAt: new Date() },
+            user: {
+                id: '',
+                name: name.trim(),
+                isAdmin: false,
+                acceptSuggestedGift: false,
+                updatedAt: new Date(),
+                createdAt: new Date()
+            },
             initiatorUserId: connectedUser?.userId ?? '',
             groupId: group.id
         });
@@ -105,7 +120,11 @@ const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group;
             setLocalUsers((users) => [...users, data.user!]);
             Swal.fire({ title: 'Utilisateur ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
         } else {
-            Swal.fire({ title: 'Erreur', text: data?.error || 'Impossible de créer cet utilisateur. Réessayez dans quelques instants.', icon: 'error' });
+            Swal.fire({
+                title: 'Erreur',
+                text: data?.error || 'Impossible de créer cet utilisateur. Réessayez dans quelques instants.',
+                icon: 'error'
+            });
         }
     };
 
@@ -116,7 +135,7 @@ const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group;
             inputValue: user.name,
             showCancelButton: true,
             confirmButtonText: 'Renommer',
-            cancelButtonText: 'Annuler',
+            cancelButtonText: 'Annuler'
         });
         if (!newName || newName.trim() === user.name) return;
 
@@ -153,19 +172,19 @@ const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group;
                         <div className="flex items-center justify-between gap-2">
                             <span className="font-medium text-gray-800 flex-1 min-w-0 truncate">{user.name}</span>
                             <div className="flex items-center gap-1 shrink-0">
-                                <CustomButton
-                                    className="slate-button"
-                                    onClick={() => Router.push(`/giftList/${user.id}`)}
-                                >
-                                    <span>🎁</span><span className="hidden sm:inline ml-1">Liste</span>
+                                <CustomButton className="slate-button" onClick={() => Router.push(`/giftList/${user.id}`)}>
+                                    <span>🎁</span>
+                                    <span className="hidden sm:inline ml-1">Liste</span>
                                 </CustomButton>
                                 {connectedUser?.isAdmin && (
                                     <>
                                         <CustomButton className="green-button" onClick={() => renameUser(user)}>
-                                            <span>✏️</span><span className="hidden sm:inline ml-1">Modifier</span>
+                                            <span>✏️</span>
+                                            <span className="hidden sm:inline ml-1">Modifier</span>
                                         </CustomButton>
                                         <CustomButton onClick={() => removeUser(user.id)}>
-                                            <span>🗑️</span><span className="hidden sm:inline ml-1">Supprimer</span>
+                                            <span>🗑️</span>
+                                            <span className="hidden sm:inline ml-1">Supprimer</span>
                                         </CustomButton>
                                     </>
                                 )}

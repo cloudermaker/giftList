@@ -47,7 +47,7 @@ test.describe.serial('Cadeaux MULTIPLE et UNLIMITED', () => {
 
     test('Alice crée un cadeau MULTIPLE et lui ajoute deux sous-cadeaux', async () => {
         await pageA.goto(`/giftList/${aliceUserId}`);
-        await pageA.getByRole('button', { name: 'Ajouter un cadeau' }).click();
+        await pageA.getByRole('button', { name: 'Ajouter un cadeau' }).first().click();
         await pageA.locator('#giftFormNameInput').fill('Manga');
         await pageA.getByText('Avec sous-éléments').click();
         await pageA.getByRole('button', { name: 'Créer' }).click();
@@ -91,7 +91,7 @@ test.describe.serial('Cadeaux MULTIPLE et UNLIMITED', () => {
     test('Alice crée un cadeau UNLIMITED, Bob le prend deux fois puis en retire un', async () => {
         // Création
         await pageA.goto(`/giftList/${aliceUserId}`);
-        await pageA.getByRole('button', { name: 'Ajouter un cadeau' }).click();
+        await pageA.getByRole('button', { name: 'Ajouter un cadeau' }).first().click();
         await pageA.locator('#giftFormNameInput').fill('Chocolats');
         await pageA.getByText('Illimité', { exact: false }).click();
         await pageA.getByRole('button', { name: 'Créer' }).click();

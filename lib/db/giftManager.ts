@@ -2,9 +2,20 @@ import { Gift, User, GiftType, Prisma } from '@prisma/client';
 import prisma from './dbSingleton';
 
 export type TakenByEntry = { id: string; userId: string; takenAt: Date | string };
-export type GiftWithTakenUserId = Gift & { takenUserId: string | null; subGiftsCount?: number; takenByList?: TakenByEntry[]; userTakenGiftId?: string };
+export type GiftWithTakenUserId = Gift & {
+    takenUserId: string | null;
+    subGiftsCount?: number;
+    takenByList?: TakenByEntry[];
+    userTakenGiftId?: string;
+};
 
-export const buildDefaultGift = (userId: string, order: number, name?: string, description?: string, url?: string): GiftWithTakenUserId => {
+export const buildDefaultGift = (
+    userId: string,
+    order: number,
+    name?: string,
+    description?: string,
+    url?: string
+): GiftWithTakenUserId => {
     return {
         id: '',
         name: name ?? '',
@@ -29,7 +40,7 @@ export const getGiftFromId = async (id: string): Promise<GiftWithTakenUserId | n
             id
         },
         include: {
-            takenBy: true,  // Relation UserTakenGift
+            takenBy: true, // Relation UserTakenGift
             _count: { select: { subGifts: true } }
         }
     });
@@ -55,20 +66,20 @@ export const getTakenGiftsFromUserId = async (userId: string): Promise<(GiftWith
             gift: {
                 include: {
                     user: true,
-                    takenBy: true,  // Pour calculer takenUserId
-                    parentGift: true  // Pour les sous-cadeaux
+                    takenBy: true, // Pour calculer takenUserId
+                    parentGift: true // Pour les sous-cadeaux
                 }
             }
         }
     });
 
     // Extraire les gifts avec leur user et takenUserId
-    return takenGiftRecords.map(record => {
+    return takenGiftRecords.map((record) => {
         const { takenBy, ...giftWithoutTakenBy } = record.gift;
         return {
             ...giftWithoutTakenBy,
             takenUserId: takenBy.length > 0 ? takenBy[0].userId : null,
-            userTakenGiftId: record.id  // ID de la ligne UserTakenGift (unique même pour UNLIMITED)
+            userTakenGiftId: record.id // ID de la ligne UserTakenGift (unique même pour UNLIMITED)
         } as GiftWithTakenUserId & { user: User | null };
     });
 };
@@ -81,7 +92,7 @@ export const getGiftsFromUserId = async (userId: string): Promise<GiftWithTakenU
             parentGiftId: null
         },
         include: {
-            takenBy: true,  // Relation UserTakenGift
+            takenBy: true, // Relation UserTakenGift
             _count: { select: { subGifts: true } }
         },
         orderBy: {
@@ -90,12 +101,12 @@ export const getGiftsFromUserId = async (userId: string): Promise<GiftWithTakenU
     });
 
     // Mapper les gifts en ajoutant takenUserId depuis UserTakenGift
-    return gifts.map(gift => {
+    return gifts.map((gift) => {
         const { takenBy, _count, ...giftWithoutTakenBy } = gift as any;
         return {
             ...giftWithoutTakenBy,
             takenUserId: takenBy.length > 0 ? takenBy[0].userId : null,
-        takenByList: takenBy.map((t: any) => ({ id: t.id, userId: t.userId, takenAt: t.takenAt })),
+            takenByList: takenBy.map((t: any) => ({ id: t.id, userId: t.userId, takenAt: t.takenAt })),
             subGiftsCount: _count?.subGifts ?? 0
         };
     }) as GiftWithTakenUserId[];
@@ -193,12 +204,7 @@ export const getSubGifts = async (parentGiftId: string): Promise<GiftWithTakenUs
 /**
  * Créer un sous-cadeau
  */
-export const createSubGift = async (
-    parentGiftId: string, 
-    name: string, 
-    description?: string,
-    url?: string
-): Promise<Gift> => {
+export const createSubGift = async (parentGiftId: string, name: string, description?: string, url?: string): Promise<Gift> => {
     // Récupérer l'ordre max des sous-cadeaux existants
     const maxOrder = await prisma.gift.aggregate({
         where: {

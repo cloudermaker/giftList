@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { CustomFooter } from './atoms/CustomFooter';
+import { IdeasFab } from './atoms/IdeasFab';
 import { CustomHeader, EHeader } from './customHeader';
 import { Logo } from './Logo';
 import Router from 'next/router';
@@ -34,8 +35,12 @@ export const Layout = ({
 
                     {connectedUser && (
                         <div className="flex flex-col items-center">
-                            <p className="text-xs font-medium tracking-widest uppercase text-gray-400 leading-none mb-1">Groupe</p>
-                            <p className="text-base text-center font-bold text-gray-800 leading-none">{connectedUser.groupName}</p>
+                            <p className="text-xs font-medium tracking-widest uppercase text-gray-400 leading-none mb-1">
+                                Groupe
+                            </p>
+                            <p className="text-base text-center font-bold text-gray-800 leading-none">
+                                {connectedUser.groupName}
+                            </p>
                         </div>
                     )}
 
@@ -53,15 +58,28 @@ export const Layout = ({
                                     onClick={onDisconnectClick}
                                     title="Se déconnecter"
                                 >
-                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <svg
+                                        className="w-4 h-4"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        aria-hidden="true"
+                                    >
                                         <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
                                         <line x1="12" y1="2" x2="12" y2="12" />
                                     </svg>
                                 </button>
                             </div>
                             <div className="absolute right-0 top-full mt-1 w-48 p-2 bg-white border border-gray-200 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                <p className="text-xs"><span className="font-semibold">Nom :</span> {connectedUser.userName}</p>
-                                <p className="text-xs"><span className="font-semibold">Groupe :</span> {connectedUser.groupName}</p>
+                                <p className="text-xs">
+                                    <span className="font-semibold">Nom :</span> {connectedUser.userName}
+                                </p>
+                                <p className="text-xs">
+                                    <span className="font-semibold">Groupe :</span> {connectedUser.groupName}
+                                </p>
                             </div>
                         </div>
                     )}
@@ -78,11 +96,10 @@ export const Layout = ({
                     />
                 )}
 
-                <div className="max-w-4xl mx-auto px-4">
-                    {children}
-                </div>
+                <div className="max-w-4xl mx-auto px-4">{children}</div>
             </div>
 
+            <IdeasFab />
             <CustomFooter />
         </div>
     );

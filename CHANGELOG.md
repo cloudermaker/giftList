@@ -4,11 +4,25 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.4.0] - 2026-09-16
+
+### Ajouté
+
+- 💡 Boîte à idées : proposez vos idées pour améliorer le site et votez pour celles des autres — accessible à tous, même sans
+  connexion, depuis l'accueil
+- Les idées réalisées affichent leur date et peuvent être masquées ou affichées d'un clic
+- Les idées peuvent être corrigées après coup (fautes de frappe, précisions)
+
+### Modifié
+
+- Le bouton « Ajouter un cadeau » est aussi disponible en haut de la liste — plus besoin de descendre tout en bas
+
 ## [5.3.0] - 2026-09-16
 
 ### Modifié
 
-- Fiabilité renforcée : les actions importantes (création de groupe, réservations, réorganisation d'une liste) sont désormais enregistrées entièrement ou pas du tout — plus de données à moitié sauvegardées
+- Fiabilité renforcée : les actions importantes (création de groupe, réservations, réorganisation d'une liste) sont désormais
+  enregistrées entièrement ou pas du tout — plus de données à moitié sauvegardées
 - Deux groupes ne peuvent plus porter le même nom
 - Supprimer un membre supprime aussi proprement sa liste de cadeaux
 - Les informations saisies sont mieux vérifiées (tailles maximales, messages d'erreur plus clairs)
@@ -18,7 +32,8 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ### Ajouté
 
 - Quatre pages d'atterrissage par occasion : Noël, naissance, anniversaire, mariage — reliées depuis l'accueil et le sitemap
-- Tests e2e Playwright (26 tests : pages publiques, connexion, cadeaux simples/multiples/illimités, réservation secrète, invitation, backoffice, régressions de sécurité, viewport tablette) + CI GitHub Actions
+- Tests e2e Playwright (26 tests : pages publiques, connexion, cadeaux simples/multiples/illimités, réservation secrète,
+  invitation, backoffice, régressions de sécurité, viewport tablette) + CI GitHub Actions
 - Suivi des performances avec Vercel Speed Insights
 
 ### Corrigé
@@ -52,7 +67,8 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ### Ajouté
 
-- SEO : sitemap généré automatiquement, langue française déclarée, icônes d'application (PWA), redirection de l'ancienne URL /login
+- SEO : sitemap généré automatiquement, langue française déclarée, icônes d'application (PWA), redirection de l'ancienne URL
+  /login
 - Fichier `.env.example` pour l'installation
 
 ### Supprimé
@@ -63,7 +79,8 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ### Modifié
 
-- Refonte visuelle complète : nouvelle palette de couleurs (terracotta, vert sauge, bleu ardoise), fond crème, cartes avec effet de survol animé
+- Refonte visuelle complète : nouvelle palette de couleurs (terracotta, vert sauge, bleu ardoise), fond crème, cartes avec effet
+  de survol animé
 - Navigation redessinée avec un indicateur blanc qui glisse entre les onglets
 - En-tête repensé : logo, nom du groupe centré, déconnexion en icône — plus compact sur mobile
 - Page d'accueil connecté : cartes membres cliquables avec avatar coloré
@@ -87,13 +104,15 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ### Ajouté
 
-- Lien d'invitation partageable : bouton « 🔗 Inviter des proches » sur la page du groupe, les proches n'ont plus qu'à saisir leur prénom pour rejoindre
+- Lien d'invitation partageable : bouton « 🔗 Inviter des proches » sur la page du groupe, les proches n'ont plus qu'à saisir leur
+  prénom pour rejoindre
 
 ## [4.1.2] - 2026-06-01
 
 ### Modifié
 
-- Les actions sur les cadeaux (ajout, modification, suppression, réservation) affichent une confirmation visuelle qui se ferme toute seule.
+- Les actions sur les cadeaux (ajout, modification, suppression, réservation) affichent une confirmation visuelle qui se ferme
+  toute seule.
 - Les messages d'erreur sont désormais génériques et ne divulguent plus de détails techniques.
 
 ### Corrigé
@@ -111,7 +130,8 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ### Ajouté
 
-- Type de cadeau **Illimité** : un même cadeau peut être pris un nombre illimité de fois par différentes personnes (ou par la même personne)
+- Type de cadeau **Illimité** : un même cadeau peut être pris un nombre illimité de fois par différentes personnes (ou par la même
+  personne)
 - Badge `🔁 Illimité` sur les cadeaux illimités dans sa propre liste ; `🔁 X pris` dans la liste des autres
 - Bouton switch ☰/⊞ pour basculer entre vue liste et vue grille (2-3 colonnes) sur la page de liste de cadeaux
 
@@ -126,7 +146,8 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 - Badge visuel "🛡️ Admin" affiché à côté de "Connecté" en haut à droite pour les utilisateurs en mode administrateur
 - Cadeau avec sous-éléments : option "Cadeau avec sous-éléments" dans le formulaire de création (ex: manga avec ses tomes)
-- Les sous-éléments d'un cadeau sont affichés/masquables directement dans la liste, avec possibilité de les réserver individuellement
+- Les sous-éléments d'un cadeau sont affichés/masquables directement dans la liste, avec possibilité de les réserver
+  individuellement
 
 ### Modifié
 

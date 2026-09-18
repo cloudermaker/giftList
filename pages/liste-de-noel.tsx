@@ -25,7 +25,7 @@ export default function ListeDeNoel(): JSX.Element {
                 {
                     title: 'Parfait pour les familles nombreuses et le Secret Santa',
                     paragraphs: [
-                        "Un seul groupe suffit pour toute la famille : parents, enfants, grands-parents, cousins. Chacun a sa propre liste dans le groupe, et chacun consulte celles des autres. Les enfants trop petits pour écrire ? Un parent gère leur liste pour eux.",
+                        'Un seul groupe suffit pour toute la famille : parents, enfants, grands-parents, cousins. Chacun a sa propre liste dans le groupe, et chacun consulte celles des autres. Les enfants trop petits pour écrire ? Un parent gère leur liste pour eux.',
                         "Vous tirez les prénoms au sort pour n'offrir qu'un cadeau chacun ? La liste reste l'outil idéal : vous consultez discrètement la liste de la personne que vous avez tirée, vous réservez, et le tour est joué — sans que personne d'autre ne sache qui gâte qui."
                     ]
                 },
@@ -44,7 +44,7 @@ export default function ListeDeNoel(): JSX.Element {
                 },
                 {
                     question: 'La personne voit-elle qui a réservé son cadeau ?',
-                    answer: "Non. Sur sa propre liste, on ne voit jamais quels cadeaux sont réservés ni par qui. Seuls les autres membres du groupe voient les réservations, pour éviter les doublons."
+                    answer: 'Non. Sur sa propre liste, on ne voit jamais quels cadeaux sont réservés ni par qui. Seuls les autres membres du groupe voient les réservations, pour éviter les doublons.'
                 },
                 {
                     question: 'Faut-il créer un compte avec une adresse email ?',

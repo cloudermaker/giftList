@@ -27,8 +27,13 @@ export const CustomHeader = ({
     const menus = [
         { url: '/home', name: 'Accueil', isSelected: selectedHeader === EHeader.Homepage, icon: '🏠' },
         { url: `/group/${groupId}`, name: 'Mon groupe', isSelected: selectedHeader === EHeader.Group, icon: '👪' },
-        { url: `/giftList/${userId}`, name: customTitle || 'Ma liste', isSelected: selectedHeader === EHeader.GiftList, icon: '🎁' },
-        { url: `/takenGiftList/${userId}`, name: 'À acheter', isSelected: selectedHeader === EHeader.TakenGiftList, icon: '🛍️' },
+        {
+            url: `/giftList/${userId}`,
+            name: customTitle || 'Ma liste',
+            isSelected: selectedHeader === EHeader.GiftList,
+            icon: '🎁'
+        },
+        { url: `/takenGiftList/${userId}`, name: 'À acheter', isSelected: selectedHeader === EHeader.TakenGiftList, icon: '🛍️' }
     ];
 
     useEffect(() => {
@@ -82,7 +87,7 @@ export const CustomHeader = ({
                 className="absolute top-1 bottom-1 rounded-full bg-white pointer-events-none"
                 style={{
                     boxShadow: '0 1px 6px rgba(0,0,0,0.1)',
-                    transition: 'left 0.28s cubic-bezier(.4,0,.2,1), width 0.28s cubic-bezier(.4,0,.2,1)',
+                    transition: 'left 0.28s cubic-bezier(.4,0,.2,1), width 0.28s cubic-bezier(.4,0,.2,1)'
                 }}
             />
             {menus.map((menu) => (
@@ -91,9 +96,7 @@ export const CustomHeader = ({
                     data-active={menu.isSelected ? 'true' : undefined}
                     onClick={() => onMenuClick(menu)}
                     className={`flex items-center gap-2 px-6 py-3 rounded-full text-base text-gray-700 cursor-pointer select-none whitespace-nowrap relative z-10 transition-all duration-200 ${
-                        menu.isSelected
-                            ? 'font-bold'
-                            : 'hover:ring-1 hover:ring-inset hover:ring-black/10'
+                        menu.isSelected ? 'font-bold' : 'hover:ring-1 hover:ring-inset hover:ring-black/10'
                     }`}
                 >
                     <span className="text-lg">{menu.icon}</span>

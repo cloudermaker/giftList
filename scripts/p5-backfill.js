@@ -20,12 +20,20 @@ const prisma = new PrismaClient();
     // 2. Backfill des NULL → valeurs par défaut
     const results = {};
     results.giftOrder = await prisma.$executeRawUnsafe(`UPDATE "Gift" SET "order" = 0 WHERE "order" IS NULL`);
-    results.giftSuggested = await prisma.$executeRawUnsafe(`UPDATE "Gift" SET "isSuggestedGift" = false WHERE "isSuggestedGift" IS NULL`);
+    results.giftSuggested = await prisma.$executeRawUnsafe(
+        `UPDATE "Gift" SET "isSuggestedGift" = false WHERE "isSuggestedGift" IS NULL`
+    );
     for (const table of ['Group', 'User', 'Gift']) {
-        results[`${table}.createdAt`] = await prisma.$executeRawUnsafe(`UPDATE "${table}" SET "createdAt" = NOW() WHERE "createdAt" IS NULL`);
-        results[`${table}.updatedAt`] = await prisma.$executeRawUnsafe(`UPDATE "${table}" SET "updatedAt" = COALESCE("createdAt", NOW()) WHERE "updatedAt" IS NULL`);
+        results[`${table}.createdAt`] = await prisma.$executeRawUnsafe(
+            `UPDATE "${table}" SET "createdAt" = NOW() WHERE "createdAt" IS NULL`
+        );
+        results[`${table}.updatedAt`] = await prisma.$executeRawUnsafe(
+            `UPDATE "${table}" SET "updatedAt" = COALESCE("createdAt", NOW()) WHERE "updatedAt" IS NULL`
+        );
     }
-    results.groupPassword = await prisma.$executeRawUnsafe(`UPDATE "Group" SET "adminPassword" = 'admin' WHERE "adminPassword" IS NULL`);
+    results.groupPassword = await prisma.$executeRawUnsafe(
+        `UPDATE "Group" SET "adminPassword" = 'admin' WHERE "adminPassword" IS NULL`
+    );
 
     console.log('Backfill OK :', results);
     await prisma.$disconnect();

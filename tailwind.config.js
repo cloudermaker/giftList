@@ -9,14 +9,14 @@ module.exports = {
                 bleuNoel: '#4A6FA5' // Steel blue
             },
             boxShadow: {
-                'gift': '0 4px 10px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.08)',
-                'card': '0 10px 20px -3px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.07)',
-                'hover': '0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.07)'
+                gift: '0 4px 10px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.08)',
+                card: '0 10px 20px -3px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.07)',
+                hover: '0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.07)'
             },
             keyframes: {
                 wiggle: {
                     '0%, 100%': { transform: 'rotate(-3deg)' },
-                    '50%': { transform: 'rotate(3deg)' },
+                    '50%': { transform: 'rotate(3deg)' }
                 },
                 bounce: {
                     '0%, 100%': { transform: 'translateY(0)' },
@@ -33,8 +33,8 @@ module.exports = {
                 shimmer: 'shimmer 3s linear infinite'
             },
             borderRadius: {
-                'xl': '1rem',
-                '2xl': '1.5rem',
+                xl: '1rem',
+                '2xl': '1.5rem'
             }
         }
     },

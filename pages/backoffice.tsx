@@ -12,6 +12,8 @@ import { GetServerSidePropsContext } from 'next';
 
 type TMember = { id: string; name: string; isAdmin: boolean; createdAt?: string };
 
+type TIdeaAdminItem = { id: string; title: string; description: string | null; likes: number; doneAt: string | null };
+
 // Formatage déterministe (locale + fuseau fixes) pour éviter les mismatchs d'hydratation SSR
 const DATE_FMT = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Europe/Paris' });
 
@@ -44,7 +46,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
             inputValue: groupName,
             showCancelButton: true,
             confirmButtonText: 'Renommer',
-            cancelButtonText: 'Annuler',
+            cancelButtonText: 'Annuler'
         });
         if (!newName || newName === groupName) return;
         const result = await AxiosWrapper.patch(`/api/group/${group.id}`, { group: { name: newName } });
@@ -65,7 +67,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
             showCancelButton: true,
             confirmButtonText: 'Enregistrer',
             cancelButtonText: 'Annuler',
-            inputValidator: (v) => (!v ? 'Le mot de passe ne peut pas être vide.' : null),
+            inputValidator: (v) => (!v ? 'Le mot de passe ne peut pas être vide.' : null)
         });
         if (!newPwd) return;
         const result = await AxiosWrapper.patch(`/api/group/${group.id}`, { group: { adminPassword: newPwd } });
@@ -97,7 +99,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
             inputPlaceholder: 'Prénom',
             showCancelButton: true,
             confirmButtonText: 'Ajouter',
-            cancelButtonText: 'Annuler',
+            cancelButtonText: 'Annuler'
         });
         if (!name) return;
         const result = await AxiosWrapper.post('/api/user', { user: { name }, groupId: group.id });
@@ -117,7 +119,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
             inputValue: member.name,
             showCancelButton: true,
             confirmButtonText: 'Renommer',
-            cancelButtonText: 'Annuler',
+            cancelButtonText: 'Annuler'
         });
         if (!newName || newName === member.name) return;
         const result = await AxiosWrapper.patch(`/api/user/${member.id}`, { user: { name: newName }, groupId: group.id });
@@ -136,7 +138,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Oui',
-            cancelButtonText: 'Non',
+            cancelButtonText: 'Non'
         });
         if (!isConfirmed) return;
         const result = await AxiosWrapper.delete(`/api/user/${member.id}`);
@@ -154,17 +156,33 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
                 onClick={() => setExpanded((v) => !v)}
             >
                 <div className="flex items-center gap-3">
-                    <span className={`text-indigo-400 transition-transform duration-200 text-xs ${expanded ? 'rotate-90' : ''}`}>▶</span>
+                    <span className={`text-indigo-400 transition-transform duration-200 text-xs ${expanded ? 'rotate-90' : ''}`}>
+                        ▶
+                    </span>
                     <span className="font-semibold">{groupName}</span>
-                    <span className="hidden md:inline text-xs text-neutral-400">{group.createdAt ? DATE_FMT.format(new Date(group.createdAt)) : ''}</span>
+                    <span className="hidden md:inline text-xs text-neutral-400">
+                        {group.createdAt ? DATE_FMT.format(new Date(group.createdAt)) : ''}
+                    </span>
                 </div>
                 <div className="flex gap-0.5 md:gap-2" onClick={(e) => e.stopPropagation()}>
-                    <CustomButton className="icon-btn md:hidden" onClick={renameGroup}>✏️</CustomButton>
-                    <CustomButton className="green-button hidden md:inline-flex" onClick={renameGroup}>Renommer</CustomButton>
-                    <CustomButton className="icon-btn md:hidden" onClick={changePassword}>🔑</CustomButton>
-                    <CustomButton className="green-button hidden md:inline-flex" onClick={changePassword}>Mot de passe</CustomButton>
-                    <CustomButton className="icon-btn md:hidden" onClick={() => onRemove(group.id)}>🗑️</CustomButton>
-                    <CustomButton className="hidden md:inline-flex" onClick={() => onRemove(group.id)}>Supprimer</CustomButton>
+                    <CustomButton className="icon-btn md:hidden" onClick={renameGroup}>
+                        ✏️
+                    </CustomButton>
+                    <CustomButton className="green-button hidden md:inline-flex" onClick={renameGroup}>
+                        Renommer
+                    </CustomButton>
+                    <CustomButton className="icon-btn md:hidden" onClick={changePassword}>
+                        🔑
+                    </CustomButton>
+                    <CustomButton className="green-button hidden md:inline-flex" onClick={changePassword}>
+                        Mot de passe
+                    </CustomButton>
+                    <CustomButton className="icon-btn md:hidden" onClick={() => onRemove(group.id)}>
+                        🗑️
+                    </CustomButton>
+                    <CustomButton className="hidden md:inline-flex" onClick={() => onRemove(group.id)}>
+                        Supprimer
+                    </CustomButton>
                 </div>
             </div>
 
@@ -185,29 +203,60 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
                         </div>
                     ) : (
                         <div className="flex flex-col gap-2">
-                            {members.length === 0 && (
-                                <p className="text-sm text-neutral-400">Aucun membre</p>
-                            )}
+                            {members.length === 0 && <p className="text-sm text-neutral-400">Aucun membre</p>}
                             {members.map((member, index) => (
-                                <div key={member.id} className={`flex justify-between items-center ${index > 0 ? 'border-t border-neutral-200 pt-2' : ''}`}>
+                                <div
+                                    key={member.id}
+                                    className={`flex justify-between items-center ${index > 0 ? 'border-t border-neutral-200 pt-2' : ''}`}
+                                >
                                     <span className="text-sm">
                                         {member.name}
                                         {member.isAdmin && (
                                             <span className="ml-2 text-xs text-rougeNoel font-medium">(admin)</span>
                                         )}
                                         {member.createdAt && (
-                                            <span className="hidden md:inline ml-2 text-xs text-neutral-400">{DATE_FMT.format(new Date(member.createdAt))}</span>
+                                            <span className="hidden md:inline ml-2 text-xs text-neutral-400">
+                                                {DATE_FMT.format(new Date(member.createdAt))}
+                                            </span>
                                         )}
                                     </span>
                                     <div className="flex gap-0.5 md:gap-2">
-                                        <CustomButton className="icon-btn md:hidden" onClick={() => Router.push(`/giftList/${member.id}`)}>👁</CustomButton>
-                                        <CustomButton className="slate-button hidden md:inline-flex" onClick={() => Router.push(`/giftList/${member.id}`)}>Voir liste</CustomButton>
-                                        <CustomButton className="icon-btn md:hidden" onClick={() => renameMember(member)}>✏️</CustomButton>
-                                        <CustomButton className="green-button hidden md:inline-flex" onClick={() => renameMember(member)}>Renommer</CustomButton>
-                                        <CustomButton className="icon-btn md:hidden" onClick={() => toggleRole(member)}>{member.isAdmin ? '⬇️' : '⭐'}</CustomButton>
-                                        <CustomButton className={`hidden md:inline-flex${member.isAdmin ? '' : ' green-button'}`} onClick={() => toggleRole(member)}>{member.isAdmin ? 'Rétrograder' : 'Promouvoir'}</CustomButton>
-                                        <CustomButton className="icon-btn md:hidden" onClick={() => removeMember(member)}>🗑️</CustomButton>
-                                        <CustomButton className="hidden md:inline-flex" onClick={() => removeMember(member)}>Supprimer</CustomButton>
+                                        <CustomButton
+                                            className="icon-btn md:hidden"
+                                            onClick={() => Router.push(`/giftList/${member.id}`)}
+                                        >
+                                            👁
+                                        </CustomButton>
+                                        <CustomButton
+                                            className="slate-button hidden md:inline-flex"
+                                            onClick={() => Router.push(`/giftList/${member.id}`)}
+                                        >
+                                            Voir liste
+                                        </CustomButton>
+                                        <CustomButton className="icon-btn md:hidden" onClick={() => renameMember(member)}>
+                                            ✏️
+                                        </CustomButton>
+                                        <CustomButton
+                                            className="green-button hidden md:inline-flex"
+                                            onClick={() => renameMember(member)}
+                                        >
+                                            Renommer
+                                        </CustomButton>
+                                        <CustomButton className="icon-btn md:hidden" onClick={() => toggleRole(member)}>
+                                            {member.isAdmin ? '⬇️' : '⭐'}
+                                        </CustomButton>
+                                        <CustomButton
+                                            className={`hidden md:inline-flex${member.isAdmin ? '' : ' green-button'}`}
+                                            onClick={() => toggleRole(member)}
+                                        >
+                                            {member.isAdmin ? 'Rétrograder' : 'Promouvoir'}
+                                        </CustomButton>
+                                        <CustomButton className="icon-btn md:hidden" onClick={() => removeMember(member)}>
+                                            🗑️
+                                        </CustomButton>
+                                        <CustomButton className="hidden md:inline-flex" onClick={() => removeMember(member)}>
+                                            Supprimer
+                                        </CustomButton>
                                     </div>
                                 </div>
                             ))}
@@ -232,7 +281,13 @@ type TBackofficeProps = {
     pageSize: number;
 };
 
-const Backoffice = ({ groups = [], isAuthenticated = false, page = 1, totalCount = 0, pageSize = 10 }: TBackofficeProps): JSX.Element => {
+const Backoffice = ({
+    groups = [],
+    isAuthenticated = false,
+    page = 1,
+    totalCount = 0,
+    pageSize = 10
+}: TBackofficeProps): JSX.Element => {
     const [localGroups, setLocalGroups] = useState<TGroupItem[]>(groups);
     const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
@@ -254,7 +309,7 @@ const Backoffice = ({ groups = [], isAuthenticated = false, page = 1, totalCount
                 showCancelButton: true,
                 showCloseButton: false,
                 allowOutsideClick: true,
-                icon: "question",
+                icon: 'question',
                 allowEscapeKey: true,
                 focusConfirm: true,
                 preConfirm: () => {
@@ -313,7 +368,12 @@ const Backoffice = ({ groups = [], isAuthenticated = false, page = 1, totalCount
 
                     if (data?.success) {
                         setLocalGroups((groups) => groups.filter((group) => group.id !== groupId));
-                        swalWithBootstrapButtons.fire({ title: 'Supprimé !', icon: 'success', timer: 1500, showConfirmButton: false });
+                        swalWithBootstrapButtons.fire({
+                            title: 'Supprimé !',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
                     } else {
                         swalWithBootstrapButtons.fire({
                             title: 'Erreur',
@@ -381,7 +441,9 @@ const Backoffice = ({ groups = [], isAuthenticated = false, page = 1, totalCount
                         key={group.id}
                         group={group}
                         onRemove={removeGroup}
-                        onRename={(id, newName) => setLocalGroups((gs) => gs.map((g) => (g.id === id ? { ...g, name: newName } : g)))}
+                        onRename={(id, newName) =>
+                            setLocalGroups((gs) => gs.map((g) => (g.id === id ? { ...g, name: newName } : g)))
+                        }
                     />
                 ))}
 
@@ -406,7 +468,7 @@ const Backoffice = ({ groups = [], isAuthenticated = false, page = 1, totalCount
                 )}
 
                 {creatingGroup && (
-                    <div className='item'>
+                    <div className="item">
                         <div className="input-group">
                             <label className="input-label">Nom du groupe:</label>
                             <input
@@ -426,12 +488,113 @@ const Backoffice = ({ groups = [], isAuthenticated = false, page = 1, totalCount
                                 type="password"
                             />
                         </div>
-                        <CustomButton className="green-button" onClick={addGroup}>Ajouter</CustomButton>
+                        <CustomButton className="green-button" onClick={addGroup}>
+                            Ajouter
+                        </CustomButton>
                         <CustomButton onClick={clearAllFields}>Annuler</CustomButton>
                     </div>
                 )}
+
+                <IdeasAdmin />
             </div>
         </Layout>
+    );
+};
+
+// Modération de la boîte à idées (/ideas)
+const IdeasAdmin = (): JSX.Element => {
+    const [ideas, setIdeas] = useState<TIdeaAdminItem[]>([]);
+    const [loaded, setLoaded] = useState(false);
+
+    useEffect(() => {
+        AxiosWrapper.get('/api/idea')
+            .then((res) => setIdeas(res?.data?.ideas ?? []))
+            .finally(() => setLoaded(true));
+    }, []);
+
+    const toggleDone = async (idea: TIdeaAdminItem) => {
+        const result = await AxiosWrapper.patch(`/api/idea/${idea.id}`, { done: !idea.doneAt });
+        if (result?.data?.success && result.data.idea) {
+            setIdeas((prev) => prev.map((i) => (i.id === idea.id ? result.data.idea : i)));
+        }
+    };
+
+    const editIdea = async (idea: TIdeaAdminItem) => {
+        // valeurs injectées via le DOM (pas dans le html), le contenu vient d'utilisateurs publics
+        const { isConfirmed, value } = await Swal.fire<{ title: string; description: string }>({
+            title: "Modifier l'idée",
+            html:
+                '<input id="ideaEditTitle" class="swal2-input" maxlength="100" placeholder="Titre">' +
+                '<textarea id="ideaEditDescription" class="swal2-textarea" maxlength="500" placeholder="Description (optionnel)"></textarea>',
+            didOpen: () => {
+                const titleInput = document.getElementById('ideaEditTitle') as HTMLInputElement;
+                titleInput.value = idea.title;
+                (document.getElementById('ideaEditDescription') as HTMLTextAreaElement).value = idea.description ?? '';
+                titleInput.focus();
+                // Entrée dans le titre = valider (pas dans la description : retour à la ligne)
+                titleInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') Swal.clickConfirm();
+                });
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Enregistrer',
+            cancelButtonText: 'Annuler',
+            preConfirm: () => {
+                const title = (document.getElementById('ideaEditTitle') as HTMLInputElement).value.trim();
+                const description = (document.getElementById('ideaEditDescription') as HTMLTextAreaElement).value.trim();
+                if (title.length < 3) {
+                    Swal.showValidationMessage('Le titre doit faire au moins 3 caractères.');
+                    return false;
+                }
+                return { title, description };
+            }
+        });
+        if (!isConfirmed || !value) return;
+        const result = await AxiosWrapper.patch(`/api/idea/${idea.id}`, value);
+        if (result?.data?.success && result.data.idea) {
+            setIdeas((prev) => prev.map((i) => (i.id === idea.id ? result.data.idea : i)));
+        }
+    };
+
+    const removeIdea = async (idea: TIdeaAdminItem) => {
+        const { isConfirmed } = await Swal.fire({
+            title: `Supprimer « ${idea.title} » ?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Oui',
+            cancelButtonText: 'Non'
+        });
+        if (!isConfirmed) return;
+        const result = await AxiosWrapper.delete(`/api/idea/${idea.id}`);
+        if (result?.data?.success) {
+            setIdeas((prev) => prev.filter((i) => i.id !== idea.id));
+        }
+    };
+
+    return (
+        <div className="mt-12">
+            <h2 className="text-base font-semibold text-gray-600 uppercase tracking-wide mb-4">Boîte à idées</h2>
+            {loaded && ideas.length === 0 && <p className="text-sm text-neutral-400">Aucune idée proposée.</p>}
+            {ideas.map((idea) => (
+                <div className="item" key={idea.id}>
+                    <div className="flex items-center justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                            <span className="font-medium text-gray-800">{idea.title}</span>
+                            <span className="ml-2 text-xs text-neutral-400">👍 {idea.likes}</span>
+                            {idea.doneAt && <span className="ml-2 text-xs text-green-600 font-medium">✅ Réalisée</span>}
+                            {idea.description && <p className="text-xs text-neutral-400 truncate">{idea.description}</p>}
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                            <CustomButton className="green-button" onClick={() => toggleDone(idea)}>
+                                {idea.doneAt ? 'Rouvrir' : 'Fait'}
+                            </CustomButton>
+                            <CustomButton onClick={() => editIdea(idea)}>Modifier</CustomButton>
+                            <CustomButton onClick={() => removeIdea(idea)}>Supprimer</CustomButton>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
     );
 };
 

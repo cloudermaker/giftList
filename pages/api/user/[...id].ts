@@ -35,20 +35,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             }
         } else if (method === 'DELETE' && userId && canWriteUser(req, userId)) {
             const userGroups = await getUserGroups(userId);
-            
+
             for (const group of userGroups) {
                 const isAdmin = await isUserGroupAdmin(userId, group.id);
                 if (isAdmin) {
                     const adminCount = await countGroupAdmins(group.id);
                     if (adminCount <= 1) {
-                        return res.status(400).json({ 
-                            success: false, 
-                            error: `Impossible de supprimer cet utilisateur : il est le dernier administrateur du groupe "${group.name}".` 
+                        return res.status(400).json({
+                            success: false,
+                            error: `Impossible de supprimer cet utilisateur : il est le dernier administrateur du groupe "${group.name}".`
                         });
                     }
                 }
             }
-            
+
             await deleteUser(userId);
 
             res.status(200).json({ success: true });

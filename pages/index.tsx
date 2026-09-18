@@ -1,5 +1,6 @@
 import NProgress from 'nprogress';
 import Link from 'next/link';
+import Router from 'next/router';
 import { useState, useEffect } from 'react';
 import { Layout } from '../components/layout';
 import { CustomInput } from '../components/atoms/customInput';
@@ -26,56 +27,71 @@ const STORAGE_KEY_NAME = 'recentUserName';
 const STORAGE_KEY_COOKIE_BANNER = 'cookieBannerDismissed';
 
 const MOCKUPS = [
-        {
-            group: 'Famille Dupont',
-            groupInitial: 'F',
-            groupColor: '#C0392B',
-            featured: { name: 'Marie', initial: 'M', bg: '#fde8e6', color: '#c0392b', count: 4,
-                items: [
-                    { label: 'AirPods Pro', reserved: true },
-                    { label: 'Livre de cuisine', reserved: false },
-                    { label: 'Bougie parfumée', reserved: false },
-                    { label: 'Écharpe en laine', reserved: false },
-                ],
-            },
-            others: [
-                { name: 'Thomas', initial: 'T', bg: '#e8f2ec', color: '#4a7c59', count: 2 },
-                { name: 'Sophie', initial: 'S', bg: '#e8edf5', color: '#4a6fa5', count: 5 },
-            ],
+    {
+        group: 'Famille Dupont',
+        groupInitial: 'F',
+        groupColor: '#C0392B',
+        featured: {
+            name: 'Marie',
+            initial: 'M',
+            bg: '#fde8e6',
+            color: '#c0392b',
+            count: 4,
+            items: [
+                { label: 'AirPods Pro', reserved: true },
+                { label: 'Livre de cuisine', reserved: false },
+                { label: 'Bougie parfumée', reserved: false },
+                { label: 'Écharpe en laine', reserved: false }
+            ]
         },
-        {
-            group: 'Les Amis de Pierre',
-            groupInitial: 'A',
-            groupColor: '#4A6FA5',
-            featured: { name: 'Lucas', initial: 'L', bg: '#e8edf5', color: '#4a6fa5', count: 3,
-                items: [
-                    { label: 'Nintendo Switch', reserved: true },
-                    { label: 'Abonnement Spotify', reserved: true },
-                    { label: 'Baskets Nike', reserved: false },
-                ],
-            },
-            others: [
-                { name: 'Camille', initial: 'C', bg: '#f0ebf8', color: '#7b5ea7', count: 6 },
-                { name: 'Julien', initial: 'J', bg: '#fef3cd', color: '#b8860b', count: 3 },
-            ],
+        others: [
+            { name: 'Thomas', initial: 'T', bg: '#e8f2ec', color: '#4a7c59', count: 2 },
+            { name: 'Sophie', initial: 'S', bg: '#e8edf5', color: '#4a6fa5', count: 5 }
+        ]
+    },
+    {
+        group: 'Les Amis de Pierre',
+        groupInitial: 'A',
+        groupColor: '#4A6FA5',
+        featured: {
+            name: 'Lucas',
+            initial: 'L',
+            bg: '#e8edf5',
+            color: '#4a6fa5',
+            count: 3,
+            items: [
+                { label: 'Nintendo Switch', reserved: true },
+                { label: 'Abonnement Spotify', reserved: true },
+                { label: 'Baskets Nike', reserved: false }
+            ]
         },
-        {
-            group: 'Mariage de Julie & Tom 💍',
-            groupInitial: 'M',
-            groupColor: '#4A7C59',
-            featured: { name: 'Julie', initial: 'J', bg: '#e8f2ec', color: '#4a7c59', count: 4,
-                items: [
-                    { label: 'Robot pâtissier KitchenAid', reserved: true },
-                    { label: 'Séjour en Toscane', reserved: false },
-                    { label: 'Service de vaisselle', reserved: true },
-                    { label: 'Cours de poterie', reserved: false },
-                ],
-            },
-            others: [
-                { name: 'Tom', initial: 'T', bg: '#fef3cd', color: '#b8860b', count: 3 },
-                { name: 'Famille', initial: 'F', bg: '#f0ebf8', color: '#7b5ea7', count: 5 },
-            ],
+        others: [
+            { name: 'Camille', initial: 'C', bg: '#f0ebf8', color: '#7b5ea7', count: 6 },
+            { name: 'Julien', initial: 'J', bg: '#fef3cd', color: '#b8860b', count: 3 }
+        ]
+    },
+    {
+        group: 'Mariage de Julie & Tom 💍',
+        groupInitial: 'M',
+        groupColor: '#4A7C59',
+        featured: {
+            name: 'Julie',
+            initial: 'J',
+            bg: '#e8f2ec',
+            color: '#4a7c59',
+            count: 4,
+            items: [
+                { label: 'Robot pâtissier KitchenAid', reserved: true },
+                { label: 'Séjour en Toscane', reserved: false },
+                { label: 'Service de vaisselle', reserved: true },
+                { label: 'Cours de poterie', reserved: false }
+            ]
         },
+        others: [
+            { name: 'Tom', initial: 'T', bg: '#fef3cd', color: '#b8860b', count: 3 },
+            { name: 'Famille', initial: 'F', bg: '#f0ebf8', color: '#7b5ea7', count: 5 }
+        ]
+    }
 ];
 
 export default function Index(): JSX.Element {
@@ -85,7 +101,7 @@ export default function Index(): JSX.Element {
 
     useEffect(() => {
         setMockupIndex(Math.floor(Math.random() * MOCKUPS.length));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // UI state consolidated
@@ -212,35 +228,32 @@ export default function Index(): JSX.Element {
 
     return (
         <Layout withHeader={false}>
-            <SEO 
-                title={pageTitle} 
-                description={pageDescription} 
+            <SEO
+                title={pageTitle}
+                description={pageDescription}
                 keywords="liste de cadeaux, liste cadeaux gratuite, organiser cadeaux famille, cadeaux Noël, cadeaux anniversaire, partager liste cadeaux, planifier cadeaux groupe, secret Santa, liste souhaits, gestion cadeaux en ligne"
-                canonicalPath="/" 
-                ogImage="/og-image-home.jpg" 
+                canonicalPath="/"
+                ogImage="/og-image-home.jpg"
             />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={generatePageSchema('WebPage', pageTitle, '/', pageDescription)}
             />
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={generateWebAppSchema()}
-            />
+            <script type="application/ld+json" dangerouslySetInnerHTML={generateWebAppSchema()} />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={generateFAQSchema([
                     {
-                        question: "Comment créer une liste de cadeaux pour ma famille ?",
+                        question: 'Comment créer une liste de cadeaux pour ma famille ?',
                         answer: "Il suffit de créer un groupe, d'inviter vos proches et de commencer à ajouter vos envies de cadeaux. Chacun peut voir les listes des autres et réserver secrètement les cadeaux qu'il souhaite offrir."
                     },
                     {
-                        question: "Est-ce que le service est vraiment gratuit ?",
-                        answer: "Oui, notre plateforme de gestion de listes de cadeaux est entièrement gratuite. Aucun abonnement, aucune publicité intrusive."
+                        question: 'Est-ce que le service est vraiment gratuit ?',
+                        answer: 'Oui, notre plateforme de gestion de listes de cadeaux est entièrement gratuite. Aucun abonnement, aucune publicité intrusive.'
                     },
                     {
-                        question: "Puis-je utiliser cette liste pour Noël et les anniversaires ?",
-                        answer: "Absolument ! Notre outil est parfait pour organiser tous vos échanges de cadeaux : Noël, anniversaires, fêtes des mères, mariages, et toute occasion spéciale."
+                        question: 'Puis-je utiliser cette liste pour Noël et les anniversaires ?',
+                        answer: 'Absolument ! Notre outil est parfait pour organiser tous vos échanges de cadeaux : Noël, anniversaires, fêtes des mères, mariages, et toute occasion spéciale.'
                     }
                 ])}
             />
@@ -433,9 +446,16 @@ export default function Index(): JSX.Element {
                                 <div className="w-full max-w-sm space-y-3">
                                     {/* Group header */}
                                     <div className="flex items-center gap-3 px-1 mb-4">
-                                        <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-base font-bold" style={{ background: m.groupColor }}>{m.groupInitial}</div>
+                                        <div
+                                            className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-base font-bold"
+                                            style={{ background: m.groupColor }}
+                                        >
+                                            {m.groupInitial}
+                                        </div>
                                         <div>
-                                            <p className="text-xs text-gray-400 uppercase tracking-widest leading-none mb-0.5">Groupe</p>
+                                            <p className="text-xs text-gray-400 uppercase tracking-widest leading-none mb-0.5">
+                                                Groupe
+                                            </p>
                                             <p className="font-bold text-gray-800 leading-none">{m.group}</p>
                                         </div>
                                     </div>
@@ -443,18 +463,32 @@ export default function Index(): JSX.Element {
                                     {/* Featured member — open list */}
                                     <div className="item px-5 py-4">
                                         <div className="flex items-center gap-3 mb-3">
-                                            <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" style={{ background: m.featured.bg, color: m.featured.color }}>{m.featured.initial}</div>
+                                            <div
+                                                className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                                                style={{ background: m.featured.bg, color: m.featured.color }}
+                                            >
+                                                {m.featured.initial}
+                                            </div>
                                             <div>
-                                                <p className="font-semibold text-gray-800 text-sm leading-none">{m.featured.name}</p>
+                                                <p className="font-semibold text-gray-800 text-sm leading-none">
+                                                    {m.featured.name}
+                                                </p>
                                                 <p className="text-xs text-gray-400 mt-0.5">{m.featured.count} cadeaux</p>
                                             </div>
                                         </div>
                                         <div className="space-y-2">
                                             {m.featured.items.map((item, i) => (
-                                                <div key={i} className={`flex items-center gap-2 text-sm ${item.reserved ? 'text-gray-700' : 'text-gray-700'}`}>
+                                                <div
+                                                    key={i}
+                                                    className={`flex items-center gap-2 text-sm ${item.reserved ? 'text-gray-700' : 'text-gray-700'}`}
+                                                >
                                                     <span className="text-vertNoel font-bold">✓</span>
                                                     <span>{item.label}</span>
-                                                    {item.reserved && <span className="ml-auto text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">Réservé 🤫</span>}
+                                                    {item.reserved && (
+                                                        <span className="ml-auto text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+                                                            Réservé 🤫
+                                                        </span>
+                                                    )}
                                                 </div>
                                             ))}
                                         </div>
@@ -462,8 +496,16 @@ export default function Index(): JSX.Element {
 
                                     {/* Other members */}
                                     {m.others.map((o, i) => (
-                                        <div key={i} className="bg-white rounded-xl border border-gray-100 px-5 py-4 shadow-sm flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0" style={{ background: o.bg, color: o.color }}>{o.initial}</div>
+                                        <div
+                                            key={i}
+                                            className="bg-white rounded-xl border border-gray-100 px-5 py-4 shadow-sm flex items-center gap-3"
+                                        >
+                                            <div
+                                                className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                                                style={{ background: o.bg, color: o.color }}
+                                            >
+                                                {o.initial}
+                                            </div>
                                             <div className="flex-1">
                                                 <p className="font-semibold text-gray-800 text-sm">{o.name}</p>
                                                 <p className="text-xs text-gray-400">{o.count} cadeaux</p>
@@ -487,22 +529,30 @@ export default function Index(): JSX.Element {
                     <Link href="/liste-de-noel" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">🎄</div>
                         <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux de Noël</h3>
-                        <p className="text-sm text-gray-500">Organisez les échanges de cadeaux en famille sans doublons ni mauvaises surprises.</p>
+                        <p className="text-sm text-gray-500">
+                            Organisez les échanges de cadeaux en famille sans doublons ni mauvaises surprises.
+                        </p>
                     </Link>
                     <Link href="/liste-de-naissance" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">👶</div>
                         <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux de naissance</h3>
-                        <p className="text-sm text-gray-500">Créez votre liste de naissance gratuite, sans boutique imposée, partageable en un lien.</p>
+                        <p className="text-sm text-gray-500">
+                            Créez votre liste de naissance gratuite, sans boutique imposée, partageable en un lien.
+                        </p>
                     </Link>
                     <Link href="/liste-anniversaire" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">🎂</div>
                         <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux anniversaire</h3>
-                        <p className="text-sm text-gray-500">Fini les doublons pour les anniversaires enfants ou adultes — chacun réserve en secret.</p>
+                        <p className="text-sm text-gray-500">
+                            Fini les doublons pour les anniversaires enfants ou adultes — chacun réserve en secret.
+                        </p>
                     </Link>
                     <Link href="/liste-de-mariage" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">💍</div>
                         <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux mariage</h3>
-                        <p className="text-sm text-gray-500">Partagez vos envies avec vos invités et laissez chacun choisir librement ce qu&apos;il offrira.</p>
+                        <p className="text-sm text-gray-500">
+                            Partagez vos envies avec vos invités et laissez chacun choisir librement ce qu&apos;il offrira.
+                        </p>
                     </Link>
                 </div>
             </section>
@@ -512,8 +562,9 @@ export default function Index(): JSX.Element {
                 <h2 className="font-bold">Pourquoi choisir Ma liste de cadeaux ? ✅</h2>
 
                 <p>
-                    Organisez vos échanges de cadeaux en famille ou entre amis de manière simple et efficace. Notre outil gratuit de gestion de listes de cadeaux
-                    sécurisées est parfait pour <strong>Noël, anniversaires et toutes vos fêtes</strong> !
+                    Organisez vos échanges de cadeaux en famille ou entre amis de manière simple et efficace. Notre outil gratuit
+                    de gestion de listes de cadeaux sécurisées est parfait pour{' '}
+                    <strong>Noël, anniversaires et toutes vos fêtes</strong> !
                 </p>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 mb-6">
@@ -597,9 +648,7 @@ export default function Index(): JSX.Element {
             <GiftIdeasGenerator />
 
             <section className="home-section" id="comment-ca-marche">
-                <h2 className="font-bold">
-                    Comment organiser vos listes de cadeaux ? 🎯
-                </h2>
+                <h2 className="font-bold">Comment organiser vos listes de cadeaux ? 🎯</h2>
 
                 <div className="flex flex-col md:flex-row justify-around items-center mt-4">
                     <div className="item md:m-4">
@@ -649,9 +698,13 @@ export default function Index(): JSX.Element {
                         Comment créer une liste de cadeaux pour ma famille ?
                     </h3>
                     <p>
-                        {"Créer une liste de cadeaux en ligne est très simple : créez un groupe, invitez vos proches et commencez à ajouter vos envies de cadeaux. "}
-                        {"Chaque membre peut consulter les listes des autres et réserver secrètement les cadeaux qu'il souhaite offrir. "}
-                        {"Idéal pour éviter les doublons lors des fêtes de Noël ou anniversaires en famille."}
+                        {
+                            'Créer une liste de cadeaux en ligne est très simple : créez un groupe, invitez vos proches et commencez à ajouter vos envies de cadeaux. '
+                        }
+                        {
+                            "Chaque membre peut consulter les listes des autres et réserver secrètement les cadeaux qu'il souhaite offrir. "
+                        }
+                        {'Idéal pour éviter les doublons lors des fêtes de Noël ou anniversaires en famille.'}
                     </p>
                 </div>
 
@@ -660,8 +713,9 @@ export default function Index(): JSX.Element {
                         Est-ce que le service est vraiment gratuit ?
                     </h3>
                     <p>
-                        Oui ! Notre plateforme de gestion de listes de cadeaux en ligne est entièrement gratuite. Aucun abonnement,
-                        aucune publicité intrusive, aucun frais caché. Vous pouvez créer autant de groupes et de listes que vous le souhaitez.
+                        Oui ! Notre plateforme de gestion de listes de cadeaux en ligne est entièrement gratuite. Aucun
+                        abonnement, aucune publicité intrusive, aucun frais caché. Vous pouvez créer autant de groupes et de
+                        listes que vous le souhaitez.
                     </p>
                 </div>
 
@@ -670,8 +724,9 @@ export default function Index(): JSX.Element {
                         Puis-je utiliser cette liste pour Noël et les anniversaires ?
                     </h3>
                     <p>
-                        Absolument ! Notre outil est parfait pour organiser tous vos échanges de cadeaux : liste de cadeaux de Noël en famille,
-                        anniversaires, fêtes des mères, mariages, crémaillères, naissances et toute occasion spéciale. Une seule liste pour tous vos événements !
+                        Absolument ! Notre outil est parfait pour organiser tous vos échanges de cadeaux : liste de cadeaux de
+                        Noël en famille, anniversaires, fêtes des mères, mariages, crémaillères, naissances et toute occasion
+                        spéciale. Une seule liste pour tous vos événements !
                     </p>
                 </div>
             </section>
@@ -680,29 +735,32 @@ export default function Index(): JSX.Element {
             <section className="home-section">
                 <div className="max-w-4xl mx-auto">
                     <h2 className="font-bold text-center mb-6">Simplifiez vos échanges de cadeaux en ligne</h2>
-                    
+
                     <div className="space-y-4 item">
                         <p>
-                            <strong>Organiser une liste de cadeaux en famille</strong> n&apos;a jamais été aussi simple. Que vous prépariez 
-                            vos cadeaux de Noël, un anniversaire surprise ou un événement spécial, notre plateforme vous permet de 
+                            <strong>Organiser une liste de cadeaux en famille</strong> n&apos;a jamais été aussi simple. Que vous
+                            prépariez vos cadeaux de Noël, un anniversaire surprise ou un événement spécial, notre plateforme vous
+                            permet de
                             <strong> partager vos idées cadeaux</strong> avec vos proches en toute sécurité.
                         </p>
-                        
+
                         <p>
-                            Plus besoin de deviner ce qui ferait plaisir ! Avec notre <strong>outil de liste de cadeaux gratuit</strong>, 
-                            chacun indique ses envies et les autres peuvent réserver discrètement ce qu&apos;ils souhaitent offrir. 
-                            Fini les doublons et les cadeaux qui ne plaisent pas.
+                            Plus besoin de deviner ce qui ferait plaisir ! Avec notre{' '}
+                            <strong>outil de liste de cadeaux gratuit</strong>, chacun indique ses envies et les autres peuvent
+                            réserver discrètement ce qu&apos;ils souhaitent offrir. Fini les doublons et les cadeaux qui ne
+                            plaisent pas.
                         </p>
-                        
+
                         <p>
-                            Notre système de <strong>liste de cadeaux partagée</strong> est idéal pour les grandes familles, 
-                            les groupes d&apos;amis ou les équipes de travail. Créez votre groupe en moins de 2 minutes, sans inscription email, 
-                            et commencez à planifier vos prochains échanges de cadeaux sereinement.
+                            Notre système de <strong>liste de cadeaux partagée</strong> est idéal pour les grandes familles, les
+                            groupes d&apos;amis ou les équipes de travail. Créez votre groupe en moins de 2 minutes, sans
+                            inscription email, et commencez à planifier vos prochains échanges de cadeaux sereinement.
                         </p>
 
                         <p className="text-sm italic text-gray-600 mt-6">
-                            🎁 Astuce : Pour Noël en famille, créez votre liste de cadeaux dès novembre pour laisser le temps à chacun 
-                            de choisir et commander tranquillement. Votre liste reste accessible toute l&apos;année pour tous vos événements !
+                            🎁 Astuce : Pour Noël en famille, créez votre liste de cadeaux dès novembre pour laisser le temps à
+                            chacun de choisir et commander tranquillement. Votre liste reste accessible toute l&apos;année pour
+                            tous vos événements !
                         </p>
                     </div>
                 </div>
@@ -712,8 +770,8 @@ export default function Index(): JSX.Element {
                 <div>
                     <h2 className="font-bold">Prêt à organiser vos prochains cadeaux ? 🎈</h2>
                     <p>
-                        Rejoignez des milliers de familles qui ont simplifié leurs échanges de cadeaux grâce à notre outil gratuit de liste de cadeaux en ligne.
-                        Créez votre première liste maintenant et découvrez comme c&apos;est simple !
+                        Rejoignez des milliers de familles qui ont simplifié leurs échanges de cadeaux grâce à notre outil gratuit
+                        de liste de cadeaux en ligne. Créez votre première liste maintenant et découvrez comme c&apos;est simple !
                     </p>
 
                     <div className="mt-4">
@@ -734,9 +792,12 @@ export default function Index(): JSX.Element {
                     <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:justify-between gap-3">
                         <div className="flex-1 text-sm text-gray-700 text-center md:text-left">
                             <p>
-                                🍪 Ce site n&apos;utilise <strong>aucun cookie publicitaire</strong>. Un cookie technique sert à la
-                                connexion et la fréquentation est mesurée sans cookie ni donnée personnelle ({' '}
-                                <Link href="/confidentialite" className="underline">en savoir plus</Link>).
+                                🍪 Ce site n&apos;utilise <strong>aucun cookie publicitaire</strong>. Un cookie technique sert à
+                                la connexion et la fréquentation est mesurée sans cookie ni donnée personnelle ({' '}
+                                <Link href="/confidentialite" className="underline">
+                                    en savoir plus
+                                </Link>
+                                ).
                             </p>
                         </div>
                         <button onClick={handleDismissCookieBanner} aria-label="Fermer le bandeau">

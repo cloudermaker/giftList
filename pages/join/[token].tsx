@@ -76,12 +76,8 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
                 <div className="w-full max-w-md">
                     <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
                         <div className="p-6">
-                            <h1 className="text-2xl font-bold text-center text-gray-800 mb-1">
-                                🎁 Rejoindre le groupe
-                            </h1>
-                            <p className="text-center text-vertNoel font-semibold text-lg mb-4">
-                                {groupName}
-                            </p>
+                            <h1 className="text-2xl font-bold text-center text-gray-800 mb-1">🎁 Rejoindre le groupe</h1>
+                            <p className="text-center text-vertNoel font-semibold text-lg mb-4">{groupName}</p>
 
                             {!needsConfirmation && (
                                 <>
@@ -111,19 +107,17 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
 
                             {needsConfirmation && (
                                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-2">
-                                    <p className="text-sm font-semibold text-amber-800 mb-1">
-                                        ⚠️ Confirmation
-                                    </p>
+                                    <p className="text-sm font-semibold text-amber-800 mb-1">⚠️ Confirmation</p>
                                     {userExists ? (
                                         <p className="text-sm text-amber-700">
-                                            Le prénom <strong>&quot;{userName}&quot;</strong> est déjà membre de ce groupe.
-                                            Es-tu bien cette personne ?
+                                            Le prénom <strong>&quot;{userName}&quot;</strong> est déjà membre de ce groupe. Es-tu
+                                            bien cette personne ?
                                         </p>
                                     ) : (
                                         <>
                                             <p className="text-sm text-amber-700">
-                                                Le prénom <strong>&quot;{userName}&quot;</strong> n&apos;existe pas encore dans ce groupe.
-                                                Vérifie que tu n&apos;as pas fait de faute de frappe.
+                                                Le prénom <strong>&quot;{userName}&quot;</strong> n&apos;existe pas encore dans ce
+                                                groupe. Vérifie que tu n&apos;as pas fait de faute de frappe.
                                             </p>
                                             <p className="text-sm text-amber-700 mt-2">
                                                 Si tu es bien un nouveau membre, confirme pour rejoindre le groupe.
@@ -143,10 +137,22 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
 
                             {needsConfirmation && (
                                 <>
-                                    <CustomButton className="w-full p-3 green-button" onClick={handleConfirm} disabled={isLoading}>
-                                        {isLoading ? '⏳ Chargement...' : userExists ? `Oui, je suis ${userName}` : 'Oui, je suis un nouveau membre'}
+                                    <CustomButton
+                                        className="w-full p-3 green-button"
+                                        onClick={handleConfirm}
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading
+                                            ? '⏳ Chargement...'
+                                            : userExists
+                                              ? `Oui, je suis ${userName}`
+                                              : 'Oui, je suis un nouveau membre'}
                                     </CustomButton>
-                                    <CustomButton className="w-full p-3 green-button" onClick={handleCancelConfirmation} disabled={isLoading}>
+                                    <CustomButton
+                                        className="w-full p-3 green-button"
+                                        onClick={handleCancelConfirmation}
+                                        disabled={isLoading}
+                                    >
                                         Corriger mon prénom
                                     </CustomButton>
                                 </>

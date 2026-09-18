@@ -47,7 +47,7 @@ test.describe.serial('Cadeaux et réservations', () => {
 
     test('Alice ajoute, modifie puis garde un cadeau sur sa liste', async () => {
         await pageA.goto(`/giftList/${aliceUserId}`);
-        await pageA.getByRole('button', { name: 'Ajouter un cadeau' }).click();
+        await pageA.getByRole('button', { name: 'Ajouter un cadeau' }).first().click();
         await pageA.locator('#giftFormNameInput').fill('Cadeau Test');
         await pageA.getByRole('button', { name: 'Créer' }).click();
         await expect(pageA.getByText('Cadeau Test')).toBeVisible();

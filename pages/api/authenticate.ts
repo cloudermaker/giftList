@@ -45,7 +45,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             // Créer le groupe, le user admin et le membership atomiquement
             try {
                 const { group: newGroup, user: newUser } = await createGroupWithAdmin(groupName, password, userName);
-                loginSuccess({ groupId: newGroup.id, groupName: newGroup.name, userId: newUser.id, userName: newUser.name, isAdmin: true });
+                loginSuccess({
+                    groupId: newGroup.id,
+                    groupName: newGroup.name,
+                    userId: newUser.id,
+                    userName: newUser.name,
+                    isAdmin: true
+                });
             } catch (err) {
                 // Course sur la contrainte unique du nom de groupe
                 if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {

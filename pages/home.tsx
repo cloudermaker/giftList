@@ -21,7 +21,7 @@ const AVATAR_COLORS = [
     { bg: '#e8edf5', text: '#4a6fa5' },
     { bg: '#fef3cd', text: '#b8860b' },
     { bg: '#f0ebf8', text: '#7b5ea7' },
-    { bg: '#e6f3f5', text: '#2e7d8a' },
+    { bg: '#e6f3f5', text: '#2e7d8a' }
 ];
 
 export const Home = (): JSX.Element => {
@@ -35,16 +35,18 @@ export const Home = (): JSX.Element => {
         if (!connectedUser?.groupId) return;
         Promise.all([
             AxiosWrapper.get(`/api/group/${connectedUser.groupId}`),
-            AxiosWrapper.get(`/api/user?groupid=${connectedUser.groupId}`),
-        ]).then(([groupRes, usersRes]) => {
-            const groupData = groupRes?.data as { success: boolean; group?: Group };
-            if (groupData?.success && groupData.group) {
-                setGroup(groupData.group);
-    }
-            const users = usersRes?.data?.users ?? [];
-            setMembers(users);
-            if (users.length === 1 && connectedUser?.isAdmin) setShowOnboarding(true);
-        }).finally(() => setLoading(false));
+            AxiosWrapper.get(`/api/user?groupid=${connectedUser.groupId}`)
+        ])
+            .then(([groupRes, usersRes]) => {
+                const groupData = groupRes?.data as { success: boolean; group?: Group };
+                if (groupData?.success && groupData.group) {
+                    setGroup(groupData.group);
+                }
+                const users = usersRes?.data?.users ?? [];
+                setMembers(users);
+                if (users.length === 1 && connectedUser?.isAdmin) setShowOnboarding(true);
+            })
+            .finally(() => setLoading(false));
     }, [connectedUser]);
 
     const shareInviteLink = async () => {
@@ -53,10 +55,13 @@ export const Home = (): JSX.Element => {
         const shareData = {
             title: `Rejoins le groupe ${group.name}`,
             text: `Clique pour rejoindre la liste de cadeaux du groupe "${group.name}" !`,
-            url,
+            url
         };
         if (navigator.share) {
-            try { await navigator.share(shareData); return; } catch {}
+            try {
+                await navigator.share(shareData);
+                return;
+            } catch {}
         }
         await navigator.clipboard.writeText(url);
         Swal.fire({ title: 'Lien copié !', icon: 'success', timer: 1500, showConfirmButton: false });
@@ -69,7 +74,7 @@ export const Home = (): JSX.Element => {
             inputPlaceholder: 'Prénom',
             showCancelButton: true,
             confirmButtonText: 'Ajouter',
-            cancelButtonText: 'Annuler',
+            cancelButtonText: 'Annuler'
         });
         if (!name) return;
         const result = await AxiosWrapper.post('/api/user', { user: { name }, groupId: group?.id });
@@ -82,7 +87,6 @@ export const Home = (): JSX.Element => {
         }
     };
 
-
     return (
         <Layout selectedHeader={EHeader.Homepage}>
             <SEO
@@ -91,15 +95,15 @@ export const Home = (): JSX.Element => {
                 noIndex={true}
             />
             <div>
-
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
                     <div>
                         <p className="text-sm text-gray-500">Bonjour, {connectedUser?.userName}</p>
-                        {loading
-                            ? <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mt-1" />
-                            : <h1 className="text-2xl font-bold text-gray-800">{group?.name}</h1>
-                        }
+                        {loading ? (
+                            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mt-1" />
+                        ) : (
+                            <h1 className="text-2xl font-bold text-gray-800">{group?.name}</h1>
+                        )}
                     </div>
                     {group?.inviteToken && (
                         <CustomButton className="slate-button shrink-0" onClick={shareInviteLink}>
@@ -160,10 +164,11 @@ export const Home = (): JSX.Element => {
                 )}
                 {!loading && connectedUser?.isAdmin && (
                     <div className="mb-10 -mt-6">
-                        <CustomButton className="green-button" onClick={addMember}>Ajouter un membre</CustomButton>
+                        <CustomButton className="green-button" onClick={addMember}>
+                            Ajouter un membre
+                        </CustomButton>
                     </div>
                 )}
-
 
                 {/* Gift Ideas Generator */}
                 <GiftIdeasGenerator />

@@ -49,18 +49,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             }
 
             // Création : user + membership atomiques ; sinon simple mise à jour
-            const user = isCreation && body.groupId
-                ? await createUser(body.user.name, body.groupId as string, false)
-                : await upsertUser(body.user as User);
+            const user =
+                isCreation && body.groupId
+                    ? await createUser(body.user.name, body.groupId as string, false)
+                    : await upsertUser(body.user as User);
 
             res.status(200).json({ success: true, user });
         } else if (req.method === 'GET' && req.query['groupid']) {
             const userMemberships = await getGroupUsers(req.query['groupid'] as string);
             // Extraire juste les users (sans les infos de membership)
-            const users = userMemberships.map(m => ({
+            const users = userMemberships.map((m) => ({
                 id: m.id,
                 name: m.name,
-                isAdmin: m.role === 'ADMIN',  // Convertir le rôle en isAdmin pour compatibilité
+                isAdmin: m.role === 'ADMIN', // Convertir le rôle en isAdmin pour compatibilité
                 acceptSuggestedGift: m.acceptSuggestedGift,
                 createdAt: m.createdAt,
                 updatedAt: m.updatedAt

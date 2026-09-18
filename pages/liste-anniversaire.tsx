@@ -39,7 +39,7 @@ export default function ListeAnniversaire(): JSX.Element {
             ]}
             faq={[
                 {
-                    question: "La personne fêtée voit-elle les réservations sur sa liste ?",
+                    question: 'La personne fêtée voit-elle les réservations sur sa liste ?',
                     answer: "Non, jamais. C'est le cœur du service : chacun voit les réservations sur les listes des autres, mais jamais sur la sienne. La surprise est garantie."
                 },
                 {
@@ -48,14 +48,14 @@ export default function ListeAnniversaire(): JSX.Element {
                 },
                 {
                     question: 'Combien de personnes peuvent rejoindre le groupe ?',
-                    answer: "Autant que vous voulez : famille proche, cousins, amis. Chaque membre a sa propre liste et voit celles des autres."
+                    answer: 'Autant que vous voulez : famille proche, cousins, amis. Chaque membre a sa propre liste et voit celles des autres.'
                 },
                 {
                     question: 'Faut-il refaire une liste à chaque anniversaire ?',
                     answer: "Non, c'est l'avantage : la liste est permanente. Vous l'actualisez au fil de vos envies, et elle sert pour l'anniversaire, Noël, la fête des mères…"
                 },
                 {
-                    question: "Est-ce vraiment gratuit ?",
+                    question: 'Est-ce vraiment gratuit ?',
                     answer: 'Oui : création, invitations, réservations — tout est gratuit, sans publicité ni option premium.'
                 }
             ]}

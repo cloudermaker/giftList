@@ -10,7 +10,7 @@ export default function ListeDeNaissance(): JSX.Element {
             h1="Liste de naissance gratuite, libre et multi-boutiques"
             ctaLabel="👶 Créer ma liste de naissance"
             intro={[
-                "Un bébé arrive et tout le monde veut aider — encore faut-il éviter trois babyphones et zéro gigoteuse. Une liste de naissance partagée guide vos proches vers ce dont vous avez vraiment besoin.",
+                'Un bébé arrive et tout le monde veut aider — encore faut-il éviter trois babyphones et zéro gigoteuse. Une liste de naissance partagée guide vos proches vers ce dont vous avez vraiment besoin.',
                 "Ici, pas de boutique imposée ni de commission cachée : vous listez vos envies depuis n'importe quel site (ou sans lien du tout), vous partagez le lien du groupe, et chacun réserve ce qu'il souhaite offrir."
             ]}
             sections={[
@@ -33,7 +33,7 @@ export default function ListeDeNaissance(): JSX.Element {
                     title: 'Simple pour toute la famille, même à distance',
                     paragraphs: [
                         "Pas de compte à créer, pas d'application à installer : vous envoyez un lien d'invitation, vos proches entrent leur prénom et voient la liste immédiatement. Que la famille soit à Paris, à Lyon ou à l'étranger, tout le monde participe de la même façon.",
-                        "Le service est entièrement gratuit, sans publicité et sans revente de données. Seuls un prénom et vos idées de cadeaux sont enregistrés."
+                        'Le service est entièrement gratuit, sans publicité et sans revente de données. Seuls un prénom et vos idées de cadeaux sont enregistrés.'
                     ]
                 }
             ]}
@@ -56,7 +56,7 @@ export default function ListeDeNaissance(): JSX.Element {
                 },
                 {
                     question: 'Peut-on utiliser la liste après la naissance ?',
-                    answer: "Bien sûr : le groupe reste actif pour les anniversaires, Noël et toutes les occasions suivantes. Une seule adresse pour toutes les listes de la famille."
+                    answer: 'Bien sûr : le groupe reste actif pour les anniversaires, Noël et toutes les occasions suivantes. Une seule adresse pour toutes les listes de la famille.'
                 }
             ]}
         />
