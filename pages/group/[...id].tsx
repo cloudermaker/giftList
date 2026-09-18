@@ -10,7 +10,7 @@ import { getUsersFromGroupId } from '@/lib/db/userManager';
 import { User, Group } from '@prisma/client';
 import Router from 'next/router';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
-import Swal from 'sweetalert2';
+import { toast, alertError, confirmDestructive, promptText, getSwal } from '@/lib/ui/alert';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 
 const GroupComponent = ({
@@ -54,53 +54,25 @@ const GroupComponent = ({
     };
 
     const removeUser = async (userId: string): Promise<void> => {
-        const swalWithBootstrapButtons = Swal.mixin({
-            buttonsStyling: true
+        const confirmed = await confirmDestructive({
+            title: 'Es-tu certain de vouloir supprimer cet utilisateur?',
+            text: 'Il ne sera pas possible de revenir en arrière!'
         });
+        if (!confirmed) return;
 
-        swalWithBootstrapButtons
-            .fire({
-                title: 'Es-tu certain de vouloir supprimer cet utilisateur?',
-                text: 'Il ne sera pas possible de revenir en arrière!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Oui!',
-                cancelButtonText: 'Non!',
-                reverseButtons: true
-            })
-            .then(async (result) => {
-                if (result.isConfirmed) {
-                    const apiResult = await AxiosWrapper.delete(`/api/user/${userId}`);
-                    const data = apiResult?.data as TUserApiResult;
+        const apiResult = await AxiosWrapper.delete(`/api/user/${userId}`);
+        const data = apiResult?.data as TUserApiResult;
 
-                    if (data?.success === true) {
-                        setLocalUsers(localUsers.filter((user) => user.id !== userId));
-
-                        swalWithBootstrapButtons.fire({
-                            title: 'Supprimé!',
-                            text: "L'utilisateur a été supprimé.",
-                            icon: 'success'
-                        });
-                    } else {
-                        swalWithBootstrapButtons.fire({
-                            title: 'Erreur',
-                            text: data?.error || 'Impossible de supprimer cet utilisateur. Réessayez dans quelques instants.',
-                            icon: 'error'
-                        });
-                    }
-                }
-            });
+        if (data?.success === true) {
+            setLocalUsers(localUsers.filter((user) => user.id !== userId));
+            (await getSwal()).fire({ title: 'Supprimé!', text: "L'utilisateur a été supprimé.", icon: 'success' });
+        } else {
+            alertError('Erreur', data?.error || 'Impossible de supprimer cet utilisateur. Réessayez dans quelques instants.');
+        }
     };
 
     const addUser = async (): Promise<void> => {
-        const { value: name } = await Swal.fire({
-            title: 'Ajouter un utilisateur',
-            input: 'text',
-            inputPlaceholder: 'Prénom',
-            showCancelButton: true,
-            confirmButtonText: 'Ajouter',
-            cancelButtonText: 'Annuler'
-        });
+        const name = await promptText({ title: 'Ajouter un utilisateur', placeholder: 'Prénom', confirmText: 'Ajouter' });
         if (!name) return;
 
         const response = await AxiosWrapper.post('/api/user', {
@@ -119,25 +91,14 @@ const GroupComponent = ({
 
         if (data?.success === true && data?.user) {
             setLocalUsers((users) => [...users, data.user!]);
-            Swal.fire({ title: 'Utilisateur ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
+            toast('Utilisateur ajouté !');
         } else {
-            Swal.fire({
-                title: 'Erreur',
-                text: data?.error || 'Impossible de créer cet utilisateur. Réessayez dans quelques instants.',
-                icon: 'error'
-            });
+            alertError('Erreur', data?.error || 'Impossible de créer cet utilisateur. Réessayez dans quelques instants.');
         }
     };
 
     const renameUser = async (user: User): Promise<void> => {
-        const { value: newName } = await Swal.fire({
-            title: `Renommer ${user.name}`,
-            input: 'text',
-            inputValue: user.name,
-            showCancelButton: true,
-            confirmButtonText: 'Renommer',
-            cancelButtonText: 'Annuler'
-        });
+        const newName = await promptText({ title: `Renommer ${user.name}`, initialValue: user.name, confirmText: 'Renommer' });
         if (!newName || newName.trim() === user.name) return;
 
         const response = await AxiosWrapper.patch(`/api/user/${user.id}`, {
@@ -148,9 +109,9 @@ const GroupComponent = ({
 
         if (data?.success && data.user) {
             setLocalUsers((users) => users.map((u) => (u.id === user.id ? { ...u, name: data.user!.name } : u)));
-            Swal.fire({ title: 'Renommé !', icon: 'success', timer: 1500, showConfirmButton: false });
+            toast('Renommé !');
         } else {
-            Swal.fire({ title: 'Erreur', text: data?.error || 'Impossible de renommer.', icon: 'error' });
+            alertError('Erreur', data?.error || 'Impossible de renommer.');
         }
     };
 

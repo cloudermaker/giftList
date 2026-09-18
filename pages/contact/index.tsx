@@ -5,7 +5,6 @@ import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Router from 'next/router';
 import { useState } from 'react';
 import { TSendEmailResult } from '../api/sendEmail';
-import Swal from 'sweetalert2';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import SEO from '@/components/SEO';
 

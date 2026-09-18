@@ -8,7 +8,7 @@ import { getPersonalGiftsByUser } from '@/lib/db/personalGiftManager';
 import { User, GiftType } from '@prisma/client';
 import { NextPageContext } from 'next';
 import { useState, useEffect } from 'react';
-import Swal from 'sweetalert2';
+import { toast, alertError, confirmDestructive } from '@/lib/ui/alert';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import ModernLink from '@/components/atoms/ModernLink';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
@@ -60,13 +60,9 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
             if (data && data.success) {
                 // Retirer uniquement cette entrée (par userTakenGiftId pour éviter de supprimer les doublons UNLIMITED)
                 setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => (gift.userTakenGiftId ?? gift.id) !== uniqueKey));
-                Swal.fire({ title: 'Cadeau libéré !', icon: 'success', timer: 1500, showConfirmButton: false });
+                toast('Cadeau libéré !');
             } else {
-                Swal.fire({
-                    title: 'Erreur',
-                    text: 'Impossible de libérer ce cadeau. Réessayez dans quelques instants.',
-                    icon: 'error'
-                });
+                alertError('Erreur', 'Impossible de libérer ce cadeau. Réessayez dans quelques instants.');
             }
         } finally {
             setReleasingGiftId(null);
@@ -102,55 +98,35 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                 forUser: res.personalGift.forUser || null
             } as GiftWithForUser;
             setLocalTakenGifts((old) => [...old, giftFromPersonal]);
-            Swal.fire({ title: 'Cadeau ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
+            toast('Cadeau ajouté !');
         } else {
-            Swal.fire({
-                title: 'Erreur',
-                text: "Impossible d'ajouter ce cadeau. Réessayez dans quelques instants.",
-                icon: 'error'
-            });
+            alertError('Erreur', "Impossible d'ajouter ce cadeau. Réessayez dans quelques instants.");
             throw new Error('api error');
         }
     };
 
     const deletePersonalGift = async (giftId: string): Promise<void> => {
-        const swalWithBootstrapButtons = Swal.mixin({
-            buttonsStyling: true
-        });
-
-        const result = await swalWithBootstrapButtons.fire({
+        const confirmed = await confirmDestructive({
             title: 'Es-tu certain de vouloir supprimer ce cadeau?',
-            text: 'Il ne sera pas possible de revenir en arrière!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Oui!',
-            cancelButtonText: 'Non!',
-            reverseButtons: true
+            text: 'Il ne sera pas possible de revenir en arrière!'
         });
+        if (!confirmed) return;
 
-        if (result.isConfirmed) {
-            setDeletingGiftId(giftId);
+        setDeletingGiftId(giftId);
+        try {
+            const apiResult = await AxiosWrapper.delete(`/api/personalGift/${giftId}`, {
+                userId: connectedUser?.userId
+            });
+            const data = apiResult?.data;
 
-            try {
-                const apiResult = await AxiosWrapper.delete(`/api/personalGift/${giftId}`, {
-                    userId: connectedUser?.userId
-                });
-                const data = apiResult?.data;
-
-                if (data && data.success === true) {
-                    setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftId));
-                    swalWithBootstrapButtons.fire({
-                        title: 'Supprimé !',
-                        icon: 'success',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                } else {
-                    swalWithBootstrapButtons.fire({ title: 'Erreur', text: 'Impossible de supprimer ce cadeau.', icon: 'error' });
-                }
-            } finally {
-                setDeletingGiftId(null);
+            if (data && data.success === true) {
+                setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftId));
+                toast('Supprimé !');
+            } else {
+                alertError('Erreur', 'Impossible de supprimer ce cadeau.');
             }
+        } finally {
+            setDeletingGiftId(null);
         }
     };
 

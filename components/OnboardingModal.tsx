@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import CustomButton from './atoms/customButton';
-import Swal from 'sweetalert2';
+import { toast } from '@/lib/ui/alert';
 
 type Props = {
     userName: string;
@@ -46,7 +46,7 @@ export const OnboardingModal = ({ userName, groupName, inviteToken, onClose }: P
             } catch {}
         }
         await navigator.clipboard.writeText(inviteUrl);
-        Swal.fire({ title: 'Lien copié !', icon: 'success', timer: 1500, showConfirmButton: false });
+        toast('Lien copié !');
     };
 
     const steps = [

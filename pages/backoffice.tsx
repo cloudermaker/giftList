@@ -6,7 +6,7 @@ import CustomButton from '@/components/atoms/customButton';
 import { buildDefaultGroup, getGroupsPage } from '@/lib/db/groupManager';
 import { TGroupApiResult } from './api/group';
 import { Group } from '@prisma/client';
-import Swal from 'sweetalert2';
+import { toast, alertError, confirmDestructive, promptText, getSwal } from '@/lib/ui/alert';
 import Router from 'next/router';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import { GetServerSidePropsContext } from 'next';
@@ -41,27 +41,22 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
     }, [expanded, group.id, members.length]);
 
     const renameGroup = async () => {
-        const { value: newName } = await Swal.fire({
-            title: 'Renommer le groupe',
-            input: 'text',
-            inputValue: groupName,
-            showCancelButton: true,
-            confirmButtonText: 'Renommer',
-            cancelButtonText: 'Annuler'
-        });
+        const newName = await promptText({ title: 'Renommer le groupe', initialValue: groupName, confirmText: 'Renommer' });
         if (!newName || newName === groupName) return;
         const result = await AxiosWrapper.patch(`/api/group/${group.id}`, { group: { name: newName } });
         if (result?.data?.success) {
             setGroupName(newName);
             onRename(group.id, newName);
-            Swal.fire({ title: 'Renommé !', icon: 'success', timer: 1500, showConfirmButton: false });
+            toast('Renommé !');
         } else {
-            Swal.fire('Erreur', result?.data?.error || 'Impossible de renommer le groupe.', 'error');
+            alertError('Erreur', result?.data?.error || 'Impossible de renommer le groupe.');
         }
     };
 
     const changePassword = async () => {
-        const { value: newPwd } = await Swal.fire({
+        const { value: newPwd } = await (
+            await getSwal()
+        ).fire({
             title: 'Changer le mot de passe',
             input: 'password',
             inputPlaceholder: 'Nouveau mot de passe',
@@ -73,80 +68,64 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
         if (!newPwd) return;
         const result = await AxiosWrapper.patch(`/api/group/${group.id}`, { group: { adminPassword: newPwd } });
         if (result?.data?.success) {
-            Swal.fire({ title: 'Mot de passe mis à jour !', icon: 'success', timer: 1500, showConfirmButton: false });
+            toast('Mot de passe mis à jour !');
         } else {
-            Swal.fire('Erreur', result?.data?.error || 'Impossible de changer le mot de passe.', 'error');
+            alertError('Erreur', result?.data?.error || 'Impossible de changer le mot de passe.');
         }
     };
 
     const toggleRole = async (member: TMember) => {
         const newRole = member.isAdmin ? 'MEMBER' : 'ADMIN';
         if (member.isAdmin && members.filter((m) => m.isAdmin).length <= 1) {
-            Swal.fire('Impossible', 'Il doit rester au moins un administrateur dans le groupe.', 'warning');
+            (await getSwal()).fire('Impossible', 'Il doit rester au moins un administrateur dans le groupe.', 'warning');
             return;
         }
         const result = await AxiosWrapper.patch('/api/userGroup', { userId: member.id, groupId: group.id, role: newRole });
         if (result?.data?.success) {
             setMembers((m) => m.map((m2) => (m2.id === member.id ? { ...m2, isAdmin: !m2.isAdmin } : m2)));
         } else {
-            Swal.fire('Erreur', result?.data?.error || 'Impossible de modifier le rôle.', 'error');
+            alertError('Erreur', result?.data?.error || 'Impossible de modifier le rôle.');
         }
     };
 
     const addMember = async () => {
-        const { value: name } = await Swal.fire({
-            title: 'Ajouter un membre',
-            input: 'text',
-            inputPlaceholder: 'Prénom',
-            showCancelButton: true,
-            confirmButtonText: 'Ajouter',
-            cancelButtonText: 'Annuler'
-        });
+        const name = await promptText({ title: 'Ajouter un membre', placeholder: 'Prénom', confirmText: 'Ajouter' });
         if (!name) return;
         const result = await AxiosWrapper.post('/api/user', { user: { name }, groupId: group.id });
         const data = result?.data;
         if (data?.success && data.user) {
             setMembers((m) => [...m, { id: data.user.id, name: data.user.name, isAdmin: false }]);
-            Swal.fire({ title: 'Membre ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
+            toast('Membre ajouté !');
         } else {
-            Swal.fire('Erreur', data?.error || "Impossible d'ajouter le membre.", 'error');
+            alertError('Erreur', data?.error || "Impossible d'ajouter le membre.");
         }
     };
 
     const renameMember = async (member: TMember) => {
-        const { value: newName } = await Swal.fire({
-            title: `Renommer ${member.name}`,
-            input: 'text',
-            inputValue: member.name,
-            showCancelButton: true,
-            confirmButtonText: 'Renommer',
-            cancelButtonText: 'Annuler'
-        });
+        const newName = await promptText({ title: `Renommer ${member.name}`, initialValue: member.name, confirmText: 'Renommer' });
         if (!newName || newName === member.name) return;
         const result = await AxiosWrapper.patch(`/api/user/${member.id}`, { user: { name: newName }, groupId: group.id });
         if (result?.data?.success) {
             setMembers((m) => m.map((m2) => (m2.id === member.id ? { ...m2, name: newName } : m2)));
-            Swal.fire({ title: 'Renommé !', icon: 'success', timer: 1500, showConfirmButton: false });
+            toast('Renommé !');
         } else {
-            Swal.fire('Erreur', result?.data?.error || 'Impossible de renommer.', 'error');
+            alertError('Erreur', result?.data?.error || 'Impossible de renommer.');
         }
     };
 
     const removeMember = async (member: TMember) => {
-        const { isConfirmed } = await Swal.fire({
+        const confirmed = await confirmDestructive({
             title: `Supprimer ${member.name} ?`,
             text: 'Cette action est irréversible.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Oui',
-            cancelButtonText: 'Non'
+            confirmText: 'Oui',
+            cancelText: 'Non'
         });
-        if (!isConfirmed) return;
+        if (!confirmed) return;
         const result = await AxiosWrapper.delete(`/api/user/${member.id}`);
         if (result?.data?.success) {
             setMembers((m) => m.filter((m2) => m2.id !== member.id));
         } else {
-            Swal.fire('Erreur', result?.data?.error || 'Impossible de supprimer.', 'error');
+            alertError('Erreur', result?.data?.error || 'Impossible de supprimer.');
         }
     };
 
@@ -301,8 +280,9 @@ const Backoffice = ({
     const [newPassword, setNewPassword] = useState<string>('');
 
     const showLoginModal = useCallback(async (): Promise<void> => {
+        const swal = await getSwal();
         while (true) {
-            const { value: formValues, isDismissed } = await Swal.fire({
+            const { value: formValues, isDismissed } = await swal.fire({
                 title: 'Accès backoffice',
                 html: `<input id="swal-login" class="swal2-input" placeholder="Identifiant" autocomplete="username">
                        <input id="swal-pass" class="swal2-input" type="password" placeholder="Mot de passe" autocomplete="current-password">`,
@@ -317,7 +297,7 @@ const Backoffice = ({
                     const login = (document.getElementById('swal-login') as HTMLInputElement)?.value;
                     const pass = (document.getElementById('swal-pass') as HTMLInputElement)?.value;
                     if (!login || !pass) {
-                        Swal.showValidationMessage('Identifiant et mot de passe requis');
+                        swal.showValidationMessage('Identifiant et mot de passe requis');
                         return false;
                     }
                     return { login, pass };
@@ -335,7 +315,7 @@ const Backoffice = ({
                 return;
             }
 
-            await Swal.fire({ title: 'Accès refusé', icon: 'error', text: 'Identifiants incorrects.' });
+            await swal.fire({ title: 'Accès refusé', icon: 'error', text: 'Identifiants incorrects.' });
         }
     }, []);
 
@@ -350,40 +330,21 @@ const Backoffice = ({
     }
 
     const removeGroup = async (groupId: string): Promise<void> => {
-        const swalWithBootstrapButtons = Swal.mixin({ buttonsStyling: true });
+        const confirmed = await confirmDestructive({
+            title: 'Es-tu certain de vouloir supprimer tout le groupe?',
+            text: 'Il ne sera pas possible de revenir en arrière!'
+        });
+        if (!confirmed) return;
 
-        swalWithBootstrapButtons
-            .fire({
-                title: 'Es-tu certain de vouloir supprimer tout le groupe?',
-                text: 'Il ne sera pas possible de revenir en arrière!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Oui!',
-                cancelButtonText: 'Non!',
-                reverseButtons: true
-            })
-            .then(async (result) => {
-                if (result.isConfirmed) {
-                    const apiResult = await AxiosWrapper.delete(`/api/group/${groupId}`);
-                    const data = apiResult?.data as TGroupApiResult;
+        const apiResult = await AxiosWrapper.delete(`/api/group/${groupId}`);
+        const data = apiResult?.data as TGroupApiResult;
 
-                    if (data?.success) {
-                        setLocalGroups((groups) => groups.filter((group) => group.id !== groupId));
-                        swalWithBootstrapButtons.fire({
-                            title: 'Supprimé !',
-                            icon: 'success',
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-                    } else {
-                        swalWithBootstrapButtons.fire({
-                            title: 'Erreur',
-                            text: data?.error || 'Impossible de supprimer ce groupe. Réessayez dans quelques instants.',
-                            icon: 'error'
-                        });
-                    }
-                }
-            });
+        if (data?.success) {
+            setLocalGroups((groups) => groups.filter((group) => group.id !== groupId));
+            toast('Supprimé !');
+        } else {
+            alertError('Erreur', data?.error || 'Impossible de supprimer ce groupe. Réessayez dans quelques instants.');
+        }
     };
 
     const addGroup = async (): Promise<void> => {
@@ -398,11 +359,7 @@ const Backoffice = ({
             clearAllFields();
             Router.push('/backoffice'); // newest first: the new group shows on page 1
         } else {
-            Swal.fire({
-                title: 'Erreur',
-                text: data?.error || 'Impossible de créer ce groupe. Réessayez dans quelques instants.',
-                icon: 'error'
-            });
+            alertError('Erreur', data?.error || 'Impossible de créer ce groupe. Réessayez dans quelques instants.');
         }
     };
 
@@ -521,8 +478,9 @@ const IdeasAdmin = (): JSX.Element => {
     };
 
     const editIdea = async (idea: TIdeaAdminItem) => {
+        const swal = await getSwal();
         // valeurs injectées via le DOM (pas dans le html), le contenu vient d'utilisateurs publics
-        const { isConfirmed, value } = await Swal.fire<{ title: string; description: string }>({
+        const { isConfirmed, value } = await swal.fire<{ title: string; description: string }>({
             title: "Modifier l'idée",
             html:
                 '<input id="ideaEditTitle" class="swal2-input" maxlength="100" placeholder="Titre">' +
@@ -534,7 +492,7 @@ const IdeasAdmin = (): JSX.Element => {
                 titleInput.focus();
                 // Entrée dans le titre = valider (pas dans la description : retour à la ligne)
                 titleInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') Swal.clickConfirm();
+                    if (e.key === 'Enter') swal.clickConfirm();
                 });
             },
             showCancelButton: true,
@@ -544,7 +502,7 @@ const IdeasAdmin = (): JSX.Element => {
                 const title = (document.getElementById('ideaEditTitle') as HTMLInputElement).value.trim();
                 const description = (document.getElementById('ideaEditDescription') as HTMLTextAreaElement).value.trim();
                 if (title.length < 3) {
-                    Swal.showValidationMessage('Le titre doit faire au moins 3 caractères.');
+                    swal.showValidationMessage('Le titre doit faire au moins 3 caractères.');
                     return false;
                 }
                 return { title, description };
@@ -558,14 +516,8 @@ const IdeasAdmin = (): JSX.Element => {
     };
 
     const removeIdea = async (idea: TIdeaAdminItem) => {
-        const { isConfirmed } = await Swal.fire({
-            title: `Supprimer « ${idea.title} » ?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Oui',
-            cancelButtonText: 'Non'
-        });
-        if (!isConfirmed) return;
+        const confirmed = await confirmDestructive({ title: `Supprimer « ${idea.title} » ?`, confirmText: 'Oui', cancelText: 'Non' });
+        if (!confirmed) return;
         const result = await AxiosWrapper.delete(`/api/idea/${idea.id}`);
         if (result?.data?.success) {
             setIdeas((prev) => prev.filter((i) => i.id !== idea.id));

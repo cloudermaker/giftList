@@ -16,7 +16,7 @@ import { buildDefaultGift, getGiftsFromUserId, GiftWithTakenUserId } from '@/lib
 import { TGiftApiResult } from '@/pages/api/gift';
 import { getUserById } from '@/lib/db/userManager';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
-import Swal from 'sweetalert2';
+import { toast, alertError, confirmDestructive, getSwal } from '@/lib/ui/alert';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import { TUserApiResult } from '../api/user';
 import SubGiftList from '@/components/SubGiftList';
@@ -147,38 +147,31 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     };
 
     const removeGift = async (giftId: string) => {
-        const swal = Swal.mixin({ buttonsStyling: true });
-        swal.fire({
+        const confirmed = await confirmDestructive({
             title: 'Es-tu certain de vouloir supprimer ce cadeau ?',
-            text: 'Il ne sera pas possible de revenir en arrière!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Oui!',
-            cancelButtonText: 'Non!',
-            reverseButtons: true
-        }).then(async (result) => {
-            if (!result.isConfirmed) return;
-            try {
-                const res = await AxiosWrapper.delete(`/api/gift/${giftId}`);
-                const data = res?.data as TGiftApiResult;
-                if (data?.success) {
-                    setLocalGifts((prev) => prev.filter((g) => g.id !== giftId));
-                    closeModal();
-                    swal.fire({ title: 'Supprimé !', icon: 'success', timer: 1500, showConfirmButton: false });
-                } else {
-                    swal.fire({ title: 'Erreur', text: 'Impossible de supprimer ce cadeau.', icon: 'error' });
-                }
-            } catch (err: any) {
-                swal.fire({ title: 'Erreur', text: 'Impossible de supprimer.', icon: 'error' });
-            }
+            text: 'Il ne sera pas possible de revenir en arrière!'
         });
+        if (!confirmed) return;
+        try {
+            const res = await AxiosWrapper.delete(`/api/gift/${giftId}`);
+            const data = res?.data as TGiftApiResult;
+            if (data?.success) {
+                setLocalGifts((prev) => prev.filter((g) => g.id !== giftId));
+                closeModal();
+                toast('Supprimé !');
+            } else {
+                alertError('Erreur', 'Impossible de supprimer ce cadeau.');
+            }
+        } catch (err: any) {
+            alertError('Erreur', 'Impossible de supprimer.');
+        }
     };
 
     const saveGift = async (giftId: string | null = null) => {
         const currentGift: GiftWithTakenUserId = structuredClone(localGifts.find((g) => g.id === giftId)!);
 
         if (giftId && currentGift?.giftType === 'MULTIPLE' && formType === 'SIMPLE' && (currentGift.subGiftsCount ?? 0) > 0) {
-            Swal.fire({
+            (await getSwal()).fire({
                 title: 'Impossible de convertir ce cadeau',
                 text: `Ce cadeau contient ${currentGift.subGiftsCount} sous-élément${(currentGift.subGiftsCount ?? 0) > 1 ? 's' : ''}. Supprime-les d'abord avant de le convertir en cadeau simple.`,
                 icon: 'warning'
@@ -199,9 +192,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 if (data?.success && data.gift) {
                     const updated: GiftWithTakenUserId = { ...data.gift, takenUserId: (data.gift as any).takenUserId ?? null };
                     setLocalGifts((prev) => prev.map((g) => (g.id === giftId ? updated : g)));
-                    Swal.fire({ title: 'Cadeau modifié !', icon: 'success', timer: 1500, showConfirmButton: false });
+                    toast('Cadeau modifié !');
                 } else {
-                    Swal.fire({ title: 'Erreur', text: 'Impossible de modifier ce cadeau.', icon: 'error' });
+                    alertError('Erreur', 'Impossible de modifier ce cadeau.');
                     return;
                 }
             } else {
@@ -214,14 +207,14 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 if (data?.success && data.gift) {
                     const created: GiftWithTakenUserId = { ...data.gift, takenUserId: (data.gift as any).takenUserId ?? null };
                     setLocalGifts((prev) => [...prev, created]);
-                    Swal.fire({ title: 'Cadeau ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
+                    toast('Cadeau ajouté !');
                 } else {
-                    Swal.fire({ title: 'Erreur', text: "Impossible d'ajouter ce cadeau.", icon: 'error' });
+                    alertError('Erreur', "Impossible d'ajouter ce cadeau.");
                     return;
                 }
             }
         } catch (err: any) {
-            Swal.fire({ title: 'Erreur', text: 'Impossible de sauvegarder', icon: 'error' });
+            alertError('Erreur', 'Impossible de sauvegarder');
             return;
         }
         closeModal();
@@ -263,17 +256,12 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                         setLocalGifts((prev) => prev.map((g) => (g.id === giftToUpdate.id ? updated : g)));
                     }
                 }
-                Swal.fire({
-                    title: isTaken ? 'Cadeau libéré !' : 'Cadeau réservé !',
-                    icon: 'success',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
+                toast(isTaken ? 'Cadeau libéré !' : 'Cadeau réservé !');
             } else {
-                Swal.fire({ title: 'Erreur', text: 'Impossible de réserver ce cadeau.', icon: 'error' });
+                alertError('Erreur', 'Impossible de réserver ce cadeau.');
             }
         } catch (err) {
-            Swal.fire({ title: 'Erreur', text: 'Erreur lors de la réservation', icon: 'error' });
+            alertError('Erreur', 'Erreur lors de la réservation');
         } finally {
             setTakingGiftId(null);
         }

@@ -6,7 +6,7 @@ import { Group } from '@prisma/client';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import CustomButton from '@/components/atoms/customButton';
-import Swal from 'sweetalert2';
+import { toast, alertError, promptText } from '@/lib/ui/alert';
 import dynamic from 'next/dynamic';
 
 const GiftIdeasGenerator = dynamic(() => import('@/components/GiftIdeasGenerator'), { ssr: false });
@@ -57,26 +57,19 @@ export const Home = (): JSX.Element => {
             } catch {}
         }
         await navigator.clipboard.writeText(url);
-        Swal.fire({ title: 'Lien copié !', icon: 'success', timer: 1500, showConfirmButton: false });
+        toast('Lien copié !');
     };
 
     const addMember = async () => {
-        const { value: name } = await Swal.fire({
-            title: 'Ajouter un membre',
-            input: 'text',
-            inputPlaceholder: 'Prénom',
-            showCancelButton: true,
-            confirmButtonText: 'Ajouter',
-            cancelButtonText: 'Annuler'
-        });
+        const name = await promptText({ title: 'Ajouter un membre', placeholder: 'Prénom', confirmText: 'Ajouter' });
         if (!name) return;
         const result = await AxiosWrapper.post('/api/user', { user: { name }, groupId: group?.id });
         const data = result?.data;
         if (data?.success && data.user) {
             setMembers((m) => [...m, { id: data.user.id, name: data.user.name, isAdmin: false }]);
-            Swal.fire({ title: 'Membre ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
+            toast('Membre ajouté !');
         } else {
-            Swal.fire('Erreur', data?.error || "Impossible d'ajouter le membre.", 'error');
+            alertError('Erreur', data?.error || "Impossible d'ajouter le membre.");
         }
     };
 
