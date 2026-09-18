@@ -466,7 +466,8 @@ export default function GiftIdeasGenerator(): JSX.Element {
                     disabled={isLoadingIdeas}
                 />
                 <CustomButton
-                    className="green-button p-3 mt-3 w-full md:w-auto"
+                    variant="green"
+                    className="p-3 mt-3 w-full md:w-auto"
                     onClick={generateGiftIdeas}
                     disabled={isLoadingIdeas || !giftIdeasInput.trim()}
                 >

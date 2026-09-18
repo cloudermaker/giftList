@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import CustomButton from './atoms/customButton';
-import Swal from 'sweetalert2';
+import { toast } from '@/lib/ui/alert';
 
 type Props = {
     userName: string;
@@ -46,7 +46,7 @@ export const OnboardingModal = ({ userName, groupName, inviteToken, onClose }: P
             } catch {}
         }
         await navigator.clipboard.writeText(inviteUrl);
-        Swal.fire({ title: 'Lien copié !', icon: 'success', timer: 1500, showConfirmButton: false });
+        toast('Lien copié !');
     };
 
     const steps = [
@@ -77,7 +77,7 @@ export const OnboardingModal = ({ userName, groupName, inviteToken, onClose }: P
                     </p>
                     <div className="bg-gray-50 border border-gray-200 rounded-xl p-3">
                         <p className="text-sm text-gray-500 font-mono truncate mb-3">{inviteUrl}</p>
-                        <CustomButton className="green-button w-full" onClick={share}>
+                        <CustomButton variant="green" className="w-full" onClick={share}>
                             Partager le lien d&apos;invitation
                         </CustomButton>
                     </div>
@@ -139,16 +139,16 @@ export const OnboardingModal = ({ userName, groupName, inviteToken, onClose }: P
                     </div>
                     <div className="flex gap-2">
                         {step > 0 && (
-                            <CustomButton className="slate-button" onClick={() => setStep((s) => s - 1)}>
+                            <CustomButton variant="slate" onClick={() => setStep((s) => s - 1)}>
                                 Retour
                             </CustomButton>
                         )}
                         {step < STEPS - 1 ? (
-                            <CustomButton className="green-button" onClick={() => setStep((s) => s + 1)}>
+                            <CustomButton variant="green" onClick={() => setStep((s) => s + 1)}>
                                 Suivant →
                             </CustomButton>
                         ) : (
-                            <CustomButton className="green-button" onClick={onClose}>
+                            <CustomButton variant="green" onClick={onClose}>
                                 C&apos;est parti !
                             </CustomButton>
                         )}

@@ -6,23 +6,16 @@ import { Group } from '@prisma/client';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import CustomButton from '@/components/atoms/customButton';
-import Swal from 'sweetalert2';
+import { toast, alertError, promptText } from '@/lib/ui/alert';
 import dynamic from 'next/dynamic';
 
 const GiftIdeasGenerator = dynamic(() => import('@/components/GiftIdeasGenerator'), { ssr: false });
 import Router from 'next/router';
 import { OnboardingModal } from '@/components/OnboardingModal';
 
-type TMember = { id: string; name: string; isAdmin: boolean };
+import { avatarColor } from '@/lib/ui/colors';
 
-const AVATAR_COLORS = [
-    { bg: '#fde8e6', text: '#c0392b' },
-    { bg: '#e8f2ec', text: '#4a7c59' },
-    { bg: '#e8edf5', text: '#4a6fa5' },
-    { bg: '#fef3cd', text: '#b8860b' },
-    { bg: '#f0ebf8', text: '#7b5ea7' },
-    { bg: '#e6f3f5', text: '#2e7d8a' }
-];
+type TMember = { id: string; name: string; isAdmin: boolean };
 
 export const Home = (): JSX.Element => {
     const { connectedUser } = useCurrentUser();
@@ -64,26 +57,19 @@ export const Home = (): JSX.Element => {
             } catch {}
         }
         await navigator.clipboard.writeText(url);
-        Swal.fire({ title: 'Lien copié !', icon: 'success', timer: 1500, showConfirmButton: false });
+        toast('Lien copié !');
     };
 
     const addMember = async () => {
-        const { value: name } = await Swal.fire({
-            title: 'Ajouter un membre',
-            input: 'text',
-            inputPlaceholder: 'Prénom',
-            showCancelButton: true,
-            confirmButtonText: 'Ajouter',
-            cancelButtonText: 'Annuler'
-        });
+        const name = await promptText({ title: 'Ajouter un membre', placeholder: 'Prénom', confirmText: 'Ajouter' });
         if (!name) return;
         const result = await AxiosWrapper.post('/api/user', { user: { name }, groupId: group?.id });
         const data = result?.data;
         if (data?.success && data.user) {
             setMembers((m) => [...m, { id: data.user.id, name: data.user.name, isAdmin: false }]);
-            Swal.fire({ title: 'Membre ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
+            toast('Membre ajouté !');
         } else {
-            Swal.fire('Erreur', data?.error || "Impossible d'ajouter le membre.", 'error');
+            alertError('Erreur', data?.error || "Impossible d'ajouter le membre.");
         }
     };
 
@@ -106,7 +92,7 @@ export const Home = (): JSX.Element => {
                         )}
                     </div>
                     {group?.inviteToken && (
-                        <CustomButton className="slate-button shrink-0" onClick={shareInviteLink}>
+                        <CustomButton variant="slate" className="shrink-0" onClick={shareInviteLink}>
                             Inviter quelqu&apos;un
                         </CustomButton>
                     )}
@@ -127,7 +113,7 @@ export const Home = (): JSX.Element => {
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
                         {members.slice(0, 5).map((member) => {
                             const isMe = member.id === connectedUser?.userId;
-                            const avatarColor = AVATAR_COLORS[member.name.charCodeAt(0) % AVATAR_COLORS.length];
+                            const color = avatarColor(member.name);
                             return (
                                 <div
                                     key={member.id}
@@ -136,7 +122,7 @@ export const Home = (): JSX.Element => {
                                 >
                                     <div
                                         className="w-11 h-11 rounded-full flex items-center justify-center text-lg font-bold"
-                                        style={{ background: avatarColor.bg, color: avatarColor.text }}
+                                        style={{ background: color.bg, color: color.text }}
                                     >
                                         {member.name.charAt(0).toUpperCase()}
                                     </div>
@@ -164,7 +150,7 @@ export const Home = (): JSX.Element => {
                 )}
                 {!loading && connectedUser?.isAdmin && (
                     <div className="mb-10 -mt-6">
-                        <CustomButton className="green-button" onClick={addMember}>
+                        <CustomButton variant="green" onClick={addMember}>
                             Ajouter un membre
                         </CustomButton>
                     </div>

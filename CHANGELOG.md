@@ -4,6 +4,13 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.5.0] - 2026-09-18
+
+### Modifié
+
+- Apparence des boutons harmonisée sur tout le site
+- Pages légèrement plus rapides à charger
+
 ## [5.4.0] - 2026-09-16
 
 ### Ajouté

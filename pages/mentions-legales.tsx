@@ -1,4 +1,5 @@
 import { Layout } from '@/components/layout';
+import { PageTitle } from '@/components/atoms/PageTitle';
 import SEO from '@/components/SEO';
 import Link from 'next/link';
 
@@ -11,7 +12,7 @@ export default function MentionsLegales(): JSX.Element {
                 canonicalPath="/mentions-legales"
             />
             <div className="max-w-3xl mx-auto py-8">
-                <h1 className="text-2xl font-bold text-gray-800 mb-8">Mentions légales</h1>
+                <PageTitle>Mentions légales</PageTitle>
 
                 <section className="mb-8">
                     <h2 className="text-lg font-semibold text-gray-800 mb-2">Éditeur du site</h2>

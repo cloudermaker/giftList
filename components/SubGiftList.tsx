@@ -8,7 +8,7 @@ import { GiftWithTakenUserId } from '@/lib/db/giftManager';
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import CustomButton from './atoms/customButton';
-import Swal from 'sweetalert2';
+import { toast, alertError, confirmDestructive } from '@/lib/ui/alert';
 
 interface SubGiftListProps {
     parentGift: GiftWithTakenUserId;
@@ -50,11 +50,7 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
 
     const handleCreateSubGift = async () => {
         if (!newSubGiftName.trim()) {
-            Swal.fire({
-                title: 'Erreur',
-                text: 'Le nom du sous-cadeau ne peut pas être vide',
-                icon: 'error'
-            });
+            alertError('Erreur', 'Le nom du sous-cadeau ne peut pas être vide');
             return;
         }
 
@@ -72,32 +68,28 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
                     onGiftUpdate();
                 }
 
-                Swal.fire({ title: 'Sous-cadeau ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
+                toast('Sous-cadeau ajouté !');
             }
         } catch (error) {
-            Swal.fire({ title: 'Erreur', text: 'Impossible de créer ce sous-cadeau.', icon: 'error' });
+            alertError('Erreur', 'Impossible de créer ce sous-cadeau.');
         }
     };
 
     const handleDeleteSubGift = async (subGift: GiftWithTakenUserId) => {
-        const result = await Swal.fire({
+        const confirmed = await confirmDestructive({
             title: 'Supprimer ce sous-cadeau ?',
             text: 'Cette action est irréversible.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Oui',
-            cancelButtonText: 'Non',
-            reverseButtons: true
+            confirmText: 'Oui',
+            cancelText: 'Non'
         });
-
-        if (!result.isConfirmed) return;
+        if (!confirmed) return;
 
         try {
             await axios.delete(`/api/gift/${subGift.id}`);
             setSubGifts((prev) => prev.filter((g) => g.id !== subGift.id));
             if (onGiftUpdate) onGiftUpdate();
         } catch (error) {
-            Swal.fire({ title: 'Erreur', text: 'Impossible de supprimer ce sous-cadeau.', icon: 'error' });
+            alertError('Erreur', 'Impossible de supprimer ce sous-cadeau.');
         }
     };
 
@@ -114,14 +106,9 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
 
             await loadSubGifts();
             if (onGiftUpdate) onGiftUpdate();
-            Swal.fire({
-                title: isTaken ? 'Cadeau libéré !' : 'Cadeau réservé !',
-                icon: 'success',
-                timer: 1500,
-                showConfirmButton: false
-            });
+            toast(isTaken ? 'Cadeau libéré !' : 'Cadeau réservé !');
         } catch (error) {
-            Swal.fire({ title: 'Erreur', text: 'Impossible de réserver ce sous-cadeau.', icon: 'error' });
+            alertError('Erreur', 'Impossible de réserver ce sous-cadeau.');
         }
     };
 
@@ -206,7 +193,7 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
                                                 Je ne prends plus
                                             </CustomButton>
                                         ) : !isTaken ? (
-                                            <CustomButton onClick={() => handleTakeSubGift(subGift)} className="green-button">
+                                            <CustomButton onClick={() => handleTakeSubGift(subGift)} variant="green">
                                                 Je le prends
                                             </CustomButton>
                                         ) : null}
@@ -220,7 +207,7 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
                     {(isAdmin || isOwner) && (
                         <div className="mt-2">
                             {!creatingSubGift ? (
-                                <CustomButton onClick={() => setCreatingSubGift(true)} className="green-button">
+                                <CustomButton onClick={() => setCreatingSubGift(true)} variant="green">
                                     Ajouter un sous-cadeau
                                 </CustomButton>
                             ) : (
@@ -234,7 +221,7 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
                                         className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
                                         autoFocus
                                     />
-                                    <CustomButton onClick={handleCreateSubGift} className="green-button">
+                                    <CustomButton onClick={handleCreateSubGift} variant="green">
                                         Ajouter
                                     </CustomButton>
                                     <CustomButton

@@ -1,10 +1,10 @@
 import CustomButton from '@/components/atoms/customButton';
 import { Layout } from '@/components/layout';
+import { PageTitle } from '@/components/atoms/PageTitle';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Router from 'next/router';
 import { useState } from 'react';
 import { TSendEmailResult } from '../api/sendEmail';
-import Swal from 'sweetalert2';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import SEO from '@/components/SEO';
 
@@ -73,8 +73,9 @@ export default function Contact(): JSX.Element {
 
             <div>
                 <div className="mb-8">
-                    <p className="text-sm text-gray-500 mb-1">Support</p>
-                    <h1 className="text-2xl font-bold text-gray-800">Contactez-nous</h1>
+                    <PageTitle className="" eyebrow="Support">
+                        Contactez-nous
+                    </PageTitle>
                     <p className="text-gray-500 text-sm mt-2">
                         Une question, une suggestion ou besoin d&apos;aide ? Notre équipe est là pour vous répondre.
                     </p>
@@ -166,7 +167,7 @@ export default function Contact(): JSX.Element {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="green-button disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="btn green-button disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isLoading ? (
                                         <span className="flex items-center gap-2">⏳ Envoi...</span>
@@ -210,12 +211,13 @@ export default function Contact(): JSX.Element {
                             {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row gap-3 justify-center">
                                 <CustomButton
-                                    className="slate-button px-6 py-3"
+                                    variant="slate"
+                                    className="px-6 py-3"
                                     onClick={() => Router.push(connectedUser ? '/home' : '/')}
                                 >
                                     🏠 Revenir à l&apos;accueil
                                 </CustomButton>
-                                <CustomButton className="green-button px-6 py-3" onClick={() => setIsSubmitted(false)}>
+                                <CustomButton variant="green" className="px-6 py-3" onClick={() => setIsSubmitted(false)}>
                                     ✉️ Envoyer un autre message
                                 </CustomButton>
                             </div>
@@ -255,7 +257,8 @@ export default function Contact(): JSX.Element {
                             {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row gap-3 justify-center">
                                 <CustomButton
-                                    className="green-button px-6 py-3"
+                                    variant="green"
+                                    className="px-6 py-3"
                                     onClick={() => {
                                         setHasError(false);
                                     }}
@@ -263,7 +266,8 @@ export default function Contact(): JSX.Element {
                                     🔄 Réessayer
                                 </CustomButton>
                                 <CustomButton
-                                    className="slate-button px-6 py-3"
+                                    variant="slate"
+                                    className="px-6 py-3"
                                     onClick={() => Router.push(connectedUser ? '/home' : '/')}
                                 >
                                     🏠 Retour à l&apos;accueil
