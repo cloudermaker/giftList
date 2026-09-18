@@ -130,18 +130,18 @@ const GroupComponent = ({
                     <div className="item" key={`group_${user.id}`}>
                         <div className="flex items-center justify-between gap-2">
                             <span className="font-medium text-gray-800 flex-1 min-w-0 truncate">{user.name}</span>
-                            <div className="flex items-center gap-1 shrink-0">
-                                <CustomButton variant="slate" onClick={() => Router.push(`/giftList/${user.id}`)}>
+                            <div className="flex items-center gap-2 shrink-0">
+                                <CustomButton variant="slate" size="sm" onClick={() => Router.push(`/giftList/${user.id}`)}>
                                     <span>🎁</span>
                                     <span className="hidden sm:inline ml-1">Liste</span>
                                 </CustomButton>
                                 {connectedUser?.isAdmin && (
                                     <>
-                                        <CustomButton variant="green" onClick={() => renameUser(user)}>
+                                        <CustomButton variant="green" size="sm" onClick={() => renameUser(user)}>
                                             <span>✏️</span>
                                             <span className="hidden sm:inline ml-1">Modifier</span>
                                         </CustomButton>
-                                        <CustomButton onClick={() => removeUser(user.id)}>
+                                        <CustomButton size="sm" onClick={() => removeUser(user.id)}>
                                             <span>🗑️</span>
                                             <span className="hidden sm:inline ml-1">Supprimer</span>
                                         </CustomButton>

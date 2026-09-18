@@ -549,14 +549,16 @@ const IdeasAdmin = (): JSX.Element => {
             {loaded && ideas.length === 0 && <p className="text-sm text-neutral-400">Aucune idée proposée.</p>}
             {ideas.map((idea) => (
                 <div className="item" key={idea.id}>
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div className="flex-1 min-w-0">
                             <span className="font-medium text-gray-800">{idea.title}</span>
-                            <span className="ml-2 text-xs text-neutral-400">👍 {idea.likes}</span>
-                            {idea.doneAt && <span className="ml-2 text-xs text-green-600 font-medium">✅ Réalisée</span>}
+                            <span className="ml-2 text-xs text-neutral-400 whitespace-nowrap">👍 {idea.likes}</span>
+                            {idea.doneAt && (
+                                <span className="ml-2 text-xs text-green-600 font-medium whitespace-nowrap">✅ Réalisée</span>
+                            )}
                             {idea.description && <p className="text-xs text-neutral-400 truncate">{idea.description}</p>}
                         </div>
-                        <div className="flex items-center gap-2 md:gap-3 shrink-0 flex-wrap justify-end">
+                        <div className="flex items-center gap-2 md:gap-3 shrink-0 flex-wrap">
                             <CustomButton variant="green" size="sm" onClick={() => toggleDone(idea)}>
                                 {idea.doneAt ? 'Rouvrir' : 'Fait'}
                             </CustomButton>
