@@ -34,13 +34,10 @@ body {
     height: 100%;
 }
 
-
 /* Make sure content doesn't push footer off the screen on short pages */
 .flex-grow {
     flex: 1 0 auto;
 }
-
-
 
 .body-padding {
     padding-left: 2.5rem;
@@ -255,7 +252,6 @@ button:disabled {
     transform-style: preserve-3d;
 }
 
-
 /* Container for 3D perspective */
 .card-container {
     perspective: 1000px;
@@ -291,7 +287,7 @@ button:disabled {
 }
 
 .home-section h2 {
-    font-size: 2.0rem;
+    font-size: 2rem;
     margin-bottom: 20px;
 }
 

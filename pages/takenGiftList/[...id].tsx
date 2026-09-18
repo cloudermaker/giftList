@@ -18,13 +18,13 @@ const AVATAR_COLORS = [
     { bg: '#e8edf5', text: '#4a6fa5' },
     { bg: '#fef3cd', text: '#b8860b' },
     { bg: '#f0ebf8', text: '#7b5ea7' },
-    { bg: '#e6f3f5', text: '#2e7d8a' },
+    { bg: '#e6f3f5', text: '#2e7d8a' }
 ];
 
 const avatarColor = (name: string) => AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
 
 // Type étendu pour inclure forUser (pour les personal gifts)
-type GiftWithForUser = GiftWithTakenUserId & { 
+type GiftWithForUser = GiftWithTakenUserId & {
     user: User | null;
     forUser?: User | null;
 };
@@ -55,7 +55,7 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
     const onUnBlockGiftClick = async (giftToUpdate: GiftWithForUser): Promise<void> => {
         const uniqueKey = giftToUpdate.userTakenGiftId ?? giftToUpdate.id;
         setReleasingGiftId(uniqueKey);
-        
+
         try {
             // Pour les cadeaux UNLIMITED : libérer uniquement cette réservation spécifique
             const body: any = { userId: connectedUser?.userId };
@@ -71,16 +71,23 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                 setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => (gift.userTakenGiftId ?? gift.id) !== uniqueKey));
                 Swal.fire({ title: 'Cadeau libéré !', icon: 'success', timer: 1500, showConfirmButton: false });
             } else {
-                Swal.fire({ title: 'Erreur', text: 'Impossible de libérer ce cadeau. Réessayez dans quelques instants.', icon: 'error' });
+                Swal.fire({
+                    title: 'Erreur',
+                    text: 'Impossible de libérer ce cadeau. Réessayez dans quelques instants.',
+                    icon: 'error'
+                });
             }
         } finally {
             setReleasingGiftId(null);
         }
     };
 
-
-
-    const handleCreatePersonalGift = async (data: { name: string; description: string; link: string; forUserId: string }): Promise<void> => {
+    const handleCreatePersonalGift = async (data: {
+        name: string;
+        description: string;
+        link: string;
+        forUserId: string;
+    }): Promise<void> => {
         const result = await AxiosWrapper.post('/api/personalGift', {
             personalGift: {
                 name: data.name,
@@ -106,7 +113,11 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
             setLocalTakenGifts((old) => [...old, giftFromPersonal]);
             Swal.fire({ title: 'Cadeau ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
         } else {
-            Swal.fire({ title: 'Erreur', text: "Impossible d'ajouter ce cadeau. Réessayez dans quelques instants.", icon: 'error' });
+            Swal.fire({
+                title: 'Erreur',
+                text: "Impossible d'ajouter ce cadeau. Réessayez dans quelques instants.",
+                icon: 'error'
+            });
             throw new Error('api error');
         }
     };
@@ -128,7 +139,7 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
 
         if (result.isConfirmed) {
             setDeletingGiftId(giftId);
-            
+
             try {
                 const apiResult = await AxiosWrapper.delete(`/api/personalGift/${giftId}`, {
                     userId: connectedUser?.userId
@@ -137,9 +148,14 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
 
                 if (data && data.success === true) {
                     setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftId));
-                    swalWithBootstrapButtons.fire({ title: 'Supprimé !', icon: 'success', timer: 1500, showConfirmButton: false });
+                    swalWithBootstrapButtons.fire({
+                        title: 'Supprimé !',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
                 } else {
-                    swalWithBootstrapButtons.fire({ title: 'Erreur', text: "Impossible de supprimer ce cadeau.", icon: 'error' });
+                    swalWithBootstrapButtons.fire({ title: 'Erreur', text: 'Impossible de supprimer ce cadeau.', icon: 'error' });
                 }
             } finally {
                 setDeletingGiftId(null);
@@ -181,7 +197,9 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                                     <div className="flex-1 min-w-0">
                                         {(gift as any).parentGift ? (
                                             <p className="font-semibold text-gray-800 truncate">
-                                                <span className="font-normal text-gray-400">{(gift as any).parentGift.name} › </span>
+                                                <span className="font-normal text-gray-400">
+                                                    {(gift as any).parentGift.name} ›{' '}
+                                                </span>
                                                 {gift.name}
                                             </p>
                                         ) : (
@@ -189,7 +207,11 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                                         )}
                                         <p className="text-sm text-gray-400 mt-0.5">Pour {gift.user?.name}</p>
                                         {gift.description && <p className="text-sm text-gray-500 mt-1">{gift.description}</p>}
-                                        {gift.url && <div className="mt-1"><ModernLink href={gift.url} /></div>}
+                                        {gift.url && (
+                                            <div className="mt-1">
+                                                <ModernLink href={gift.url} />
+                                            </div>
+                                        )}
                                     </div>
                                     <CustomButton
                                         onClick={() => onUnBlockGiftClick(gift)}
@@ -227,7 +249,11 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                                         <p className="font-semibold text-gray-800 truncate">{gift.name}</p>
                                         {gift.forUser && <p className="text-sm text-gray-400 mt-0.5">Pour {gift.forUser.name}</p>}
                                         {gift.description && <p className="text-sm text-gray-500 mt-1">{gift.description}</p>}
-                                        {gift.url && <div className="mt-1"><ModernLink href={gift.url} /></div>}
+                                        {gift.url && (
+                                            <div className="mt-1">
+                                                <ModernLink href={gift.url} />
+                                            </div>
+                                        )}
                                     </div>
                                     <CustomButton
                                         onClick={() => deletePersonalGift(gift.id)}
@@ -275,15 +301,15 @@ export async function getServerSideProps(context: NextPageContext) {
     // Filtrer pour ne garder QUE les cadeaux qui ont un user (vraies listes)
     // Les cadeaux orphelins (user=null) ne doivent plus apparaître ici
     const takenGiftsWithForUser = takenGifts
-        .filter(gift => gift.user !== null)  // Ignorer les orphelins
-        .map(gift => ({
+        .filter((gift) => gift.user !== null) // Ignorer les orphelins
+        .map((gift) => ({
             ...gift,
             forUser: null,
             parentGift: (gift as any).parentGift ?? null
         }));
-    
+
     // Convertir PersonalGifts en format Gift pour compatibilité
-    const personalGiftsAsGifts = personalGifts.map(pg => ({
+    const personalGiftsAsGifts = personalGifts.map((pg) => ({
         id: pg.id,
         name: pg.name,
         description: pg.description,
@@ -299,7 +325,7 @@ export async function getServerSideProps(context: NextPageContext) {
         user: null,
         forUser: pg.forUser || null
     }));
-    
+
     // Fusionner les deux listes
     const allGifts = [...takenGiftsWithForUser, ...personalGiftsAsGifts];
 

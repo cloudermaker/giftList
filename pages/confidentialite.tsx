@@ -28,8 +28,8 @@ export default function Confidentialite(): JSX.Element {
                 <section className="mb-8">
                     <h2 className="text-lg font-semibold text-gray-800 mb-2">Cookies et mesure d&apos;audience</h2>
                     <p className="text-sm text-gray-700 leading-relaxed mb-2">
-                        Le site n&apos;utilise <strong>aucun cookie publicitaire</strong>. Un cookie technique conserve votre connexion
-                        au groupe, et le stockage local du navigateur mémorise vos préférences d&apos;affichage.
+                        Le site n&apos;utilise <strong>aucun cookie publicitaire</strong>. Un cookie technique conserve votre
+                        connexion au groupe, et le stockage local du navigateur mémorise vos préférences d&apos;affichage.
                     </p>
                     <p className="text-sm text-gray-700 leading-relaxed">
                         La fréquentation est mesurée avec <strong>Vercel Analytics</strong>, un outil sans cookie qui ne collecte
@@ -41,28 +41,35 @@ export default function Confidentialite(): JSX.Element {
                     <h2 className="text-lg font-semibold text-gray-800 mb-2">Partage et conservation</h2>
                     <p className="text-sm text-gray-700 leading-relaxed mb-2">
                         Vos données ne sont ni vendues ni transmises à des tiers. Elles sont visibles par les personnes qui
-                        connaissent le nom de votre groupe ou disposent d&apos;un lien d&apos;invitation — c&apos;est le principe du service.
+                        connaissent le nom de votre groupe ou disposent d&apos;un lien d&apos;invitation — c&apos;est le principe
+                        du service.
                     </p>
                     <p className="text-sm text-gray-700 leading-relaxed">
-                        Les données sont conservées tant que le groupe existe. La suppression d&apos;un membre ou d&apos;un groupe est
-                        définitive et immédiate.
+                        Les données sont conservées tant que le groupe existe. La suppression d&apos;un membre ou d&apos;un groupe
+                        est définitive et immédiate.
                     </p>
                 </section>
 
                 <section className="mb-8">
                     <h2 className="text-lg font-semibold text-gray-800 mb-2">Vos droits</h2>
                     <p className="text-sm text-gray-700 leading-relaxed">
-                        Conformément au RGPD, vous pouvez demander l&apos;accès, la rectification ou la suppression des données vous
-                        concernant (votre prénom, vos listes, votre groupe) via la{' '}
-                        <Link href="/contact" className="text-bleuNoel hover:underline">page de contact</Link>. Un administrateur de
-                        groupe peut aussi renommer ou supprimer les membres directement depuis le site.
+                        Conformément au RGPD, vous pouvez demander l&apos;accès, la rectification ou la suppression des données
+                        vous concernant (votre prénom, vos listes, votre groupe) via la{' '}
+                        <Link href="/contact" className="text-bleuNoel hover:underline">
+                            page de contact
+                        </Link>
+                        . Un administrateur de groupe peut aussi renommer ou supprimer les membres directement depuis le site.
                     </p>
                 </section>
 
                 <section className="mb-8">
                     <h2 className="text-lg font-semibold text-gray-800 mb-2">Éditeur</h2>
                     <p className="text-sm text-gray-700 leading-relaxed">
-                        Voir les <Link href="/mentions-legales" className="text-bleuNoel hover:underline">mentions légales</Link>.
+                        Voir les{' '}
+                        <Link href="/mentions-legales" className="text-bleuNoel hover:underline">
+                            mentions légales
+                        </Link>
+                        .
                     </p>
                 </section>
             </div>

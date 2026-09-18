@@ -22,7 +22,9 @@ test.describe.serial('Boîte à idées', () => {
         // Nettoyage : supprimer toutes les idées créées par les tests
         const res = await backofficeCtx.get('/api/idea');
         const ideas = (await res.json()).ideas ?? [];
-        for (const idea of ideas.filter((i: { title: string }) => i.title.startsWith('Idée e2e') || i.title.startsWith('spam e2e'))) {
+        for (const idea of ideas.filter(
+            (i: { title: string }) => i.title.startsWith('Idée e2e') || i.title.startsWith('spam e2e')
+        )) {
             await backofficeCtx.delete(`/api/idea/${idea.id}`);
         }
         await backofficeCtx.dispose();

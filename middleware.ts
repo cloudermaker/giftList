@@ -9,7 +9,9 @@ const isValidSession = async (rawCookieValue: string): Promise<boolean> => {
 
         const secret = process.env.SESSION_SECRET || 'malistedecadeaux-dev-secret';
         const encoder = new TextEncoder();
-        const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+        const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, [
+            'sign'
+        ]);
         const mac = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
         const expected = btoa(String.fromCharCode(...new Uint8Array(mac)))
             .replace(/\+/g, '-')

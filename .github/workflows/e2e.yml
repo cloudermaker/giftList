@@ -1,45 +1,45 @@
 name: e2e
 
 on:
-  pull_request:
-  push:
-    branches: [main]
+    pull_request:
+    push:
+        branches: [main]
 
 concurrency:
-  group: e2e-${{ github.ref }}
-  cancel-in-progress: true
+    group: e2e-${{ github.ref }}
+    cancel-in-progress: true
 
 jobs:
-  e2e:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      POSTGRES_PRISMA_URL: ${{ secrets.E2E_POSTGRES_PRISMA_URL }}
-      SESSION_SECRET: ci-e2e-secret
-      BACKOFFICE_USERNAME: e2e-backoffice
-      BACKOFFICE_PASSWORD: e2e-backoffice-password
-      MAINTENANCE_MODE: 'false'
-    steps:
-      - uses: actions/checkout@v5
+    e2e:
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        env:
+            POSTGRES_PRISMA_URL: ${{ secrets.E2E_POSTGRES_PRISMA_URL }}
+            SESSION_SECRET: ci-e2e-secret
+            BACKOFFICE_USERNAME: e2e-backoffice
+            BACKOFFICE_PASSWORD: e2e-backoffice-password
+            MAINTENANCE_MODE: 'false'
+        steps:
+            - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          cache: npm
+            - uses: actions/setup-node@v5
+              with:
+                  node-version: 24
+                  cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+            - name: Install dependencies
+              run: npm ci
 
-      - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
+            - name: Install Playwright browser
+              run: npx playwright install --with-deps chromium
 
-      - name: Run e2e tests
-        run: npx playwright test
+            - name: Run e2e tests
+              run: npx playwright test
 
-      - name: Upload traces on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-traces
-          path: test-results/
-          retention-days: 7
+            - name: Upload traces on failure
+              if: failure()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-traces
+                  path: test-results/
+                  retention-days: 7

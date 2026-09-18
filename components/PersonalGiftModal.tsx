@@ -20,13 +20,16 @@ export const PersonalGiftModal = ({ groupUsers, currentUserId, onClose, onSubmit
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async () => {
-        if (!name.trim()) { setError('Il faut rentrer un nom.'); return; }
+        if (!name.trim()) {
+            setError('Il faut rentrer un nom.');
+            return;
+        }
         setIsSubmitting(true);
         try {
             await onSubmit({ name, description, link, forUserId });
             onClose();
         } catch {
-            setError("Une erreur est survenue. Réessayez dans quelques instants.");
+            setError('Une erreur est survenue. Réessayez dans quelques instants.');
         } finally {
             setIsSubmitting(false);
         }
@@ -58,43 +61,38 @@ export const PersonalGiftModal = ({ groupUsers, currentUserId, onClose, onSubmit
                         className="input-field"
                         value={name}
                         autoFocus
-                        onChange={(e) => { setName(e.target.value); setError(''); }}
+                        onChange={(e) => {
+                            setName(e.target.value);
+                            setError('');
+                        }}
                         placeholder="Ex: Livre Harry Potter"
                     />
                 </div>
 
                 <div className="input-group">
                     <label className="input-label">Pour qui ?</label>
-                    <select
-                        className="input-field"
-                        value={forUserId}
-                        onChange={(e) => setForUserId(e.target.value)}
-                    >
+                    <select className="input-field" value={forUserId} onChange={(e) => setForUserId(e.target.value)}>
                         <option value="">Personne en particulier</option>
                         {currentUserId && <option value={currentUserId}>Moi-même</option>}
                         <option disabled>──────────</option>
-                        {groupUsers.filter(u => u.id !== currentUserId).map(user => (
-                            <option key={user.id} value={user.id}>{user.name}</option>
-                        ))}
+                        {groupUsers
+                            .filter((u) => u.id !== currentUserId)
+                            .map((user) => (
+                                <option key={user.id} value={user.id}>
+                                    {user.name}
+                                </option>
+                            ))}
                     </select>
                 </div>
 
                 <div className="input-group">
                     <label className="input-label">Description</label>
-                    <textarea
-                        className="input-field"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                    />
+                    <textarea className="input-field" value={description} onChange={(e) => setDescription(e.target.value)} />
                 </div>
 
                 <div className="input-group">
                     <label className="input-label">Lien</label>
-                    <textarea
-                        className="input-field"
-                        value={link}
-                        onChange={(e) => setLink(e.target.value)}
-                    />
+                    <textarea className="input-field" value={link} onChange={(e) => setLink(e.target.value)} />
                 </div>
             </div>
         </Modal>

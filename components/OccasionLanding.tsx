@@ -34,19 +34,28 @@ export const OccasionLanding = (props: TOccasionLandingProps): JSX.Element => {
     return (
         <Layout withHeader={false}>
             <SEO title={seoTitle} description={seoDescription} canonicalPath={slug} />
-            <script type="application/ld+json" dangerouslySetInnerHTML={generatePageSchema('WebPage', seoTitle, slug, seoDescription)} />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={generatePageSchema('WebPage', seoTitle, slug, seoDescription)}
+            />
             <script type="application/ld+json" dangerouslySetInnerHTML={generateFAQSchema(faq)} />
 
             <article className="max-w-3xl mx-auto py-8">
                 {/* Hero */}
                 <header className="text-center mb-10">
-                    <div className="text-5xl mb-4" role="img" aria-hidden="true">{emoji}</div>
+                    <div className="text-5xl mb-4" role="img" aria-hidden="true">
+                        {emoji}
+                    </div>
                     <h1 className="text-3xl font-bold text-gray-800 mb-4">{h1}</h1>
                     {intro.map((p, i) => (
-                        <p key={i} className="text-gray-600 leading-relaxed mb-3">{p}</p>
+                        <p key={i} className="text-gray-600 leading-relaxed mb-3">
+                            {p}
+                        </p>
                     ))}
                     <div className="mt-6">
-                        <CustomButton className="green-button" onClick={goToCreate}>{ctaLabel}</CustomButton>
+                        <CustomButton className="green-button" onClick={goToCreate}>
+                            {ctaLabel}
+                        </CustomButton>
                     </div>
                     <p className="text-xs text-gray-400 mt-3">Gratuit · Sans email · Prêt en 2 minutes</p>
                 </header>
@@ -57,15 +66,22 @@ export const OccasionLanding = (props: TOccasionLandingProps): JSX.Element => {
                     <div className="grid md:grid-cols-3 gap-4 text-center">
                         <div className="item bg-white p-5 rounded-xl">
                             <p className="text-2xl mb-2">1️⃣</p>
-                            <p className="text-sm text-gray-600">Créez votre groupe avec le nom de votre famille ou de vos amis — aucun compte ni email demandé.</p>
+                            <p className="text-sm text-gray-600">
+                                Créez votre groupe avec le nom de votre famille ou de vos amis — aucun compte ni email demandé.
+                            </p>
                         </div>
                         <div className="item bg-white p-5 rounded-xl">
                             <p className="text-2xl mb-2">2️⃣</p>
-                            <p className="text-sm text-gray-600">Chacun rejoint le groupe avec son prénom et remplit sa liste de cadeaux, avec liens et descriptions.</p>
+                            <p className="text-sm text-gray-600">
+                                Chacun rejoint le groupe avec son prénom et remplit sa liste de cadeaux, avec liens et
+                                descriptions.
+                            </p>
                         </div>
                         <div className="item bg-white p-5 rounded-xl">
                             <p className="text-2xl mb-2">3️⃣</p>
-                            <p className="text-sm text-gray-600">Les proches réservent en secret : le concerné ne voit jamais qui a pris quoi. Fini les doublons !</p>
+                            <p className="text-sm text-gray-600">
+                                Les proches réservent en secret : le concerné ne voit jamais qui a pris quoi. Fini les doublons !
+                            </p>
                         </div>
                     </div>
                 </section>
@@ -75,7 +91,9 @@ export const OccasionLanding = (props: TOccasionLandingProps): JSX.Element => {
                     <section key={section.title} className="mb-10">
                         <h2 className="text-xl font-bold text-gray-800 mb-3">{section.title}</h2>
                         {section.paragraphs.map((p, i) => (
-                            <p key={i} className="text-gray-600 leading-relaxed mb-3">{p}</p>
+                            <p key={i} className="text-gray-600 leading-relaxed mb-3">
+                                {p}
+                            </p>
                         ))}
                     </section>
                 ))}
@@ -94,7 +112,9 @@ export const OccasionLanding = (props: TOccasionLandingProps): JSX.Element => {
                 {/* CTA final */}
                 <section className="text-center mb-10">
                     <h2 className="text-xl font-bold text-gray-800 mb-3">Prêt à commencer ?</h2>
-                    <CustomButton className="green-button" onClick={goToCreate}>{ctaLabel}</CustomButton>
+                    <CustomButton className="green-button" onClick={goToCreate}>
+                        {ctaLabel}
+                    </CustomButton>
                 </section>
 
                 {/* Maillage interne */}

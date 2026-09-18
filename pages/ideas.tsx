@@ -55,7 +55,10 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
             const res = await AxiosWrapper.post('/api/idea', { title: title.trim(), description: description.trim() });
             const data = res?.data as TIdeaApiResult;
             if (data?.success && data.idea) {
-                setLocalIdeas((prev) => [{ ...(data.idea as any), createdAt: String(data.idea!.createdAt), doneAt: null }, ...prev]);
+                setLocalIdeas((prev) => [
+                    { ...(data.idea as any), createdAt: String(data.idea!.createdAt), doneAt: null },
+                    ...prev
+                ]);
                 setTitle('');
                 setDescription('');
                 setFeedback({ ok: true, text: 'Merci ! Votre idée est en ligne.' });
@@ -88,26 +91,34 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
         'date-asc': (a, b) => (a.createdAt > b.createdAt ? 1 : -1)
     };
 
-    const visibleIdeas = localIdeas
-        .filter((i) => (showDone ? true : !i.doneAt))
-        .sort(sorters[sortBy]);
+    const visibleIdeas = localIdeas.filter((i) => (showDone ? true : !i.doneAt)).sort(sorters[sortBy]);
 
     return (
         <Layout>
-            <SEO title="Boîte à idées" description="Proposez vos idées pour améliorer Ma liste de cadeaux et votez pour celles des autres." canonicalPath="/ideas" noIndex />
+            <SEO
+                title="Boîte à idées"
+                description="Proposez vos idées pour améliorer Ma liste de cadeaux et votez pour celles des autres."
+                canonicalPath="/ideas"
+                noIndex
+            />
             <div className="max-w-3xl mx-auto py-8">
                 <div className="mb-8 text-center">
-                    <div className="text-4xl mb-2" role="img" aria-hidden="true">💡</div>
+                    <div className="text-4xl mb-2" role="img" aria-hidden="true">
+                        💡
+                    </div>
                     <h1 className="text-2xl font-bold text-gray-800 mb-2">Boîte à idées</h1>
                     <p className="text-sm text-gray-500">
-                        Une envie, une amélioration ? Proposez votre idée et votez pour celles des autres — les plus populaires seront réalisées en priorité.
+                        Une envie, une amélioration ? Proposez votre idée et votez pour celles des autres — les plus populaires
+                        seront réalisées en priorité.
                     </p>
                 </div>
 
                 {/* Proposer une idée */}
                 <div className="item mb-8">
                     <div className="input-group">
-                        <label htmlFor="ideaTitleInput" className="input-label">Mon idée :</label>
+                        <label htmlFor="ideaTitleInput" className="input-label">
+                            Mon idée :
+                        </label>
                         <input
                             id="ideaTitleInput"
                             className="input-field"
@@ -118,7 +129,9 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
                         />
                     </div>
                     <div className="input-group">
-                        <label htmlFor="ideaDescriptionInput" className="input-label">Détails (optionnel) :</label>
+                        <label htmlFor="ideaDescriptionInput" className="input-label">
+                            Détails (optionnel) :
+                        </label>
                         <textarea
                             id="ideaDescriptionInput"
                             className="input-field"
@@ -140,7 +153,12 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
                 {/* Filtres */}
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
                     <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer whitespace-nowrap">
-                        <input type="checkbox" className="accent-vertNoel w-4 h-4 shrink-0" checked={showDone} onChange={() => setShowDone((v) => !v)} />
+                        <input
+                            type="checkbox"
+                            className="accent-vertNoel w-4 h-4 shrink-0"
+                            checked={showDone}
+                            onChange={() => setShowDone((v) => !v)}
+                        />
                         Afficher les idées déjà réalisées
                     </label>
                     <label className="flex w-full sm:w-auto items-center gap-2 text-sm text-gray-600">
@@ -174,7 +192,9 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium text-gray-800">{idea.title}</p>
                                     {idea.description && <p className="text-sm text-gray-500 mt-1">{idea.description}</p>}
-                                    <p className="text-xs text-gray-400 mt-1">Ajoutée le {DATE_FMT.format(new Date(idea.createdAt))}</p>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        Ajoutée le {DATE_FMT.format(new Date(idea.createdAt))}
+                                    </p>
                                     {idea.doneAt && (
                                         <span className="inline-block mt-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
                                             ✅ Réalisée le {DATE_FMT.format(new Date(idea.doneAt))}

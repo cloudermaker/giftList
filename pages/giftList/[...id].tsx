@@ -24,9 +24,17 @@ import UnlimitedGiftTakers from '@/components/UnlimitedGiftTakers';
 const NEW_GIFT_SENTINEL = 'new';
 
 function SortableItem({
-    gift, children, idx, canReorder, viewMode = 'list'
+    gift,
+    children,
+    idx,
+    canReorder,
+    viewMode = 'list'
 }: {
-    gift: GiftWithTakenUserId; children: ReactNode; idx: number; canReorder: boolean; viewMode?: 'list' | 'grid';
+    gift: GiftWithTakenUserId;
+    children: ReactNode;
+    idx: number;
+    canReorder: boolean;
+    viewMode?: 'list' | 'grid';
 }) {
     const { listeners, setNodeRef, transform } = useSortable({ id: gift.id });
     const style = { transform: CSS.Transform.toString(transform) };
@@ -42,7 +50,11 @@ function SortableItem({
 
     return (
         <div className="item flex items-center" ref={setNodeRef} style={style}>
-            {viewMode === 'list' && <div {...localListeners} style={localStyle}><LeftIcon /></div>}
+            {viewMode === 'list' && (
+                <div {...localListeners} style={localStyle}>
+                    <LeftIcon />
+                </div>
+            )}
             {children}
         </div>
     );
@@ -56,8 +68,8 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
 
     const [localGifts, setLocalGifts] = useState<GiftWithTakenUserId[]>(giftList);
     const [filteringTakenGifts, setFilteringTakenGifts] = useState(false);
-    const [viewMode, setViewMode] = useState<'list' | 'grid'>(() =>
-        (typeof window !== 'undefined' ? localStorage.getItem('giftListViewMode') : null) as 'list' | 'grid' ?? 'list'
+    const [viewMode, setViewMode] = useState<'list' | 'grid'>(
+        () => ((typeof window !== 'undefined' ? localStorage.getItem('giftListViewMode') : null) as 'list' | 'grid') ?? 'list'
     );
 
     // selectedGiftId: gift id | 'new' (création) | null (fermé)
@@ -76,11 +88,21 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     const [takingGiftId, setTakingGiftId] = useState<string | null>(null);
 
     const clearForm = useCallback(() => {
-        setFormName(''); setFormDescription(''); setFormLink(''); setFormType('SIMPLE'); setEditingGiftId('');
+        setFormName('');
+        setFormDescription('');
+        setFormLink('');
+        setFormType('SIMPLE');
+        setEditingGiftId('');
     }, []);
 
-    const closeModal = useCallback(() => { clearForm(); setSelectedGiftId(null); }, [clearForm]);
-    const openCreateModal = () => { clearForm(); setSelectedGiftId(NEW_GIFT_SENTINEL); };
+    const closeModal = useCallback(() => {
+        clearForm();
+        setSelectedGiftId(null);
+    }, [clearForm]);
+    const openCreateModal = () => {
+        clearForm();
+        setSelectedGiftId(NEW_GIFT_SENTINEL);
+    };
 
     // Resync à la navigation vers une autre liste
     useEffect(() => {
@@ -90,7 +112,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
 
     // Fermer avec Escape
     useEffect(() => {
-        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeModal(); };
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') closeModal();
+        };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
     }, [closeModal]);
@@ -104,7 +128,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 if (res?.status !== 200) return;
                 const users = (res?.data as TUserApiResult).users as User[];
                 setGroupUserMap(Object.fromEntries(users.map((u) => [u.id, u])));
-            } catch { /* silently fail */ } finally {
+            } catch {
+                /* silently fail */
+            } finally {
                 setLoadingGroupUsers(false);
             }
         };
@@ -124,8 +150,11 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
         swal.fire({
             title: 'Es-tu certain de vouloir supprimer ce cadeau ?',
             text: 'Il ne sera pas possible de revenir en arrière!',
-            icon: 'warning', showCancelButton: true,
-            confirmButtonText: 'Oui!', cancelButtonText: 'Non!', reverseButtons: true
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Oui!',
+            cancelButtonText: 'Non!',
+            reverseButtons: true
         }).then(async (result) => {
             if (!result.isConfirmed) return;
             try {
@@ -168,24 +197,31 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 const data = res?.data as TGiftApiResult;
                 if (data?.success && data.gift) {
                     const updated: GiftWithTakenUserId = { ...data.gift, takenUserId: (data.gift as any).takenUserId ?? null };
-                    setLocalGifts((prev) => prev.map((g) => g.id === giftId ? updated : g));
+                    setLocalGifts((prev) => prev.map((g) => (g.id === giftId ? updated : g)));
                     Swal.fire({ title: 'Cadeau modifié !', icon: 'success', timer: 1500, showConfirmButton: false });
                 } else {
-                    Swal.fire({ title: 'Erreur', text: 'Impossible de modifier ce cadeau.', icon: 'error' }); return;
+                    Swal.fire({ title: 'Erreur', text: 'Impossible de modifier ce cadeau.', icon: 'error' });
+                    return;
                 }
             } else {
-                const res = await AxiosWrapper.post('/api/gift', { gift: giftToSave, initiatorUserId: connectedUser?.userId, userGiftId: user.id });
+                const res = await AxiosWrapper.post('/api/gift', {
+                    gift: giftToSave,
+                    initiatorUserId: connectedUser?.userId,
+                    userGiftId: user.id
+                });
                 const data = res?.data as TGiftApiResult;
                 if (data?.success && data.gift) {
                     const created: GiftWithTakenUserId = { ...data.gift, takenUserId: (data.gift as any).takenUserId ?? null };
                     setLocalGifts((prev) => [...prev, created]);
                     Swal.fire({ title: 'Cadeau ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
                 } else {
-                    Swal.fire({ title: 'Erreur', text: "Impossible d'ajouter ce cadeau.", icon: 'error' }); return;
+                    Swal.fire({ title: 'Erreur', text: "Impossible d'ajouter ce cadeau.", icon: 'error' });
+                    return;
                 }
             }
         } catch (err: any) {
-            Swal.fire({ title: 'Erreur', text: 'Impossible de sauvegarder', icon: 'error' }); return;
+            Swal.fire({ title: 'Erreur', text: 'Impossible de sauvegarder', icon: 'error' });
+            return;
         }
         closeModal();
     };
@@ -200,18 +236,38 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
             if (res?.data?.success) {
                 if (giftToUpdate.giftType === ('SIMPLE' as GiftType)) {
                     // Cas simple : mise à jour locale, pas besoin de re-fetch
-                    const takenUserId = isTaken ? null : connectedUser?.userId ?? null;
-                    setLocalGifts((prev) => prev.map((g) => g.id === giftToUpdate.id ? { ...g, takenUserId, takenByList: takenUserId ? [{ id: '', userId: takenUserId, takenAt: new Date().toISOString() }] : [] } as GiftWithTakenUserId : g));
+                    const takenUserId = isTaken ? null : (connectedUser?.userId ?? null);
+                    setLocalGifts((prev) =>
+                        prev.map((g) =>
+                            g.id === giftToUpdate.id
+                                ? ({
+                                      ...g,
+                                      takenUserId,
+                                      takenByList: takenUserId
+                                          ? [{ id: '', userId: takenUserId, takenAt: new Date().toISOString() }]
+                                          : []
+                                  } as GiftWithTakenUserId)
+                                : g
+                        )
+                    );
                 } else {
                     // MULTIPLE/UNLIMITED : état serveur plus riche (sous-cadeaux, multi-réservations) → re-fetch
                     const refreshRes = await AxiosWrapper.get(`/api/gift?giftId=${giftToUpdate.id}`);
                     const refreshData = refreshRes?.data as TGiftApiResult;
                     if (refreshData?.success && refreshData.gift) {
-                        const updated: GiftWithTakenUserId = { ...refreshData.gift, takenUserId: (refreshData.gift as any).takenUserId ?? null };
-                        setLocalGifts((prev) => prev.map((g) => g.id === giftToUpdate.id ? updated : g));
+                        const updated: GiftWithTakenUserId = {
+                            ...refreshData.gift,
+                            takenUserId: (refreshData.gift as any).takenUserId ?? null
+                        };
+                        setLocalGifts((prev) => prev.map((g) => (g.id === giftToUpdate.id ? updated : g)));
                     }
                 }
-                Swal.fire({ title: isTaken ? 'Cadeau libéré !' : 'Cadeau réservé !', icon: 'success', timer: 1500, showConfirmButton: false });
+                Swal.fire({
+                    title: isTaken ? 'Cadeau libéré !' : 'Cadeau réservé !',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
             } else {
                 Swal.fire({ title: 'Erreur', text: 'Impossible de réserver ce cadeau.', icon: 'error' });
             }
@@ -234,8 +290,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
         const newIndex = localGifts.findIndex((g) => g.id === over.id);
         const reordered = arrayMove(localGifts, oldIndex, newIndex).map((g, i) => ({ ...g, order: i + 1 }));
         setLocalGifts(reordered);
-        AxiosWrapper.post('/api/gift', { gifts: reordered, initiatorUserId: connectedUser?.userId, userGiftId: user.id })
-            .catch((err) => console.error('Erreur mise à jour ordre:', err));
+        AxiosWrapper.post('/api/gift', { gifts: reordered, initiatorUserId: connectedUser?.userId, userGiftId: user.id }).catch(
+            (err) => console.error('Erreur mise à jour ordre:', err)
+        );
     };
 
     const visibleGiftsCount = localGifts.filter((g) => !filteringTakenGifts || !g.takenUserId).length;
@@ -278,26 +335,50 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                     <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden">
                         <span
                             role="button"
-                            onClick={() => { setViewMode('list'); localStorage.setItem('giftListViewMode', 'list'); }}
+                            onClick={() => {
+                                setViewMode('list');
+                                localStorage.setItem('giftListViewMode', 'list');
+                            }}
                             title="Vue liste"
                             className={`px-3 py-1.5 text-sm transition-colors cursor-pointer select-none ${
                                 viewMode === 'list' ? 'bg-vertNoel text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
                             }`}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-4 h-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                            >
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
                         </span>
                         <span
                             role="button"
-                            onClick={() => { setViewMode('grid'); localStorage.setItem('giftListViewMode', 'grid'); }}
+                            onClick={() => {
+                                setViewMode('grid');
+                                localStorage.setItem('giftListViewMode', 'grid');
+                            }}
                             title="Vue grille"
                             className={`px-3 py-1.5 text-sm transition-colors cursor-pointer select-none border-l border-gray-200 ${
                                 viewMode === 'grid' ? 'bg-vertNoel text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
                             }`}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 5h6v6H4zM14 5h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-4 h-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M4 5h6v6H4zM14 5h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"
+                                />
                             </svg>
                         </span>
                     </div>
@@ -306,40 +387,56 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 <Suspense fallback="loading...">
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                         <SortableContext items={localGifts}>
-                            <div className={viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 gap-3' : 'flex flex-col gap-2'}>
-                            {localGifts
-                                .filter((gift) => !filteringTakenGifts || !gift.takenUserId)
-                                .map((gift, idx) => (
-                                    <SortableItem key={`gift_${gift.id}`} gift={gift} idx={idx + 1} canReorder={userCanAddGift} viewMode={viewMode}>
-                                        <div
-                                            className={`w-full cursor-pointer p-3 rounded-lg flex items-start gap-3 ${
-                                                viewMode === 'grid' ? 'flex-wrap' : 'justify-between'
-                                            }`}
-                                            onClick={() => setSelectedGiftId(gift.id)}
+                            <div
+                                className={viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 gap-3' : 'flex flex-col gap-2'}
+                            >
+                                {localGifts
+                                    .filter((gift) => !filteringTakenGifts || !gift.takenUserId)
+                                    .map((gift, idx) => (
+                                        <SortableItem
+                                            key={`gift_${gift.id}`}
+                                            gift={gift}
+                                            idx={idx + 1}
+                                            canReorder={userCanAddGift}
+                                            viewMode={viewMode}
                                         >
-                                            <span className={`font-medium ${viewMode === 'grid' ? 'w-full' : 'flex-1 min-w-0'} ${!isOwnList && gift.takenUserId && gift.giftType !== ('UNLIMITED' as GiftType) && gift.giftType !== ('MULTIPLE' as GiftType) ? 'line-through text-gray-400' : ''}`}>
-                                                {gift.name}
-                                            </span>
-                                            {gift.giftType === 'MULTIPLE' && (
-                                                <span className="shrink-0 text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
-                                                    🧩 {gift.subGiftsCount ?? 0} élément{(gift.subGiftsCount ?? 0) !== 1 ? 's' : ''}
+                                            <div
+                                                className={`w-full cursor-pointer p-3 rounded-lg flex items-start gap-3 ${
+                                                    viewMode === 'grid' ? 'flex-wrap' : 'justify-between'
+                                                }`}
+                                                onClick={() => setSelectedGiftId(gift.id)}
+                                            >
+                                                <span
+                                                    className={`font-medium ${viewMode === 'grid' ? 'w-full' : 'flex-1 min-w-0'} ${!isOwnList && gift.takenUserId && gift.giftType !== ('UNLIMITED' as GiftType) && gift.giftType !== ('MULTIPLE' as GiftType) ? 'line-through text-gray-400' : ''}`}
+                                                >
+                                                    {gift.name}
                                                 </span>
-                                            )}
-                                            {gift.giftType === ('UNLIMITED' as GiftType) && (
-                                                <span className="shrink-0 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
-                                                    {isOwnList ? '🔁 Illimité' : `🔁 ${(gift.takenByList ?? []).length} pris`}
-                                                </span>
-                                            )}
-                                            {!isOwnList && gift.giftType === 'SIMPLE' && (
-                                                <span className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
-                                                    gift.takenUserId ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'
-                                                }`}>
-                                                    {gift.takenUserId ? 'Pris' : 'Libre'}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </SortableItem>
-                                ))}                            </div>
+                                                {gift.giftType === 'MULTIPLE' && (
+                                                    <span className="shrink-0 text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
+                                                        🧩 {gift.subGiftsCount ?? 0} élément
+                                                        {(gift.subGiftsCount ?? 0) !== 1 ? 's' : ''}
+                                                    </span>
+                                                )}
+                                                {gift.giftType === ('UNLIMITED' as GiftType) && (
+                                                    <span className="shrink-0 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+                                                        {isOwnList ? '🔁 Illimité' : `🔁 ${(gift.takenByList ?? []).length} pris`}
+                                                    </span>
+                                                )}
+                                                {!isOwnList && gift.giftType === 'SIMPLE' && (
+                                                    <span
+                                                        className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
+                                                            gift.takenUserId
+                                                                ? 'bg-red-100 text-red-600'
+                                                                : 'bg-green-100 text-green-700'
+                                                        }`}
+                                                    >
+                                                        {gift.takenUserId ? 'Pris' : 'Libre'}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </SortableItem>
+                                    ))}{' '}
+                            </div>
                         </SortableContext>
                     </DndContext>
                 </Suspense>
@@ -350,12 +447,16 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                         {isOwnList ? (
                             <>
                                 <p className="font-semibold text-gray-700 mb-1">Ta liste est vide pour l&apos;instant</p>
-                                <p className="text-sm text-gray-400">Ajoute tes premières envies — tes proches pourront les réserver en secret !</p>
+                                <p className="text-sm text-gray-400">
+                                    Ajoute tes premières envies — tes proches pourront les réserver en secret !
+                                </p>
                             </>
                         ) : (
                             <>
                                 <p className="font-semibold text-gray-700 mb-1">Cette liste est encore vide</p>
-                                <p className="text-sm text-gray-400">Revenez plus tard, des idées cadeaux seront bientôt ajoutées.</p>
+                                <p className="text-sm text-gray-400">
+                                    Revenez plus tard, des idées cadeaux seront bientôt ajoutées.
+                                </p>
                             </>
                         )}
                     </div>
@@ -373,13 +474,15 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
                         <div className="absolute inset-0 bg-black/50" onClick={closeModal} />
                         <div className="relative bg-white w-full sm:max-w-lg sm:rounded-xl rounded-t-2xl shadow-xl max-h-[90vh] flex flex-col">
-
                             {/* Header */}
                             <div className="flex items-start justify-between px-5 py-4 border-b gap-3">
                                 <h2 className="font-bold text-lg leading-snug">
                                     {isCreating ? 'Nouveau cadeau' : selectedGift!.name}
                                 </h2>
-                                <div onClick={closeModal} className="shrink-0 text-gray-400 hover:text-gray-600 text-2xl leading-none cursor-pointer mt-0.5">
+                                <div
+                                    onClick={closeModal}
+                                    className="shrink-0 text-gray-400 hover:text-gray-600 text-2xl leading-none cursor-pointer mt-0.5"
+                                >
                                     ✕
                                 </div>
                             </div>
@@ -388,33 +491,47 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                             <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
                                 {isCreating || isEditing ? (
                                     <GiftForm
-                                        formName={formName} setFormName={setFormName}
-                                        formDescription={formDescription} setFormDescription={setFormDescription}
-                                        formLink={formLink} setFormLink={setFormLink}
-                                        formType={formType} setFormType={setFormType}
+                                        formName={formName}
+                                        setFormName={setFormName}
+                                        formDescription={formDescription}
+                                        setFormDescription={setFormDescription}
+                                        formLink={formLink}
+                                        setFormLink={setFormLink}
+                                        formType={formType}
+                                        setFormType={setFormType}
                                         autoFocusName
                                     />
                                 ) : (
                                     <>
-                                        {selectedGift!.description
-                                            ? <p className="text-gray-700">{selectedGift!.description}</p>
-                                            : <p className="text-gray-700 italic">Pas de description</p>
-                                        }
-                                        {selectedGift!.url
-                                            ? <p><ModernLink href={selectedGift!.url} /></p>
-                                            : <p className="text-gray-700 italic">Pas de lien</p>
-                                        }
-                                        {!isOwnList && selectedGift!.takenUserId && selectedGift!.takenUserId !== connectedUser?.userId && (
-                                            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 flex items-center gap-2">
-                                                Ce cadeau est déjà pris
-                                                {loadingGroupUsers
-                                                    ? <span className="inline-block h-3 w-20 bg-red-200 rounded animate-pulse" />
-                                                    : groupUserMap[selectedGift!.takenUserId] && (
-                                                        <> — par <b>{groupUserMap[selectedGift!.takenUserId]?.name}</b></>
-                                                    )
-                                                }
-                                            </div>
+                                        {selectedGift!.description ? (
+                                            <p className="text-gray-700">{selectedGift!.description}</p>
+                                        ) : (
+                                            <p className="text-gray-700 italic">Pas de description</p>
                                         )}
+                                        {selectedGift!.url ? (
+                                            <p>
+                                                <ModernLink href={selectedGift!.url} />
+                                            </p>
+                                        ) : (
+                                            <p className="text-gray-700 italic">Pas de lien</p>
+                                        )}
+                                        {!isOwnList &&
+                                            selectedGift!.takenUserId &&
+                                            selectedGift!.takenUserId !== connectedUser?.userId && (
+                                                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 flex items-center gap-2">
+                                                    Ce cadeau est déjà pris
+                                                    {loadingGroupUsers ? (
+                                                        <span className="inline-block h-3 w-20 bg-red-200 rounded animate-pulse" />
+                                                    ) : (
+                                                        groupUserMap[selectedGift!.takenUserId] && (
+                                                            <>
+                                                                {' '}
+                                                                — par <b>{groupUserMap[selectedGift!.takenUserId]?.name}</b>
+                                                            </>
+                                                        )
+                                                    )}
+                                                </div>
+                                            )}
                                         {selectedGift!.giftType === 'MULTIPLE' && (
                                             <SubGiftList
                                                 parentGift={selectedGift!}
@@ -425,8 +542,13 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                     AxiosWrapper.get(`/api/gift?giftId=${selectedGift!.id}`).then((res) => {
                                                         const data = res?.data as TGiftApiResult;
                                                         if (data?.success && data.gift) {
-                                                            const updated: GiftWithTakenUserId = { ...data.gift, takenUserId: (data.gift as any).takenUserId ?? null };
-                                                            setLocalGifts((prev) => prev.map((g) => g.id === selectedGift!.id ? updated : g));
+                                                            const updated: GiftWithTakenUserId = {
+                                                                ...data.gift,
+                                                                takenUserId: (data.gift as any).takenUserId ?? null
+                                                            };
+                                                            setLocalGifts((prev) =>
+                                                                prev.map((g) => (g.id === selectedGift!.id ? updated : g))
+                                                            );
                                                         }
                                                     });
                                                 }}
@@ -441,8 +563,14 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                     AxiosWrapper.get(`/api/gift?giftId=${selectedGift!.id}`).then((res) => {
                                                         const data = res?.data as TGiftApiResult;
                                                         if (data?.success && data.gift) {
-                                                            const updated: GiftWithTakenUserId = { ...data.gift, takenUserId: (data.gift as any).takenUserId ?? null, takenByList: (data.gift as any).takenByList ?? [] };
-                                                            setLocalGifts((prev) => prev.map((g) => g.id === selectedGift!.id ? updated : g));
+                                                            const updated: GiftWithTakenUserId = {
+                                                                ...data.gift,
+                                                                takenUserId: (data.gift as any).takenUserId ?? null,
+                                                                takenByList: (data.gift as any).takenByList ?? []
+                                                            };
+                                                            setLocalGifts((prev) =>
+                                                                prev.map((g) => (g.id === selectedGift!.id ? updated : g))
+                                                            );
                                                         }
                                                     });
                                                 }}
@@ -459,10 +587,15 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                         Créer
                                     </CustomButton>
                                 )}
-                                {!isCreating && userCanAddGift && (
-                                    isEditing ? (
+                                {!isCreating &&
+                                    userCanAddGift &&
+                                    (isEditing ? (
                                         <>
-                                            <CustomButton className="green-button" onClick={() => saveGift(selectedGift!.id)} disabled={!formName}>
+                                            <CustomButton
+                                                className="green-button"
+                                                onClick={() => saveGift(selectedGift!.id)}
+                                                disabled={!formName}
+                                            >
                                                 Valider
                                             </CustomButton>
                                             <CustomButton onClick={clearForm}>Annuler</CustomButton>
@@ -472,22 +605,32 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                             <CustomButton className="green-button" onClick={() => startEditing(selectedGift!)}>
                                                 Modifier
                                             </CustomButton>
-                                            <CustomButton onClick={() => removeGift(selectedGift!.id)}>
-                                                Supprimer
-                                            </CustomButton>
+                                            <CustomButton onClick={() => removeGift(selectedGift!.id)}>Supprimer</CustomButton>
                                         </>
-                                    )
-                                )}
-                                {!isCreating && !userCanAddGift && selectedGift!.giftType === 'SIMPLE' && selectedGift!.takenUserId === connectedUser?.userId && (
-                                    <CustomButton onClick={() => onBlockUnBlockGiftClick(selectedGift!)} disabled={takingGiftId === selectedGift!.id}>
-                                        {takingGiftId === selectedGift!.id ? 'Libération...' : 'Je ne prends plus ce cadeau'}
-                                    </CustomButton>
-                                )}
-                                {!isCreating && !userCanAddGift && selectedGift!.giftType === 'SIMPLE' && !selectedGift!.takenUserId && (
-                                    <CustomButton className="green-button" onClick={() => onBlockUnBlockGiftClick(selectedGift!)} disabled={takingGiftId === selectedGift!.id}>
-                                        {takingGiftId === selectedGift!.id ? 'Réservation...' : 'Je prends ce cadeau'}
-                                    </CustomButton>
-                                )}
+                                    ))}
+                                {!isCreating &&
+                                    !userCanAddGift &&
+                                    selectedGift!.giftType === 'SIMPLE' &&
+                                    selectedGift!.takenUserId === connectedUser?.userId && (
+                                        <CustomButton
+                                            onClick={() => onBlockUnBlockGiftClick(selectedGift!)}
+                                            disabled={takingGiftId === selectedGift!.id}
+                                        >
+                                            {takingGiftId === selectedGift!.id ? 'Libération...' : 'Je ne prends plus ce cadeau'}
+                                        </CustomButton>
+                                    )}
+                                {!isCreating &&
+                                    !userCanAddGift &&
+                                    selectedGift!.giftType === 'SIMPLE' &&
+                                    !selectedGift!.takenUserId && (
+                                        <CustomButton
+                                            className="green-button"
+                                            onClick={() => onBlockUnBlockGiftClick(selectedGift!)}
+                                            disabled={takingGiftId === selectedGift!.id}
+                                        >
+                                            {takingGiftId === selectedGift!.id ? 'Réservation...' : 'Je prends ce cadeau'}
+                                        </CustomButton>
+                                    )}
                                 <CustomButton onClick={closeModal}>Fermer</CustomButton>
                             </div>
                         </div>

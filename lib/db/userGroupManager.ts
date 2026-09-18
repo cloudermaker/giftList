@@ -10,118 +10,110 @@ import prisma from './dbSingleton';
  * Récupérer tous les groupes d'un user
  */
 export const getUserGroups = async (userId: string) => {
-  const memberships = await prisma.userGroupMapping.findMany({
-    where: { userId },
-    include: {
-      // Jamais adminPassword : cette fonction alimente des réponses API publiques
-      group: { select: { id: true, name: true, createdAt: true, updatedAt: true } }
-    },
-    orderBy: { joinedAt: 'asc' }
-  });
-  
-  return memberships.map(m => ({
-    ...m.group,
-    role: m.role,
-    joinedAt: m.joinedAt
-  }));
+    const memberships = await prisma.userGroupMapping.findMany({
+        where: { userId },
+        include: {
+            // Jamais adminPassword : cette fonction alimente des réponses API publiques
+            group: { select: { id: true, name: true, createdAt: true, updatedAt: true } }
+        },
+        orderBy: { joinedAt: 'asc' }
+    });
+
+    return memberships.map((m) => ({
+        ...m.group,
+        role: m.role,
+        joinedAt: m.joinedAt
+    }));
 };
 
 /**
  * Récupérer tous les users d'un groupe
  */
 export const getGroupUsers = async (groupId: string) => {
-  const memberships = await prisma.userGroupMapping.findMany({
-    where: { groupId },
-    include: {
-      user: true
-    },
-    orderBy: { user: { name: 'asc' } }
-  });
-  
-  return memberships.map(m => ({
-    ...m.user,
-    role: m.role,
-    joinedAt: m.joinedAt
-  }));
+    const memberships = await prisma.userGroupMapping.findMany({
+        where: { groupId },
+        include: {
+            user: true
+        },
+        orderBy: { user: { name: 'asc' } }
+    });
+
+    return memberships.map((m) => ({
+        ...m.user,
+        role: m.role,
+        joinedAt: m.joinedAt
+    }));
 };
 
 /**
  * Ajouter un user à un groupe
  */
-export const addUserToGroup = async (
-  userId: string, 
-  groupId: string, 
-  role: Role = 'MEMBER'
-) => {
-  return await prisma.userGroupMapping.create({
-    data: {
-      userId,
-      groupId,
-      role,
-      joinedAt: new Date()
-    },
-    include: {
-      user: true,
-      group: { select: { id: true, name: true } }
-    }
-  });
+export const addUserToGroup = async (userId: string, groupId: string, role: Role = 'MEMBER') => {
+    return await prisma.userGroupMapping.create({
+        data: {
+            userId,
+            groupId,
+            role,
+            joinedAt: new Date()
+        },
+        include: {
+            user: true,
+            group: { select: { id: true, name: true } }
+        }
+    });
 };
 
 /**
  * Compter le nombre d'admins dans un groupe
  */
 export const countGroupAdmins = async (groupId: string) => {
-  return await prisma.userGroupMapping.count({
-    where: {
-      groupId,
-      role: 'ADMIN'
-    }
-  });
+    return await prisma.userGroupMapping.count({
+        where: {
+            groupId,
+            role: 'ADMIN'
+        }
+    });
 };
 
 /**
  * Vérifier si un user est admin d'un groupe
  */
 export const isUserGroupAdmin = async (userId: string, groupId: string) => {
-  const membership = await prisma.userGroupMapping.findUnique({
-    where: {
-      userId_groupId: {
-        userId,
-        groupId
-      }
-    }
-  });
-  
-  return membership?.role === 'ADMIN';
+    const membership = await prisma.userGroupMapping.findUnique({
+        where: {
+            userId_groupId: {
+                userId,
+                groupId
+            }
+        }
+    });
+
+    return membership?.role === 'ADMIN';
 };
 
 /**
  * Retirer un user d'un groupe
  */
 export const removeUserFromGroup = async (userId: string, groupId: string) => {
-  return await prisma.userGroupMapping.deleteMany({
-    where: {
-      userId,
-      groupId
-    }
-  });
+    return await prisma.userGroupMapping.deleteMany({
+        where: {
+            userId,
+            groupId
+        }
+    });
 };
 
 /**
  * Changer le rôle d'un user dans un groupe
  */
-export const updateUserRole = async (
-  userId: string, 
-  groupId: string, 
-  role: Role
-) => {
-  return await prisma.userGroupMapping.update({
-    where: {
-      userId_groupId: {
-        userId,
-        groupId
-      }
-    },
-    data: { role }
-  });
+export const updateUserRole = async (userId: string, groupId: string, role: Role) => {
+    return await prisma.userGroupMapping.update({
+        where: {
+            userId_groupId: {
+                userId,
+                groupId
+            }
+        },
+        data: { role }
+    });
 };

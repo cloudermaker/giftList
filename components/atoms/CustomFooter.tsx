@@ -6,7 +6,10 @@ import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import jsonPackage from '@/package.json';
 
 const FooterLink = ({ href, emoji, children }: { href: string; emoji: string; children: ReactNode }): JSX.Element => (
-    <Link href={href} className="flex items-center text-sm font-medium text-neutral-700 hover:text-rougeNoel active:scale-95 transition-all duration-300">
+    <Link
+        href={href}
+        className="flex items-center text-sm font-medium text-neutral-700 hover:text-rougeNoel active:scale-95 transition-all duration-300"
+    >
         <span className="mr-1.5">{emoji}</span>
         {children}
     </Link>
@@ -32,13 +35,29 @@ export const CustomFooter = (): JSX.Element => {
                 <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between">
                     {/* Bloc gauche : tous les liens, sur plusieurs lignes si besoin */}
                     <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 md:flex-1 md:gap-x-6">
-                        <FooterLink href={connectedUser ? '/home' : '/'} emoji="🏠">Accueil</FooterLink>
-                        <FooterLink href="/contact" emoji="✉️">Nous contacter</FooterLink>
-                        <FooterLink href="/help" emoji="❓">Aide</FooterLink>
-                        <FooterLink href="/ideas" emoji="💡">Idées</FooterLink>
-                        <FooterLink href="/mentions-legales" emoji="⚖️">Mentions légales</FooterLink>
-                        <FooterLink href="/confidentialite" emoji="🔒">Confidentialité</FooterLink>
-                        {connectedUser && <FooterLink href="/backoffice" emoji="⚙️">Backoffice</FooterLink>}
+                        <FooterLink href={connectedUser ? '/home' : '/'} emoji="🏠">
+                            Accueil
+                        </FooterLink>
+                        <FooterLink href="/contact" emoji="✉️">
+                            Nous contacter
+                        </FooterLink>
+                        <FooterLink href="/help" emoji="❓">
+                            Aide
+                        </FooterLink>
+                        <FooterLink href="/ideas" emoji="💡">
+                            Idées
+                        </FooterLink>
+                        <FooterLink href="/mentions-legales" emoji="⚖️">
+                            Mentions légales
+                        </FooterLink>
+                        <FooterLink href="/confidentialite" emoji="🔒">
+                            Confidentialité
+                        </FooterLink>
+                        {connectedUser && (
+                            <FooterLink href="/backoffice" emoji="⚙️">
+                                Backoffice
+                            </FooterLink>
+                        )}
                     </nav>
 
                     {/* Bloc droit : réseaux + copyright + version, jamais compressé */}

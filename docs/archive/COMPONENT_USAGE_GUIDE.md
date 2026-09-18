@@ -3,7 +3,9 @@
 ## GroupSelector Component
 
 ### Description
-Composant React qui permet à un utilisateur de switcher entre ses différents groupes. Affiche automatiquement un dropdown si l'utilisateur appartient à plusieurs groupes.
+
+Composant React qui permet à un utilisateur de switcher entre ses différents groupes. Affiche automatiquement un dropdown si
+l'utilisateur appartient à plusieurs groupes.
 
 ### Utilisation Basique
 
@@ -11,45 +13,42 @@ Composant React qui permet à un utilisateur de switcher entre ses différents g
 import GroupSelector from '../components/GroupSelector';
 
 function MyPage() {
-  const [currentGroupId, setCurrentGroupId] = useState<string>();
+    const [currentGroupId, setCurrentGroupId] = useState<string>();
 
-  return (
-    <div>
-      <GroupSelector
-        userId={user.id}
-        currentGroupId={currentGroupId}
-        onGroupChange={(groupId) => {
-          setCurrentGroupId(groupId);
-          // Logique supplémentaire (ex: recharger des données)
-        }}
-      />
-    </div>
-  );
+    return (
+        <div>
+            <GroupSelector
+                userId={user.id}
+                currentGroupId={currentGroupId}
+                onGroupChange={(groupId) => {
+                    setCurrentGroupId(groupId);
+                    // Logique supplémentaire (ex: recharger des données)
+                }}
+            />
+        </div>
+    );
 }
 ```
 
 ### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `userId` | string | ✅ | ID de l'utilisateur |
-| `currentGroupId` | string | ❌ | Groupe actuellement sélectionné |
-| `onGroupChange` | (groupId: string) => void | ❌ | Callback appelé lors du changement |
-| `className` | string | ❌ | Classes CSS additionnelles |
+| Prop             | Type                      | Required | Description                        |
+| ---------------- | ------------------------- | -------- | ---------------------------------- |
+| `userId`         | string                    | ✅       | ID de l'utilisateur                |
+| `currentGroupId` | string                    | ❌       | Groupe actuellement sélectionné    |
+| `onGroupChange`  | (groupId: string) => void | ❌       | Callback appelé lors du changement |
+| `className`      | string                    | ❌       | Classes CSS additionnelles         |
 
 ### Variantes
 
 #### InlineGroupSelector
+
 Version compacte pour affichage inline:
 
 ```tsx
 import { InlineGroupSelector } from '../components/GroupSelector';
 
-<InlineGroupSelector
-  userId={user.id}
-  currentGroupId={groupId}
-  onGroupChange={setGroupId}
-/>
+<InlineGroupSelector userId={user.id} currentGroupId={groupId} onGroupChange={setGroupId} />;
 ```
 
 ---
@@ -57,6 +56,7 @@ import { InlineGroupSelector } from '../components/GroupSelector';
 ## useActiveGroup Hook
 
 ### Description
+
 Hook personnalisé pour gérer le groupe actuellement actif. Utilise des cookies pour la persistance.
 
 ### Utilisation
@@ -65,43 +65,42 @@ Hook personnalisé pour gérer le groupe actuellement actif. Utilise des cookies
 import { useActiveGroup } from '../lib/hooks/useActiveGroup';
 
 function MyComponent() {
-  const { activeGroupId, setActiveGroup, clearActiveGroup } = useActiveGroup(userId);
+    const { activeGroupId, setActiveGroup, clearActiveGroup } = useActiveGroup(userId);
 
-  // Utiliser activeGroupId dans les requêtes API
-  useEffect(() => {
-    if (activeGroupId) {
-      axios.get(`/api/gifts?groupId=${activeGroupId}`)
-        .then(response => setGifts(response.data));
-    }
-  }, [activeGroupId]);
+    // Utiliser activeGroupId dans les requêtes API
+    useEffect(() => {
+        if (activeGroupId) {
+            axios.get(`/api/gifts?groupId=${activeGroupId}`).then((response) => setGifts(response.data));
+        }
+    }, [activeGroupId]);
 
-  // Changer de groupe
-  const handleGroupChange = (newGroupId: string) => {
-    setActiveGroup(newGroupId);
-  };
+    // Changer de groupe
+    const handleGroupChange = (newGroupId: string) => {
+        setActiveGroup(newGroupId);
+    };
 
-  return (
-    <div>
-      {/* Votre UI */}
-    </div>
-  );
+    return <div>{/* Votre UI */}</div>;
 }
 ```
 
 ### API
 
 #### `activeGroupId: string | null`
+
 ID du groupe actuellement actif, ou `null` si aucun groupe sélectionné.
 
 #### `setActiveGroup(groupId: string): void`
+
 Définit le groupe actif et le sauvegarde dans un cookie (persiste 365 jours).
 
 #### `clearActiveGroup(): void`
+
 Supprime le groupe actif et le cookie associé.
 
 ### Fonctions Utilitaires
 
 #### `getActiveGroupFromCookie(): string | null`
+
 Récupère le groupe actif depuis le cookie (fonctionne côté client uniquement).
 
 ```tsx
@@ -111,6 +110,7 @@ const groupId = getActiveGroupFromCookie();
 ```
 
 #### `saveActiveGroupToCookie(groupId: string): void`
+
 Sauvegarde directement le groupe actif dans le cookie.
 
 ```tsx
@@ -131,36 +131,31 @@ import GroupSelector from '../components/GroupSelector';
 import { useActiveGroup } from '../lib/hooks/useActiveGroup';
 
 export default function HomePage({ user }) {
-  const { activeGroupId, setActiveGroup } = useActiveGroup(user.id);
-  const [groupData, setGroupData] = useState(null);
+    const { activeGroupId, setActiveGroup } = useActiveGroup(user.id);
+    const [groupData, setGroupData] = useState(null);
 
-  useEffect(() => {
-    if (activeGroupId) {
-      // Charger les données du groupe
-      axios.get(`/api/group/${activeGroupId}`)
-        .then(res => setGroupData(res.data));
-    }
-  }, [activeGroupId]);
+    useEffect(() => {
+        if (activeGroupId) {
+            // Charger les données du groupe
+            axios.get(`/api/group/${activeGroupId}`).then((res) => setGroupData(res.data));
+        }
+    }, [activeGroupId]);
 
-  return (
-    <div>
-      <header>
-        <h1>Bienvenue {user.name}</h1>
-        <GroupSelector
-          userId={user.id}
-          currentGroupId={activeGroupId}
-          onGroupChange={setActiveGroup}
-        />
-      </header>
+    return (
+        <div>
+            <header>
+                <h1>Bienvenue {user.name}</h1>
+                <GroupSelector userId={user.id} currentGroupId={activeGroupId} onGroupChange={setActiveGroup} />
+            </header>
 
-      {groupData && (
-        <main>
-          <h2>{groupData.name}</h2>
-          {/* Reste du contenu */}
-        </main>
-      )}
-    </div>
-  );
+            {groupData && (
+                <main>
+                    <h2>{groupData.name}</h2>
+                    {/* Reste du contenu */}
+                </main>
+            )}
+        </div>
+    );
 }
 ```
 
@@ -171,50 +166,44 @@ import { useActiveGroup } from '../lib/hooks/useActiveGroup';
 import Link from 'next/link';
 
 export default function Navigation({ user }) {
-  const { activeGroupId } = useActiveGroup(user.id);
+    const { activeGroupId } = useActiveGroup(user.id);
 
-  return (
-    <nav>
-      <Link href={`/group/${activeGroupId}`}>
-        Mon Groupe
-      </Link>
-      <Link href={`/giftList/${user.id}?groupId=${activeGroupId}`}>
-        Ma Liste
-      </Link>
-    </nav>
-  );
+    return (
+        <nav>
+            <Link href={`/group/${activeGroupId}`}>Mon Groupe</Link>
+            <Link href={`/giftList/${user.id}?groupId=${activeGroupId}`}>Ma Liste</Link>
+        </nav>
+    );
 }
 ```
 
 ### 3. Migration d'une Page Existante
 
 **Avant (groupId unique):**
+
 ```tsx
 export default function GiftList({ user }) {
-  const groupId = user.groupId;  // ❌ Ancien système
-  
-  return <div>Group: {groupId}</div>;
+    const groupId = user.groupId; // ❌ Ancien système
+
+    return <div>Group: {groupId}</div>;
 }
 ```
 
 **Après (multi-groupes):**
+
 ```tsx
 import GroupSelector from '../components/GroupSelector';
 import { useActiveGroup } from '../lib/hooks/useActiveGroup';
 
 export default function GiftList({ user }) {
-  const { activeGroupId, setActiveGroup } = useActiveGroup(user.id);
-  
-  return (
-    <div>
-      <GroupSelector
-        userId={user.id}
-        currentGroupId={activeGroupId}
-        onGroupChange={setActiveGroup}
-      />
-      <div>Group actif: {activeGroupId}</div>
-    </div>
-  );
+    const { activeGroupId, setActiveGroup } = useActiveGroup(user.id);
+
+    return (
+        <div>
+            <GroupSelector userId={user.id} currentGroupId={activeGroupId} onGroupChange={setActiveGroup} />
+            <div>Group actif: {activeGroupId}</div>
+        </div>
+    );
 }
 ```
 
@@ -223,27 +212,31 @@ export default function GiftList({ user }) {
 ## Notes Importantes
 
 ### ⚠️ Comportement Actuel
+
 - Le changement de groupe provoque un `window.location.reload()` pour simplifier la mise à jour du contexte
 - **TODO:** Améliorer avec un Context React global pour éviter les reloads
 
 ### 🔄 Migration Progressive
+
 Pendant la transition, l'ancien système (`User.groupId`) continue de fonctionner:
+
 - Les pages non migrées utilisent toujours `user.groupId`
 - Les nouvelles pages utilisent `useActiveGroup()`
 - Les deux systèmes coexistent sans conflit
 
 ### 🎯 Compatibilité SSR
+
 - `useActiveGroup` fonctionne côté client
 - Pour SSR, utilisez `getActiveGroupFromCookie()` dans `getServerSideProps`
 
 ```tsx
 export async function getServerSideProps(context) {
-  // Lire le cookie côté serveur
-  const activeGroupId = context.req.cookies.activeGroupId;
-  
-  return {
-    props: { activeGroupId }
-  };
+    // Lire le cookie côté serveur
+    const activeGroupId = context.req.cookies.activeGroupId;
+
+    return {
+        props: { activeGroupId }
+    };
 }
 ```
 
@@ -265,6 +258,7 @@ Pour migrer une page vers le système multi-groupes:
 ## Support
 
 Pour plus d'informations:
+
 - Documentation API: `docs/API_CHANGES.md`
 - Plan complet: `docs/MODERNIZATION_PLAN.md`
 - Status: `migration/MODERNIZATION_STATUS.md`

@@ -63,14 +63,16 @@ export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, o
 
     const showDetails = () => {
         if (takenByList.length === 0) {
-            Swal.fire({ title: 'Personne n\'a encore pris ce cadeau', icon: 'info' });
+            Swal.fire({ title: "Personne n'a encore pris ce cadeau", icon: 'info' });
             return;
         }
 
-        const rows = takenByList.map((t) => {
-            const name = groupUserMap[t.userId]?.name ?? 'Utilisateur inconnu';
-            return `<li class="py-1 border-b border-gray-100 last:border-0 text-sm"><b>${name}</b> — ${formatDate(t.takenAt)}</li>`;
-        }).join('');
+        const rows = takenByList
+            .map((t) => {
+                const name = groupUserMap[t.userId]?.name ?? 'Utilisateur inconnu';
+                return `<li class="py-1 border-b border-gray-100 last:border-0 text-sm"><b>${name}</b> — ${formatDate(t.takenAt)}</li>`;
+            })
+            .join('');
 
         Swal.fire({
             title: `Qui a pris ce cadeau ? (${takenCount})`,
@@ -99,7 +101,10 @@ export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, o
                 {/* Bouton ? */}
                 <span
                     role="button"
-                    onClick={(e) => { e.stopPropagation(); showDetails(); }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        showDetails();
+                    }}
                     title="Voir les détails"
                     className="w-4 h-4 rounded-full border border-orange-300 text-orange-300 hover:text-orange-500 hover:border-orange-500 text-[10px] font-bold flex items-center justify-center shrink-0 cursor-pointer transition-colors select-none"
                 >
