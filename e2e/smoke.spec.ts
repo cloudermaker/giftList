@@ -7,6 +7,8 @@ test.describe('Smoke', () => {
         await expect(page).toHaveTitle(/Ma liste de cadeaux/);
         await expect(page.locator('h1')).toHaveText('Liste de cadeaux en ligne gratuite');
         await expect(page.getByText('Pour quelle occasion ?')).toBeVisible();
+        // Bouton flottant vers la boîte à idées
+        await expect(page.getByRole('link', { name: /Boîte à idées/ })).toBeVisible();
     });
 
     const publicPages: Array<[string, string | null]> = [

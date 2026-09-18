@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import { EHeader } from '@/components/customHeader';
+import { IdeasFab } from '@/components/atoms/IdeasFab';
 import { Layout } from '@/components/layout';
 import SEO from '@/components/SEO';
 import { useEffect, useState } from 'react';
@@ -169,12 +169,7 @@ export const Home = (): JSX.Element => {
                 {/* Gift Ideas Generator */}
                 <GiftIdeasGenerator />
 
-                <div className="mt-10 text-center">
-                    <p className="text-sm text-gray-500 mb-3">Une idée pour améliorer le site ?</p>
-                    <CustomButton className="slate-button" onClick={() => Router.push('/ideas')}>
-                        💡 Proposer une idée / voter
-                    </CustomButton>
-                </div>
+                <IdeasFab />
             </div>
 
             {showOnboarding && group?.inviteToken && (

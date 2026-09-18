@@ -1,6 +1,7 @@
 import NProgress from 'nprogress';
 import Link from 'next/link';
 import Router from 'next/router';
+import { IdeasFab } from '@/components/atoms/IdeasFab';
 import { useState, useEffect } from 'react';
 import { Layout } from '../components/layout';
 import { CustomInput } from '../components/atoms/customInput';
@@ -726,14 +727,10 @@ export default function Index(): JSX.Element {
                             🚀 Créer mon groupe
                         </CustomButton>
                     </div>
-                    <div className="mt-6">
-                        <p className="text-sm text-gray-500 mb-3">Une idée pour améliorer le site ?</p>
-                        <CustomButton className="slate-button p-3 mx-3" onClick={() => Router.push('/ideas')}>
-                            💡 Proposer une idée / voter
-                        </CustomButton>
-                    </div>
                 </div>
             </section>
+
+            <IdeasFab />
 
             {/* Cookie Banner */}
             {showCookieBanner && (
