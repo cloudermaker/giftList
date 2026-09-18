@@ -1,5 +1,4 @@
 import { EHeader } from '@/components/customHeader';
-import { IdeasFab } from '@/components/atoms/IdeasFab';
 import { Layout } from '@/components/layout';
 import SEO from '@/components/SEO';
 import { useEffect, useState } from 'react';
@@ -169,7 +168,7 @@ export const Home = (): JSX.Element => {
                 {/* Gift Ideas Generator */}
                 <GiftIdeasGenerator />
 
-                <IdeasFab />
+
             </div>
 
             {showOnboarding && group?.inviteToken && (

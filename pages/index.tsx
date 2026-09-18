@@ -1,7 +1,6 @@
 import NProgress from 'nprogress';
 import Link from 'next/link';
 import Router from 'next/router';
-import { IdeasFab } from '@/components/atoms/IdeasFab';
 import { useState, useEffect } from 'react';
 import { Layout } from '../components/layout';
 import { CustomInput } from '../components/atoms/customInput';
@@ -730,7 +729,7 @@ export default function Index(): JSX.Element {
                 </div>
             </section>
 
-            <IdeasFab />
+
 
             {/* Cookie Banner */}
             {showCookieBanner && (

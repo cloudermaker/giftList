@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { CustomFooter } from './atoms/CustomFooter';
+import { IdeasFab } from './atoms/IdeasFab';
 import { CustomHeader, EHeader } from './customHeader';
 import { Logo } from './Logo';
 import Router from 'next/router';
@@ -83,6 +84,7 @@ export const Layout = ({
                 </div>
             </div>
 
+            <IdeasFab />
             <CustomFooter />
         </div>
     );

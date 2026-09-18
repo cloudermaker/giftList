@@ -1,7 +1,12 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
-// Bouton flottant vers la boîte à idées (affiché sur / et /home)
-export const IdeasFab = (): JSX.Element => (
+// Bouton flottant vers la boîte à idées (rendu par le Layout sur toutes les pages, sauf /ideas)
+export const IdeasFab = (): JSX.Element | null => {
+    const { pathname } = useRouter();
+    if (pathname === '/ideas') return null;
+
+    return (
     <Link
         href="/ideas"
         aria-label="Boîte à idées : proposer une idée ou voter"
@@ -12,4 +17,5 @@ export const IdeasFab = (): JSX.Element => (
         </span>
         💡
     </Link>
-);
+    );
+};
