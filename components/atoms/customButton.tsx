@@ -14,6 +14,7 @@ const CustomButton = ({
     disabled,
     className,
     variant = 'red',
+    size = 'md',
     type
 }: {
     onClick: () => void;
@@ -21,6 +22,7 @@ const CustomButton = ({
     disabled?: boolean;
     className?: string;
     variant?: keyof typeof VARIANT_CLASS;
+    size?: 'md' | 'sm';
     type?: 'button' | 'submit' | 'reset' | undefined;
 }): JSX.Element => {
     const [isInProgress, setIsInProgress] = useState<boolean>(false);
@@ -38,7 +40,7 @@ const CustomButton = ({
     return (
         <button
             onClick={customOnClick}
-            className={[VARIANT_CLASS[variant], className].filter(Boolean).join(' ')}
+            className={[VARIANT_CLASS[variant], size === 'sm' ? 'btn-sm' : '', className].filter(Boolean).join(' ')}
             disabled={disabled ?? false}
             type={type}
         >

@@ -124,6 +124,13 @@ a:hover {
     transform: translateY(0);
 }
 
+/* Variante compacte (rangées d'actions du backoffice) */
+.btn.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+}
+
 .icon-btn {
     padding: 6px 8px;
     background: transparent;
