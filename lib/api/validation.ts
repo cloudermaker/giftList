@@ -16,18 +16,30 @@ const shortText = z.string().max(200);
 const longText = z.string().max(2000);
 const id = z.string().min(1).max(100);
 
+const email = z.string().trim().toLowerCase().pipe(z.email().max(254));
+// Champ email facultatif des formulaires : vide = pas d'email
+const optionalEmail = z.union([email, z.literal('')]).optional();
+const linkToken = z.string().min(20).max(100);
+
 export const authenticateSchema = z.object({
     groupName: name,
     userName: name,
     isCreating: z.boolean().optional(),
-    password: shortText.optional()
+    password: shortText.optional(),
+    email: optionalEmail
 });
 
 export const inviteJoinSchema = z.object({
     token: z.string().min(1).max(64),
     userName: name,
-    confirm: z.boolean().optional()
+    confirm: z.boolean().optional(),
+    email: optionalEmail
 });
+
+export const emailSchema = z.object({ email });
+export const emailTokenSchema = z.object({ token: linkToken });
+export const emailLoginSchema = z.object({ token: linkToken, userId: z.string().min(1).max(100) });
+export const switchProfileSchema = z.object({ userId: z.string().min(1).max(100) });
 
 // Les objets gift/group/user des bodies portent des champs techniques : on valide l'essentiel, le reste passe
 const giftShape = z

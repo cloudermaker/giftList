@@ -4,6 +4,7 @@ import { getUserByGroupAndName } from '@/lib/db/userManager';
 import { Prisma } from '@prisma/client';
 import { parseBody, authenticateSchema } from '@/lib/api/validation';
 import { sessionCookieHeader } from '@/lib/auth/session';
+import { sendVerificationEmail } from '@/lib/auth/emailRecovery';
 
 export type TGroupAndUser = {
     groupName: string;
@@ -11,6 +12,8 @@ export type TGroupAndUser = {
     userName: string;
     userId: string;
     isAdmin: boolean;
+    // Session ouverte via un lien email ou Google : autorise le changement d'email et le passage d'un groupe à l'autre
+    emailAuth?: boolean;
 };
 
 export type TAuthenticateResult = {
@@ -30,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     }
     const parsed = parseBody(authenticateSchema, req, res);
     if (!parsed) return;
-    const { groupName, userName, isCreating, password } = parsed;
+    const { groupName, userName, isCreating, password, email } = parsed;
 
     try {
         const group = await getGroupByName(groupName);
@@ -45,6 +48,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             // Créer le groupe, le user admin et le membership atomiquement
             try {
                 const { group: newGroup, user: newUser } = await createGroupWithAdmin(groupName, password, userName);
+                if (email) {
+                    // Créateur = admin : l'email servira aussi de clé admin une fois confirmé
+                    await sendVerificationEmail({
+                        userId: newUser.id,
+                        userName: newUser.name,
+                        groupName: newGroup.name,
+                        email,
+                        grantsAdmin: true
+                    }).catch((e) => console.error('Verification email failed:', e));
+                }
                 loginSuccess({
                     groupId: newGroup.id,
                     groupName: newGroup.name,

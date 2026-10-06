@@ -15,11 +15,11 @@ export default function Help(): JSX.Element {
         },
         {
             question: "Ai-je besoin d'un mail ?",
-            answer: 'Non! Nous avons souhaité faire un site simple. Tu as juste besoin de connaitre ton nom de groupe, et ton nom.'
+            answer: "Non ! Le nom du groupe et ton prénom suffisent. Tu peux ajouter un email (ou ton compte Google) depuis ton profil pour retrouver ton accès en cas d'oubli."
         },
         {
             question: "J'ai oublié mon mot de passe administrateur!",
-            answer: 'Contacte-nous rapidement pour pouvoir être débloqué!'
+            answer: 'Si tu avais lié ton email en étant admin, utilise « Accès oublié ? » sur la page de connexion. Sinon, contacte-nous.'
         },
         {
             question: 'Comment rajouter/supprimer des utilisateurs ?',
@@ -104,8 +104,9 @@ export default function Help(): JSX.Element {
                     <div className="item">
                         <h3 className="text-lg font-semibold text-violetNoel mb-2.5">Ai-je besoin d&apos;un mail ?</h3>
                         <p>
-                            Non! Nous avons souhaité faire un site simple. Tu as juste besoin de connaitre ton nom de groupe, et
-                            ton nom.
+                            Non ! Le nom du groupe et ton prénom suffisent. Mais tu peux ajouter un email (ou lier ton compte
+                            Google) depuis ton profil 👤 : en cas d&apos;oubli, « Accès oublié ? » t&apos;envoie un lien pour te
+                            reconnecter. Ton email n&apos;est jamais visible par les autres membres.
                         </p>
                     </div>
 
@@ -114,11 +115,9 @@ export default function Help(): JSX.Element {
                             J&apos;ai oublié mon mot de passe administrateur!
                         </h3>
                         <p>
-                            Ah mince,
-                            <Link href={'/contact'} className="px-2">
-                                contacte
-                            </Link>
-                            nous rapidement pour pouvoir être débloqué!
+                            Si tu avais lié ton email en étant connecté comme admin, utilise{' '}
+                            <Link href={'/acces'}>« Accès oublié ? »</Link> : le lien reçu te reconnecte directement en admin.
+                            Sinon, <Link href={'/contact'}>contacte-nous</Link> pour être débloqué.
                         </p>
                     </div>
 

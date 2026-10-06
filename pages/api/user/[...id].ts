@@ -1,14 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
 import { parseBody, userPatchSchema } from '@/lib/api/validation';
-import { User } from '@prisma/client';
+import { PublicUser } from '@/lib/db/userManager';
 import { deleteUser, getUserById, getUserByGroupAndName, updateUser } from '@/lib/db/userManager';
 import { getUserGroups, countGroupAdmins, isUserGroupAdmin } from '@/lib/db/userGroupManager';
 
 export type TUserApiResult = {
     success: boolean;
     userId?: string;
-    user?: User;
+    user?: PublicUser;
     error?: string;
 };
 
@@ -62,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 }
             }
 
-            const user = await updateUser(userId, body.user as User);
+            const user = await updateUser(userId, body.user as PublicUser);
 
             res.status(200).json({ success: true, user });
         } else if (req.method === 'PUT' && userId && body.user && canWriteUser(req, userId)) {

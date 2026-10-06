@@ -4,6 +4,7 @@ import { IdeasFab } from './atoms/IdeasFab';
 import { CustomHeader, EHeader } from './customHeader';
 import { Logo } from './Logo';
 import Router from 'next/router';
+import Link from 'next/link';
 import { useLogout } from '@/lib/hooks/useLogout';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 
@@ -53,6 +54,14 @@ export const Layout = ({
                                         🛡️ Admin
                                     </span>
                                 )}
+                                <Link
+                                    href="/profil"
+                                    className="icon-btn text-gray-400 hover:text-vertNoel hover:no-underline transition-colors"
+                                    title="Mon profil"
+                                    aria-label="Mon profil"
+                                >
+                                    👤
+                                </Link>
                                 <button
                                     className="icon-btn text-gray-400 hover:text-rougeNoel transition-colors"
                                     onClick={onDisconnectClick}

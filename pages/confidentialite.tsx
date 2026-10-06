@@ -17,9 +17,15 @@ export default function Confidentialite(): JSX.Element {
                 <section className="mb-8">
                     <h2 className="text-lg font-semibold text-gray-800 mb-2">Données collectées</h2>
                     <p className="text-sm text-gray-700 leading-relaxed mb-2">
-                        Le service fonctionne <strong>sans compte ni adresse email</strong>. Les seules données enregistrées sont
-                        celles que vous saisissez : le nom du groupe, les prénoms des membres et le contenu des listes de cadeaux
-                        (noms, descriptions, liens).
+                        Le service fonctionne <strong>sans compte</strong> et l&apos;email est facultatif. Les seules données
+                        enregistrées sont celles que vous saisissez : le nom du groupe, les prénoms des membres et le contenu des
+                        listes de cadeaux (noms, descriptions, liens).
+                    </p>
+                    <p className="text-sm text-gray-700 leading-relaxed mb-2">
+                        <strong>Email de secours (facultatif)</strong> : si vous liez une adresse email à votre profil (saisie ou
+                        via Google), elle sert uniquement à vous renvoyer un lien de connexion en cas d&apos;oubli. Elle
+                        n&apos;est jamais affichée aux autres membres, ni transmise à des tiers, et vous pouvez la retirer à tout
+                        moment depuis votre profil. Avec Google, seule votre adresse email est récupérée.
                     </p>
                     <p className="text-sm text-gray-700 leading-relaxed">
                         Si vous utilisez le formulaire de contact, votre adresse email est utilisée uniquement pour vous répondre.

@@ -4,6 +4,21 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.6.0] - 2026-10-06
+
+### Ajouté
+
+- 📧 Email de secours facultatif : liez votre adresse (ou votre compte Google) à votre profil pour retrouver votre accès en cas
+  d'oubli
+- « Accès oublié ? » : recevez un lien de connexion par email, sans retaper le nom du groupe
+- Connexion avec Google pour les profils qui l'ont liée
+- Un seul email pour plusieurs groupes : passez de l'un à l'autre depuis votre profil 👤
+- Rappel à la création d'un profil sans email : bien noter le nom du groupe et le prénom
+
+### Modifié
+
+- Mot de passe admin oublié : l'email lié en tant qu'admin permet de se reconnecter directement
+
 ## [5.5.0] - 2026-09-18
 
 ### Modifié

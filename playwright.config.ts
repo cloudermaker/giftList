@@ -35,7 +35,9 @@ export default defineConfig({
             SESSION_SECRET: process.env.SESSION_SECRET ?? 'e2e-test-secret',
             BACKOFFICE_USERNAME: process.env.BACKOFFICE_USERNAME ?? 'e2e-backoffice',
             BACKOFFICE_PASSWORD: process.env.BACKOFFICE_PASSWORD ?? 'e2e-backoffice-password',
-            MAINTENANCE_MODE: 'false'
+            MAINTENANCE_MODE: 'false',
+            // Jamais d'envoi réel depuis les tests, même si des identifiants SMTP traînent dans .env.local
+            EMAIL_DRY_RUN: 'true'
         }
     }
 });
