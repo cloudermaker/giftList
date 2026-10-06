@@ -161,9 +161,10 @@ export default function ProfilePage({
                         <div className="flex flex-col gap-2">
                             {otherProfiles.map((p) => (
                                 <CustomButton key={p.userId} variant="slate" size="sm" onClick={() => switchTo(p.userId)}>
-                                    <span className="capitalize">{p.userName}</span>
-                                    <span className="mx-1.5 opacity-70">·</span>
-                                    {p.groupName}
+                                    <span className="flex flex-col leading-tight">
+                                        <span className="capitalize">{p.userName}</span>
+                                        <span className="text-xs font-normal opacity-90 break-all">{p.groupName}</span>
+                                    </span>
                                 </CustomButton>
                             ))}
                         </div>

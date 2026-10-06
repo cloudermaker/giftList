@@ -118,13 +118,13 @@ merged & deployed; v5.4.0 ideas board in PR).
 
 ### P9 — Product features (pick per season/motivation)
 
-- ✅ **Email recovery key + Google login (v5.6.0, `feat/email-recovery`)** — optional email per profile (`User.email`, not
-  unique: one person = one profile per group), confirmed by link; "Accès oublié ?" sends a one-time login link
-  (`LoginToken`, only the hash stored, 30 min); Google = same lookup via verified email; `/profil` to link/change/remove and
-  switch between groups sharing the email. Rules: confirmed email locked unless session opened by email/Google
-  (`emailAuth`); email link grants admin only if linked during an admin session (`emailIsAdminKey`); email columns globally
-  omitted by Prisma (`omitApi`) so no endpoint leaks them. Strict session cookie ⇒ every email/Google entry lands on a
-  same-site click page. Not done: "profil verrouillé" (block name-only login once an email exists) — revisit if traffic grows.
+- ✅ **Email recovery key + Google login (v5.6.0, `feat/email-recovery`)** — optional email per profile (`User.email`, not unique:
+  one person = one profile per group), confirmed by link; "Accès oublié ?" sends a one-time login link (`LoginToken`, only the
+  hash stored, 30 min); Google = same lookup via verified email; `/profil` to link/change/remove and switch between groups sharing
+  the email. Rules: confirmed email locked unless session opened by email/Google (`emailAuth`); email link grants admin only if
+  linked during an admin session (`emailIsAdminKey`); email columns globally omitted by Prisma (`omitApi`) so no endpoint leaks
+  them. Strict session cookie ⇒ every email/Google entry lands on a same-site click page. Not done: "profil verrouillé" (block
+  name-only login once an email exists) — revisit if traffic grows.
 
 24. **URL import** — paste a product link → auto title/image/price (server-side OG scraper). Biggest product differentiator. (L)
 25. **Secret Santa draw** within a group — strong seasonal fit, do before December. (M/L)

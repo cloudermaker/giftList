@@ -70,10 +70,13 @@ export default function ProfilePickerPage({ token, valid, profiles }: Props): JS
                                             onClick={() => pick(p.userId)}
                                             disabled={loadingId !== null}
                                         >
-                                            <span className="capitalize">{p.userName}</span>
-                                            <span className="mx-1.5 opacity-70">·</span>
-                                            {p.groupName}
-                                            {p.isAdmin && <span className="ml-2 text-xs opacity-80">(admin)</span>}
+                                            <span className="flex flex-col leading-tight">
+                                                <span className="capitalize">
+                                                    {p.userName}
+                                                    {p.isAdmin && <span className="ml-2 text-xs opacity-80">(admin)</span>}
+                                                </span>
+                                                <span className="text-xs font-normal opacity-90 break-all">{p.groupName}</span>
+                                            </span>
                                         </CustomButton>
                                     ))}
                                 </div>
