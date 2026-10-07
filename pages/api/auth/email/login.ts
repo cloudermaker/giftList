@@ -3,6 +3,7 @@ import { parseBody, emailLoginSchema } from '@/lib/api/validation';
 import { consumeToken } from '@/lib/auth/loginToken';
 import { getProfilesByVerifiedEmail, sessionForProfile } from '@/lib/auth/emailRecovery';
 import { sessionCookieHeader } from '@/lib/auth/session';
+import { touchGroupActivity } from '@/lib/db/groupManager';
 
 // Connexion depuis la page de choix du profil (/acces/[token]) : consomme le lien et ouvre la session
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -21,6 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (!profile) {
             return res.status(403).json({ success: false, error: "Ce profil n'est pas lié à cette adresse." });
         }
+        await touchGroupActivity(profile.groupId);
         const groupUser = sessionForProfile(profile);
         res.setHeader('Set-Cookie', sessionCookieHeader(groupUser));
         return res.status(200).json({ success: true, groupUser });

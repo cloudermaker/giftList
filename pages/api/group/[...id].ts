@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Group } from '@prisma/client';
-import { deleteGroup, getGroupById, getGroupByName, updateGroup } from '@/lib/db/groupManager';
+import { deleteGroup, getGroupById, getGroupByName, touchGroupActivity, updateGroup } from '@/lib/db/groupManager';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
 import { parseBody, groupPatchSchema } from '@/lib/api/validation';
 
@@ -27,6 +27,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const group = await getGroupById(groupId);
 
             if (group) {
+                // Visite d'un membre (chargé à chaque ouverture de l'accueil) : le groupe reste actif
+                if (getSession(req)?.groupId === groupId) await touchGroupActivity(groupId);
                 // Ne jamais renvoyer le mot de passe admin
                 const { adminPassword, ...safeGroup } = group;
                 res.status(200).json({ success: true, group: safeGroup as Group });

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getGroupByInviteToken } from '@/lib/db/groupManager';
+import { getGroupByInviteToken, touchGroupActivity } from '@/lib/db/groupManager';
 import { getUserByGroupAndName, createUser } from '@/lib/db/userManager';
 import { TAuthenticateResult } from '@/pages/api/authenticate';
 import { sessionCookieHeader } from '@/lib/auth/session';
@@ -54,6 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             userName: finalUser.name,
             isAdmin: false
         };
+        await touchGroupActivity(group.id);
         res.setHeader('Set-Cookie', sessionCookieHeader(groupUser));
         return res.status(200).json({ success: true, error: '', groupUser });
     } catch (e) {

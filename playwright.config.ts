@@ -37,7 +37,8 @@ export default defineConfig({
             BACKOFFICE_PASSWORD: process.env.BACKOFFICE_PASSWORD ?? 'e2e-backoffice-password',
             MAINTENANCE_MODE: 'false',
             // Jamais d'envoi réel depuis les tests, même si des identifiants SMTP traînent dans .env.local
-            EMAIL_DRY_RUN: 'true'
+            EMAIL_DRY_RUN: 'true',
+            CRON_SECRET: 'e2e-cron-secret'
         }
     }
 });

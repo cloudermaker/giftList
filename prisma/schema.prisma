@@ -32,6 +32,8 @@ model Group {
   name          String  @unique
   adminPassword String
   inviteToken   String? @unique
+  // Dernière connexion d'un membre : sert à la purge des groupes inactifs (durée de conservation RGPD)
+  lastActivityAt DateTime @default(now())
 
   // Relations
   userMemberships UserGroupMapping[]
@@ -39,6 +41,8 @@ model Group {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([lastActivityAt])
 }
 
 model User {

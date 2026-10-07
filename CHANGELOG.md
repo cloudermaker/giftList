@@ -18,6 +18,10 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ### Modifié
 
 - Mot de passe admin oublié : l'email lié en tant qu'admin permet de se reconnecter directement
+- 🔒 Les mots de passe admin sont désormais stockés sous forme chiffrée : personne ne peut les lire, pas même nous
+- Supprimer un groupe efface désormais aussi les listes et les emails de tous ses membres
+- Les groupes sans aucune connexion pendant 3 ans sont supprimés automatiquement
+- Politique de confidentialité complétée (prestataires, durées de conservation, vos droits)
 
 ## [5.5.0] - 2026-09-18
 

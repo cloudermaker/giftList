@@ -1,5 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { createGroupWithAdmin, getGroupByName } from '@/lib/db/groupManager';
+import { createGroupWithAdmin, getGroupByName, touchGroupActivity } from '@/lib/db/groupManager';
+import prisma from '@/lib/db/dbSingleton';
+import { hashPassword, isHashed, verifyPassword } from '@/lib/auth/password';
 import { getUserByGroupAndName } from '@/lib/db/userManager';
 import { Prisma } from '@prisma/client';
 import { parseBody, authenticateSchema } from '@/lib/api/validation';
@@ -24,6 +26,7 @@ export type TAuthenticateResult = {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TAuthenticateResult>) {
     const loginSuccess = (groupUser: TGroupAndUser) => {
+        touchGroupActivity(groupUser.groupId).catch((e) => console.error('touchGroupActivity failed:', e));
         res.setHeader('Set-Cookie', sessionCookieHeader(groupUser));
         res.status(200).json({ success: true, error: '', groupUser });
     };
@@ -80,9 +83,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 error: "Ce prénom n'existe pas."
             });
         } else if (!isCreating && group && user) {
-            if (password && group.adminPassword === password) {
+            const passwordOk = password ? await verifyPassword(group.adminPassword, password) : false;
+            if (password && passwordOk) {
+                // Ancien mot de passe en clair : remplacé par son empreinte dès la première connexion réussie
+                if (!isHashed(group.adminPassword)) {
+                    await prisma.group.update({ where: { id: group.id }, data: { adminPassword: await hashPassword(password) } });
+                }
                 loginSuccess({ groupId: group.id, groupName: group.name, userId: user.id, userName: user.name, isAdmin: true });
-            } else if (password && group.adminPassword !== password) {
+            } else if (password) {
                 res.status(401).json({
                     success: false,
                     error: 'Mauvais mot de passe'
