@@ -144,6 +144,8 @@ merged & deployed; v5.4.0 ideas board in PR).
     and login page. Guards: 1 vote/idea/browser (localStorage) + IP rate limit, length caps, backoffice moderation (delete, mark
     done). New `Idea` table (title, description, likes, createdAt, doneAt?) — pair with P5's `db push`. Page noindex. (L ~1 day
     incl. e2e)
+32. **Invited user mode** — a member who can ONLY take (reserve) gifts: no gift list of their own, no other actions. How
+    (new role, invite option, UI) to be decided later. (M?)
 
 ### Ideas backlog (migrated from old TODO.md / README todo)
 
