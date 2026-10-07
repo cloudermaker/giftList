@@ -38,7 +38,9 @@ export default defineConfig({
             MAINTENANCE_MODE: 'false',
             // Jamais d'envoi réel depuis les tests, même si des identifiants SMTP traînent dans .env.local
             EMAIL_DRY_RUN: 'true',
-            CRON_SECRET: 'e2e-cron-secret'
+            CRON_SECRET: 'e2e-cron-secret',
+            // En local uniquement (la CI fait un build de prod classique, lu par next-sitemap)
+            ...(process.env.CI ? {} : { NEXT_DIST_DIR: '.next-e2e' })
         }
     }
 });

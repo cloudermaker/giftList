@@ -56,15 +56,12 @@ export const getGroupByName = async (groupName: string): Promise<Group | null> =
 
 // Supprime le groupe ET les profils qui n'appartiennent qu'à lui (cadeaux, réservations et emails partent en cascade)
 export const deleteGroup = async (groupId: string): Promise<boolean> => {
-    return prisma.$transaction(async (tx) => {
-        await tx.user.deleteMany({
-            where: {
-                groupMemberships: { some: { groupId }, every: { groupId } }
-            }
-        });
-        const { count } = await tx.group.deleteMany({ where: { id: groupId } });
-        return count > 0;
-    });
+    // Lot court (pas de transaction interactive) : ne bloque pas de connexion pendant les cascades
+    const [, deleted] = await prisma.$transaction([
+        prisma.user.deleteMany({ where: { groupMemberships: { some: { groupId }, every: { groupId } } } }),
+        prisma.group.deleteMany({ where: { id: groupId } })
+    ]);
+    return deleted.count > 0;
 };
 
 // Durée de conservation : un groupe sans aucune connexion pendant 3 ans est supprimé (voir /confidentialite)
@@ -112,8 +109,9 @@ export const ensureGroupInviteToken = async (groupId: string): Promise<string> =
 
 // Création atomique groupe + user admin + membership (utilisé par /api/authenticate)
 export const createGroupWithAdmin = async (groupName: string, password: string, userName: string) => {
+    // Hachage (coûteux en CPU) avant d'ouvrir la transaction
+    const adminPassword = await hashPassword(password);
     return prisma.$transaction(async (tx) => {
-        const adminPassword = await hashPassword(password);
         const group = await tx.group.create({
             data: {
                 name: groupName.trim(),

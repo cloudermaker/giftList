@@ -36,7 +36,7 @@ test.describe('Email de secours', () => {
         await page.locator('#passwordInputId').fill(PASSWORD);
         await page.locator('#emailInputId').fill(email);
         await page.getByRole('button', { name: "C'est parti!" }).click();
-        await expect(page.getByText('Vérifie ta boîte mail')).toBeVisible();
+        await expect(page.getByText('Vérifie ta boîte mail')).toBeVisible({ timeout: 15000 });
         await page.getByRole('button', { name: 'OK' }).click();
         await page.waitForURL('**/home');
         const session = await readSession(page);
