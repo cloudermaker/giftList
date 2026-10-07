@@ -1,7 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 
+// Les colonnes email ne sortent jamais par défaut : une requête doit les demander explicitement (omit: { email: false })
 const prismaClientSingleton = () => {
-    return new PrismaClient();
+    return new PrismaClient({
+        omit: { user: { email: true, emailVerifiedAt: true, emailIsAdminKey: true } }
+    });
 };
 
 declare global {

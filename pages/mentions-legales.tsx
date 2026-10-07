@@ -52,8 +52,9 @@ export default function MentionsLegales(): JSX.Element {
                         sensible.
                     </p>
                     <p className="text-sm text-gray-700 leading-relaxed">
-                        L&apos;éditeur se réserve le droit de supprimer tout contenu illicite ou tout groupe inactif. Les liens
-                        vers des sites marchands ajoutés par les utilisateurs restent sous leur responsabilité.
+                        L&apos;éditeur se réserve le droit de supprimer tout contenu illicite. Un groupe sans aucune connexion
+                        pendant 3 ans est supprimé automatiquement. Les liens vers des sites marchands ajoutés par les
+                        utilisateurs restent sous leur responsabilité.
                     </p>
                 </section>
 

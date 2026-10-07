@@ -6,6 +6,7 @@ import { Layout } from '../components/layout';
 import { CustomInput } from '../components/atoms/customInput';
 import CustomButton from '../components/atoms/customButton';
 import { ErrorAlert } from '../components/atoms/ErrorAlert';
+import { checkInboxPopup, rememberAccessPopup } from '@/lib/ui/alert';
 import { useLogin } from '@/lib/hooks/useLogin';
 import SEO from '@/components/SEO';
 import { generatePageSchema, generateFAQSchema, generateWebAppSchema } from '@/lib/schema/schemaGenerators';
@@ -19,6 +20,7 @@ const ERROR_MESSAGES = {
     NO_NAME: 'Il faut rentrer un nom.',
     NO_PASSWORD: 'Il faut rentrer un mot de passe.',
     NO_EMOJI_IN_GROUP: 'Les emojis ne sont pas autorisés dans le nom du groupe.',
+    BAD_EMAIL: "L'adresse email n'est pas valide.",
     GENERIC: 'Erreur'
 } as const;
 
@@ -120,13 +122,14 @@ export default function Index(): JSX.Element {
         groupName: typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY_GROUP) || '' : '',
         name: typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY_NAME) || '' : '',
         password: '',
+        email: '',
         error: ''
     }));
 
     // Clear form when switching to creating mode
     const handleModeChange = (newMode: 'creating' | 'joining') => {
         if (newMode === 'creating') {
-            setFormData({ groupName: '', name: '', password: '', error: '' });
+            setFormData({ groupName: '', name: '', password: '', email: '', error: '' });
             setConnectingAsAdmin(false);
         } else {
             // Load from localStorage when switching to joining
@@ -176,9 +179,19 @@ export default function Index(): JSX.Element {
             localStorage.setItem(STORAGE_KEY_GROUP, formData.groupName);
             localStorage.setItem(STORAGE_KEY_NAME, formData.name);
 
-            const data = await login(formData.name, formData.groupName, mode === 'creating', formData.password);
+            const email = mode === 'creating' ? formData.email.trim() : '';
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                setFormData((prev) => ({ ...prev, error: ERROR_MESSAGES.BAD_EMAIL }));
+                return;
+            }
+
+            const data = await login(formData.name, formData.groupName, mode === 'creating', formData.password, email);
 
             if (data?.success) {
+                if (mode === 'creating') {
+                    if (email) await checkInboxPopup(email);
+                    else await rememberAccessPopup(formData.groupName, formData.name);
+                }
                 navigating = true;
                 NProgress.start();
                 window.location.href = '/home';
@@ -415,14 +428,35 @@ export default function Index(): JSX.Element {
                                         </div>
                                     </div>
                                 )}
+
+                                {mode === 'creating' && (
+                                    <div className="space-y-2">
+                                        <label htmlFor="emailInputId" className="block text-sm font-medium text-gray-700">
+                                            Email <span className="font-normal text-gray-500">(facultatif)</span>
+                                            <span className="block text-xs font-normal text-gray-500 mt-0.5">
+                                                Pour retrouver ton accès en cas d&apos;oubli — jamais partagé
+                                            </span>
+                                        </label>
+                                        <CustomInput
+                                            id="emailInputId"
+                                            className="w-full"
+                                            type="email"
+                                            onChange={(value) => setFormData((prev) => ({ ...prev, email: value }))}
+                                            value={formData.email}
+                                            onKeyDown={onInputPressKey}
+                                            disabled={isLoading}
+                                            placeholder="prenom@exemple.fr"
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             {/* Actions */}
                             <div className="p-6 bg-gray-50 flex flex-col gap-3">
                                 {mode === 'joining' && (
                                     <div className="text-sm text-center">
-                                        <Link href="/contact" className="text-rougeNoel hover:underline">
-                                            Nom de groupe, nom ou mot de passe oublié ?
+                                        <Link href="/acces" className="text-rougeNoel hover:underline">
+                                            Nom de groupe, prénom ou mot de passe oublié ?
                                         </Link>
                                     </div>
                                 )}

@@ -1,9 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getGroupByInviteToken } from '@/lib/db/groupManager';
+import { getGroupByInviteToken, touchGroupActivity } from '@/lib/db/groupManager';
 import { getUserByGroupAndName, createUser } from '@/lib/db/userManager';
 import { TAuthenticateResult } from '@/pages/api/authenticate';
 import { sessionCookieHeader } from '@/lib/auth/session';
 import { parseBody, inviteJoinSchema } from '@/lib/api/validation';
+import { sendVerificationEmail } from '@/lib/auth/emailRecovery';
 
 export type TInviteJoinResult = TAuthenticateResult & {
     needsConfirmation?: boolean;
@@ -17,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
     const parsed = parseBody(inviteJoinSchema, req, res);
     if (!parsed) return;
-    const { token, userName, confirm } = parsed;
+    const { token, userName, confirm, email } = parsed;
 
     try {
         const group = await getGroupByInviteToken(token);
@@ -35,6 +36,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
         const finalUser = user ?? (await createUser(userName, group.id, false));
 
+        // Email proposé à l'inscription : seulement pour un nouveau profil (un profil existant le lie depuis /profil)
+        if (email && !user) {
+            await sendVerificationEmail({
+                userId: finalUser.id,
+                userName: finalUser.name,
+                groupName: group.name,
+                email,
+                grantsAdmin: false
+            }).catch((e) => console.error('Verification email failed:', e));
+        }
+
         const groupUser = {
             groupId: group.id,
             groupName: group.name,
@@ -42,6 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             userName: finalUser.name,
             isAdmin: false
         };
+        await touchGroupActivity(group.id);
         res.setHeader('Set-Cookie', sessionCookieHeader(groupUser));
         return res.status(200).json({ success: true, error: '', groupUser });
     } catch (e) {
