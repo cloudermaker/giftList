@@ -91,16 +91,17 @@ merged & deployed; v5.4.0 ideas board in PR).
 14. `$transaction` on multi-write ops (takeGift/releaseGift, reorder, createGroup+createUser, createUser+addUserToGroup). (M)
 15. Drop dead `Group.description`/`imageUrl` columns and `User.isAdmin` (duplicates `UserGroupMapping.role`). (M)
 
-### P6 — UI rationalization — 2–3 days ← NEXT
+### ✅ P6 — UI rationalization (done in v5.5.0)
 
-16. One modal system (`Modal.tsx` shell + `confirmDestructive()`/`promptText()`/`toast()` helpers) — removes ~150 duplicated lines
-    across 5 pages. (L)
-17. Button system: `variant` prop on `CustomButton`, kill the global red `button{}` CSS, collapse backoffice's 14 duplicated
-    buttons into `<ActionButton icon label>`. (M/L)
-18. Consistency tokens: one brand red (3 hexes today), palette-ize `#667eea` headings, shared `AVATAR_COLORS`, `<PageTitle>`
-    component; load Inter via `next/font` or drop it from the CSS. (M)
+16. **Alert facade** — `lib/ui/alert.ts` (`toast`/`alertError`/`confirmDestructive`/`promptText`/`getSwal`), all 9 direct
+    sweetalert2 imports migrated; sweetalert2 now lazy everywhere (also closes P3 #7 fully). Custom modals keep `getSwal()`.
+17. **Button system** — `variant` prop (`red`/`green`/`slate`/`icon`) on `CustomButton`; global `button{}` CSS scoped to `.btn`
+    (bare `<button>` neutral again: swal's own buttons unhijacked, vote-button/`all:unset` hacks removed, view toggle is real
+    `<button>`s, side margins dropped — spacing via flex gaps).
+18. **Tokens** — `violetNoel` in Tailwind (replaces 10 inline `#667eea`), shared `AVATAR_COLORS` in `lib/ui/colors.ts`,
+    `<PageTitle eyebrow>` on 11 pages, dead unloaded 'Inter' ref dropped from the font stack.
 
-### P7 — UX correctness & a11y — 1–2 days
+### P7 — UX correctness & a11y — 1–2 days ← NEXT
 
 19. Error/empty states: `home.tsx` fetch without `.catch` (blank page), contact form error wipes the message, empty group renders
     nothing, revoked invite token = bare 404. (M)

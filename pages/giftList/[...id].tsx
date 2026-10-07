@@ -1,5 +1,6 @@
 import { ReactNode, Suspense, useCallback, useEffect, useState } from 'react';
 import { Layout } from '@/components/layout';
+import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
 import ModernLink from '@/components/atoms/ModernLink';
 import { NextPageContext } from 'next';
@@ -15,7 +16,7 @@ import { buildDefaultGift, getGiftsFromUserId, GiftWithTakenUserId } from '@/lib
 import { TGiftApiResult } from '@/pages/api/gift';
 import { getUserById } from '@/lib/db/userManager';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
-import Swal from 'sweetalert2';
+import { toast, alertError, confirmDestructive, getSwal } from '@/lib/ui/alert';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import { TUserApiResult } from '../api/user';
 import SubGiftList from '@/components/SubGiftList';
@@ -146,38 +147,31 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     };
 
     const removeGift = async (giftId: string) => {
-        const swal = Swal.mixin({ buttonsStyling: true });
-        swal.fire({
+        const confirmed = await confirmDestructive({
             title: 'Es-tu certain de vouloir supprimer ce cadeau ?',
-            text: 'Il ne sera pas possible de revenir en arrière!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Oui!',
-            cancelButtonText: 'Non!',
-            reverseButtons: true
-        }).then(async (result) => {
-            if (!result.isConfirmed) return;
-            try {
-                const res = await AxiosWrapper.delete(`/api/gift/${giftId}`);
-                const data = res?.data as TGiftApiResult;
-                if (data?.success) {
-                    setLocalGifts((prev) => prev.filter((g) => g.id !== giftId));
-                    closeModal();
-                    swal.fire({ title: 'Supprimé !', icon: 'success', timer: 1500, showConfirmButton: false });
-                } else {
-                    swal.fire({ title: 'Erreur', text: 'Impossible de supprimer ce cadeau.', icon: 'error' });
-                }
-            } catch (err: any) {
-                swal.fire({ title: 'Erreur', text: 'Impossible de supprimer.', icon: 'error' });
-            }
+            text: 'Il ne sera pas possible de revenir en arrière!'
         });
+        if (!confirmed) return;
+        try {
+            const res = await AxiosWrapper.delete(`/api/gift/${giftId}`);
+            const data = res?.data as TGiftApiResult;
+            if (data?.success) {
+                setLocalGifts((prev) => prev.filter((g) => g.id !== giftId));
+                closeModal();
+                toast('Supprimé !');
+            } else {
+                alertError('Erreur', 'Impossible de supprimer ce cadeau.');
+            }
+        } catch (err: any) {
+            alertError('Erreur', 'Impossible de supprimer.');
+        }
     };
 
     const saveGift = async (giftId: string | null = null) => {
         const currentGift: GiftWithTakenUserId = structuredClone(localGifts.find((g) => g.id === giftId)!);
 
         if (giftId && currentGift?.giftType === 'MULTIPLE' && formType === 'SIMPLE' && (currentGift.subGiftsCount ?? 0) > 0) {
-            Swal.fire({
+            (await getSwal()).fire({
                 title: 'Impossible de convertir ce cadeau',
                 text: `Ce cadeau contient ${currentGift.subGiftsCount} sous-élément${(currentGift.subGiftsCount ?? 0) > 1 ? 's' : ''}. Supprime-les d'abord avant de le convertir en cadeau simple.`,
                 icon: 'warning'
@@ -198,9 +192,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 if (data?.success && data.gift) {
                     const updated: GiftWithTakenUserId = { ...data.gift, takenUserId: (data.gift as any).takenUserId ?? null };
                     setLocalGifts((prev) => prev.map((g) => (g.id === giftId ? updated : g)));
-                    Swal.fire({ title: 'Cadeau modifié !', icon: 'success', timer: 1500, showConfirmButton: false });
+                    toast('Cadeau modifié !');
                 } else {
-                    Swal.fire({ title: 'Erreur', text: 'Impossible de modifier ce cadeau.', icon: 'error' });
+                    alertError('Erreur', 'Impossible de modifier ce cadeau.');
                     return;
                 }
             } else {
@@ -213,14 +207,14 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 if (data?.success && data.gift) {
                     const created: GiftWithTakenUserId = { ...data.gift, takenUserId: (data.gift as any).takenUserId ?? null };
                     setLocalGifts((prev) => [...prev, created]);
-                    Swal.fire({ title: 'Cadeau ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
+                    toast('Cadeau ajouté !');
                 } else {
-                    Swal.fire({ title: 'Erreur', text: "Impossible d'ajouter ce cadeau.", icon: 'error' });
+                    alertError('Erreur', "Impossible d'ajouter ce cadeau.");
                     return;
                 }
             }
         } catch (err: any) {
-            Swal.fire({ title: 'Erreur', text: 'Impossible de sauvegarder', icon: 'error' });
+            alertError('Erreur', 'Impossible de sauvegarder');
             return;
         }
         closeModal();
@@ -262,17 +256,12 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                         setLocalGifts((prev) => prev.map((g) => (g.id === giftToUpdate.id ? updated : g)));
                     }
                 }
-                Swal.fire({
-                    title: isTaken ? 'Cadeau libéré !' : 'Cadeau réservé !',
-                    icon: 'success',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
+                toast(isTaken ? 'Cadeau libéré !' : 'Cadeau réservé !');
             } else {
-                Swal.fire({ title: 'Erreur', text: 'Impossible de réserver ce cadeau.', icon: 'error' });
+                alertError('Erreur', 'Impossible de réserver ce cadeau.');
             }
         } catch (err) {
-            Swal.fire({ title: 'Erreur', text: 'Erreur lors de la réservation', icon: 'error' });
+            alertError('Erreur', 'Erreur lors de la réservation');
         } finally {
             setTakingGiftId(null);
         }
@@ -307,10 +296,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     return (
         <Layout selectedHeader={EHeader.GiftList} pageTitle={pageTitle}>
             <div>
-                <div className="mb-8">
-                    <p className="text-sm text-gray-500 mb-1">Liste de cadeaux</p>
-                    <h1 className="text-2xl font-bold text-gray-800">{user.name}</h1>
-                </div>
+                <PageTitle eyebrow="Liste de cadeaux">{user.name}</PageTitle>
 
                 {!isOwnList && (
                     <div className="flex pb-4">
@@ -327,14 +313,14 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 <div className="flex justify-between items-center mb-3">
                     <div>
                         {userCanAddGift && (
-                            <CustomButton className="green-button" onClick={openCreateModal}>
+                            <CustomButton variant="green" onClick={openCreateModal}>
                                 Ajouter un cadeau
                             </CustomButton>
                         )}
                     </div>
                     <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden">
-                        <span
-                            role="button"
+                        <button
+                            type="button"
                             onClick={() => {
                                 setViewMode('list');
                                 localStorage.setItem('giftListViewMode', 'list');
@@ -354,9 +340,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                             >
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
-                        </span>
-                        <span
-                            role="button"
+                        </button>
+                        <button
+                            type="button"
                             onClick={() => {
                                 setViewMode('grid');
                                 localStorage.setItem('giftListViewMode', 'grid');
@@ -380,7 +366,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                     d="M4 5h6v6H4zM14 5h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"
                                 />
                             </svg>
-                        </span>
+                        </button>
                     </div>
                 </div>
 
@@ -464,7 +450,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
 
                 {/* Bouton du bas seulement quand la liste est assez longue pour scroller */}
                 {userCanAddGift && visibleGiftsCount >= 5 && (
-                    <CustomButton className="green-button" onClick={openCreateModal}>
+                    <CustomButton variant="green" onClick={openCreateModal}>
                         Ajouter un cadeau
                     </CustomButton>
                 )}
@@ -583,7 +569,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                             {/* Footer */}
                             <div className="border-t px-5 py-4 flex flex-wrap gap-2 justify-end">
                                 {isCreating && (
-                                    <CustomButton className="green-button" onClick={() => saveGift(null)} disabled={!formName}>
+                                    <CustomButton variant="green" onClick={() => saveGift(null)} disabled={!formName}>
                                         Créer
                                     </CustomButton>
                                 )}
@@ -592,7 +578,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                     (isEditing ? (
                                         <>
                                             <CustomButton
-                                                className="green-button"
+                                                variant="green"
                                                 onClick={() => saveGift(selectedGift!.id)}
                                                 disabled={!formName}
                                             >
@@ -602,7 +588,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                         </>
                                     ) : (
                                         <>
-                                            <CustomButton className="green-button" onClick={() => startEditing(selectedGift!)}>
+                                            <CustomButton variant="green" onClick={() => startEditing(selectedGift!)}>
                                                 Modifier
                                             </CustomButton>
                                             <CustomButton onClick={() => removeGift(selectedGift!.id)}>Supprimer</CustomButton>
@@ -624,7 +610,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                     selectedGift!.giftType === 'SIMPLE' &&
                                     !selectedGift!.takenUserId && (
                                         <CustomButton
-                                            className="green-button"
+                                            variant="green"
                                             onClick={() => onBlockUnBlockGiftClick(selectedGift!)}
                                             disabled={takingGiftId === selectedGift!.id}
                                         >

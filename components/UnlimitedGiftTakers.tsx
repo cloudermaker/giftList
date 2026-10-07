@@ -2,7 +2,7 @@ import { GiftWithTakenUserId, TakenByEntry } from '@/lib/db/giftManager';
 import { User } from '@prisma/client';
 import axios from 'axios';
 import { useState } from 'react';
-import Swal from 'sweetalert2';
+import { toast, alertError, getSwal } from '@/lib/ui/alert';
 import CustomButton from './atoms/customButton';
 
 interface UnlimitedGiftTakersProps {
@@ -32,12 +32,12 @@ export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, o
             const res = await axios.post(`/api/gift/${gift.id}/take`, { userId });
             if (res.data?.success) {
                 onGiftUpdate?.();
-                Swal.fire({ title: 'Cadeau réservé !', icon: 'success', timer: 1500, showConfirmButton: false });
+                toast('Cadeau réservé !');
             } else {
-                Swal.fire({ title: 'Erreur', text: 'Impossible de réserver ce cadeau.', icon: 'error' });
+                alertError('Erreur', 'Impossible de réserver ce cadeau.');
             }
         } catch {
-            Swal.fire({ title: 'Erreur', text: 'Impossible de réserver ce cadeau.', icon: 'error' });
+            alertError('Erreur', 'Impossible de réserver ce cadeau.');
         } finally {
             setTaking(false);
         }
@@ -50,20 +50,20 @@ export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, o
             const res = await axios.delete(`/api/gift/${gift.id}/take`, { data: { userId, takenGiftId } });
             if (res.data?.success) {
                 onGiftUpdate?.();
-                Swal.fire({ title: 'Cadeau libéré !', icon: 'success', timer: 1500, showConfirmButton: false });
+                toast('Cadeau libéré !');
             } else {
-                Swal.fire({ title: 'Erreur', text: 'Impossible de libérer ce cadeau.', icon: 'error' });
+                alertError('Erreur', 'Impossible de libérer ce cadeau.');
             }
         } catch {
-            Swal.fire({ title: 'Erreur', text: 'Impossible de libérer ce cadeau.', icon: 'error' });
+            alertError('Erreur', 'Impossible de libérer ce cadeau.');
         } finally {
             setTaking(false);
         }
     };
 
-    const showDetails = () => {
+    const showDetails = async () => {
         if (takenByList.length === 0) {
-            Swal.fire({ title: "Personne n'a encore pris ce cadeau", icon: 'info' });
+            (await getSwal()).fire({ title: "Personne n'a encore pris ce cadeau", icon: 'info' });
             return;
         }
 
@@ -74,7 +74,7 @@ export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, o
             })
             .join('');
 
-        Swal.fire({
+        (await getSwal()).fire({
             title: `Qui a pris ce cadeau ? (${takenCount})`,
             html: `<ul class="text-left mt-2">${rows}</ul>`,
             icon: 'info'
@@ -134,7 +134,7 @@ export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, o
                                             <button
                                                 onClick={() => handleRelease(t.id)}
                                                 disabled={taking}
-                                                className="text-xs cursor-pointer disabled:opacity-50"
+                                                className="text-xs text-rougeNoel hover:underline cursor-pointer disabled:opacity-50"
                                             >
                                                 Retirer
                                             </button>
@@ -147,7 +147,7 @@ export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, o
 
                     {/* Bouton Je prends toujours visible */}
                     <div className="pt-2">
-                        <CustomButton onClick={handleTake} disabled={taking} className="green-button">
+                        <CustomButton onClick={handleTake} disabled={taking} variant="green">
                             {taking ? 'En cours...' : 'Je prends ce cadeau'}
                         </CustomButton>
                     </div>

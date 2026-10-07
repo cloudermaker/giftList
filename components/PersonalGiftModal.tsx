@@ -43,7 +43,7 @@ export const PersonalGiftModal = ({ groupUsers, currentUserId, onClose, onSubmit
             footer={
                 <div className="flex justify-end gap-2">
                     <CustomButton onClick={onClose}>Annuler</CustomButton>
-                    <CustomButton className="green-button" onClick={handleSubmit} disabled={!name.trim() || isSubmitting}>
+                    <CustomButton variant="green" onClick={handleSubmit} disabled={!name.trim() || isSubmitting}>
                         {isSubmitting ? 'Ajout en cours...' : 'Valider'}
                     </CustomButton>
                 </div>

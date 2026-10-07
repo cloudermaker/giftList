@@ -130,7 +130,7 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
 
                         <div className="p-6 bg-gray-50 flex flex-col gap-2">
                             {!needsConfirmation && (
-                                <CustomButton className="w-full p-3 green-button" onClick={handleJoin} disabled={isLoading}>
+                                <CustomButton variant="green" className="w-full p-3" onClick={handleJoin} disabled={isLoading}>
                                     {isLoading ? '⏳ Chargement...' : "C'est parti !"}
                                 </CustomButton>
                             )}
@@ -138,7 +138,8 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
                             {needsConfirmation && (
                                 <>
                                     <CustomButton
-                                        className="w-full p-3 green-button"
+                                        variant="green"
+                                        className="w-full p-3"
                                         onClick={handleConfirm}
                                         disabled={isLoading}
                                     >
@@ -149,7 +150,8 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
                                               : 'Oui, je suis un nouveau membre'}
                                     </CustomButton>
                                     <CustomButton
-                                        className="w-full p-3 green-button"
+                                        variant="green"
+                                        className="w-full p-3"
                                         onClick={handleCancelConfirmation}
                                         disabled={isLoading}
                                     >

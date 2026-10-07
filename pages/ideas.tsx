@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Idea } from '@prisma/client';
 import { Layout } from '@/components/layout';
+import { PageTitle } from '@/components/atoms/PageTitle';
 import SEO from '@/components/SEO';
 import CustomButton from '@/components/atoms/customButton';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
@@ -106,7 +107,7 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
                     <div className="text-4xl mb-2" role="img" aria-hidden="true">
                         💡
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-800 mb-2">Boîte à idées</h1>
+                    <PageTitle className="mb-2">Boîte à idées</PageTitle>
                     <p className="text-sm text-gray-500">
                         Une envie, une amélioration ? Proposez votre idée et votez pour celles des autres — les plus populaires
                         seront réalisées en priorité.
@@ -145,7 +146,7 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
                     {feedback && (
                         <p className={`text-sm mb-2 ${feedback.ok ? 'text-vertNoel' : 'text-rougeNoel'}`}>{feedback.text}</p>
                     )}
-                    <CustomButton className="green-button" onClick={submitIdea} disabled={submitting || !title.trim()}>
+                    <CustomButton variant="green" onClick={submitIdea} disabled={submitting || !title.trim()}>
                         Proposer mon idée
                     </CustomButton>
                 </div>
@@ -209,7 +210,6 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
                                             ? 'bg-vertNoel text-white border-vertNoel'
                                             : 'bg-white text-gray-600 border-gray-300 hover:border-vertNoel hover:text-vertNoel'
                                     }`}
-                                    style={{ boxShadow: 'none', backgroundImage: 'none', margin: 0 }}
                                 >
                                     <span className="text-xl leading-none">👍</span> {idea.likes}
                                 </button>

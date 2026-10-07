@@ -1,27 +1,18 @@
 import CustomButton from '@/components/atoms/customButton';
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
+import { PageTitle } from '@/components/atoms/PageTitle';
 import { PersonalGiftModal } from '@/components/PersonalGiftModal';
 import { getTakenGiftsFromUserId, GiftWithTakenUserId } from '@/lib/db/giftManager';
 import { getPersonalGiftsByUser } from '@/lib/db/personalGiftManager';
 import { User, GiftType } from '@prisma/client';
 import { NextPageContext } from 'next';
 import { useState, useEffect } from 'react';
-import Swal from 'sweetalert2';
+import { toast, alertError, confirmDestructive } from '@/lib/ui/alert';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import ModernLink from '@/components/atoms/ModernLink';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
-
-const AVATAR_COLORS = [
-    { bg: '#fde8e6', text: '#c0392b' },
-    { bg: '#e8f2ec', text: '#4a7c59' },
-    { bg: '#e8edf5', text: '#4a6fa5' },
-    { bg: '#fef3cd', text: '#b8860b' },
-    { bg: '#f0ebf8', text: '#7b5ea7' },
-    { bg: '#e6f3f5', text: '#2e7d8a' }
-];
-
-const avatarColor = (name: string) => AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
+import { avatarColor } from '@/lib/ui/colors';
 
 // Type étendu pour inclure forUser (pour les personal gifts)
 type GiftWithForUser = GiftWithTakenUserId & {
@@ -69,13 +60,9 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
             if (data && data.success) {
                 // Retirer uniquement cette entrée (par userTakenGiftId pour éviter de supprimer les doublons UNLIMITED)
                 setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => (gift.userTakenGiftId ?? gift.id) !== uniqueKey));
-                Swal.fire({ title: 'Cadeau libéré !', icon: 'success', timer: 1500, showConfirmButton: false });
+                toast('Cadeau libéré !');
             } else {
-                Swal.fire({
-                    title: 'Erreur',
-                    text: 'Impossible de libérer ce cadeau. Réessayez dans quelques instants.',
-                    icon: 'error'
-                });
+                alertError('Erreur', 'Impossible de libérer ce cadeau. Réessayez dans quelques instants.');
             }
         } finally {
             setReleasingGiftId(null);
@@ -111,55 +98,35 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                 forUser: res.personalGift.forUser || null
             } as GiftWithForUser;
             setLocalTakenGifts((old) => [...old, giftFromPersonal]);
-            Swal.fire({ title: 'Cadeau ajouté !', icon: 'success', timer: 1500, showConfirmButton: false });
+            toast('Cadeau ajouté !');
         } else {
-            Swal.fire({
-                title: 'Erreur',
-                text: "Impossible d'ajouter ce cadeau. Réessayez dans quelques instants.",
-                icon: 'error'
-            });
+            alertError('Erreur', "Impossible d'ajouter ce cadeau. Réessayez dans quelques instants.");
             throw new Error('api error');
         }
     };
 
     const deletePersonalGift = async (giftId: string): Promise<void> => {
-        const swalWithBootstrapButtons = Swal.mixin({
-            buttonsStyling: true
-        });
-
-        const result = await swalWithBootstrapButtons.fire({
+        const confirmed = await confirmDestructive({
             title: 'Es-tu certain de vouloir supprimer ce cadeau?',
-            text: 'Il ne sera pas possible de revenir en arrière!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Oui!',
-            cancelButtonText: 'Non!',
-            reverseButtons: true
+            text: 'Il ne sera pas possible de revenir en arrière!'
         });
+        if (!confirmed) return;
 
-        if (result.isConfirmed) {
-            setDeletingGiftId(giftId);
+        setDeletingGiftId(giftId);
+        try {
+            const apiResult = await AxiosWrapper.delete(`/api/personalGift/${giftId}`, {
+                userId: connectedUser?.userId
+            });
+            const data = apiResult?.data;
 
-            try {
-                const apiResult = await AxiosWrapper.delete(`/api/personalGift/${giftId}`, {
-                    userId: connectedUser?.userId
-                });
-                const data = apiResult?.data;
-
-                if (data && data.success === true) {
-                    setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftId));
-                    swalWithBootstrapButtons.fire({
-                        title: 'Supprimé !',
-                        icon: 'success',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                } else {
-                    swalWithBootstrapButtons.fire({ title: 'Erreur', text: 'Impossible de supprimer ce cadeau.', icon: 'error' });
-                }
-            } finally {
-                setDeletingGiftId(null);
+            if (data && data.success === true) {
+                setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftId));
+                toast('Supprimé !');
+            } else {
+                alertError('Erreur', 'Impossible de supprimer ce cadeau.');
             }
+        } finally {
+            setDeletingGiftId(null);
         }
     };
 
@@ -169,10 +136,7 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
     return (
         <Layout selectedHeader={EHeader.TakenGiftList}>
             <div>
-                {/* Title */}
-                <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-gray-800">Mes réservations</h1>
-                </div>
+                <PageTitle>Mes réservations</PageTitle>
 
                 {/* ── Cadeaux réservés ── */}
                 <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Cadeaux réservés</p>
@@ -267,7 +231,7 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
                     </div>
                 )}
 
-                <CustomButton className="green-button" onClick={() => setShowPersonalGiftModal(true)}>
+                <CustomButton variant="green" onClick={() => setShowPersonalGiftModal(true)}>
                     Ajouter un cadeau personnel
                 </CustomButton>
 
