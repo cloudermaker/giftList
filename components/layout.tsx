@@ -46,7 +46,7 @@ export const Layout = ({
                     )}
 
                     {connectedUser && (
-                        <div className="relative group flex justify-end">
+                        <div className="flex justify-end">
                             <div className="flex items-center gap-2 text-sm cursor-default flex-nowrap">
                                 <span className="hidden sm:inline-block w-2 h-2 bg-green-500 rounded-full" />
                                 {connectedUser.isAdmin && (
@@ -57,7 +57,7 @@ export const Layout = ({
                                 <Link
                                     href="/profil"
                                     className="icon-btn text-gray-400 hover:text-vertNoel hover:no-underline transition-colors"
-                                    title="Mon profil"
+                                    title={`Mon profil (${connectedUser.userName})`}
                                     aria-label="Mon profil"
                                 >
                                     👤
@@ -81,14 +81,6 @@ export const Layout = ({
                                         <line x1="12" y1="2" x2="12" y2="12" />
                                     </svg>
                                 </button>
-                            </div>
-                            <div className="absolute right-0 top-full mt-1 w-48 p-2 bg-white border border-gray-200 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                <p className="text-xs">
-                                    <span className="font-semibold">Nom :</span> {connectedUser.userName}
-                                </p>
-                                <p className="text-xs">
-                                    <span className="font-semibold">Groupe :</span> {connectedUser.groupName}
-                                </p>
                             </div>
                         </div>
                     )}
