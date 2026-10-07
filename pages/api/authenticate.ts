@@ -25,8 +25,9 @@ export type TAuthenticateResult = {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TAuthenticateResult>) {
-    const loginSuccess = (groupUser: TGroupAndUser) => {
-        touchGroupActivity(groupUser.groupId).catch((e) => console.error('touchGroupActivity failed:', e));
+    const loginSuccess = async (groupUser: TGroupAndUser) => {
+        // Attendu : sur Vercel, la fonction peut s'arrêter dès la réponse envoyée
+        await touchGroupActivity(groupUser.groupId);
         res.setHeader('Set-Cookie', sessionCookieHeader(groupUser));
         res.status(200).json({ success: true, error: '', groupUser });
     };
@@ -61,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                         grantsAdmin: true
                     }).catch((e) => console.error('Verification email failed:', e));
                 }
-                loginSuccess({
+                await loginSuccess({
                     groupId: newGroup.id,
                     groupName: newGroup.name,
                     userId: newUser.id,
@@ -89,7 +90,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 if (!isHashed(group.adminPassword)) {
                     await prisma.group.update({ where: { id: group.id }, data: { adminPassword: await hashPassword(password) } });
                 }
-                loginSuccess({ groupId: group.id, groupName: group.name, userId: user.id, userName: user.name, isAdmin: true });
+                await loginSuccess({
+                    groupId: group.id,
+                    groupName: group.name,
+                    userId: user.id,
+                    userName: user.name,
+                    isAdmin: true
+                });
             } else if (password) {
                 res.status(401).json({
                     success: false,
@@ -98,7 +105,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             } else {
                 // Connexion sans mot de passe = toujours mode user normal (isAdmin: false)
                 // même si le user a un rôle ADMIN dans UserGroupMapping
-                loginSuccess({ groupId: group.id, groupName: group.name, userId: user.id, userName: user.name, isAdmin: false });
+                await loginSuccess({
+                    groupId: group.id,
+                    groupName: group.name,
+                    userId: user.id,
+                    userName: user.name,
+                    isAdmin: false
+                });
             }
         }
     } catch (e) {

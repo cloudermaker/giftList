@@ -1,7 +1,9 @@
 import { randomBytes, scrypt as scryptCb, timingSafeEqual } from 'crypto';
 import { promisify } from 'util';
 
-const scrypt = promisify(scryptCb) as (password: string, salt: Buffer, keylen: number) => Promise<Buffer>;
+// Module serveur uniquement (crypto natif) : ne jamais l'importer depuis du code exécuté dans le navigateur
+const scrypt = (password: string, salt: Buffer, keylen: number): Promise<Buffer> =>
+    (promisify(scryptCb) as (p: string, s: Buffer, k: number) => Promise<Buffer>)(password, salt, keylen);
 
 const PREFIX = 'scrypt$';
 const KEY_LENGTH = 64;
