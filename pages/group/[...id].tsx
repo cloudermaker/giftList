@@ -184,7 +184,7 @@ export async function getServerSideProps(context: NextPageContext) {
 
     return {
         props: {
-            group: (({ updatedAt, createdAt, adminPassword, ...g }) => g)(group),
+            group: (({ updatedAt, createdAt, lastActivityAt, adminPassword, ...g }) => g)(group),
             groupUsers: groupUsers.map(({ updatedAt, createdAt, ...u }) => u),
             inviteToken
         }
