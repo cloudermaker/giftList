@@ -6,7 +6,6 @@ import { Layout } from '../components/layout';
 import { CustomInput } from '../components/atoms/customInput';
 import CustomButton from '../components/atoms/customButton';
 import { ErrorAlert } from '../components/atoms/ErrorAlert';
-import { GoogleButton, isGoogleLoginEnabled } from '@/components/atoms/GoogleButton';
 import { checkInboxPopup, rememberAccessPopup } from '@/lib/ui/alert';
 import { useLogin } from '@/lib/hooks/useLogin';
 import SEO from '@/components/SEO';
@@ -470,13 +469,6 @@ export default function Index(): JSX.Element {
                                 >
                                     {isLoading ? '⏳ Chargement...' : "C'est parti!"}
                                 </CustomButton>
-
-                                {mode === 'joining' && isGoogleLoginEnabled && (
-                                    <>
-                                        <p className="text-center text-xs text-gray-400">ou, si tu as lié ton compte Google</p>
-                                        <GoogleButton intent="login" label="Continuer avec Google" />
-                                    </>
-                                )}
                             </div>
                         </div>
                     </div>

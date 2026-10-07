@@ -4,7 +4,7 @@ import { getSession, sessionCookieHeader } from '@/lib/auth/session';
 import { getEmailStatus, getProfilesByVerifiedEmail, sessionForProfile } from '@/lib/auth/emailRecovery';
 import { touchGroupActivity } from '@/lib/db/groupManager';
 
-// Passage à un autre groupe lié au même email (réservé aux sessions ouvertes par email ou Google)
+// Passage à un autre groupe lié au même email (réservé aux sessions ouvertes par le lien email)
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' });
     const session = getSession(req);

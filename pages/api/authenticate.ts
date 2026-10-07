@@ -14,7 +14,7 @@ export type TGroupAndUser = {
     userName: string;
     userId: string;
     isAdmin: boolean;
-    // Session ouverte via un lien email ou Google : autorise le changement d'email et le passage d'un groupe à l'autre
+    // Session ouverte via un lien email : autorise le changement d'email et le passage d'un groupe à l'autre
     emailAuth?: boolean;
 };
 

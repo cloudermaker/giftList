@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { GetServerSideProps } from 'next';
-import { useRouter } from 'next/router';
 import NProgress from 'nprogress';
 import { Layout } from '@/components/layout';
 import SEO from '@/components/SEO';
@@ -8,9 +7,8 @@ import { PageTitle } from '@/components/atoms/PageTitle';
 import { CustomInput } from '@/components/atoms/customInput';
 import CustomButton from '@/components/atoms/customButton';
 import { ErrorAlert } from '@/components/atoms/ErrorAlert';
-import { GoogleButton } from '@/components/atoms/GoogleButton';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
-import { alertError, confirmDestructive, toast } from '@/lib/ui/alert';
+import { alertError, confirmDestructive } from '@/lib/ui/alert';
 import { verifySession } from '@/lib/auth/session';
 import { COOKIE_NAME } from '@/lib/auth/authService';
 import { getEmailStatus, getProfilesByVerifiedEmail, TEmailProfile } from '@/lib/auth/emailRecovery';
@@ -18,7 +16,7 @@ import { getEmailStatus, getProfilesByVerifiedEmail, TEmailProfile } from '@/lib
 type Props = {
     userName: string;
     groupName: string;
-    // Adresse complète seulement si la session a été ouverte par email/Google ; sinon masquée
+    // Adresse complète seulement si la session a été ouverte par le lien email ; sinon masquée
     displayEmail: string | null;
     verified: boolean;
     isAdminKey: boolean;
@@ -40,17 +38,10 @@ export default function ProfilePage({
     canChange,
     otherProfiles
 }: Props) {
-    const { query } = useRouter();
     const [email, setEmail] = useState('');
     const [sentTo, setSentTo] = useState('');
-    const [error, setError] = useState(
-        query.email === 'verrouille' ? "Pour changer d'email, reconnecte-toi d'abord avec ton adresse actuelle." : ''
-    );
+    const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        if (query.email === 'google') toast('Adresse Google liée ✅');
-    }, [query.email]);
 
     const sendConfirmation = async (): Promise<void> => {
         if (!email.trim()) {
@@ -144,7 +135,6 @@ export default function ProfilePage({
                                     {isLoading ? '⏳ Envoi...' : verified ? 'Changer' : 'Ajouter'}
                                 </CustomButton>
                             </div>
-                            <GoogleButton intent="attach" label="Lier mon compte Google" />
                         </div>
                     )}
 

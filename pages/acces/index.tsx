@@ -1,21 +1,18 @@
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { Layout } from '@/components/layout';
 import SEO from '@/components/SEO';
 import { CustomInput } from '@/components/atoms/customInput';
 import CustomButton from '@/components/atoms/customButton';
 import { ErrorAlert } from '@/components/atoms/ErrorAlert';
-import { GoogleButton, isGoogleLoginEnabled } from '@/components/atoms/GoogleButton';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 
-// « Accès oublié » : lien de connexion par email ou Google
+// « Accès oublié » : lien de connexion par email
 export default function AccessPage(): JSX.Element {
-    const { query } = useRouter();
     const [email, setEmail] = useState('');
     const [sent, setSent] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(query.erreur === 'google' ? 'La connexion avec Google a échoué. Réessaie.' : '');
+    const [error, setError] = useState('');
 
     const requestLink = async (): Promise<void> => {
         if (!email.trim()) {
@@ -73,12 +70,6 @@ export default function AccessPage(): JSX.Element {
                                 <CustomButton variant="green" className="w-full" onClick={requestLink} disabled={isLoading}>
                                     {isLoading ? '⏳ Envoi...' : 'Recevoir un lien de connexion'}
                                 </CustomButton>
-                                {isGoogleLoginEnabled && (
-                                    <>
-                                        <p className="text-center text-xs text-gray-400">ou</p>
-                                        <GoogleButton intent="login" label="Continuer avec Google" />
-                                    </>
-                                )}
                             </>
                         )}
                     </div>

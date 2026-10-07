@@ -12,7 +12,7 @@ import { getProfilesByVerifiedEmail, TEmailProfile } from '@/lib/auth/emailRecov
 
 type Props = { token: string; valid: boolean; profiles: TEmailProfile[] };
 
-// Arrivée depuis le lien email ou Google : un clic choisit le profil (le lien n'est consommé qu'à ce moment)
+// Arrivée depuis le lien email : un clic choisit le profil (le lien n'est consommé qu'à ce moment)
 export default function ProfilePickerPage({ token, valid, profiles }: Props): JSX.Element {
     const [error, setError] = useState('');
     const [loadingId, setLoadingId] = useState<string | null>(null);

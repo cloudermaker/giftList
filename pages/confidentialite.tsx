@@ -48,10 +48,9 @@ export default function Confidentialite(): JSX.Element {
                             le service que vous utilisez (base légale : exécution du service).
                         </li>
                         <li>
-                            <strong>Email de secours (facultatif)</strong>, saisi ou récupéré via Google : uniquement pour vous
-                            envoyer un lien de connexion en cas d&apos;oubli (base légale : votre consentement, que vous retirez
-                            en supprimant l&apos;email depuis votre profil). Avec Google, seule l&apos;adresse email est
-                            récupérée.
+                            <strong>Email de secours (facultatif)</strong> : uniquement pour vous envoyer un lien de connexion en
+                            cas d&apos;oubli (base légale : votre consentement, que vous retirez en supprimant l&apos;email depuis
+                            votre profil).
                         </li>
                         <li>
                             <strong>Messages du formulaire de contact</strong> : uniquement pour vous répondre (base légale :
@@ -73,10 +72,9 @@ export default function Confidentialite(): JSX.Element {
                     <p>
                         Vos données ne sont ni vendues ni cédées. Elles sont traitées pour notre compte par des prestataires
                         techniques : <strong>Vercel</strong> (hébergement du site), <strong>Neon</strong> (base de données,
-                        stockée dans l&apos;Union européenne), <strong>MailerSend</strong> (envoi des emails) et, si vous
-                        l&apos;utilisez, <strong>Google</strong> (connexion). Vercel, Neon et Google sont des sociétés américaines
-                        : ces transferts sont encadrés par les garanties prévues par le RGPD (cadre de protection des données
-                        UE–États-Unis ou clauses contractuelles types de la Commission européenne).
+                        stockée dans l&apos;Union européenne) et <strong>MailerSend</strong> (envoi des emails). Vercel et Neon
+                        sont des sociétés américaines : ces transferts sont encadrés par les garanties prévues par le RGPD (cadre
+                        de protection des données UE–États-Unis ou clauses contractuelles types de la Commission européenne).
                     </p>
                 </Section>
 

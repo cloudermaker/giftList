@@ -15,7 +15,7 @@ export default function Help(): JSX.Element {
         },
         {
             question: "Ai-je besoin d'un mail ?",
-            answer: "Non ! Le nom du groupe et ton prénom suffisent. Tu peux ajouter un email (ou ton compte Google) depuis ton profil pour retrouver ton accès en cas d'oubli."
+            answer: "Non ! Le nom du groupe et ton prénom suffisent. Tu peux ajouter un email depuis ton profil pour retrouver ton accès en cas d'oubli."
         },
         {
             question: "J'ai oublié mon mot de passe administrateur!",
@@ -104,9 +104,9 @@ export default function Help(): JSX.Element {
                     <div className="item">
                         <h3 className="text-lg font-semibold text-violetNoel mb-2.5">Ai-je besoin d&apos;un mail ?</h3>
                         <p>
-                            Non ! Le nom du groupe et ton prénom suffisent. Mais tu peux ajouter un email (ou lier ton compte
-                            Google) depuis ton profil 👤 : en cas d&apos;oubli, « Accès oublié ? » t&apos;envoie un lien pour te
-                            reconnecter. Ton email n&apos;est jamais visible par les autres membres.
+                            Non ! Le nom du groupe et ton prénom suffisent. Mais tu peux ajouter un email depuis ton profil 👤 :
+                            en cas d&apos;oubli, « Accès oublié ? » t&apos;envoie un lien pour te reconnecter. Ton email
+                            n&apos;est jamais visible par les autres membres.
                         </p>
                     </div>
 

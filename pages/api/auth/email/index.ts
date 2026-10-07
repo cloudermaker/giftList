@@ -6,8 +6,7 @@ import { canChangeEmail, clearEmail, sendVerificationEmail } from '@/lib/auth/em
 
 const isRateLimited = createRateLimiter(5, 60 * 60 * 1000);
 
-const LOCKED_ERROR =
-    "Pour modifier ton email, reconnecte-toi d'abord avec le lien envoyé à ton adresse actuelle (ou avec Google).";
+const LOCKED_ERROR = "Pour modifier ton email, reconnecte-toi d'abord avec le lien envoyé à ton adresse actuelle.";
 
 // POST : lier un email au profil connecté (envoi d'un lien de confirmation) — DELETE : retirer l'email
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
