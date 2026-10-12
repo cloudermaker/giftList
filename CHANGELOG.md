@@ -11,7 +11,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 - 🔗 Lien direct vers la boutique sur chaque cadeau de la liste, sans ouvrir sa fiche
 - Bouton « Modifier mon email » sur le profil : un lien envoyé à l'adresse actuelle permet de la changer
 - Après avoir confirmé une nouvelle adresse email, retour direct sur le profil
-- Vue en grille : sous le nom du cadeau, les étiquettes à gauche et le lien à droite
+- Vue en grille : lien dans le coin de chaque carte, étiquettes sous le nom, cartes plus aérées sur mobile
 - Icônes de l'interface harmonisées
 
 ### Corrigé

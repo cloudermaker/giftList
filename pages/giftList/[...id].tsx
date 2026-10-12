@@ -29,6 +29,21 @@ import UnlimitedGiftTakers from '@/components/UnlimitedGiftTakers';
 
 const NEW_GIFT_SENTINEL = 'new';
 
+// Accès direct à la boutique, sans ouvrir la fiche du cadeau
+const GiftShopLink = ({ url, name, className = '' }: { url: string; name: string; className?: string }) => (
+    <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        title="Ouvrir le lien du cadeau"
+        aria-label={`Ouvrir le lien de ${name}`}
+        className={`shrink-0 flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-vertNoel hover:bg-green-50 hover:no-underline transition-colors ${className}`}
+    >
+        <ExternalLink className="w-4 h-4" aria-hidden="true" />
+    </a>
+);
+
 function SortableItem({
     gift,
     children,
@@ -55,7 +70,11 @@ function SortableItem({
     };
 
     return (
-        <div className={`item flex ${viewMode === 'grid' ? 'items-start' : 'items-center'}`} ref={setNodeRef} style={style}>
+        <div
+            className={`item flex ${viewMode === 'grid' ? 'items-start !p-2 sm:!p-[18px]' : 'items-center'}`}
+            ref={setNodeRef}
+            style={style}
+        >
             {viewMode === 'list' && (
                 <div {...localListeners} style={localStyle}>
                     <LeftIcon />
@@ -373,17 +392,25 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                             viewMode={viewMode}
                                         >
                                             <div
-                                                className={`w-full cursor-pointer p-3 rounded-lg flex items-start gap-3 ${
-                                                    viewMode === 'grid' ? 'flex-wrap' : 'justify-between'
+                                                className={`w-full cursor-pointer rounded-lg flex items-start gap-3 ${
+                                                    viewMode === 'grid' ? 'flex-wrap p-1 sm:p-3' : 'p-3 justify-between'
                                                 }`}
                                                 onClick={() => setSelectedGiftId(gift.id)}
                                             >
                                                 <span
-                                                    className={`font-medium ${viewMode === 'grid' ? 'w-full' : 'flex-1 min-w-0'} ${!isOwnList && gift.takenUserId && gift.giftType !== ('UNLIMITED' as GiftType) && gift.giftType !== ('MULTIPLE' as GiftType) ? 'line-through text-gray-400' : ''}`}
+                                                    className={`font-medium ${viewMode === 'grid' ? `w-full ${toSafeUrl(gift.url) ? 'pr-7' : ''}` : 'flex-1 min-w-0'} ${!isOwnList && gift.takenUserId && gift.giftType !== ('UNLIMITED' as GiftType) && gift.giftType !== ('MULTIPLE' as GiftType) ? 'line-through text-gray-400' : ''}`}
                                                 >
                                                     {gift.name}
                                                 </span>
-                                                {/* Badges + lien : en grille, badges à gauche et lien à droite sous le nom ; en liste, en bout de ligne */}
+                                                {viewMode === 'grid' && toSafeUrl(gift.url) && (
+                                                    // Grille : lien dans le coin haut-droit de la carte, la ligne du bas reste aux badges
+                                                    <GiftShopLink
+                                                        url={toSafeUrl(gift.url)!}
+                                                        name={gift.name}
+                                                        className="absolute top-1 right-1 sm:top-2 sm:right-2"
+                                                    />
+                                                )}
+                                                {/* Badges (+ lien en vue liste) : en bout de ligne en liste, sous le nom en grille */}
                                                 <div
                                                     className={`flex items-center gap-2 shrink-0 empty:hidden ${viewMode === 'grid' ? 'w-full' : ''}`}
                                                 >
@@ -411,19 +438,12 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                             {gift.takenUserId ? 'Pris' : 'Libre'}
                                                         </span>
                                                     )}
-                                                    {toSafeUrl(gift.url) && (
-                                                        // Accès direct à la boutique, sans ouvrir la fiche du cadeau
-                                                        <a
-                                                            href={toSafeUrl(gift.url)!}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            onClick={(e) => e.stopPropagation()}
-                                                            title="Ouvrir le lien du cadeau"
-                                                            aria-label={`Ouvrir le lien de ${gift.name}`}
-                                                            className="ml-auto shrink-0 -my-1 flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-vertNoel hover:bg-green-50 hover:no-underline transition-colors"
-                                                        >
-                                                            <ExternalLink className="w-4 h-4" aria-hidden="true" />
-                                                        </a>
+                                                    {viewMode === 'list' && toSafeUrl(gift.url) && (
+                                                        <GiftShopLink
+                                                            url={toSafeUrl(gift.url)!}
+                                                            name={gift.name}
+                                                            className="-my-1"
+                                                        />
                                                     )}
                                                 </div>
                                             </div>
