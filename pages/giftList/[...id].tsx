@@ -4,6 +4,7 @@ import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
 import ModernLink from '@/components/atoms/ModernLink';
 import { toSafeUrl } from '@/lib/ui/url';
+import { ExternalLink, LayoutGrid, List } from 'lucide-react';
 import { GetServerSidePropsContext } from 'next';
 import { verifySession } from '@/lib/auth/session';
 import { COOKIE_NAME } from '@/lib/auth/authService';
@@ -337,16 +338,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                 viewMode === 'list' ? 'bg-vertNoel text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
                             }`}
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="w-4 h-4"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
+                            <List className="w-4 h-4" aria-hidden="true" />
                         </button>
                         <button
                             type="button"
@@ -359,20 +351,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                 viewMode === 'grid' ? 'bg-vertNoel text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
                             }`}
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="w-4 h-4"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M4 5h6v6H4zM14 5h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"
-                                />
-                            </svg>
+                            <LayoutGrid className="w-4 h-4" aria-hidden="true" />
                         </button>
                     </div>
                 </div>
@@ -404,9 +383,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                 >
                                                     {gift.name}
                                                 </span>
-                                                {/* Badges + lien : sous le nom et calés à droite en grille, en bout de ligne en liste */}
+                                                {/* Badges + lien : en grille, badges à gauche et lien à droite sous le nom ; en liste, en bout de ligne */}
                                                 <div
-                                                    className={`flex items-center gap-2 shrink-0 empty:hidden ${viewMode === 'grid' ? 'w-full justify-end' : ''}`}
+                                                    className={`flex items-center gap-2 shrink-0 empty:hidden ${viewMode === 'grid' ? 'w-full' : ''}`}
                                                 >
                                                     {gift.giftType === 'MULTIPLE' && (
                                                         <span className="shrink-0 text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
@@ -441,22 +420,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                             onClick={(e) => e.stopPropagation()}
                                                             title="Ouvrir le lien du cadeau"
                                                             aria-label={`Ouvrir le lien de ${gift.name}`}
-                                                            className="shrink-0 -my-1 flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-vertNoel hover:bg-green-50 hover:no-underline transition-colors"
+                                                            className="ml-auto shrink-0 -my-1 flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-vertNoel hover:bg-green-50 hover:no-underline transition-colors"
                                                         >
-                                                            <svg
-                                                                className="w-4 h-4"
-                                                                viewBox="0 0 24 24"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                strokeWidth="2"
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                aria-hidden="true"
-                                                            >
-                                                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                                                <polyline points="15 3 21 3 21 9" />
-                                                                <line x1="10" y1="14" x2="21" y2="3" />
-                                                            </svg>
+                                                            <ExternalLink className="w-4 h-4" aria-hidden="true" />
                                                         </a>
                                                     )}
                                                 </div>

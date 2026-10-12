@@ -5,6 +5,7 @@ import { CustomHeader, EHeader } from './customHeader';
 import { Logo } from './Logo';
 import Router from 'next/router';
 import Link from 'next/link';
+import { Power } from 'lucide-react';
 import { useLogout } from '@/lib/hooks/useLogout';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 
@@ -67,19 +68,7 @@ export const Layout = ({
                                     onClick={onDisconnectClick}
                                     title="Se déconnecter"
                                 >
-                                    <svg
-                                        className="w-4 h-4"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        aria-hidden="true"
-                                    >
-                                        <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
-                                        <line x1="12" y1="2" x2="12" y2="12" />
-                                    </svg>
+                                    <Power className="w-4 h-4" aria-hidden="true" />
                                 </button>
                             </div>
                         </div>
