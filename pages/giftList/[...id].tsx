@@ -71,7 +71,7 @@ function SortableItem({
 
     return (
         <div
-            className={`item flex ${viewMode === 'grid' ? 'items-start !p-2 sm:!p-[18px]' : 'items-center'}`}
+            className={`item flex ${viewMode === 'grid' ? 'items-start !p-2 sm:!p-[18px]' : 'items-center !p-2.5 sm:!p-[18px]'}`}
             ref={setNodeRef}
             style={style}
         >
@@ -393,12 +393,14 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                         >
                                             <div
                                                 className={`w-full cursor-pointer rounded-lg flex items-start gap-3 ${
-                                                    viewMode === 'grid' ? 'flex-wrap p-1 sm:p-3' : 'p-3 justify-between'
+                                                    viewMode === 'grid'
+                                                        ? 'flex-wrap p-1 sm:p-3'
+                                                        : 'flex-wrap sm:flex-nowrap gap-y-2 p-1.5 sm:p-3 justify-between'
                                                 }`}
                                                 onClick={() => setSelectedGiftId(gift.id)}
                                             >
                                                 <span
-                                                    className={`font-medium ${viewMode === 'grid' ? `w-full ${toSafeUrl(gift.url) ? 'pr-7' : ''}` : 'flex-1 min-w-0'} ${!isOwnList && gift.takenUserId && gift.giftType !== ('UNLIMITED' as GiftType) && gift.giftType !== ('MULTIPLE' as GiftType) ? 'line-through text-gray-400' : ''}`}
+                                                    className={`font-medium ${viewMode === 'grid' ? `w-full ${toSafeUrl(gift.url) ? 'pr-7' : ''}` : 'w-full sm:w-auto sm:flex-1 min-w-0'} ${!isOwnList && gift.takenUserId && gift.giftType !== ('UNLIMITED' as GiftType) && gift.giftType !== ('MULTIPLE' as GiftType) ? 'line-through text-gray-400' : ''}`}
                                                 >
                                                     {gift.name}
                                                 </span>
@@ -410,9 +412,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                         className="absolute top-1 right-1 sm:top-2 sm:right-2"
                                                     />
                                                 )}
-                                                {/* Badges (+ lien en vue liste) : en bout de ligne en liste, sous le nom en grille */}
+                                                {/* Badges (+ lien en vue liste) : sous le nom en grille et en liste sur mobile (badges à gauche, lien à droite), en bout de ligne sinon */}
                                                 <div
-                                                    className={`flex items-center gap-2 shrink-0 empty:hidden ${viewMode === 'grid' ? 'w-full' : ''}`}
+                                                    className={`flex items-center gap-2 shrink-0 empty:hidden ${viewMode === 'grid' ? 'w-full' : 'w-full sm:w-auto'}`}
                                                 >
                                                     {gift.giftType === 'MULTIPLE' && (
                                                         <span className="shrink-0 text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
@@ -442,7 +444,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                         <GiftShopLink
                                                             url={toSafeUrl(gift.url)!}
                                                             name={gift.name}
-                                                            className="-my-1"
+                                                            className="-my-1 ml-auto"
                                                         />
                                                     )}
                                                 </div>
