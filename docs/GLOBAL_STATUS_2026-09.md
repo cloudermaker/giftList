@@ -146,6 +146,9 @@ merged & deployed; v5.4.0 ideas board in PR).
     incl. e2e)
 32. **Invited user mode** — a member who can ONLY take (reserve) gifts: no gift list of their own, no other actions. How
     (new role, invite option, UI) to be decided later. (M?)
+33. **Quick link on gift rows** — open a gift's shop link straight from the list, without opening the gift first. Easy to
+    build, but the design must stay clever: no clutter on rows, no conflict with the row click / drag handle, clear on
+    mobile (small icon? only when a link exists?). (S)
 
 ### Ideas backlog (migrated from old TODO.md / README todo)
 
