@@ -126,7 +126,7 @@ merged & deployed; v5.4.0 ideas board in PR).
   lands on a same-site click page. Google sign-in was built then dropped (not needed: email recovery is enough). Not done: "profil
   verrouillé" (block name-only login once an email exists) — revisit if traffic grows.
 - ✅ **GDPR pass (v5.6.0, same branch)** — admin passwords hashed (scrypt, `lib/auth/password.ts`; legacy plain-text rehashed at
-  next admin login, `scripts/hash-admin-passwords.js --apply` for the rest); `deleteGroup` now deletes the group's members too
+  next admin login, the weekly cron job hashes the rest); `deleteGroup` now deletes the group's members too
   (they used to stay as orphans with their lists); retention = 3 years without any login (`Group.lastActivityAt`, touched on
   login/home/gift list, purged weekly by Vercel Cron `/api/cron/purge` + `CRON_SECRET`, which also removes orphan users and spent
   login tokens); privacy page completed (legal bases, processors, transfers, retention, CNIL). To do by hand: empty contact@

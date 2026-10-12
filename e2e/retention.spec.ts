@@ -53,6 +53,19 @@ test.describe('Données personnelles', () => {
         await request.delete(`/api/group/${groupId}`);
     });
 
+    test('la tâche hebdomadaire hache les mots de passe admin restés en clair', async ({ request }) => {
+        const groupName = uniqueName('e2e-rgpd');
+        const { groupId } = await createGroupViaApi(request, groupName);
+        await prisma.group.update({ where: { id: groupId }, data: { adminPassword: 'reste-en-clair' } });
+
+        const run = await request.get('/api/cron/purge', { headers: { Authorization: 'Bearer e2e-cron-secret' } });
+        expect(run.ok()).toBeTruthy();
+        expect((await prisma.group.findUnique({ where: { id: groupId } }))?.adminPassword).toMatch(/^scrypt\$/);
+        expect((await login(request, groupName, 'reste-en-clair')).ok()).toBeTruthy();
+
+        await request.delete(`/api/group/${groupId}`);
+    });
+
     test('supprimer un groupe supprime aussi ses membres et leurs listes', async ({ request }) => {
         const groupName = uniqueName('e2e-rgpd');
         const { groupId, userId } = await createGroupViaApi(request, groupName);
