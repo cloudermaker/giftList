@@ -13,6 +13,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 - Après avoir confirmé une nouvelle adresse email, retour direct sur le profil
 - Vue en grille : lien dans le coin de chaque carte, étiquettes sous le nom, cartes plus aérées sur mobile
 - Icônes de l'interface harmonisées
+- Affichage amélioré sur téléphone et tablette : en-tête plus compact, onglets qui ne débordent plus de l'écran
 
 ### Corrigé
 

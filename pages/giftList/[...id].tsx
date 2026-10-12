@@ -318,7 +318,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     const isEditing = !!editingGiftId && editingGiftId === selectedGift?.id;
     const modalOpen = selectedGiftId !== null;
 
-    const pageTitle = isOwnList ? 'Ma liste de cadeaux' : `Liste de cadeaux de ${user.name}`;
+    const pageTitle = isOwnList ? 'Ma liste' : `Liste de ${user.name}`;
 
     return (
         <Layout selectedHeader={EHeader.GiftList} pageTitle={pageTitle}>
