@@ -54,7 +54,7 @@ function SortableItem({
     };
 
     return (
-        <div className="item flex items-center" ref={setNodeRef} style={style}>
+        <div className={`item flex ${viewMode === 'grid' ? 'items-start' : 'items-center'}`} ref={setNodeRef} style={style}>
             {viewMode === 'list' && (
                 <div {...localListeners} style={localStyle}>
                     <LeftIcon />
@@ -404,55 +404,62 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                 >
                                                     {gift.name}
                                                 </span>
-                                                {gift.giftType === 'MULTIPLE' && (
-                                                    <span className="shrink-0 text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
-                                                        🧩 {gift.subGiftsCount ?? 0} élément
-                                                        {(gift.subGiftsCount ?? 0) !== 1 ? 's' : ''}
-                                                    </span>
-                                                )}
-                                                {gift.giftType === ('UNLIMITED' as GiftType) && (
-                                                    <span className="shrink-0 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
-                                                        {isOwnList ? '🔁 Illimité' : `🔁 ${(gift.takenByList ?? []).length} pris`}
-                                                    </span>
-                                                )}
-                                                {!isOwnList && gift.giftType === 'SIMPLE' && (
-                                                    <span
-                                                        className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
-                                                            gift.takenUserId
-                                                                ? 'bg-red-100 text-red-600'
-                                                                : 'bg-green-100 text-green-700'
-                                                        }`}
-                                                    >
-                                                        {gift.takenUserId ? 'Pris' : 'Libre'}
-                                                    </span>
-                                                )}
-                                                {toSafeUrl(gift.url) && (
-                                                    // Accès direct à la boutique, sans ouvrir la fiche du cadeau
-                                                    <a
-                                                        href={toSafeUrl(gift.url)!}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        onClick={(e) => e.stopPropagation()}
-                                                        title="Ouvrir le lien du cadeau"
-                                                        aria-label={`Ouvrir le lien de ${gift.name}`}
-                                                        className="shrink-0 -my-1 flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-vertNoel hover:bg-green-50 hover:no-underline transition-colors"
-                                                    >
-                                                        <svg
-                                                            className="w-4 h-4"
-                                                            viewBox="0 0 24 24"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            strokeWidth="2"
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            aria-hidden="true"
+                                                {/* Badges + lien : sous le nom et calés à droite en grille, en bout de ligne en liste */}
+                                                <div
+                                                    className={`flex items-center gap-2 shrink-0 empty:hidden ${viewMode === 'grid' ? 'w-full justify-end' : ''}`}
+                                                >
+                                                    {gift.giftType === 'MULTIPLE' && (
+                                                        <span className="shrink-0 text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
+                                                            🧩 {gift.subGiftsCount ?? 0} élément
+                                                            {(gift.subGiftsCount ?? 0) !== 1 ? 's' : ''}
+                                                        </span>
+                                                    )}
+                                                    {gift.giftType === ('UNLIMITED' as GiftType) && (
+                                                        <span className="shrink-0 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+                                                            {isOwnList
+                                                                ? '🔁 Illimité'
+                                                                : `🔁 ${(gift.takenByList ?? []).length} pris`}
+                                                        </span>
+                                                    )}
+                                                    {!isOwnList && gift.giftType === 'SIMPLE' && (
+                                                        <span
+                                                            className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
+                                                                gift.takenUserId
+                                                                    ? 'bg-red-100 text-red-600'
+                                                                    : 'bg-green-100 text-green-700'
+                                                            }`}
                                                         >
-                                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                                            <polyline points="15 3 21 3 21 9" />
-                                                            <line x1="10" y1="14" x2="21" y2="3" />
-                                                        </svg>
-                                                    </a>
-                                                )}
+                                                            {gift.takenUserId ? 'Pris' : 'Libre'}
+                                                        </span>
+                                                    )}
+                                                    {toSafeUrl(gift.url) && (
+                                                        // Accès direct à la boutique, sans ouvrir la fiche du cadeau
+                                                        <a
+                                                            href={toSafeUrl(gift.url)!}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            title="Ouvrir le lien du cadeau"
+                                                            aria-label={`Ouvrir le lien de ${gift.name}`}
+                                                            className="shrink-0 -my-1 flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-vertNoel hover:bg-green-50 hover:no-underline transition-colors"
+                                                        >
+                                                            <svg
+                                                                className="w-4 h-4"
+                                                                viewBox="0 0 24 24"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                strokeWidth="2"
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                aria-hidden="true"
+                                                            >
+                                                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                                                <polyline points="15 3 21 3 21 9" />
+                                                                <line x1="10" y1="14" x2="21" y2="3" />
+                                                            </svg>
+                                                        </a>
+                                                    )}
+                                                </div>
                                             </div>
                                         </SortableItem>
                                     ))}{' '}
