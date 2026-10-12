@@ -95,12 +95,18 @@ export const CustomHeader = ({
                     key={`menu_${menu.name}`}
                     data-active={menu.isSelected ? 'true' : undefined}
                     onClick={() => onMenuClick(menu)}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-full text-base text-gray-700 cursor-pointer select-none whitespace-nowrap relative z-10 transition-all duration-200 ${
+                    className={`flex items-center gap-2 px-3 md:px-4 lg:px-6 py-3 rounded-full text-base text-gray-700 cursor-pointer select-none whitespace-nowrap relative z-10 transition-all duration-200 ${
                         menu.isSelected ? 'font-bold' : 'hover:ring-1 hover:ring-inset hover:ring-black/10'
                     }`}
                 >
                     <span className="text-lg">{menu.icon}</span>
-                    <span className="hidden sm:inline">{menu.name}</span>
+                    {/* Prénoms longs : libellé coupé (…) plutôt qu'une barre qui déborde de l'écran */}
+                    <span
+                        className="hidden sm:inline-block max-w-[9rem] lg:max-w-[14rem] truncate align-bottom"
+                        title={menu.name}
+                    >
+                        {menu.name}
+                    </span>
                 </div>
             ))}
         </nav>

@@ -76,6 +76,22 @@ export const touchGroupActivity = async (groupId: string): Promise<void> => {
     });
 };
 
+// Mots de passe admin encore en clair (admins pas reconnectés depuis la v5.6.0) : hachés par la tâche hebdomadaire
+export const hashLegacyAdminPasswords = async (): Promise<number> => {
+    const legacy = await prisma.group.findMany({
+        where: { NOT: { adminPassword: { startsWith: 'scrypt$' } }, adminPassword: { not: '' } },
+        select: { id: true, adminPassword: true }
+    });
+    for (const g of legacy) {
+        // Condition sur l'ancienne valeur : n'écrase pas un changement fait entre-temps
+        await prisma.group.updateMany({
+            where: { id: g.id, adminPassword: g.adminPassword },
+            data: { adminPassword: await hashPassword(g.adminPassword) }
+        });
+    }
+    return legacy.length;
+};
+
 export const purgeInactiveGroups = async (): Promise<{ groups: number; orphanUsers: number; tokens: number }> => {
     const limit = new Date();
     limit.setFullYear(limit.getFullYear() - RETENTION_YEARS);

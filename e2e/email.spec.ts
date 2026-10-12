@@ -2,6 +2,7 @@ import { test, expect, Page, APIRequestContext } from '@playwright/test';
 import { uniqueName, readSession, createGroup } from './fixtures';
 import { createLoginToken } from '../lib/auth/loginToken';
 import { setVerifiedEmail } from '../lib/auth/emailRecovery';
+import prisma from '../lib/db/dbSingleton';
 
 /**
  * Email de secours : liaison, confirmation, reconnexion par lien, règles de sécurité.
@@ -50,7 +51,25 @@ test.describe('Email de secours', () => {
         });
         await page.goto(`/email/confirmer/${verifyToken}`);
         await page.getByRole('button', { name: 'Confirmer mon adresse' }).click();
-        await expect(page.getByText("C'est fait")).toBeVisible();
+        // Même navigateur, même profil : retour direct au profil, adresse affichée
+        await page.waitForURL('**/profil?email=confirme');
+        await expect(page.getByText('Adresse confirmée ✅')).toBeVisible();
+        await expect(page.getByText(/•••@example\.com/)).toBeVisible();
+
+        // Confirmation depuis un autre appareil (non connecté) : simple message de succès
+        const phone = await browser.newContext();
+        const phonePage = await phone.newPage();
+        const verifyAgain = await createLoginToken({
+            purpose: 'VERIFY_EMAIL',
+            email,
+            userId: session!.userId,
+            grantsAdmin: true
+        });
+        await phonePage.goto(`/email/confirmer/${verifyAgain}`);
+        await phonePage.getByRole('button', { name: 'Confirmer mon adresse' }).click();
+        await expect(phonePage.getByText("C'est fait")).toBeVisible();
+        expect(phonePage.url()).toContain('/email/confirmer/');
+        await phone.close();
 
         // Reconnexion sur un autre appareil : email lié pendant une session admin → admin
         const ctx = await browser.newContext();
@@ -99,6 +118,31 @@ test.describe('Email de secours', () => {
         expect((await page.request.post('/api/auth/email', { data: { email: uniqueEmail() } })).ok()).toBeTruthy();
 
         await deleteGroupAsAdmin(page.request, groupName, 'Bob');
+    });
+
+    test('« Modifier mon email » envoie un lien qui ramène au profil, déverrouillé', async ({ page }) => {
+        const groupName = uniqueName('e2e-mail');
+        const email = uniqueEmail();
+        await createGroup(page, groupName, 'Dan', PASSWORD);
+        await setVerifiedEmail((await readSession(page))!.userId, email, false);
+        await page.request.post('/api/authenticate', { data: { groupName, userName: 'Dan' } });
+
+        // Connexion par prénom : email verrouillé, le bouton envoie un lien à l'adresse actuelle
+        await page.goto('/profil');
+        await expect(page.locator('#profileEmailInput')).toHaveCount(0);
+        await page.getByRole('button', { name: 'Modifier mon email' }).click();
+        await expect(page.getByText(/Lien envoyé à/)).toBeVisible();
+        expect(await prisma.loginToken.count({ where: { email, purpose: 'LOGIN' } })).toBeGreaterThan(0);
+
+        // Le lien reçu (avec ?suite=profil) ramène sur le profil, où l'email se modifie
+        const token = await createLoginToken({ purpose: 'LOGIN', email });
+        await page.goto(`/acces/${token}?suite=profil`);
+        await page.getByRole('button', { name: new RegExp(groupName) }).click();
+        await page.waitForURL('**/profil');
+        await expect(page.locator('#profileEmailInput')).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Changer' })).toBeVisible();
+
+        await deleteGroupAsAdmin(page.request, groupName, 'Dan');
     });
 
     test('un même email ouvre plusieurs groupes et permet de passer de l’un à l’autre', async ({ page }) => {

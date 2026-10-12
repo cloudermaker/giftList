@@ -103,12 +103,12 @@ merged & deployed; v5.4.0 ideas board in PR).
 
 ### P7 — UX correctness & a11y — 1–2 days ← NEXT
 
-19. Error/empty states: `home.tsx` fetch without `.catch` (blank page), contact form error wipes the message, empty group renders
-    nothing, revoked invite token = bare 404. (M)
+19. Error/empty states: ✅ (v5.7.0) home load error + deleted group, revoked invite token page; contact form already kept the
+    message (now covered by a test). Left: empty group renders nothing. (S)
 20. Keyboard/a11y: nav, login tabs, member cards, gift rows are clickable `<div>`s; 7 unlabelled emoji buttons in backoffice;
     unlabelled checkbox. (M)
 21. giftList state fixes: `normalizeGift()` helper (5 copies), medal rank/reorder computed on filtered list, silent drag-save
-    failures, `viewMode` hydration mismatch, index-keyed lists in takenGiftList. (M)
+    failures, ✅ `viewMode` hydration mismatch (v5.7.0), index-keyed lists in takenGiftList. (M)
 22. Review leftover m-3: verify logged-out logo click (`href=/home`) redirects sanely. (S)
 
 ### P8 — Docs — ½ day
@@ -126,11 +126,11 @@ merged & deployed; v5.4.0 ideas board in PR).
   lands on a same-site click page. Google sign-in was built then dropped (not needed: email recovery is enough). Not done: "profil
   verrouillé" (block name-only login once an email exists) — revisit if traffic grows.
 - ✅ **GDPR pass (v5.6.0, same branch)** — admin passwords hashed (scrypt, `lib/auth/password.ts`; legacy plain-text rehashed at
-  next admin login, `scripts/hash-admin-passwords.js --apply` for the rest); `deleteGroup` now deletes the group's members too
-  (they used to stay as orphans with their lists); retention = 3 years without any login (`Group.lastActivityAt`, touched on
-  login/home/gift list, purged weekly by Vercel Cron `/api/cron/purge` + `CRON_SECRET`, which also removes orphan users and spent
-  login tokens); privacy page completed (legal bases, processors, transfers, retention, CNIL). To do by hand: empty contact@
-  mailbox of messages older than 1 year.
+  next admin login, the weekly cron job hashes the rest); `deleteGroup` now deletes the group's members too (they used to stay as
+  orphans with their lists); retention = 3 years without any login (`Group.lastActivityAt`, touched on login/home/gift list,
+  purged weekly by Vercel Cron `/api/cron/purge` + `CRON_SECRET`, which also removes orphan users and spent login tokens); privacy
+  page completed (legal bases, processors, transfers, retention, CNIL). To do by hand: empty contact@ mailbox of messages older
+  than 1 year.
 
 24. **URL import** — paste a product link → auto title/image/price (server-side OG scraper). Biggest product differentiator. (L)
 25. **Secret Santa draw** within a group — strong seasonal fit, do before December. (M/L)
@@ -144,8 +144,11 @@ merged & deployed; v5.4.0 ideas board in PR).
     and login page. Guards: 1 vote/idea/browser (localStorage) + IP rate limit, length caps, backoffice moderation (delete, mark
     done). New `Idea` table (title, description, likes, createdAt, doneAt?) — pair with P5's `db push`. Page noindex. (L ~1 day
     incl. e2e)
-32. **Invited user mode** — a member who can ONLY take (reserve) gifts: no gift list of their own, no other actions. How
-    (new role, invite option, UI) to be decided later. (M?)
+32. **Invited user mode** — a member who can ONLY take (reserve) gifts: no gift list of their own, no other actions. How (new
+    role, invite option, UI) to be decided later. (M?)
+33. ✅ (v5.7.0) **Quick link on gift rows** — open a gift's shop link straight from the list, without opening the gift first. Easy to build,
+    but the design must stay clever: no clutter on rows, no conflict with the row click / drag handle, clear on mobile (small
+    icon? only when a link exists?). (S)
 
 ### Ideas backlog (migrated from old TODO.md / README todo)
 

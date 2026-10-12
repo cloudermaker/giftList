@@ -14,9 +14,11 @@ import { checkInboxPopup, rememberAccessPopup } from '@/lib/ui/alert';
 type Props = {
     groupName: string;
     token: string;
+    // Lien révoqué, mal copié ou groupe supprimé
+    invalid?: boolean;
 };
 
-export default function JoinPage({ groupName, token }: Props): JSX.Element {
+export default function JoinPage({ groupName, token, invalid }: Props): JSX.Element {
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
     const [error, setError] = useState('');
@@ -83,6 +85,27 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
     const onKeyDown = async (keyCode: string) => {
         if (keyCode === 'Enter') await handleJoin();
     };
+
+    if (invalid) {
+        return (
+            <Layout withHeader={false}>
+                <SEO title="Lien d'invitation invalide" noIndex />
+                <section className="flex justify-center items-start px-4 py-8">
+                    <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 text-center space-y-4">
+                        <p className="text-4xl">🔗</p>
+                        <h1 className="text-2xl font-bold text-gray-800">Ce lien d&apos;invitation n&apos;est plus valable</h1>
+                        <p className="text-sm text-gray-600">
+                            Il a peut-être été mal copié, ou le groupe a été supprimé. Demande un nouveau lien à la personne qui
+                            t&apos;a invité, ou connecte-toi avec le nom du groupe et ton prénom.
+                        </p>
+                        <CustomButton variant="green" className="w-full" onClick={() => (window.location.href = '/')}>
+                            Aller à la page de connexion
+                        </CustomButton>
+                    </div>
+                </section>
+            </Layout>
+        );
+    }
 
     return (
         <Layout withHeader={false}>
@@ -207,7 +230,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const group = await getGroupByInviteToken(token);
 
     if (!group) {
-        return { notFound: true };
+        return { props: { groupName: '', token, invalid: true } };
     }
 
     return {

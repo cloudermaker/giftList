@@ -6,12 +6,14 @@ import SEO from '@/components/SEO';
 import CustomButton from '@/components/atoms/customButton';
 import { ErrorAlert } from '@/components/atoms/ErrorAlert';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
+import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import { findValidToken } from '@/lib/auth/loginToken';
 import prisma from '@/lib/db/dbSingleton';
 
-type Props = { token: string; valid: boolean; email: string; userName: string; groupName: string };
+type Props = { token: string; valid: boolean; email: string; userId: string; userName: string; groupName: string };
 
-export default function ConfirmEmailPage({ token, valid, email, userName, groupName }: Props): JSX.Element {
+export default function ConfirmEmailPage({ token, valid, email, userId, userName, groupName }: Props): JSX.Element {
+    const { connectedUser } = useCurrentUser();
     const [done, setDone] = useState(false);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -19,8 +21,16 @@ export default function ConfirmEmailPage({ token, valid, email, userName, groupN
     const confirm = async (): Promise<void> => {
         setIsLoading(true);
         const res = await AxiosWrapper.post('/api/auth/email/confirm', { token });
-        if (res?.data?.success) setDone(true);
-        else setError(res?.data?.error ?? 'Confirmation impossible.');
+        if (res?.data?.success) {
+            // Même navigateur, même profil : retour direct au profil
+            if (connectedUser?.userId === userId) {
+                window.location.href = '/profil?email=confirme';
+                return;
+            }
+            setDone(true);
+        } else {
+            setError(res?.data?.error ?? 'Confirmation impossible.');
+        }
         setIsLoading(false);
     };
 
@@ -67,7 +77,7 @@ export default function ConfirmEmailPage({ token, valid, email, userName, groupN
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
     const token = String(context.params?.token ?? '');
-    const empty = { token, valid: false, email: '', userName: '', groupName: '' };
+    const empty = { token, valid: false, email: '', userId: '', userName: '', groupName: '' };
     const row = await findValidToken(token, 'VERIFY_EMAIL');
     if (!row?.userId) return { props: empty };
 
@@ -81,6 +91,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
             token,
             valid: true,
             email: row.email,
+            userId: row.userId,
             userName: user.name,
             groupName: user.groupMemberships[0]?.group.name ?? ''
         }

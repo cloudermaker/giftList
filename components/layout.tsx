@@ -5,6 +5,7 @@ import { CustomHeader, EHeader } from './customHeader';
 import { Logo } from './Logo';
 import Router from 'next/router';
 import Link from 'next/link';
+import { Power } from 'lucide-react';
 import { useLogout } from '@/lib/hooks/useLogout';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 
@@ -31,15 +32,19 @@ export const Layout = ({
         <div className="flex flex-col min-h-screen">
             {/* Logo et statut utilisateur en haut */}
             <div className="border-b border-black/[.06]" style={{ background: '#f2ebe0' }}>
-                <div className="body-padding py-3 sm:py-5 grid grid-cols-3 items-center">
+                {/* Mobile : le nom du groupe prend tout l'espace entre le logo et les icônes ; desktop : 3 colonnes égales (nom centré) */}
+                <div className="body-padding py-3 sm:py-5 grid grid-cols-[auto_1fr_auto] sm:grid-cols-3 gap-3 items-center">
                     <Logo size="medium" showText={true} />
 
                     {connectedUser && (
-                        <div className="flex flex-col items-center">
+                        <div className="flex flex-col items-center min-w-0">
                             <p className="text-xs font-medium tracking-widest uppercase text-gray-400 leading-none mb-1">
                                 Groupe
                             </p>
-                            <p className="text-base text-center font-bold text-gray-800 leading-none">
+                            <p
+                                className="text-base text-center font-bold text-gray-800 leading-tight line-clamp-2 break-words max-w-full"
+                                title={connectedUser.groupName}
+                            >
                                 {connectedUser.groupName}
                             </p>
                         </div>
@@ -67,19 +72,7 @@ export const Layout = ({
                                     onClick={onDisconnectClick}
                                     title="Se déconnecter"
                                 >
-                                    <svg
-                                        className="w-4 h-4"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        aria-hidden="true"
-                                    >
-                                        <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
-                                        <line x1="12" y1="2" x2="12" y2="12" />
-                                    </svg>
+                                    <Power className="w-4 h-4" aria-hidden="true" />
                                 </button>
                             </div>
                         </div>

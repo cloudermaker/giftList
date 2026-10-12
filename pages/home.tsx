@@ -1,7 +1,7 @@
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
 import SEO from '@/components/SEO';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Group } from '@prisma/client';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
@@ -12,6 +12,7 @@ import dynamic from 'next/dynamic';
 const GiftIdeasGenerator = dynamic(() => import('@/components/GiftIdeasGenerator'), { ssr: false });
 import Router from 'next/router';
 import { OnboardingModal } from '@/components/OnboardingModal';
+import { useLogout } from '@/lib/hooks/useLogout';
 
 import { avatarColor } from '@/lib/ui/colors';
 
@@ -23,24 +24,47 @@ export const Home = (): JSX.Element => {
     const [members, setMembers] = useState<TMember[]>([]);
     const [loading, setLoading] = useState(true);
     const [showOnboarding, setShowOnboarding] = useState(false);
+    // 'gone' : groupe supprimé (ou purgé après 3 ans) ; 'failed' : erreur passagère, on peut réessayer
+    const [loadError, setLoadError] = useState<'gone' | 'failed' | null>(null);
+    const { logout } = useLogout();
+
+    const loadGroup = useCallback(async () => {
+        if (!connectedUser?.groupId) return;
+        setLoading(true);
+        setLoadError(null);
+        try {
+            const [groupRes, usersRes] = await Promise.all([
+                AxiosWrapper.get(`/api/group/${connectedUser.groupId}`),
+                AxiosWrapper.get(`/api/user?groupid=${connectedUser.groupId}`)
+            ]);
+            const groupData = groupRes?.data as { success: boolean; group?: Group } | undefined;
+            if (groupRes?.status === 404) {
+                setLoadError('gone');
+                return;
+            }
+            if (!groupData?.success || !groupData.group || usersRes?.status !== 200) {
+                setLoadError('failed');
+                return;
+            }
+            setGroup(groupData.group);
+            const users = usersRes.data?.users ?? [];
+            setMembers(users);
+            if (users.length === 1 && connectedUser.isAdmin) setShowOnboarding(true);
+        } catch {
+            setLoadError('failed');
+        } finally {
+            setLoading(false);
+        }
+    }, [connectedUser]);
 
     useEffect(() => {
-        if (!connectedUser?.groupId) return;
-        Promise.all([
-            AxiosWrapper.get(`/api/group/${connectedUser.groupId}`),
-            AxiosWrapper.get(`/api/user?groupid=${connectedUser.groupId}`)
-        ])
-            .then(([groupRes, usersRes]) => {
-                const groupData = groupRes?.data as { success: boolean; group?: Group };
-                if (groupData?.success && groupData.group) {
-                    setGroup(groupData.group);
-                }
-                const users = usersRes?.data?.users ?? [];
-                setMembers(users);
-                if (users.length === 1 && connectedUser?.isAdmin) setShowOnboarding(true);
-            })
-            .finally(() => setLoading(false));
-    }, [connectedUser]);
+        loadGroup();
+    }, [loadGroup]);
+
+    const leaveDeletedGroup = async () => {
+        await logout();
+        Router.push('/');
+    };
 
     const shareInviteLink = async () => {
         if (!group?.inviteToken) return;
@@ -80,7 +104,29 @@ export const Home = (): JSX.Element => {
                 description="Gérez votre liste de cadeaux en famille ou entre amis."
                 noIndex={true}
             />
-            <div>
+            {loadError && (
+                <div className="item text-center py-10 space-y-4">
+                    <p className="text-4xl">😕</p>
+                    {loadError === 'gone' ? (
+                        <>
+                            <p className="font-semibold text-gray-800">Ce groupe n&apos;existe plus.</p>
+                            <p className="text-sm text-gray-500">Il a peut-être été supprimé par son administrateur.</p>
+                            <CustomButton variant="green" onClick={leaveDeletedGroup}>
+                                Revenir à l&apos;accueil
+                            </CustomButton>
+                        </>
+                    ) : (
+                        <>
+                            <p className="font-semibold text-gray-800">Impossible de charger ton groupe pour le moment.</p>
+                            <p className="text-sm text-gray-500">Vérifie ta connexion internet, puis réessaie.</p>
+                            <CustomButton variant="green" onClick={loadGroup}>
+                                Réessayer
+                            </CustomButton>
+                        </>
+                    )}
+                </div>
+            )}
+            <div className={loadError ? 'hidden' : ''}>
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
                     <div>

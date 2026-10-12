@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { GetServerSideProps } from 'next';
 import NProgress from 'nprogress';
 import { Layout } from '@/components/layout';
@@ -8,7 +9,7 @@ import { CustomInput } from '@/components/atoms/customInput';
 import CustomButton from '@/components/atoms/customButton';
 import { ErrorAlert } from '@/components/atoms/ErrorAlert';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
-import { alertError, confirmDestructive } from '@/lib/ui/alert';
+import { alertError, confirmDestructive, toast } from '@/lib/ui/alert';
 import { verifySession } from '@/lib/auth/session';
 import { COOKIE_NAME } from '@/lib/auth/authService';
 import { getEmailStatus, getProfilesByVerifiedEmail, TEmailProfile } from '@/lib/auth/emailRecovery';
@@ -40,8 +41,27 @@ export default function ProfilePage({
 }: Props) {
     const [email, setEmail] = useState('');
     const [sentTo, setSentTo] = useState('');
+    const { query } = useRouter();
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        if (query.email === 'confirme') toast('Adresse confirmée ✅');
+    }, [query.email]);
     const [isLoading, setIsLoading] = useState(false);
+    const [unlockSent, setUnlockSent] = useState(false);
+
+    // Email confirmé + connexion par prénom : un lien envoyé à l'adresse actuelle ouvre la modification
+    const requestUnlock = async (): Promise<void> => {
+        setError('');
+        setIsLoading(true);
+        try {
+            const res = await AxiosWrapper.post('/api/auth/email/unlock');
+            if (res?.data?.success) setUnlockSent(true);
+            else setError(res?.data?.error ?? "Impossible d'envoyer le lien.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const sendConfirmation = async (): Promise<void> => {
         if (!email.trim()) {
@@ -105,10 +125,21 @@ export default function ProfilePage({
                                 <CustomButton size="sm" onClick={removeEmail}>
                                     Retirer cet email
                                 </CustomButton>
+                            ) : unlockSent ? (
+                                <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-800">
+                                    📧 Lien envoyé à <b>{displayEmail}</b>. Clique dessus : tu reviendras ici et pourras modifier
+                                    ton email.
+                                </div>
                             ) : (
-                                <p className="text-xs text-gray-500">
-                                    Pour changer ou retirer cet email, reconnecte-toi d&apos;abord avec le lien reçu par email.
-                                </p>
+                                <div className="space-y-2">
+                                    <p className="text-xs text-gray-500">
+                                        Pour protéger ton accès, modifier cet email demande de confirmer que c&apos;est bien le
+                                        tien.
+                                    </p>
+                                    <CustomButton variant="slate" size="sm" onClick={requestUnlock} disabled={isLoading}>
+                                        {isLoading ? '⏳ Envoi...' : 'Modifier mon email'}
+                                    </CustomButton>
+                                </div>
                             )}
                         </>
                     ) : (

@@ -4,6 +4,25 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.7.0] - 2026-10-12
+
+### Ajouté
+
+- 🔗 Lien direct vers la boutique sur chaque cadeau de la liste, sans ouvrir sa fiche
+- Bouton « Modifier mon email » sur le profil : un lien envoyé à l'adresse actuelle permet de la changer
+- Après avoir confirmé une nouvelle adresse email, retour direct sur le profil
+- Vue en grille : lien dans le coin de chaque carte, étiquettes sous le nom, cartes plus aérées sur mobile
+- Icônes de l'interface harmonisées
+- Affichage amélioré sur téléphone et tablette : en-tête plus compact, onglets qui ne débordent plus de l'écran
+- Liste de cadeaux sur téléphone : le nom prend toute la largeur, étiquettes et lien juste en dessous
+
+### Corrigé
+
+- Message clair (avec « Réessayer ») si le groupe ne se charge pas, et si le groupe a été supprimé
+- Page claire quand un lien d'invitation n'est plus valable, au lieu d'une page d'erreur
+- Sécurité : les liens de cadeaux qui ne mènent pas vers un site web ne sont plus cliquables
+- La décoration des cartes ne bloque plus certains clics
+
 ## [5.6.0] - 2026-10-06
 
 ### Ajouté

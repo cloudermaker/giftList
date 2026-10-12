@@ -3,6 +3,8 @@ import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
 import ModernLink from '@/components/atoms/ModernLink';
+import { toSafeUrl } from '@/lib/ui/url';
+import { ExternalLink, LayoutGrid, List } from 'lucide-react';
 import { GetServerSidePropsContext } from 'next';
 import { verifySession } from '@/lib/auth/session';
 import { COOKIE_NAME } from '@/lib/auth/authService';
@@ -26,6 +28,21 @@ import SubGiftList from '@/components/SubGiftList';
 import UnlimitedGiftTakers from '@/components/UnlimitedGiftTakers';
 
 const NEW_GIFT_SENTINEL = 'new';
+
+// Accès direct à la boutique, sans ouvrir la fiche du cadeau
+const GiftShopLink = ({ url, name, className = '' }: { url: string; name: string; className?: string }) => (
+    <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        title="Ouvrir le lien du cadeau"
+        aria-label={`Ouvrir le lien de ${name}`}
+        className={`shrink-0 flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-vertNoel hover:bg-green-50 hover:no-underline transition-colors ${className}`}
+    >
+        <ExternalLink className="w-4 h-4" aria-hidden="true" />
+    </a>
+);
 
 function SortableItem({
     gift,
@@ -53,7 +70,11 @@ function SortableItem({
     };
 
     return (
-        <div className="item flex items-center" ref={setNodeRef} style={style}>
+        <div
+            className={`item flex ${viewMode === 'grid' ? 'items-start !p-2 sm:!p-[18px]' : 'items-center !p-2.5 sm:!p-[18px]'}`}
+            ref={setNodeRef}
+            style={style}
+        >
             {viewMode === 'list' && (
                 <div {...localListeners} style={localStyle}>
                     <LeftIcon />
@@ -72,9 +93,12 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
 
     const [localGifts, setLocalGifts] = useState<GiftWithTakenUserId[]>(giftList);
     const [filteringTakenGifts, setFilteringTakenGifts] = useState(false);
-    const [viewMode, setViewMode] = useState<'list' | 'grid'>(
-        () => ((typeof window !== 'undefined' ? localStorage.getItem('giftListViewMode') : null) as 'list' | 'grid') ?? 'list'
-    );
+    const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+
+    // Préférence lue après le montage : la lire pendant le rendu créait un écart serveur/navigateur (erreur d'hydratation)
+    useEffect(() => {
+        if (localStorage.getItem('giftListViewMode') === 'grid') setViewMode('grid');
+    }, []);
 
     // selectedGiftId: gift id | 'new' (création) | null (fermé)
     const [selectedGiftId, setSelectedGiftId] = useState<string | null>(null);
@@ -294,7 +318,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     const isEditing = !!editingGiftId && editingGiftId === selectedGift?.id;
     const modalOpen = selectedGiftId !== null;
 
-    const pageTitle = isOwnList ? 'Ma liste de cadeaux' : `Liste de cadeaux de ${user.name}`;
+    const pageTitle = isOwnList ? 'Ma liste' : `Liste de ${user.name}`;
 
     return (
         <Layout selectedHeader={EHeader.GiftList} pageTitle={pageTitle}>
@@ -333,16 +357,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                 viewMode === 'list' ? 'bg-vertNoel text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
                             }`}
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="w-4 h-4"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
+                            <List className="w-4 h-4" aria-hidden="true" />
                         </button>
                         <button
                             type="button"
@@ -355,20 +370,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                 viewMode === 'grid' ? 'bg-vertNoel text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
                             }`}
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="w-4 h-4"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M4 5h6v6H4zM14 5h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"
-                                />
-                            </svg>
+                            <LayoutGrid className="w-4 h-4" aria-hidden="true" />
                         </button>
                     </div>
                 </div>
@@ -390,38 +392,62 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                             viewMode={viewMode}
                                         >
                                             <div
-                                                className={`w-full cursor-pointer p-3 rounded-lg flex items-start gap-3 ${
-                                                    viewMode === 'grid' ? 'flex-wrap' : 'justify-between'
+                                                className={`w-full cursor-pointer rounded-lg flex items-start gap-3 ${
+                                                    viewMode === 'grid'
+                                                        ? 'flex-wrap p-1 sm:p-3'
+                                                        : 'flex-wrap sm:flex-nowrap gap-y-2 p-1.5 sm:p-3 justify-between'
                                                 }`}
                                                 onClick={() => setSelectedGiftId(gift.id)}
                                             >
                                                 <span
-                                                    className={`font-medium ${viewMode === 'grid' ? 'w-full' : 'flex-1 min-w-0'} ${!isOwnList && gift.takenUserId && gift.giftType !== ('UNLIMITED' as GiftType) && gift.giftType !== ('MULTIPLE' as GiftType) ? 'line-through text-gray-400' : ''}`}
+                                                    className={`font-medium ${viewMode === 'grid' ? `w-full ${toSafeUrl(gift.url) ? 'pr-7' : ''}` : 'w-full sm:w-auto sm:flex-1 min-w-0'} ${!isOwnList && gift.takenUserId && gift.giftType !== ('UNLIMITED' as GiftType) && gift.giftType !== ('MULTIPLE' as GiftType) ? 'line-through text-gray-400' : ''}`}
                                                 >
                                                     {gift.name}
                                                 </span>
-                                                {gift.giftType === 'MULTIPLE' && (
-                                                    <span className="shrink-0 text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
-                                                        🧩 {gift.subGiftsCount ?? 0} élément
-                                                        {(gift.subGiftsCount ?? 0) !== 1 ? 's' : ''}
-                                                    </span>
+                                                {viewMode === 'grid' && toSafeUrl(gift.url) && (
+                                                    // Grille : lien dans le coin haut-droit de la carte, la ligne du bas reste aux badges
+                                                    <GiftShopLink
+                                                        url={toSafeUrl(gift.url)!}
+                                                        name={gift.name}
+                                                        className="absolute top-1 right-1 sm:top-2 sm:right-2"
+                                                    />
                                                 )}
-                                                {gift.giftType === ('UNLIMITED' as GiftType) && (
-                                                    <span className="shrink-0 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
-                                                        {isOwnList ? '🔁 Illimité' : `🔁 ${(gift.takenByList ?? []).length} pris`}
-                                                    </span>
-                                                )}
-                                                {!isOwnList && gift.giftType === 'SIMPLE' && (
-                                                    <span
-                                                        className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
-                                                            gift.takenUserId
-                                                                ? 'bg-red-100 text-red-600'
-                                                                : 'bg-green-100 text-green-700'
-                                                        }`}
-                                                    >
-                                                        {gift.takenUserId ? 'Pris' : 'Libre'}
-                                                    </span>
-                                                )}
+                                                {/* Badges (+ lien en vue liste) : sous le nom en grille et en liste sur mobile (badges à gauche, lien à droite), en bout de ligne sinon */}
+                                                <div
+                                                    className={`flex items-center gap-2 shrink-0 empty:hidden ${viewMode === 'grid' ? 'w-full' : 'w-full sm:w-auto'}`}
+                                                >
+                                                    {gift.giftType === 'MULTIPLE' && (
+                                                        <span className="shrink-0 text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
+                                                            🧩 {gift.subGiftsCount ?? 0} élément
+                                                            {(gift.subGiftsCount ?? 0) !== 1 ? 's' : ''}
+                                                        </span>
+                                                    )}
+                                                    {gift.giftType === ('UNLIMITED' as GiftType) && (
+                                                        <span className="shrink-0 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+                                                            {isOwnList
+                                                                ? '🔁 Illimité'
+                                                                : `🔁 ${(gift.takenByList ?? []).length} pris`}
+                                                        </span>
+                                                    )}
+                                                    {!isOwnList && gift.giftType === 'SIMPLE' && (
+                                                        <span
+                                                            className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
+                                                                gift.takenUserId
+                                                                    ? 'bg-red-100 text-red-600'
+                                                                    : 'bg-green-100 text-green-700'
+                                                            }`}
+                                                        >
+                                                            {gift.takenUserId ? 'Pris' : 'Libre'}
+                                                        </span>
+                                                    )}
+                                                    {viewMode === 'list' && toSafeUrl(gift.url) && (
+                                                        <GiftShopLink
+                                                            url={toSafeUrl(gift.url)!}
+                                                            name={gift.name}
+                                                            className="-my-1 ml-auto"
+                                                        />
+                                                    )}
+                                                </div>
                                             </div>
                                         </SortableItem>
                                     ))}{' '}
@@ -497,7 +523,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                         ) : (
                                             <p className="text-gray-700 italic">Pas de description</p>
                                         )}
-                                        {selectedGift!.url ? (
+                                        {toSafeUrl(selectedGift!.url) ? (
                                             <p>
                                                 <ModernLink href={selectedGift!.url} />
                                             </p>
