@@ -24,11 +24,16 @@ export default defineConfig({
         { name: 'tablette', use: { viewport: { width: 700, height: 900 } }, testMatch: /smoke\.spec\.ts/ }
     ],
     webServer: {
-        // En CI : build de prod (déterministe) ; en local : dev server (itération rapide)
-        command: process.env.CI ? 'npm run build && npm run start -- -p 3100' : 'npm run dev -- -p 3100',
+        // Build de prod partout (le mode dev recompile à la volée : courses, compteurs remis à zéro → tests instables).
+        // En local : `next build` direct (sans next-sitemap) dans .next-e2e ; E2E_DEV=1 pour itérer vite en mode dev.
+        command: process.env.CI
+            ? 'npm run build && npm run start -- -p 3100'
+            : process.env.E2E_DEV
+              ? 'npx next dev -p 3100'
+              : 'npx next build && npx next start -p 3100',
         url: 'http://localhost:3100',
         reuseExistingServer: !process.env.CI,
-        timeout: 120_000,
+        timeout: 300_000,
         env: {
             ...(process.env as Record<string, string>),
             POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL ?? '',

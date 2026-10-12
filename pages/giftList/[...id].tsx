@@ -3,6 +3,7 @@ import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
 import ModernLink from '@/components/atoms/ModernLink';
+import { toSafeUrl } from '@/lib/ui/url';
 import { GetServerSidePropsContext } from 'next';
 import { verifySession } from '@/lib/auth/session';
 import { COOKIE_NAME } from '@/lib/auth/authService';
@@ -72,9 +73,12 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
 
     const [localGifts, setLocalGifts] = useState<GiftWithTakenUserId[]>(giftList);
     const [filteringTakenGifts, setFilteringTakenGifts] = useState(false);
-    const [viewMode, setViewMode] = useState<'list' | 'grid'>(
-        () => ((typeof window !== 'undefined' ? localStorage.getItem('giftListViewMode') : null) as 'list' | 'grid') ?? 'list'
-    );
+    const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+
+    // Préférence lue après le montage : la lire pendant le rendu créait un écart serveur/navigateur (erreur d'hydratation)
+    useEffect(() => {
+        if (localStorage.getItem('giftListViewMode') === 'grid') setViewMode('grid');
+    }, []);
 
     // selectedGiftId: gift id | 'new' (création) | null (fermé)
     const [selectedGiftId, setSelectedGiftId] = useState<string | null>(null);
@@ -422,6 +426,33 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                         {gift.takenUserId ? 'Pris' : 'Libre'}
                                                     </span>
                                                 )}
+                                                {toSafeUrl(gift.url) && (
+                                                    // Accès direct à la boutique, sans ouvrir la fiche du cadeau
+                                                    <a
+                                                        href={toSafeUrl(gift.url)!}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        title="Ouvrir le lien du cadeau"
+                                                        aria-label={`Ouvrir le lien de ${gift.name}`}
+                                                        className="shrink-0 -my-1 flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-vertNoel hover:bg-green-50 hover:no-underline transition-colors"
+                                                    >
+                                                        <svg
+                                                            className="w-4 h-4"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="2"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            aria-hidden="true"
+                                                        >
+                                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                                            <polyline points="15 3 21 3 21 9" />
+                                                            <line x1="10" y1="14" x2="21" y2="3" />
+                                                        </svg>
+                                                    </a>
+                                                )}
                                             </div>
                                         </SortableItem>
                                     ))}{' '}
@@ -497,7 +528,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                         ) : (
                                             <p className="text-gray-700 italic">Pas de description</p>
                                         )}
-                                        {selectedGift!.url ? (
+                                        {toSafeUrl(selectedGift!.url) ? (
                                             <p>
                                                 <ModernLink href={selectedGift!.url} />
                                             </p>

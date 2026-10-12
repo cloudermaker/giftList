@@ -111,14 +111,17 @@ export const sendVerificationEmail = async ({
 };
 
 // Réponse identique que l'email soit connu ou non (pas d'énumération des adresses)
-export const sendLoginLink = async (email: string): Promise<void> => {
+// `toProfile` : après connexion, retour direct sur la page profil (déverrouillage du changement d'email)
+export const sendLoginLink = async (email: string, toProfile = false): Promise<void> => {
     const profiles = await getProfilesByVerifiedEmail(email);
     if (profiles.length === 0) return;
     const token = await createLoginToken({ purpose: 'LOGIN', email });
     const mail = actionEmail({
-        intro: 'Voici ton lien pour te reconnecter à ta liste de cadeaux.',
+        intro: toProfile
+            ? 'Voici ton lien pour modifier ton email de secours.'
+            : 'Voici ton lien pour te reconnecter à ta liste de cadeaux.',
         buttonLabel: 'Me connecter',
-        url: `${SITE_URL}/acces/${token}`,
+        url: `${SITE_URL}/acces/${token}${toProfile ? '?suite=profil' : ''}`,
         outro: "Ce lien est valable 30 minutes et ne fonctionne qu'une fois. Si tu n'as rien demandé, ignore cet email."
     });
     await sendMail({ to: normalizeEmail(email), subject: 'Ton lien de connexion — Ma Liste de Cadeaux', ...mail });

@@ -196,6 +196,8 @@ a:hover {
 
 .item::after {
     content: '🎁';
+    /* Décoration : ne doit jamais capter un clic (elle recouvre le lien rapide des cadeaux) */
+    pointer-events: none;
     position: absolute;
     bottom: -10px;
     right: -10px;

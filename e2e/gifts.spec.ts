@@ -59,7 +59,7 @@ test.describe.serial('Cadeaux et réservations', () => {
         await pageA.locator('#giftFormNameInput').fill('Cadeau Modifié');
         await pageA.getByRole('button', { name: 'Valider' }).click();
         await waitForToastGone(pageA);
-        await expect(pageA.getByText('Cadeau Modifié')).toBeVisible();
+        await expect(pageA.getByText('Cadeau Modifié', { exact: true })).toBeVisible();
 
         // Persistance : un reload re-lit la base, pas seulement l'état local
         await pageA.reload();
@@ -82,7 +82,7 @@ test.describe.serial('Cadeaux et réservations', () => {
 
         // Alice, elle, ne voit AUCUNE trace de la réservation sur sa propre liste
         await pageA.goto(`/giftList/${aliceUserId}`);
-        await expect(pageA.getByText('Cadeau Modifié')).toBeVisible();
+        await expect(pageA.getByText('Cadeau Modifié', { exact: true })).toBeVisible();
         await expect(pageA.getByText('Pris', { exact: true })).toHaveCount(0);
         await expect(pageA.getByText('Bob')).toHaveCount(0);
     });
@@ -90,7 +90,7 @@ test.describe.serial('Cadeaux et réservations', () => {
     test('la réservation apparaît dans « À acheter » de Bob, puis il la libère', async () => {
         const bobSession = await readSession(pageB);
         await pageB.goto(`/takenGiftList/${bobSession!.userId}`);
-        await expect(pageB.getByText('Cadeau Modifié')).toBeVisible();
+        await expect(pageB.getByText('Cadeau Modifié', { exact: true })).toBeVisible();
 
         // Libération depuis la liste d'Alice
         await pageB.goto(`/giftList/${aliceUserId}`);

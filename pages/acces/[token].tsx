@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { GetServerSideProps } from 'next';
 import NProgress from 'nprogress';
+import { useRouter } from 'next/router';
 import { Layout } from '@/components/layout';
 import SEO from '@/components/SEO';
 import CustomButton from '@/components/atoms/customButton';
@@ -14,6 +15,7 @@ type Props = { token: string; valid: boolean; profiles: TEmailProfile[] };
 
 // Arrivée depuis le lien email : un clic choisit le profil (le lien n'est consommé qu'à ce moment)
 export default function ProfilePickerPage({ token, valid, profiles }: Props): JSX.Element {
+    const { query } = useRouter();
     const [error, setError] = useState('');
     const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -23,7 +25,7 @@ export default function ProfilePickerPage({ token, valid, profiles }: Props): JS
         const res = await AxiosWrapper.post('/api/auth/email/login', { token, userId });
         if (res?.data?.success) {
             NProgress.start();
-            window.location.href = '/home';
+            window.location.href = query.suite === 'profil' ? '/profil' : '/home';
             return;
         }
         setError(res?.data?.error ?? 'Connexion impossible.');

@@ -42,6 +42,20 @@ export default function ProfilePage({
     const [sentTo, setSentTo] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [unlockSent, setUnlockSent] = useState(false);
+
+    // Email confirmé + connexion par prénom : un lien envoyé à l'adresse actuelle ouvre la modification
+    const requestUnlock = async (): Promise<void> => {
+        setError('');
+        setIsLoading(true);
+        try {
+            const res = await AxiosWrapper.post('/api/auth/email/unlock');
+            if (res?.data?.success) setUnlockSent(true);
+            else setError(res?.data?.error ?? "Impossible d'envoyer le lien.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const sendConfirmation = async (): Promise<void> => {
         if (!email.trim()) {
@@ -105,10 +119,21 @@ export default function ProfilePage({
                                 <CustomButton size="sm" onClick={removeEmail}>
                                     Retirer cet email
                                 </CustomButton>
+                            ) : unlockSent ? (
+                                <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-800">
+                                    📧 Lien envoyé à <b>{displayEmail}</b>. Clique dessus : tu reviendras ici et pourras modifier
+                                    ton email.
+                                </div>
                             ) : (
-                                <p className="text-xs text-gray-500">
-                                    Pour changer ou retirer cet email, reconnecte-toi d&apos;abord avec le lien reçu par email.
-                                </p>
+                                <div className="space-y-2">
+                                    <p className="text-xs text-gray-500">
+                                        Pour protéger ton accès, modifier cet email demande de confirmer que c&apos;est bien le
+                                        tien.
+                                    </p>
+                                    <CustomButton variant="slate" size="sm" onClick={requestUnlock} disabled={isLoading}>
+                                        {isLoading ? '⏳ Envoi...' : 'Modifier mon email'}
+                                    </CustomButton>
+                                </div>
                             )}
                         </>
                     ) : (
