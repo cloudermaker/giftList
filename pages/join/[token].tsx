@@ -9,6 +9,7 @@ import { ErrorAlert } from '@/components/atoms/ErrorAlert';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import { TInviteJoinResult } from '@/pages/api/invite/join';
 import { getGroupByInviteToken } from '@/lib/db/groupManager';
+import { checkInboxPopup, rememberAccessPopup } from '@/lib/ui/alert';
 
 type Props = {
     groupName: string;
@@ -17,6 +18,7 @@ type Props = {
 
 export default function JoinPage({ groupName, token }: Props): JSX.Element {
     const [userName, setUserName] = useState('');
+    const [email, setEmail] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [needsConfirmation, setNeedsConfirmation] = useState(false);
@@ -28,7 +30,12 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
         let navigating = false;
 
         try {
-            const res = await AxiosWrapper.post('/api/invite/join', { token, userName: userName.trim(), confirm });
+            const res = await AxiosWrapper.post('/api/invite/join', {
+                token,
+                userName: userName.trim(),
+                confirm,
+                email: email.trim()
+            });
             const data = res?.data as TInviteJoinResult;
 
             if (data?.needsConfirmation) {
@@ -39,6 +46,10 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
 
             if (data?.success && data.groupUser) {
                 // Le cookie de session signé est posé par le serveur (Set-Cookie)
+                if (!userExists) {
+                    if (email.trim()) await checkInboxPopup(email.trim());
+                    else await rememberAccessPopup(groupName, userName.trim());
+                }
                 navigating = true;
                 NProgress.start();
                 window.location.href = '/home';
@@ -53,6 +64,10 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
     const handleJoin = async (): Promise<void> => {
         if (!userName.trim()) {
             setError('Il faut rentrer un prénom.');
+            return;
+        }
+        if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+            setError("L'adresse email n'est pas valide.");
             return;
         }
         await callJoinApi(false);
@@ -100,6 +115,25 @@ export default function JoinPage({ groupName, token }: Props): JSX.Element {
                                             autoFocus
                                             disabled={isLoading}
                                             placeholder="Ex: Marie"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2 mt-4">
+                                        <label htmlFor="joinEmailInput" className="block text-sm font-medium text-gray-700">
+                                            Email <span className="font-normal text-gray-500">(facultatif)</span>
+                                            <span className="block text-xs font-normal text-gray-500 mt-0.5">
+                                                Pour retrouver ton accès en cas d&apos;oubli — jamais partagé
+                                            </span>
+                                        </label>
+                                        <CustomInput
+                                            id="joinEmailInput"
+                                            className="w-full"
+                                            type="email"
+                                            onChange={setEmail}
+                                            value={email}
+                                            onKeyDown={onKeyDown}
+                                            disabled={isLoading}
+                                            placeholder="prenom@exemple.fr"
                                         />
                                     </div>
                                 </>

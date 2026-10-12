@@ -118,6 +118,20 @@ merged & deployed; v5.4.0 ideas board in PR).
 
 ### P9 — Product features (pick per season/motivation)
 
+- ✅ **Email recovery key (v5.6.0, `feat/email-recovery`)** — optional email per profile (`User.email`, not unique: one person =
+  one profile per group), confirmed by link; "Accès oublié ?" sends a one-time login link (`LoginToken`, only the hash stored, 30
+  min); `/profil` to link/change/remove and switch between groups sharing the email. Rules: confirmed email locked unless session
+  opened by the email link (`emailAuth`); email link grants admin only if linked during an admin session (`emailIsAdminKey`);
+  email columns globally omitted by Prisma (`omitApi`) so no endpoint leaks them. Strict session cookie ⇒ every email-link entry
+  lands on a same-site click page. Google sign-in was built then dropped (not needed: email recovery is enough). Not done: "profil
+  verrouillé" (block name-only login once an email exists) — revisit if traffic grows.
+- ✅ **GDPR pass (v5.6.0, same branch)** — admin passwords hashed (scrypt, `lib/auth/password.ts`; legacy plain-text rehashed at
+  next admin login, `scripts/hash-admin-passwords.js --apply` for the rest); `deleteGroup` now deletes the group's members too
+  (they used to stay as orphans with their lists); retention = 3 years without any login (`Group.lastActivityAt`, touched on
+  login/home/gift list, purged weekly by Vercel Cron `/api/cron/purge` + `CRON_SECRET`, which also removes orphan users and spent
+  login tokens); privacy page completed (legal bases, processors, transfers, retention, CNIL). To do by hand: empty contact@
+  mailbox of messages older than 1 year.
+
 24. **URL import** — paste a product link → auto title/image/price (server-side OG scraper). Biggest product differentiator. (L)
 25. **Secret Santa draw** within a group — strong seasonal fit, do before December. (M/L)
 26. **Birthdays & reminders** — birthday field, upcoming birthdays on home, optional email reminders. (M)
@@ -130,6 +144,8 @@ merged & deployed; v5.4.0 ideas board in PR).
     and login page. Guards: 1 vote/idea/browser (localStorage) + IP rate limit, length caps, backoffice moderation (delete, mark
     done). New `Idea` table (title, description, likes, createdAt, doneAt?) — pair with P5's `db push`. Page noindex. (L ~1 day
     incl. e2e)
+32. **Invited user mode** — a member who can ONLY take (reserve) gifts: no gift list of their own, no other actions. How
+    (new role, invite option, UI) to be decided later. (M?)
 
 ### Ideas backlog (migrated from old TODO.md / README todo)
 

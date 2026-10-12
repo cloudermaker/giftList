@@ -14,6 +14,9 @@ Disallow: /takenGiftList
 Disallow: /backoffice
 Disallow: /join
 Disallow: /ideas
+Disallow: /acces
+Disallow: /profil
+Disallow: /email/
 Disallow: /api/
 
 # For Google's image indexing

@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
 }
 
 datasource db {
@@ -31,6 +32,8 @@ model Group {
   name          String  @unique
   adminPassword String
   inviteToken   String? @unique
+  // Dernière connexion d'un membre : sert à la purge des groupes inactifs (durée de conservation RGPD)
+  lastActivityAt DateTime @default(now())
 
   // Relations
   userMemberships UserGroupMapping[]
@@ -38,12 +41,20 @@ model Group {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([lastActivityAt])
 }
 
 model User {
   id                  String  @id @default(uuid())
   name                String
   acceptSuggestedGift Boolean @default(false)
+
+  // Email de secours (optionnel, non unique : une même personne a un profil par groupe)
+  email           String?
+  emailVerifiedAt DateTime?
+  // Vrai si l'email a été lié pendant une session admin : le lien email donne alors les droits admin
+  emailIsAdminKey Boolean   @default(false)
 
   // Relations
   gifts                Gift[]             @relation(name: "user")
@@ -56,6 +67,22 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@index([name])
+  @@index([email])
+}
+
+// Liens à usage unique envoyés par email (connexion ou confirmation d'adresse) — seul le hash est stocké
+model LoginToken {
+  id          String    @id @default(uuid())
+  tokenHash   String    @unique
+  purpose     String // LOGIN | VERIFY_EMAIL
+  email       String
+  userId      String? // VERIFY_EMAIL : profil auquel lier l'adresse
+  grantsAdmin Boolean   @default(false)
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([expiresAt])
 }
 
 model UserGroupMapping {

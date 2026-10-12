@@ -1,7 +1,10 @@
 import { User } from '@prisma/client';
 import prisma from './dbSingleton';
 
-export const getUserByGroupAndName = async (userName: string, groupId: string): Promise<User | null> => {
+// Utilisateur tel que renvoyé par défaut (colonnes email omises globalement)
+export type PublicUser = Omit<User, 'email' | 'emailVerifiedAt' | 'emailIsAdminKey'>;
+
+export const getUserByGroupAndName = async (userName: string, groupId: string): Promise<PublicUser | null> => {
     const user = await prisma.user.findFirst({
         where: {
             AND: [
@@ -25,7 +28,7 @@ export const getUserByGroupAndName = async (userName: string, groupId: string): 
     return user;
 };
 
-export const getUserById = async (userId: string): Promise<User | null> => {
+export const getUserById = async (userId: string): Promise<PublicUser | null> => {
     var user = await prisma.user.findFirst({
         where: {
             id: userId
@@ -35,7 +38,7 @@ export const getUserById = async (userId: string): Promise<User | null> => {
     return user;
 };
 
-export const getUsersFromGroupId = async (groupId: string): Promise<User[]> => {
+export const getUsersFromGroupId = async (groupId: string): Promise<PublicUser[]> => {
     const users = await prisma.user.findMany({
         where: {
             groupMemberships: {
@@ -50,7 +53,7 @@ export const getUsersFromGroupId = async (groupId: string): Promise<User[]> => {
 };
 
 // Création atomique user + membership
-export const createUser = async (userName: string, userGroupId: string, isAdmin = true): Promise<User> => {
+export const createUser = async (userName: string, userGroupId: string, isAdmin = true): Promise<PublicUser> => {
     return prisma.$transaction(async (tx) => {
         const user = await tx.user.create({
             data: { name: userName.toLowerCase().trim() }
@@ -63,12 +66,12 @@ export const createUser = async (userName: string, userGroupId: string, isAdmin 
 };
 
 // Seuls les champs éditables passent à Prisma (liste blanche — tout le reste du body est ignoré)
-const editableUserFields = (user: User) => ({
+const editableUserFields = (user: PublicUser) => ({
     ...(user.name ? { name: user.name.toLowerCase().trim() } : {}),
     ...(user.acceptSuggestedGift !== undefined ? { acceptSuggestedGift: user.acceptSuggestedGift } : {})
 });
 
-export const upsertUser = async (user: User): Promise<User> => {
+export const upsertUser = async (user: PublicUser): Promise<PublicUser> => {
     const data = editableUserFields(user);
 
     if (!user.id) {
@@ -84,7 +87,7 @@ export const upsertUser = async (user: User): Promise<User> => {
     });
 };
 
-export const updateUser = async (userId: string, user: User): Promise<User> => {
+export const updateUser = async (userId: string, user: PublicUser): Promise<PublicUser> => {
     const result = await prisma.user.update({
         where: {
             id: userId

@@ -116,6 +116,7 @@ test.describe.serial('Cadeaux et réservations', () => {
         await pageC.getByRole('button', { name: "C'est parti !" }).click();
         // Étape de confirmation anti-usurpation
         await pageC.getByRole('button', { name: 'Oui, je suis un nouveau membre' }).click();
+        await pageC.getByRole('button', { name: "C'est noté" }).click();
         await pageC.waitForURL('**/home');
         await expect(pageC.getByText(groupName).first()).toBeVisible();
         await ctxC.close();

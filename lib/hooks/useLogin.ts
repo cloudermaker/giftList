@@ -6,13 +6,15 @@ export const useLogin = () => {
         userName: string,
         groupName: string,
         isCreating: boolean,
-        password?: string
+        password?: string,
+        email?: string
     ): Promise<TAuthenticateResult> => {
         const res = await AxiosWrapper.post('api/authenticate', {
             groupName,
             userName,
             isCreating,
-            password
+            password,
+            email
         });
         // Le cookie de session signé est posé par le serveur (Set-Cookie)
         return res?.data as TAuthenticateResult;

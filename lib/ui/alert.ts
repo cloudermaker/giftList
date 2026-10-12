@@ -43,6 +43,35 @@ export const confirmDestructive = async ({
     return result.isConfirmed;
 };
 
+const escapeHtml = (value: string): string =>
+    value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+// Connexion sans email : le nom du groupe et le prénom sont la seule clé d'accès
+export const rememberAccessPopup = async (groupName: string, userName: string): Promise<void> => {
+    await (
+        await getSwal()
+    ).fire({
+        title: '📝 Note bien ces infos',
+        html: `<p>Sans email, ce sont tes seules clés pour revenir :</p>
+<p style="margin-top:12px">Groupe : <b>${escapeHtml(groupName)}</b><br>Prénom : <b>${escapeHtml(userName)}</b></p>
+<p style="margin-top:12px;font-size:14px;color:#6b7280">Astuce : tu pourras ajouter un email plus tard depuis ton profil 👤</p>`,
+        icon: 'info',
+        confirmButtonText: "C'est noté"
+    });
+};
+
+export const checkInboxPopup = async (email: string): Promise<void> => {
+    await (
+        await getSwal()
+    ).fire({
+        title: '📧 Vérifie ta boîte mail',
+        html: `<p>Un lien de confirmation a été envoyé à <b>${escapeHtml(email)}</b>.</p>
+<p style="margin-top:12px;font-size:14px;color:#6b7280">Clique dessus pour pouvoir retrouver ton accès en cas d'oubli.</p>`,
+        icon: 'success',
+        confirmButtonText: 'OK'
+    });
+};
+
 export const promptText = async ({
     title,
     placeholder,

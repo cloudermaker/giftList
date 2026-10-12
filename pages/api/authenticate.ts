@@ -1,9 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { createGroupWithAdmin, getGroupByName } from '@/lib/db/groupManager';
+import { createGroupWithAdmin, getGroupByName, touchGroupActivity } from '@/lib/db/groupManager';
+import prisma from '@/lib/db/dbSingleton';
+import { hashPassword, isHashed, verifyPassword } from '@/lib/auth/password';
 import { getUserByGroupAndName } from '@/lib/db/userManager';
 import { Prisma } from '@prisma/client';
 import { parseBody, authenticateSchema } from '@/lib/api/validation';
 import { sessionCookieHeader } from '@/lib/auth/session';
+import { sendVerificationEmail } from '@/lib/auth/emailRecovery';
 
 export type TGroupAndUser = {
     groupName: string;
@@ -11,6 +14,8 @@ export type TGroupAndUser = {
     userName: string;
     userId: string;
     isAdmin: boolean;
+    // Session ouverte via un lien email : autorise le changement d'email et le passage d'un groupe à l'autre
+    emailAuth?: boolean;
 };
 
 export type TAuthenticateResult = {
@@ -20,7 +25,9 @@ export type TAuthenticateResult = {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TAuthenticateResult>) {
-    const loginSuccess = (groupUser: TGroupAndUser) => {
+    const loginSuccess = async (groupUser: TGroupAndUser) => {
+        // Attendu : sur Vercel, la fonction peut s'arrêter dès la réponse envoyée
+        await touchGroupActivity(groupUser.groupId);
         res.setHeader('Set-Cookie', sessionCookieHeader(groupUser));
         res.status(200).json({ success: true, error: '', groupUser });
     };
@@ -30,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     }
     const parsed = parseBody(authenticateSchema, req, res);
     if (!parsed) return;
-    const { groupName, userName, isCreating, password } = parsed;
+    const { groupName, userName, isCreating, password, email } = parsed;
 
     try {
         const group = await getGroupByName(groupName);
@@ -45,7 +52,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             // Créer le groupe, le user admin et le membership atomiquement
             try {
                 const { group: newGroup, user: newUser } = await createGroupWithAdmin(groupName, password, userName);
-                loginSuccess({
+                if (email) {
+                    // Créateur = admin : l'email servira aussi de clé admin une fois confirmé
+                    await sendVerificationEmail({
+                        userId: newUser.id,
+                        userName: newUser.name,
+                        groupName: newGroup.name,
+                        email,
+                        grantsAdmin: true
+                    }).catch((e) => console.error('Verification email failed:', e));
+                }
+                await loginSuccess({
                     groupId: newGroup.id,
                     groupName: newGroup.name,
                     userId: newUser.id,
@@ -67,9 +84,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 error: "Ce prénom n'existe pas."
             });
         } else if (!isCreating && group && user) {
-            if (password && group.adminPassword === password) {
-                loginSuccess({ groupId: group.id, groupName: group.name, userId: user.id, userName: user.name, isAdmin: true });
-            } else if (password && group.adminPassword !== password) {
+            const passwordOk = password ? await verifyPassword(group.adminPassword, password) : false;
+            if (password && passwordOk) {
+                // Ancien mot de passe en clair : remplacé par son empreinte dès la première connexion réussie
+                if (!isHashed(group.adminPassword)) {
+                    await prisma.group.update({ where: { id: group.id }, data: { adminPassword: await hashPassword(password) } });
+                }
+                await loginSuccess({
+                    groupId: group.id,
+                    groupName: group.name,
+                    userId: user.id,
+                    userName: user.name,
+                    isAdmin: true
+                });
+            } else if (password) {
                 res.status(401).json({
                     success: false,
                     error: 'Mauvais mot de passe'
@@ -77,7 +105,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             } else {
                 // Connexion sans mot de passe = toujours mode user normal (isAdmin: false)
                 // même si le user a un rôle ADMIN dans UserGroupMapping
-                loginSuccess({ groupId: group.id, groupName: group.name, userId: user.id, userName: user.name, isAdmin: false });
+                await loginSuccess({
+                    groupId: group.id,
+                    groupName: group.name,
+                    userId: user.id,
+                    userName: user.name,
+                    isAdmin: false
+                });
             }
         }
     } catch (e) {

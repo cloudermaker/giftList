@@ -17,15 +17,14 @@ export const createGroup = async (page: Page, groupName: string, userName: strin
     await page.locator('#nameInputId').fill(userName);
     await page.locator('#passwordInputId').fill(password);
     await page.getByRole('button', { name: "C'est parti!" }).click();
+    // Création sans email : rappel « note bien le groupe et le prénom »
+    await page.getByRole('button', { name: "C'est noté" }).click();
     await page.waitForURL('**/home');
 
-    // Un nouveau groupe déclenche la modale d'onboarding : on la ferme si elle apparaît
+    // Un nouveau groupe ouvre la modale d'onboarding dès que les membres sont chargés : on attend ce chargement
+    await expect(page.getByText('Voir les cadeaux →').first()).toBeVisible({ timeout: 15000 });
     const closeOnboarding = page.getByRole('button', { name: '✕' });
-    try {
-        await closeOnboarding.click({ timeout: 3000 });
-    } catch {
-        // pas de modale : rien à fermer
-    }
+    if (await closeOnboarding.isVisible()) await closeOnboarding.click();
 };
 
 export const loginAsAdmin = async (page: Page, groupName: string, userName: string, password: string): Promise<void> => {
@@ -40,7 +39,9 @@ export const loginAsAdmin = async (page: Page, groupName: string, userName: stri
 };
 
 // Le payload du cookie signé (partie avant le « . ») contient groupId/userId
-export const readSession = async (page: Page): Promise<{ groupId: string; userId: string; isAdmin: boolean } | null> => {
+export const readSession = async (
+    page: Page
+): Promise<{ groupId: string; groupName: string; userId: string; isAdmin: boolean; emailAuth?: boolean } | null> => {
     const cookie = (await page.context().cookies()).find((c) => c.name === 'currentUser');
     if (!cookie) return null;
     const payload = decodeURIComponent(cookie.value).split('.')[0];

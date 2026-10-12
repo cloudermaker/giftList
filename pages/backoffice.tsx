@@ -3,7 +3,7 @@ import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
 import CustomButton from '@/components/atoms/customButton';
-import { buildDefaultGroup, getGroupsPage } from '@/lib/db/groupManager';
+import { getGroupsPage } from '@/lib/db/groupManager';
 import { TGroupApiResult } from './api/group';
 import { Group } from '@prisma/client';
 import { toast, alertError, confirmDestructive, promptText, getSwal } from '@/lib/ui/alert';
@@ -336,9 +336,8 @@ const Backoffice = ({
     };
 
     const addGroup = async (): Promise<void> => {
-        const groupToAdd: Group = buildDefaultGroup();
-        groupToAdd.name = newGroupName;
-        groupToAdd.adminPassword = newPassword;
+        // id '-1' : l'upsert côté API crée le groupe
+        const groupToAdd = { id: '-1', name: newGroupName, adminPassword: newPassword };
 
         const result = await AxiosWrapper.post('/api/group', { group: groupToAdd });
         const data = result?.data as TGroupApiResult;

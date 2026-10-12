@@ -15,13 +15,13 @@ const getSecret = (): string => {
 
 const hmac = (payload: string): string => createHmac('sha256', getSecret()).update(payload).digest('base64url');
 
-// Format du cookie : base64url(json) + '.' + base64url(hmac-sha256)
-export const signSession = (session: TGroupAndUser): string => {
-    const payload = Buffer.from(JSON.stringify(session)).toString('base64url');
+// Format : base64url(json) + '.' + base64url(hmac-sha256)
+export const signPayload = (value: object): string => {
+    const payload = Buffer.from(JSON.stringify(value)).toString('base64url');
     return `${payload}.${hmac(payload)}`;
 };
 
-export const verifySession = (cookieValue?: string): TGroupAndUser | null => {
+export const verifyPayload = <T>(cookieValue?: string): T | null => {
     if (!cookieValue) return null;
     try {
         const [payload, signature] = decodeURIComponent(cookieValue).split('.');
@@ -29,11 +29,15 @@ export const verifySession = (cookieValue?: string): TGroupAndUser | null => {
         const expected = Buffer.from(hmac(payload));
         const received = Buffer.from(signature);
         if (expected.length !== received.length || !timingSafeEqual(expected, received)) return null;
-        return JSON.parse(Buffer.from(payload, 'base64url').toString()) as TGroupAndUser;
+        return JSON.parse(Buffer.from(payload, 'base64url').toString()) as T;
     } catch {
         return null;
     }
 };
+
+export const signSession = (session: TGroupAndUser): string => signPayload(session);
+
+export const verifySession = (cookieValue?: string): TGroupAndUser | null => verifyPayload<TGroupAndUser>(cookieValue);
 
 export const sessionCookieHeader = (session: TGroupAndUser): string =>
     `${COOKIE_NAME}=${signSession(session)}; Path=/; Max-Age=${SESSION_MAX_AGE}; SameSite=Strict`;

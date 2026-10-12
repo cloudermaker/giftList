@@ -3,7 +3,10 @@ import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
 import ModernLink from '@/components/atoms/ModernLink';
-import { NextPageContext } from 'next';
+import { GetServerSidePropsContext } from 'next';
+import { verifySession } from '@/lib/auth/session';
+import { COOKIE_NAME } from '@/lib/auth/authService';
+import { touchGroupActivity } from '@/lib/db/groupManager';
 import CustomButton from '@/components/atoms/customButton';
 import GiftForm from '@/components/atoms/GiftForm';
 import { Medal } from '@/components/icons/medal';
@@ -627,11 +630,15 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     );
 };
 
-export async function getServerSideProps(context: NextPageContext) {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { query } = context;
     const userId = query.id?.toString() ?? '';
 
     if (Number.isNaN(userId)) return { notFound: true };
+
+    // Ouverture directe d'une liste (favori) : compte aussi comme activité du groupe
+    const session = verifySession(context.req.cookies[COOKIE_NAME]);
+    if (session) await touchGroupActivity(session.groupId);
 
     const [user, giftList] = await Promise.all([getUserById(userId), getGiftsFromUserId(userId)]);
 

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { User } from '@prisma/client';
+import { PublicUser } from '@/lib/db/userManager';
 import { upsertUser, createUser, getUserByGroupAndName } from '@/lib/db/userManager';
 import { getGroupUsers } from '@/lib/db/userGroupManager';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
@@ -8,8 +8,8 @@ import { parseBody, userCreateSchema } from '@/lib/api/validation';
 export type TUserApiResult = {
     success: boolean;
     userId?: string;
-    user?: User;
-    users?: User[];
+    user?: PublicUser;
+    users?: PublicUser[];
     error?: string;
 };
 
@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const user =
                 isCreation && body.groupId
                     ? await createUser(body.user.name, body.groupId as string, false)
-                    : await upsertUser(body.user as User);
+                    : await upsertUser(body.user as PublicUser);
 
             res.status(200).json({ success: true, user });
         } else if (req.method === 'GET' && req.query['groupid']) {
@@ -65,7 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 acceptSuggestedGift: m.acceptSuggestedGift,
                 createdAt: m.createdAt,
                 updatedAt: m.updatedAt
-            })) as User[];
+            })) as PublicUser[];
 
             res.status(200).json({ success: true, users });
         } else {
