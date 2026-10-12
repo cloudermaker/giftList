@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { GetServerSideProps } from 'next';
 import NProgress from 'nprogress';
 import { Layout } from '@/components/layout';
@@ -8,7 +9,7 @@ import { CustomInput } from '@/components/atoms/customInput';
 import CustomButton from '@/components/atoms/customButton';
 import { ErrorAlert } from '@/components/atoms/ErrorAlert';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
-import { alertError, confirmDestructive } from '@/lib/ui/alert';
+import { alertError, confirmDestructive, toast } from '@/lib/ui/alert';
 import { verifySession } from '@/lib/auth/session';
 import { COOKIE_NAME } from '@/lib/auth/authService';
 import { getEmailStatus, getProfilesByVerifiedEmail, TEmailProfile } from '@/lib/auth/emailRecovery';
@@ -40,7 +41,12 @@ export default function ProfilePage({
 }: Props) {
     const [email, setEmail] = useState('');
     const [sentTo, setSentTo] = useState('');
+    const { query } = useRouter();
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        if (query.email === 'confirme') toast('Adresse confirmée ✅');
+    }, [query.email]);
     const [isLoading, setIsLoading] = useState(false);
     const [unlockSent, setUnlockSent] = useState(false);
 

@@ -51,7 +51,25 @@ test.describe('Email de secours', () => {
         });
         await page.goto(`/email/confirmer/${verifyToken}`);
         await page.getByRole('button', { name: 'Confirmer mon adresse' }).click();
-        await expect(page.getByText("C'est fait")).toBeVisible();
+        // Même navigateur, même profil : retour direct au profil, adresse affichée
+        await page.waitForURL('**/profil?email=confirme');
+        await expect(page.getByText('Adresse confirmée ✅')).toBeVisible();
+        await expect(page.getByText(/•••@example\.com/)).toBeVisible();
+
+        // Confirmation depuis un autre appareil (non connecté) : simple message de succès
+        const phone = await browser.newContext();
+        const phonePage = await phone.newPage();
+        const verifyAgain = await createLoginToken({
+            purpose: 'VERIFY_EMAIL',
+            email,
+            userId: session!.userId,
+            grantsAdmin: true
+        });
+        await phonePage.goto(`/email/confirmer/${verifyAgain}`);
+        await phonePage.getByRole('button', { name: 'Confirmer mon adresse' }).click();
+        await expect(phonePage.getByText("C'est fait")).toBeVisible();
+        expect(phonePage.url()).toContain('/email/confirmer/');
+        await phone.close();
 
         // Reconnexion sur un autre appareil : email lié pendant une session admin → admin
         const ctx = await browser.newContext();
