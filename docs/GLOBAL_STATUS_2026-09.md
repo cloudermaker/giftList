@@ -1,7 +1,7 @@
 # Global status & improvement plan — malistedecadeaux.fr (Sept 2026)
 
-Effort tags: **S** < 1h · **M** half-day · **L** 1 day+. ✅ = done (v5.1.0 2026-09-13, v5.2.0 2026-09-14, v5.3.0 2026-09-16 — all
-merged & deployed; v5.4.0 ideas board in PR).
+Effort tags: **S** < 1h · **M** half-day · **L** 1 day+. ✅ = done (v5.1.0 2026-09-13, v5.2.0 2026-09-14, v5.3.0 2026-09-16 … up
+to v5.8.0 2026-10-14 — all merged & deployed).
 
 ## Snapshot — what's already good
 
@@ -108,12 +108,12 @@ merged & deployed; v5.4.0 ideas board in PR).
 20. Keyboard/a11y: nav, login tabs, member cards, gift rows are clickable `<div>`s; 7 unlabelled emoji buttons in backoffice;
     unlabelled checkbox. (M)
 21. giftList state fixes: `normalizeGift()` helper (5 copies), medal rank/reorder computed on filtered list, silent drag-save
-    failures, ✅ `viewMode` hydration mismatch (v5.7.0), index-keyed lists in takenGiftList. (M)
+    failures, ✅ `viewMode` hydration mismatch (v5.7.0), ✅ index-keyed lists in takenGiftList (v5.8.0). (M)
 22. Review leftover m-3: verify logged-out logo click (`href=/home`) redirects sanely. (S)
 
 ### P8 — Docs — ½ day
 
-23. README rewrite: env vars, scripts, DB workflow (`db push`, no rollback), deploy, the two-cookie auth model + deliberate
+23. README rewrite: env vars, scripts, DB workflow (hand-run SQL scripts in `scripts/`, test then prod, before deploy), deploy, the two-cookie auth model + deliberate
     open-access design, invite-token behaviour. (S/M)
 
 ### P9 — Product features (pick per season/motivation)
@@ -131,6 +131,14 @@ merged & deployed; v5.4.0 ideas board in PR).
   purged weekly by Vercel Cron `/api/cron/purge` + `CRON_SECRET`, which also removes orphan users and spent login tokens); privacy
   page completed (legal bases, processors, transfers, retention, CNIL). To do by hand: empty contact@ mailbox of messages older
   than 1 year.
+- ✅ **Mes réservations rework (v5.8.0, #79)** — same row style as the gift list (no truncated names on mobile, ↗ shop link
+  via shared `GiftShopLink`), reservations grouped by recipient with a "1/3 acheté" counter, detail modal on tap, personal
+  gifts editable. **Bought status**: `boughtAt` on `UserTakenGift` + `PersonalGift` (`scripts/bought-status.sql`, applied on
+  test + prod), toggled by the reserver only (`PATCH /api/gift/{id}/take`), never exposed to the list owner (e2e-checked).
+  **Purge**: weekly cron also deletes gifts bought > 6 months ago (`lib/retention.ts`; UNLIMITED keeps the gift, only the
+  reservation goes), privacy page updated. Also fixed: admins could not take a SIMPLE gift on another member's list.
+- Open: `GET /api/personalGift` (+ `?forUserId` / `?groupId`, and `GET /api/personalGift/{id}`) need no session — a list owner
+  can read the personal gifts meant for them (now incl. bought status). Require the session, owner-only. (S/M)
 
 24. **URL import** — paste a product link → auto title/image/price (server-side OG scraper). Biggest product differentiator. (L)
 25. **Secret Santa draw** within a group — strong seasonal fit, do before December. (M/L)
