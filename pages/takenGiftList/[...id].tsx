@@ -8,6 +8,7 @@ import { PersonalGiftModal, TPersonalGiftForm } from '@/components/PersonalGiftM
 import { RecipientAvatar, TakenGiftRow, TRecipient, TTakenRow } from '@/components/TakenGiftRow';
 import { getTakenGiftsFromUserId } from '@/lib/db/giftManager';
 import { getPersonalGiftsByUser } from '@/lib/db/personalGiftManager';
+import { BOUGHT_RETENTION_MONTHS } from '@/lib/retention';
 import { User } from '@prisma/client';
 import { NextPageContext } from 'next';
 import { useState, useEffect } from 'react';
@@ -289,6 +290,9 @@ const TakenGiftList = ({ reserved, personal }: { reserved: TTakenRow[]; personal
                             {selected.boughtAt && (
                                 <p className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
                                     ✓ Acheté le {new Date(selected.boughtAt).toLocaleDateString('fr-FR')}
+                                    <span className="block text-xs text-green-600 mt-1">
+                                        Retiré automatiquement {BOUGHT_RETENTION_MONTHS} mois après l&apos;achat
+                                    </span>
                                 </p>
                             )}
                         </div>

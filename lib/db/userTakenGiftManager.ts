@@ -4,6 +4,7 @@
  */
 
 import prisma from './dbSingleton';
+import { BOUGHT_RETENTION_MONTHS } from '../retention';
 
 /**
  * Réserver un cadeau (logique hybride parent/enfant)
@@ -74,6 +75,33 @@ export const setTakenGiftBought = async (takenGiftId: string, bought: boolean) =
         where: { id: takenGiftId },
         data: { boughtAt: bought ? new Date() : null }
     });
+};
+
+/**
+ * Purge des cadeaux achetés depuis plus de 6 mois (réservations + cadeaux personnels)
+ * SIMPLE : retiré de la liste ; MULTIPLE : retiré s'il n'a plus de sous-cadeau ; sinon seule la réservation part
+ */
+export const purgeBoughtGifts = async (): Promise<{ boughtGifts: number; boughtReservations: number; boughtPersonalGifts: number }> => {
+    const limit = new Date();
+    limit.setMonth(limit.getMonth() - BOUGHT_RETENTION_MONTHS);
+
+    const rows = await prisma.userTakenGift.findMany({
+        where: { boughtAt: { lt: limit } },
+        select: { giftId: true, gift: { select: { giftType: true } } }
+    });
+    const idsOf = (type: string) => rows.filter((r) => r.gift.giftType === type).map((r) => r.giftId);
+
+    // Sous-cadeaux (SIMPLE) d'abord, pour que les MULTIPLE vidés partent aussi
+    const simple = await prisma.gift.deleteMany({ where: { id: { in: idsOf('SIMPLE') } } });
+    const multiple = await prisma.gift.deleteMany({ where: { id: { in: idsOf('MULTIPLE') }, subGifts: { none: {} } } });
+    const reservations = await prisma.userTakenGift.deleteMany({ where: { boughtAt: { lt: limit } } });
+    const personal = await prisma.personalGift.deleteMany({ where: { boughtAt: { lt: limit } } });
+
+    return {
+        boughtGifts: simple.count + multiple.count,
+        boughtReservations: reservations.count,
+        boughtPersonalGifts: personal.count
+    };
 };
 
 /**

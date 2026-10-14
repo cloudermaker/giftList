@@ -11,6 +11,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 - Mes réservations : cadeaux groupés par destinataire, même style que la liste de cadeaux, fiche détail au clic
 - Statut « acheté » sur les réservations et les cadeaux personnels (invisible pour le propriétaire de la liste)
 - Cadeaux personnels modifiables depuis leur fiche
+- Purge hebdomadaire des cadeaux marqués achetés depuis plus de 6 mois
 
 ### Corrigé
 
