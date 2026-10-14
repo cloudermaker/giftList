@@ -16,6 +16,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 - Noms de cadeaux tronqués sur mobile dans Mes réservations
 - Libérer un cadeau à sous-éléments retire aussi ses sous-éléments de la page
+- Un admin peut de nouveau réserver un cadeau sur la liste d'un autre membre
 
 ## [5.7.0] - 2026-10-12
 

@@ -197,6 +197,26 @@ test.describe.serial('Cadeaux et réservations', () => {
         await expect(pageB.getByText('Aucun cadeau personnel ajouté')).toBeVisible();
     });
 
+    test('Alice (admin) peut aussi réserver un cadeau sur la liste de Bob', async () => {
+        const bobSession = await readSession(pageB);
+        await pageB.goto(`/giftList/${bobSession!.userId}`);
+        await pageB.getByRole('button', { name: 'Ajouter un cadeau' }).first().click();
+        await pageB.locator('#giftFormNameInput').fill('Casque audio');
+        await pageB.getByRole('button', { name: 'Créer' }).click();
+        await waitForToastGone(pageB);
+
+        await gotoUntilVisible(pageA, `/giftList/${bobSession!.userId}`, 'Casque audio');
+        await pageA.locator('.item', { hasText: 'Casque audio' }).click();
+        // L'admin garde Modifier/Supprimer et peut réserver
+        await expect(pageA.getByRole('button', { name: 'Modifier' })).toBeVisible();
+        await pageA.getByRole('button', { name: 'Je prends ce cadeau' }).click();
+        await expect(pageA.getByRole('button', { name: 'Je ne prends plus ce cadeau' })).toBeVisible();
+        await waitForToastGone(pageA);
+        await pageA.getByRole('button', { name: 'Je ne prends plus ce cadeau' }).click();
+        await expect(pageA.getByRole('button', { name: 'Je prends ce cadeau' })).toBeVisible();
+        await waitForToastGone(pageA);
+    });
+
     test('un proche rejoint le groupe via le lien d’invitation', async ({ browser }) => {
         // Le token d'invitation via l'API (le bouton UI copie dans le presse-papier)
         const res = await pageA.request.get(`/api/group/${groupId}`);

@@ -609,8 +609,9 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                             <CustomButton onClick={() => removeGift(selectedGift!.id)}>Supprimer</CustomButton>
                                         </>
                                     ))}
+                                {/* Réserver : tout le monde sauf le propriétaire (un admin peut aussi réserver) */}
                                 {!isCreating &&
-                                    !userCanAddGift &&
+                                    !isOwnList &&
                                     selectedGift!.giftType === 'SIMPLE' &&
                                     selectedGift!.takenUserId === connectedUser?.userId && (
                                         <CustomButton
@@ -621,7 +622,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                         </CustomButton>
                                     )}
                                 {!isCreating &&
-                                    !userCanAddGift &&
+                                    !isOwnList &&
                                     selectedGift!.giftType === 'SIMPLE' &&
                                     !selectedGift!.takenUserId && (
                                         <CustomButton
