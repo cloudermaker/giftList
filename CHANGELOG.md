@@ -4,6 +4,19 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.8.0] - 2026-10-14
+
+### Ajouté
+
+- Mes réservations : cadeaux groupés par destinataire, même style que la liste de cadeaux, fiche détail au clic
+- Statut « acheté » sur les réservations et les cadeaux personnels (invisible pour le propriétaire de la liste)
+- Cadeaux personnels modifiables depuis leur fiche
+
+### Corrigé
+
+- Noms de cadeaux tronqués sur mobile dans Mes réservations
+- Libérer un cadeau à sous-éléments retire aussi ses sous-éléments de la page
+
 ## [5.7.0] - 2026-10-12
 
 ### Ajouté

@@ -67,6 +67,16 @@ export const releaseOneTakenGift = async (takenGiftId: string) => {
 };
 
 /**
+ * Marquer une réservation comme achetée (ou non)
+ */
+export const setTakenGiftBought = async (takenGiftId: string, bought: boolean) => {
+    return await prisma.userTakenGift.update({
+        where: { id: takenGiftId },
+        data: { boughtAt: bought ? new Date() : null }
+    });
+};
+
+/**
  * Libérer un cadeau réservé
  * Si le cadeau est MULTIPLE, libère aussi tous les sous-cadeaux
  */

@@ -56,6 +56,7 @@ export const giftsReorderSchema = z.object({ gifts: z.array(giftShape).min(1).ma
 export const giftPatchSchema = z.object({ gift: giftShape.partial().passthrough() }).passthrough();
 
 export const takeSchema = z.object({ takenGiftId: id.optional() }).passthrough();
+export const takeBoughtSchema = z.object({ takenGiftId: id, bought: z.boolean() });
 
 export const subGiftSchema = z.object({
     name: z.string().trim().min(1).max(200),
@@ -110,6 +111,7 @@ export const personalGiftUpdateSchema = z
         name: z.string().trim().min(1).max(200).optional(),
         description: longText.nullish(),
         url: longText.nullish(),
-        forUserId: id.nullish()
+        forUserId: id.nullish(),
+        bought: z.boolean().optional()
     })
     .passthrough();

@@ -4,7 +4,8 @@ import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
 import ModernLink from '@/components/atoms/ModernLink';
 import { toSafeUrl } from '@/lib/ui/url';
-import { ExternalLink, LayoutGrid, List } from 'lucide-react';
+import { LayoutGrid, List } from 'lucide-react';
+import { GiftShopLink } from '@/components/atoms/GiftShopLink';
 import { GetServerSidePropsContext } from 'next';
 import { verifySession } from '@/lib/auth/session';
 import { COOKIE_NAME } from '@/lib/auth/authService';
@@ -28,21 +29,6 @@ import SubGiftList from '@/components/SubGiftList';
 import UnlimitedGiftTakers from '@/components/UnlimitedGiftTakers';
 
 const NEW_GIFT_SENTINEL = 'new';
-
-// Accès direct à la boutique, sans ouvrir la fiche du cadeau
-const GiftShopLink = ({ url, name, className = '' }: { url: string; name: string; className?: string }) => (
-    <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={(e) => e.stopPropagation()}
-        title="Ouvrir le lien du cadeau"
-        aria-label={`Ouvrir le lien de ${name}`}
-        className={`shrink-0 flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-vertNoel hover:bg-green-50 hover:no-underline transition-colors ${className}`}
-    >
-        <ExternalLink className="w-4 h-4" aria-hidden="true" />
-    </a>
-);
 
 function SortableItem({
     gift,
