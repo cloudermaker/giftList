@@ -103,7 +103,7 @@ export const getPersonalGiftById = async (id: string) => {
 /**
  * Mettre à jour un cadeau personnel
  */
-export const updatePersonalGift = async (id: string, data: Partial<PersonalGiftData>) => {
+export const updatePersonalGift = async (id: string, data: Partial<PersonalGiftData> & { boughtAt?: Date | null }) => {
     const { userId, forUserId, groupId, ...giftData } = data;
 
     return await prisma.personalGift.update({

@@ -76,6 +76,45 @@ test.describe('Données personnelles', () => {
         expect(await prisma.gift.count({ where: { userId } })).toBe(0);
     });
 
+    test('la purge hebdomadaire supprime les cadeaux achetés depuis plus de 6 mois, et seulement eux', async ({ request }) => {
+        const { groupId, userId: zoeId } = await createGroupViaApi(request, uniqueName('e2e-rgpd-achats'));
+        const owner = await prisma.user.create({ data: { name: 'yann', groupMemberships: { create: { groupId } } } });
+        const sevenMonthsAgo = new Date(Date.now() - 7 * 30 * 24 * 60 * 60 * 1000);
+        const lastMonth = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+        const reserve = async (name: string, boughtAt: Date | null, giftType: 'SIMPLE' | 'UNLIMITED' = 'SIMPLE') => {
+            const gift = await prisma.gift.create({ data: { name, userId: owner.id, giftType } });
+            const row = await prisma.userTakenGift.create({ data: { userId: zoeId, giftId: gift.id, boughtAt } });
+            return { giftId: gift.id, rowId: row.id };
+        };
+        const oldBought = await reserve('Offert il y a 7 mois', sevenMonthsAgo);
+        const recentBought = await reserve('Offert le mois dernier', lastMonth);
+        const notBought = await reserve('Réservé, pas acheté', null);
+        const unlimited = await reserve('Illimité offert il y a 7 mois', sevenMonthsAgo, 'UNLIMITED');
+        const oldPersonal = await prisma.personalGift.create({
+            data: { name: 'Fleurs', userId: zoeId, groupId, boughtAt: sevenMonthsAgo }
+        });
+        const recentPersonal = await prisma.personalGift.create({
+            data: { name: 'Chocolats', userId: zoeId, groupId, boughtAt: lastMonth }
+        });
+
+        const purge = await request.get('/api/cron/purge', { headers: { Authorization: 'Bearer e2e-cron-secret' } });
+        expect(purge.ok()).toBeTruthy();
+
+        // Cadeau simple offert il y a plus de 6 mois : retiré de la liste
+        expect(await prisma.gift.findUnique({ where: { id: oldBought.giftId } })).toBeNull();
+        // Illimité : seule la réservation part, le cadeau reste sur la liste
+        expect(await prisma.gift.findUnique({ where: { id: unlimited.giftId } })).not.toBeNull();
+        expect(await prisma.userTakenGift.findUnique({ where: { id: unlimited.rowId } })).toBeNull();
+        // Récent ou pas encore acheté : intact
+        expect(await prisma.userTakenGift.findUnique({ where: { id: recentBought.rowId } })).not.toBeNull();
+        expect(await prisma.userTakenGift.findUnique({ where: { id: notBought.rowId } })).not.toBeNull();
+        expect(await prisma.personalGift.findUnique({ where: { id: oldPersonal.id } })).toBeNull();
+        expect(await prisma.personalGift.findUnique({ where: { id: recentPersonal.id } })).not.toBeNull();
+
+        await request.delete(`/api/group/${groupId}`);
+    });
+
     test('la purge hebdomadaire supprime les groupes inactifs depuis 3 ans, et seulement eux', async ({ request }) => {
         const oldGroup = await createGroupViaApi(request, uniqueName('e2e-rgpd-vieux'));
         const activeName = uniqueName('e2e-rgpd-actif');

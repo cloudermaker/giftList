@@ -85,6 +85,10 @@ export default function Confidentialite(): JSX.Element {
                             <strong>3 ans sans aucune connexion</strong>, avec leurs membres, listes et emails.
                         </li>
                         <li>
+                            <strong>Cadeaux marqués comme achetés</strong> : supprimés automatiquement{' '}
+                            <strong>6 mois après l&apos;achat</strong>.
+                        </li>
+                        <li>
                             <strong>Suppression manuelle</strong> d&apos;un membre ou d&apos;un groupe : définitive et immédiate,
                             listes et email compris.
                         </li>

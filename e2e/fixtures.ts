@@ -10,6 +10,14 @@ export const waitForToastGone = async (page: Page): Promise<void> => {
     await expect(page.locator('.swal2-container')).toHaveCount(0);
 };
 
+// Base de test : une lecture juste après l'écriture peut être en retard → on recharge jusqu'à voir l'élément
+export const gotoUntilVisible = async (page: Page, url: string, text: string): Promise<void> => {
+    await expect(async () => {
+        await page.goto(url);
+        await expect(page.getByText(text).first()).toBeVisible({ timeout: 2000 });
+    }).toPass({ timeout: 20000 });
+};
+
 export const createGroup = async (page: Page, groupName: string, userName: string, password: string): Promise<void> => {
     await page.goto('/');
     await page.getByText('Créer un groupe', { exact: true }).click();

@@ -41,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (req.method === 'PUT') {
             const parsed = parseBody(personalGiftUpdateSchema, req, res);
             if (!parsed) return;
-            const { name, description, url, forUserId } = parsed;
+            const { name, description, url, forUserId, bought } = parsed;
 
             const session = getSession(req);
             if (!session) {
@@ -57,7 +57,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 ...(description !== undefined && { description: description?.trim() }),
                 ...(url !== undefined && { url: url?.trim() }),
                 // null = retirer le destinataire (disconnect) — le type du manager attend string|undefined
-                ...(forUserId !== undefined && { forUserId: forUserId as string | undefined })
+                ...(forUserId !== undefined && { forUserId: forUserId as string | undefined }),
+                ...(bought !== undefined && { boughtAt: bought ? new Date() : null })
             });
 
             return res.status(200).json({

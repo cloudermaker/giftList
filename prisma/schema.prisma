@@ -132,6 +132,8 @@ model UserTakenGift {
   userId  String
   giftId  String
   takenAt DateTime @default(now())
+  // Acheté par celui qui a réservé (jamais exposé au propriétaire de la liste)
+  boughtAt DateTime?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   gift Gift @relation(fields: [giftId], references: [id], onDelete: Cascade)
@@ -166,6 +168,8 @@ model PersonalGift {
 
   groupId String
   group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  boughtAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

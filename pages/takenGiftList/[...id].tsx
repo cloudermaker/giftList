@@ -2,245 +2,319 @@ import CustomButton from '@/components/atoms/customButton';
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
-import { PersonalGiftModal } from '@/components/PersonalGiftModal';
-import { getTakenGiftsFromUserId, GiftWithTakenUserId } from '@/lib/db/giftManager';
+import { Modal } from '@/components/atoms/Modal';
+import ModernLink from '@/components/atoms/ModernLink';
+import { PersonalGiftModal, TPersonalGiftForm } from '@/components/PersonalGiftModal';
+import { RecipientAvatar, TakenGiftRow, TRecipient, TTakenRow } from '@/components/TakenGiftRow';
+import { getTakenGiftsFromUserId } from '@/lib/db/giftManager';
 import { getPersonalGiftsByUser } from '@/lib/db/personalGiftManager';
-import { User, GiftType } from '@prisma/client';
+import { BOUGHT_RETENTION_MONTHS } from '@/lib/retention';
+import { User } from '@prisma/client';
 import { NextPageContext } from 'next';
 import { useState, useEffect } from 'react';
 import { toast, alertError, confirmDestructive } from '@/lib/ui/alert';
+import { toSafeUrl } from '@/lib/ui/url';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
-import ModernLink from '@/components/atoms/ModernLink';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
-import { avatarColor } from '@/lib/ui/colors';
 
-// Type étendu pour inclure forUser (pour les personal gifts)
-type GiftWithForUser = GiftWithTakenUserId & {
-    user: User | null;
-    forUser?: User | null;
-};
+// Pas encore achetés d'abord, puis par nom
+const byBoughtThenName = (a: TTakenRow, b: TTakenRow) =>
+    Number(!!a.boughtAt) - Number(!!b.boughtAt) || a.name.localeCompare(b.name, 'fr');
 
-const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.Element => {
+const toPersonalRow = (pg: any): TTakenRow => ({
+    key: `personal_${pg.id}`,
+    kind: 'personal',
+    id: pg.id,
+    takenGiftId: null,
+    parentGiftId: null,
+    parentName: null,
+    name: pg.name,
+    description: pg.description ?? null,
+    url: pg.url ?? null,
+    giftType: 'SIMPLE',
+    recipient: pg.forUser ? { id: pg.forUser.id, name: pg.forUser.name } : null,
+    boughtAt: pg.boughtAt ? new Date(pg.boughtAt).toISOString() : null
+});
+
+const TakenGiftList = ({ reserved, personal }: { reserved: TTakenRow[]; personal: TTakenRow[] }): JSX.Element => {
     const { connectedUser } = useCurrentUser();
-    const [localTakenGifts, setLocalTakenGifts] = useState<GiftWithForUser[]>(takenGifts);
+    const [reservedRows, setReservedRows] = useState<TTakenRow[]>(reserved);
+    const [personalRows, setPersonalRows] = useState<TTakenRow[]>(personal);
     const [groupUsers, setGroupUsers] = useState<User[]>([]);
-    const [releasingGiftId, setReleasingGiftId] = useState<string | null>(null);
-    const [deletingGiftId, setDeletingGiftId] = useState<string | null>(null);
-    const [showPersonalGiftModal, setShowPersonalGiftModal] = useState(false);
-    // Charger les users du groupe
+    const [busyKey, setBusyKey] = useState<string | null>(null);
+    const [selectedKey, setSelectedKey] = useState<string | null>(null);
+    // null = fermé, 'new' = création, sinon clé du cadeau personnel édité
+    const [personalFormKey, setPersonalFormKey] = useState<string | null>(null);
+
     useEffect(() => {
         const loadGroupUsers = async () => {
-            if (connectedUser?.groupId) {
-                try {
-                    const response = await AxiosWrapper.get(`/api/user?groupid=${connectedUser.groupId}`);
-                    if (response?.data?.success && response.data.users) {
-                        setGroupUsers(response.data.users);
-                    }
-                } catch (error) {
-                    // Silently fail if unable to fetch group users
-                }
+            if (!connectedUser?.groupId) return;
+            try {
+                const response = await AxiosWrapper.get(`/api/user?groupid=${connectedUser.groupId}`);
+                if (response?.data?.success && response.data.users) setGroupUsers(response.data.users);
+            } catch {
+                /* silently fail */
             }
         };
         loadGroupUsers();
     }, [connectedUser?.groupId]);
-    const onUnBlockGiftClick = async (giftToUpdate: GiftWithForUser): Promise<void> => {
-        const uniqueKey = giftToUpdate.userTakenGiftId ?? giftToUpdate.id;
-        setReleasingGiftId(uniqueKey);
 
+    const allRows = [...reservedRows, ...personalRows];
+    const selected = allRows.find((r) => r.key === selectedKey) ?? null;
+    const editedPersonal = personalRows.find((r) => r.key === personalFormKey) ?? null;
+
+    const replaceRow = (row: TTakenRow) => {
+        const setter = row.kind === 'reserved' ? setReservedRows : setPersonalRows;
+        setter((rows) => rows.map((r) => (r.key === row.key ? row : r)));
+    };
+
+    const toggleBought = async (row: TTakenRow) => {
+        const bought = !row.boughtAt;
+        setBusyKey(row.key);
         try {
-            // Pour les cadeaux UNLIMITED : libérer uniquement cette réservation spécifique
-            const body: any = { userId: connectedUser?.userId };
-            if ((giftToUpdate.giftType as string) === 'UNLIMITED' && giftToUpdate.userTakenGiftId) {
-                body.takenGiftId = giftToUpdate.userTakenGiftId;
+            const res =
+                row.kind === 'reserved'
+                    ? await AxiosWrapper.patch(`/api/gift/${row.id}/take`, { takenGiftId: row.takenGiftId, bought })
+                    : await AxiosWrapper.put(`/api/personalGift/${row.id}`, { bought });
+            if (res?.data?.success) {
+                replaceRow({ ...row, boughtAt: bought ? new Date().toISOString() : null });
+            } else {
+                alertError('Erreur', 'Impossible de mettre à jour ce cadeau.');
             }
+        } finally {
+            setBusyKey(null);
+        }
+    };
 
-            const result = await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`, body);
-            const data = result?.data;
-
-            if (data && data.success) {
-                // Retirer uniquement cette entrée (par userTakenGiftId pour éviter de supprimer les doublons UNLIMITED)
-                setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => (gift.userTakenGiftId ?? gift.id) !== uniqueKey));
+    const releaseGift = async (row: TTakenRow) => {
+        if (row.boughtAt) {
+            const confirmed = await confirmDestructive({
+                title: 'Tu as déjà acheté ce cadeau',
+                text: 'Le libérer quand même ? Il redeviendra disponible pour les autres.'
+            });
+            if (!confirmed) return;
+        }
+        setBusyKey(row.key);
+        try {
+            // UNLIMITED : uniquement cette réservation ; sinon le serveur libère aussi les sous-cadeaux
+            const body = row.giftType === 'UNLIMITED' ? { takenGiftId: row.takenGiftId } : {};
+            const res = await AxiosWrapper.delete(`/api/gift/${row.id}/take`, body);
+            if (res?.data?.success) {
+                setReservedRows((rows) =>
+                    rows.filter((r) =>
+                        row.giftType === 'UNLIMITED' ? r.key !== row.key : r.id !== row.id && r.parentGiftId !== row.id
+                    )
+                );
+                setSelectedKey(null);
                 toast('Cadeau libéré !');
             } else {
                 alertError('Erreur', 'Impossible de libérer ce cadeau. Réessayez dans quelques instants.');
             }
         } finally {
-            setReleasingGiftId(null);
+            setBusyKey(null);
         }
     };
 
-    const handleCreatePersonalGift = async (data: {
-        name: string;
-        description: string;
-        link: string;
-        forUserId: string;
-    }): Promise<void> => {
-        const result = await AxiosWrapper.post('/api/personalGift', {
-            personalGift: {
-                name: data.name,
-                description: data.description || null,
-                url: data.link || null,
-                userId: connectedUser?.userId,
-                groupId: connectedUser?.groupId,
-                forUserId: data.forUserId || null
-            }
-        });
-        const res = result?.data;
-        if (res && res.success && res.personalGift) {
-            const giftFromPersonal: GiftWithForUser = {
-                id: res.personalGift.id,
-                name: res.personalGift.name,
-                description: res.personalGift.description,
-                url: res.personalGift.url,
-                userId: null,
-                takenUserId: connectedUser?.userId,
-                user: null,
-                forUser: res.personalGift.forUser || null
-            } as GiftWithForUser;
-            setLocalTakenGifts((old) => [...old, giftFromPersonal]);
-            toast('Cadeau ajouté !');
-        } else {
-            alertError('Erreur', "Impossible d'ajouter ce cadeau. Réessayez dans quelques instants.");
+    const savePersonalGift = async (data: TPersonalGiftForm): Promise<void> => {
+        const fields = {
+            name: data.name,
+            description: data.description || null,
+            url: data.link || null,
+            forUserId: data.forUserId || null
+        };
+        const res = editedPersonal
+            ? await AxiosWrapper.put(`/api/personalGift/${editedPersonal.id}`, fields)
+            : await AxiosWrapper.post('/api/personalGift', { personalGift: { ...fields, groupId: connectedUser?.groupId } });
+        const saved = res?.data?.success ? (res.data.gift ?? res.data.personalGift) : null;
+        if (!saved) {
+            alertError('Erreur', "Impossible d'enregistrer ce cadeau. Réessayez dans quelques instants.");
             throw new Error('api error');
         }
+        const row = toPersonalRow(saved);
+        if (editedPersonal) replaceRow(row);
+        else setPersonalRows((rows) => [...rows, row]);
+        // Comme sur la liste de cadeaux : enregistrer ferme aussi la fiche
+        setSelectedKey(null);
+        toast(editedPersonal ? 'Cadeau modifié !' : 'Cadeau ajouté !');
     };
 
-    const deletePersonalGift = async (giftId: string): Promise<void> => {
+    const deletePersonalGift = async (row: TTakenRow): Promise<void> => {
         const confirmed = await confirmDestructive({
             title: 'Es-tu certain de vouloir supprimer ce cadeau?',
             text: 'Il ne sera pas possible de revenir en arrière!'
         });
         if (!confirmed) return;
 
-        setDeletingGiftId(giftId);
+        setBusyKey(row.key);
         try {
-            const apiResult = await AxiosWrapper.delete(`/api/personalGift/${giftId}`, {
-                userId: connectedUser?.userId
-            });
-            const data = apiResult?.data;
-
-            if (data && data.success === true) {
-                setLocalTakenGifts((oldGifts) => oldGifts.filter((gift) => gift.id !== giftId));
+            const res = await AxiosWrapper.delete(`/api/personalGift/${row.id}`);
+            if (res?.data?.success === true) {
+                setPersonalRows((rows) => rows.filter((r) => r.key !== row.key));
+                setSelectedKey(null);
                 toast('Supprimé !');
             } else {
                 alertError('Erreur', 'Impossible de supprimer ce cadeau.');
             }
         } finally {
-            setDeletingGiftId(null);
+            setBusyKey(null);
         }
     };
 
-    const reservedGifts = localTakenGifts.filter((g) => g.user !== null);
-    const personalGifts = localTakenGifts.filter((g) => g.user === null);
+    // Réservations groupées par destinataire (propriétaire de la liste)
+    const groups = Object.values(
+        reservedRows.reduce<Record<string, { recipient: TRecipient; rows: TTakenRow[] }>>((acc, row) => {
+            const recipient = row.recipient ?? { id: 'unknown', name: '?' };
+            (acc[recipient.id] ??= { recipient, rows: [] }).rows.push(row);
+            return acc;
+        }, {})
+    ).sort((a, b) => a.recipient.name.localeCompare(b.recipient.name, 'fr'));
+
+    const renderRow = (row: TTakenRow) => (
+        <TakenGiftRow
+            key={row.key}
+            row={row}
+            busy={busyKey === row.key}
+            onOpen={() => setSelectedKey(row.key)}
+            onToggleBought={() => toggleBought(row)}
+        />
+    );
 
     return (
         <Layout selectedHeader={EHeader.TakenGiftList}>
             <div>
                 <PageTitle>Mes réservations</PageTitle>
 
-                {/* ── Cadeaux réservés ── */}
+                {/* ── Cadeaux réservés, par destinataire ── */}
                 <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Cadeaux réservés</p>
-                {reservedGifts.length === 0 ? (
+                {groups.length === 0 ? (
                     <div className="bg-white rounded-xl p-8 text-center mb-8 shadow-sm">
                         <p className="text-3xl mb-2">🎁</p>
                         <p className="text-sm text-gray-400">Aucun cadeau réservé pour le moment</p>
                     </div>
                 ) : (
-                    <div className="mb-8">
-                        {reservedGifts.map((gift, idx) => {
-                            const color = avatarColor(gift.user?.name ?? 'A');
-                            const uniqueKey = gift.userTakenGiftId ?? gift.id;
+                    <div className="mb-8 space-y-6">
+                        {groups.map(({ recipient, rows }) => {
+                            const boughtCount = rows.filter((r) => r.boughtAt).length;
                             return (
-                                <div key={`takenGift_${idx}`} className="item flex items-center gap-4">
-                                    <div
-                                        className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-                                        style={{ background: color.bg, color: color.text }}
-                                    >
-                                        {gift.user?.name.charAt(0).toUpperCase()}
+                                <section key={recipient.id} aria-label={`Pour ${recipient.name}`}>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <RecipientAvatar recipient={recipient} />
+                                        <h2 className="flex-1 min-w-0 font-semibold text-gray-800 break-words">
+                                            Pour {recipient.name}
+                                        </h2>
+                                        <span className="shrink-0 text-xs text-gray-400">
+                                            {boughtCount}/{rows.length} acheté{boughtCount > 1 ? 's' : ''}
+                                        </span>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        {(gift as any).parentGift ? (
-                                            <p className="font-semibold text-gray-800 truncate">
-                                                <span className="font-normal text-gray-400">
-                                                    {(gift as any).parentGift.name} ›{' '}
-                                                </span>
-                                                {gift.name}
-                                            </p>
-                                        ) : (
-                                            <p className="font-semibold text-gray-800 truncate">{gift.name}</p>
-                                        )}
-                                        <p className="text-sm text-gray-400 mt-0.5">Pour {gift.user?.name}</p>
-                                        {gift.description && <p className="text-sm text-gray-500 mt-1">{gift.description}</p>}
-                                        {gift.url && (
-                                            <div className="mt-1">
-                                                <ModernLink href={gift.url} />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <CustomButton
-                                        onClick={() => onUnBlockGiftClick(gift)}
-                                        disabled={releasingGiftId === uniqueKey}
-                                    >
-                                        {releasingGiftId === uniqueKey ? '...' : 'Libérer'}
-                                    </CustomButton>
-                                </div>
+                                    <div className="flex flex-col gap-2">{[...rows].sort(byBoughtThenName).map(renderRow)}</div>
+                                </section>
                             );
                         })}
                     </div>
                 )}
 
                 {/* ── Cadeaux personnels ── */}
-                <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1 mt-8">Cadeaux personnels</p>
-                <p className="text-sm text-gray-400 mb-4">Visibles uniquement par toi</p>
-                {personalGifts.length === 0 ? (
+                <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3 mt-8 mb-4">
+                    <div>
+                        <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Cadeaux personnels</p>
+                        <p className="text-sm text-gray-400">Visibles uniquement par toi</p>
+                    </div>
+                    <CustomButton variant="green" size="sm" onClick={() => setPersonalFormKey('new')}>
+                        Ajouter un cadeau personnel
+                    </CustomButton>
+                </div>
+                {personalRows.length === 0 ? (
                     <div className="bg-white rounded-xl p-8 text-center mb-6 shadow-sm">
                         <p className="text-3xl mb-2">📝</p>
                         <p className="text-sm text-gray-400">Aucun cadeau personnel ajouté</p>
                     </div>
                 ) : (
-                    <div className="mb-6">
-                        {personalGifts.map((gift, idx) => {
-                            const color = gift.forUser ? avatarColor(gift.forUser.name) : { bg: '#f3f4f6', text: '#6b7280' };
-                            return (
-                                <div key={`personalGift_${idx}`} className="item flex items-center gap-4">
-                                    <div
-                                        className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-                                        style={{ background: color.bg, color: color.text }}
-                                    >
-                                        {gift.forUser ? gift.forUser.name.charAt(0).toUpperCase() : '📝'}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-semibold text-gray-800 truncate">{gift.name}</p>
-                                        {gift.forUser && <p className="text-sm text-gray-400 mt-0.5">Pour {gift.forUser.name}</p>}
-                                        {gift.description && <p className="text-sm text-gray-500 mt-1">{gift.description}</p>}
-                                        {gift.url && (
-                                            <div className="mt-1">
-                                                <ModernLink href={gift.url} />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <CustomButton
-                                        onClick={() => deletePersonalGift(gift.id)}
-                                        disabled={deletingGiftId === gift.id}
-                                    >
-                                        {deletingGiftId === gift.id ? '...' : 'Supprimer'}
-                                    </CustomButton>
-                                </div>
-                            );
-                        })}
-                    </div>
+                    <div className="flex flex-col gap-2 mb-6">{[...personalRows].sort(byBoughtThenName).map(renderRow)}</div>
                 )}
 
-                <CustomButton variant="green" onClick={() => setShowPersonalGiftModal(true)}>
-                    Ajouter un cadeau personnel
-                </CustomButton>
+                {/* Fiche détail */}
+                {selected && !personalFormKey && (
+                    <Modal
+                        title={selected.name}
+                        emoji={selected.kind === 'reserved' ? '🎁' : '📝'}
+                        onClose={() => setSelectedKey(null)}
+                        footer={
+                            <div className="flex flex-wrap justify-end gap-2">
+                                <CustomButton
+                                    variant={selected.boughtAt ? 'slate' : 'green'}
+                                    onClick={() => toggleBought(selected)}
+                                    disabled={busyKey === selected.key}
+                                >
+                                    {selected.boughtAt ? 'Pas encore acheté' : 'Marquer comme acheté'}
+                                </CustomButton>
+                                {selected.kind === 'reserved' ? (
+                                    <CustomButton onClick={() => releaseGift(selected)} disabled={busyKey === selected.key}>
+                                        Libérer
+                                    </CustomButton>
+                                ) : (
+                                    <>
+                                        <CustomButton variant="slate" onClick={() => setPersonalFormKey(selected.key)}>
+                                            Modifier
+                                        </CustomButton>
+                                        <CustomButton
+                                            onClick={() => deletePersonalGift(selected)}
+                                            disabled={busyKey === selected.key}
+                                        >
+                                            Supprimer
+                                        </CustomButton>
+                                    </>
+                                )}
+                                <CustomButton variant="slate" onClick={() => setSelectedKey(null)}>
+                                    Fermer
+                                </CustomButton>
+                            </div>
+                        }
+                    >
+                        <div className="space-y-4 text-gray-700">
+                            <p className="flex items-center gap-2 text-sm text-gray-500">
+                                <RecipientAvatar recipient={selected.recipient} size="sm" />
+                                {selected.recipient ? `Pour ${selected.recipient.name}` : 'Pour personne en particulier'}
+                                {selected.giftType === 'UNLIMITED' && (
+                                    <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+                                        🔁 Illimité
+                                    </span>
+                                )}
+                            </p>
+                            {selected.parentName && <p className="text-sm text-gray-500">Fait partie de : {selected.parentName}</p>}
+                            {selected.description ? (
+                                <p className="whitespace-pre-line break-words">{selected.description}</p>
+                            ) : (
+                                <p className="italic">Pas de description</p>
+                            )}
+                            {toSafeUrl(selected.url) ? <ModernLink href={selected.url} /> : <p className="italic">Pas de lien</p>}
+                            {selected.boughtAt && (
+                                <p className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
+                                    ✓ Acheté le {new Date(selected.boughtAt).toLocaleDateString('fr-FR')}
+                                    <span className="block text-xs text-green-600 mt-1">
+                                        Retiré automatiquement {BOUGHT_RETENTION_MONTHS} mois après l&apos;achat
+                                    </span>
+                                </p>
+                            )}
+                        </div>
+                    </Modal>
+                )}
 
-                {showPersonalGiftModal && (
+                {personalFormKey && (
                     <PersonalGiftModal
                         groupUsers={groupUsers}
                         currentUserId={connectedUser?.userId}
-                        onClose={() => setShowPersonalGiftModal(false)}
-                        onSubmit={handleCreatePersonalGift}
+                        initial={
+                            editedPersonal
+                                ? {
+                                      name: editedPersonal.name,
+                                      description: editedPersonal.description ?? '',
+                                      link: editedPersonal.url ?? '',
+                                      forUserId: editedPersonal.recipient?.id ?? ''
+                                  }
+                                : undefined
+                        }
+                        onClose={() => setPersonalFormKey(null)}
+                        onSubmit={savePersonalGift}
                     />
                 )}
             </div>
@@ -249,80 +323,32 @@ const TakenGiftList = ({ takenGifts }: { takenGifts: GiftWithForUser[] }): JSX.E
 };
 
 export async function getServerSideProps(context: NextPageContext) {
-    const { query } = context;
+    const userId = context.query.id?.toString() ?? '';
 
-    const userId = query.id?.toString() ?? '';
-
-    if (Number.isNaN(userId)) {
-        return {
-            notFound: true
-        };
-    }
-
-    // Charger en parallèle les cadeaux réservés et les cadeaux personnels
     const [takenGifts, personalGifts] = await Promise.all([getTakenGiftsFromUserId(userId), getPersonalGiftsByUser(userId)]);
 
-    // Filtrer pour ne garder QUE les cadeaux qui ont un user (vraies listes)
-    // Les cadeaux orphelins (user=null) ne doivent plus apparaître ici
-    const takenGiftsWithForUser = takenGifts
-        .filter((gift) => gift.user !== null) // Ignorer les orphelins
-        .map((gift) => ({
-            ...gift,
-            forUser: null,
-            parentGift: (gift as any).parentGift ?? null
-        }));
+    // Les cadeaux orphelins (sans propriétaire) n'apparaissent plus
+    const reserved: TTakenRow[] = takenGifts
+        .filter((gift) => gift.user !== null)
+        .map((gift) => {
+            const parentGift = (gift as any).parentGift as { name: string } | null;
+            return {
+                key: `reserved_${gift.userTakenGiftId ?? gift.id}`,
+                kind: 'reserved',
+                id: gift.id,
+                takenGiftId: gift.userTakenGiftId ?? null,
+                parentGiftId: gift.parentGiftId,
+                parentName: parentGift?.name ?? null,
+                name: gift.name,
+                description: gift.description,
+                url: gift.url,
+                giftType: gift.giftType,
+                recipient: { id: gift.user!.id, name: gift.user!.name },
+                boughtAt: gift.boughtAt?.toISOString() ?? null
+            };
+        });
 
-    // Convertir PersonalGifts en format Gift pour compatibilité
-    const personalGiftsAsGifts = personalGifts.map((pg) => ({
-        id: pg.id,
-        name: pg.name,
-        description: pg.description,
-        url: pg.url,
-        userId: null,
-        order: 0,
-        takenUserId: userId,
-        isSuggestedGift: false,
-        giftType: 'SIMPLE' as GiftType,
-        parentGiftId: null,
-        updatedAt: pg.updatedAt,
-        createdAt: pg.createdAt,
-        user: null,
-        forUser: pg.forUser || null
-    }));
-
-    // Fusionner les deux listes
-    const allGifts = [...takenGiftsWithForUser, ...personalGiftsAsGifts];
-
-    return {
-        props: {
-            takenGifts: allGifts.map((gift) => ({
-                ...gift,
-                user: gift.user
-                    ? {
-                          ...gift.user,
-                          updatedAt: gift.user.updatedAt?.toISOString() ?? '',
-                          createdAt: gift.user.createdAt?.toISOString() ?? ''
-                      }
-                    : null,
-                forUser: gift.forUser
-                    ? {
-                          ...gift.forUser,
-                          updatedAt: gift.forUser.updatedAt?.toISOString() ?? '',
-                          createdAt: gift.forUser.createdAt?.toISOString() ?? ''
-                      }
-                    : null,
-                updatedAt: gift.updatedAt?.toISOString() ?? '',
-                createdAt: gift.createdAt?.toISOString() ?? '',
-                parentGift: (gift as any).parentGift
-                    ? {
-                          ...(gift as any).parentGift,
-                          updatedAt: (gift as any).parentGift.updatedAt?.toISOString() ?? '',
-                          createdAt: (gift as any).parentGift.createdAt?.toISOString() ?? ''
-                      }
-                    : null
-            }))
-        }
-    };
+    return { props: { reserved, personal: personalGifts.map(toPersonalRow) } };
 }
 
 export default TakenGiftList;

@@ -57,7 +57,9 @@ export const getGiftFromId = async (id: string): Promise<GiftWithTakenUserId | n
     } as GiftWithTakenUserId;
 };
 
-export const getTakenGiftsFromUserId = async (userId: string): Promise<(GiftWithTakenUserId & { user: User | null })[]> => {
+export type TakenGiftEntry = GiftWithTakenUserId & { user: User | null; boughtAt: Date | null };
+
+export const getTakenGiftsFromUserId = async (userId: string): Promise<TakenGiftEntry[]> => {
     const takenGiftRecords = await prisma.userTakenGift.findMany({
         where: {
             userId
@@ -79,8 +81,9 @@ export const getTakenGiftsFromUserId = async (userId: string): Promise<(GiftWith
         return {
             ...giftWithoutTakenBy,
             takenUserId: takenBy.length > 0 ? takenBy[0].userId : null,
-            userTakenGiftId: record.id // ID de la ligne UserTakenGift (unique même pour UNLIMITED)
-        } as GiftWithTakenUserId & { user: User | null };
+            userTakenGiftId: record.id, // ID de la ligne UserTakenGift (unique même pour UNLIMITED)
+            boughtAt: record.boughtAt
+        } as TakenGiftEntry;
     });
 };
 

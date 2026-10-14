@@ -1,5 +1,5 @@
 import { test, expect, BrowserContext, Page } from '@playwright/test';
-import { createGroup, deleteCurrentGroup, readSession, uniqueName, waitForToastGone } from './fixtures';
+import { createGroup, deleteCurrentGroup, gotoUntilVisible, readSession, uniqueName, waitForToastGone } from './fixtures';
 
 /**
  * Flux cœur du produit : cadeaux, réservation secrète, invitation, gestion des membres.
@@ -87,6 +87,34 @@ test.describe.serial('Cadeaux et réservations', () => {
         await expect(pageA.getByText('Bob')).toHaveCount(0);
     });
 
+    test('Bob marque sa réservation comme achetée : Alice ne voit rien', async () => {
+        const bobSession = await readSession(pageB);
+        await pageB.goto(`/takenGiftList/${bobSession!.userId}`);
+
+        // Groupé par destinataire, compteur d'achats
+        const aliceGroup = pageB.getByRole('region', { name: 'Pour Alice' });
+        await expect(aliceGroup.getByText('0/1 acheté')).toBeVisible();
+
+        // Fiche détail au clic sur la ligne, puis « acheté » depuis la fiche
+        await aliceGroup.locator('.item', { hasText: 'Cadeau Modifié' }).click();
+        await pageB.getByRole('button', { name: 'Marquer comme acheté' }).click();
+        await expect(pageB.getByText(/Acheté le/)).toBeVisible();
+        await pageB.getByRole('button', { name: 'Fermer' }).click();
+
+        // Persistance
+        await gotoUntilVisible(pageB, `/takenGiftList/${bobSession!.userId}`, '1/1 acheté');
+        await expect(aliceGroup.getByText('Acheté', { exact: true })).toBeVisible();
+
+        // Secret : aucune trace du statut côté propriétaire (ni rendu ni données de page)
+        await pageA.goto(`/giftList/${aliceUserId}`);
+        await expect(pageA.getByText('Cadeau Modifié', { exact: true })).toBeVisible();
+        expect(await pageA.content()).not.toContain('boughtAt');
+
+        // Le bouton rond de la ligne repasse en « pas encore acheté »
+        await aliceGroup.getByRole('button', { name: 'Marquer Cadeau Modifié comme pas encore acheté' }).click();
+        await expect(aliceGroup.getByText('0/1 acheté')).toBeVisible();
+    });
+
     test('la réservation apparaît dans « À acheter » de Bob, puis il la libère', async () => {
         const bobSession = await readSession(pageB);
         await pageB.goto(`/takenGiftList/${bobSession!.userId}`);
@@ -100,6 +128,93 @@ test.describe.serial('Cadeaux et réservations', () => {
         await waitForToastGone(pageB);
         await pageB.getByRole('button', { name: 'Fermer' }).click();
         await expect(pageB.getByText('Libre')).toBeVisible();
+    });
+
+    test('Bob libère depuis « Mes réservations » ; nom long lisible sur mobile', async () => {
+        const longName = 'Coffret de thés japonais avec théière en fonte et tasses assorties';
+        await pageA.goto(`/giftList/${aliceUserId}`);
+        await pageA.getByRole('button', { name: 'Ajouter un cadeau' }).first().click();
+        await pageA.locator('#giftFormNameInput').fill(longName);
+        await pageA.getByRole('button', { name: 'Créer' }).click();
+        await waitForToastGone(pageA);
+
+        await gotoUntilVisible(pageB, `/giftList/${aliceUserId}`, longName);
+        await pageB.locator('.item', { hasText: longName }).click();
+        await pageB.getByRole('button', { name: 'Je prends ce cadeau' }).click();
+        await waitForToastGone(pageB);
+
+        const bobSession = await readSession(pageB);
+        await pageB.setViewportSize({ width: 375, height: 812 });
+        await gotoUntilVisible(pageB, `/takenGiftList/${bobSession!.userId}`, longName);
+        const name =pageB.locator('.item span.font-medium', { hasText: longName });
+        await expect(name).toBeVisible();
+        // Pas de troncature : le texte tient dans sa boîte
+        expect(await name.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBeTruthy();
+
+        await pageB.locator('.item', { hasText: longName }).click();
+        await pageB.getByRole('button', { name: 'Libérer' }).click();
+        await waitForToastGone(pageB);
+        await expect(pageB.getByText('Aucun cadeau réservé pour le moment')).toBeVisible();
+        await pageB.setViewportSize({ width: 1280, height: 720 });
+    });
+
+    test('Bob ajoute, modifie, achète puis supprime un cadeau personnel', async () => {
+        const bobSession = await readSession(pageB);
+        await pageB.goto(`/takenGiftList/${bobSession!.userId}`);
+
+        await pageB.getByRole('button', { name: 'Ajouter un cadeau personnel' }).click();
+        await pageB.getByLabel('Nom du cadeau').fill('Bouquet de fleurs');
+        await expect(pageB.getByLabel('Pour qui ?').locator('option', { hasText: 'Alice' })).toHaveCount(1);
+        // Les prénoms sont enregistrés en minuscules
+        await pageB.getByLabel('Pour qui ?').selectOption({ label: 'alice' });
+        await pageB.getByRole('button', { name: 'Valider' }).click();
+        await waitForToastGone(pageB);
+        const row = pageB.locator('.item', { hasText: 'Bouquet de fleurs' });
+        await expect(row.getByText('Pour alice')).toBeVisible();
+
+        // Édition depuis la fiche
+        await row.click();
+        await pageB.getByRole('button', { name: 'Modifier' }).click();
+        await pageB.getByLabel('Nom du cadeau').fill('Bouquet de pivoines');
+        await pageB.getByRole('button', { name: 'Valider' }).click();
+        await waitForToastGone(pageB);
+        const edited = pageB.locator('.item', { hasText: 'Bouquet de pivoines' });
+        await expect(edited).toBeVisible();
+
+        // Acheté depuis la ligne, persistant
+        await edited.getByRole('button', { name: 'Marquer Bouquet de pivoines comme acheté' }).click();
+        await expect(edited.getByText('Acheté', { exact: true })).toBeVisible();
+        await expect(async () => {
+            await pageB.reload();
+            await expect(edited.getByText('Acheté', { exact: true })).toBeVisible({ timeout: 2000 });
+        }).toPass({ timeout: 20000 });
+
+        // Suppression
+        await edited.click();
+        await pageB.getByRole('button', { name: 'Supprimer' }).click();
+        await pageB.getByRole('button', { name: 'Oui!' }).click();
+        await waitForToastGone(pageB);
+        await expect(pageB.getByText('Aucun cadeau personnel ajouté')).toBeVisible();
+    });
+
+    test('Alice (admin) peut aussi réserver un cadeau sur la liste de Bob', async () => {
+        const bobSession = await readSession(pageB);
+        await pageB.goto(`/giftList/${bobSession!.userId}`);
+        await pageB.getByRole('button', { name: 'Ajouter un cadeau' }).first().click();
+        await pageB.locator('#giftFormNameInput').fill('Casque audio');
+        await pageB.getByRole('button', { name: 'Créer' }).click();
+        await waitForToastGone(pageB);
+
+        await gotoUntilVisible(pageA, `/giftList/${bobSession!.userId}`, 'Casque audio');
+        await pageA.locator('.item', { hasText: 'Casque audio' }).click();
+        // L'admin garde Modifier/Supprimer et peut réserver
+        await expect(pageA.getByRole('button', { name: 'Modifier' })).toBeVisible();
+        await pageA.getByRole('button', { name: 'Je prends ce cadeau' }).click();
+        await expect(pageA.getByRole('button', { name: 'Je ne prends plus ce cadeau' })).toBeVisible();
+        await waitForToastGone(pageA);
+        await pageA.getByRole('button', { name: 'Je ne prends plus ce cadeau' }).click();
+        await expect(pageA.getByRole('button', { name: 'Je prends ce cadeau' })).toBeVisible();
+        await waitForToastGone(pageA);
     });
 
     test('un proche rejoint le groupe via le lien d’invitation', async ({ browser }) => {
