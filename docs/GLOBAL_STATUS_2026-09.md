@@ -140,7 +140,8 @@ to v5.8.0 2026-10-14 — all merged & deployed).
 - Open: `GET /api/personalGift` (+ `?forUserId` / `?groupId`, and `GET /api/personalGift/{id}`) need no session — a list owner
   can read the personal gifts meant for them (now incl. bought status). Require the session, owner-only. (S/M)
 
-24. **URL import** — paste a product link → auto title/image/price (server-side OG scraper). Biggest product differentiator. (L)
+24. **URL import** — paste a product link → auto title/image/price (server-side OG scraper). Biggest product differentiator. Also
+    covers the link preview on existing gifts with a URL (laptop: aligned; mobile: column). (L)
 25. **Secret Santa draw** within a group — strong seasonal fit, do before December. (M/L)
 26. **Birthdays & reminders** — birthday field, upcoming birthdays on home, optional email reminders. (M)
 27. Cagnotte / shared gift ("réservé à plusieurs"). (M)
@@ -163,9 +164,7 @@ to v5.8.0 2026-10-14 — all merged & deployed).
 - ✅ (v5.4.0) « Ajouter un cadeau » button also at the TOP of the gift list — scrolling to the bottom on long lists is annoying
   (S: duplicate the button, or make it sticky).
 
-- Show a link preview on gifts that have a URL (subset of #24). Laptop: aligned; mobile: column.
 - "?" help tooltips next to group/person name fields.
-- Vercel Speed Insights (`@vercel/speed-insights`) for perf tracking.
+- ✅ (v5.2.0) Vercel Speed Insights (`@vercel/speed-insights`) for perf tracking.
 - Smoother drag-and-drop (current one is slow; items all same size now).
-- API proxy for caching / hiding calls (bearer).
-- Buttons colour + background review (partly covered by #17/#18).
+- ✅ (v5.5.0) Buttons colour + background review — covered by #17 (variants) / #18 (tokens).
