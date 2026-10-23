@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, type JSX } from 'react';
 
 interface ModalProps {
     title: string;

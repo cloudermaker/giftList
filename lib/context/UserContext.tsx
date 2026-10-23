@@ -1,6 +1,6 @@
 import Router from 'next/router';
 import Cookies from 'js-cookie';
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, type JSX } from 'react';
 import { COOKIE_NAME } from '@/lib/auth/authService';
 import { TGroupAndUser } from '@/pages/api/authenticate';
 

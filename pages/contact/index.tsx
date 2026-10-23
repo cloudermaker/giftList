@@ -3,7 +3,7 @@ import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Router from 'next/router';
-import { useState } from 'react';
+import { useState, type JSX } from 'react';
 import { TSendEmailResult } from '../api/sendEmail';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import SEO from '@/components/SEO';

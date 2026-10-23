@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type JSX } from 'react';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';

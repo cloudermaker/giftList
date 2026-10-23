@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, type JSX } from 'react';
 import { CircleLoader } from 'react-spinners';
 
 const VARIANT_CLASS = {

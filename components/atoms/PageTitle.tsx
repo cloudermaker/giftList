@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, type JSX } from 'react';
 
 // Titre de page standard, avec surtitre optionnel (ex : « Liste de cadeaux » au-dessus du nom)
 export const PageTitle = ({

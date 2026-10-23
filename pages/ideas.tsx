@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type JSX } from 'react';
 import { Idea } from '@prisma/client';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';

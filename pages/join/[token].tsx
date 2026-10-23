@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type JSX } from 'react';
 import { GetServerSideProps } from 'next';
 import NProgress from 'nprogress';
 import { Layout } from '@/components/layout';

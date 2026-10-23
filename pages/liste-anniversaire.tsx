@@ -1,3 +1,4 @@
+import type { JSX } from 'react';
 import { OccasionLanding } from '@/components/OccasionLanding';
 
 export default function ListeAnniversaire(): JSX.Element {

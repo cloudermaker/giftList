@@ -1,3 +1,4 @@
+import type { JSX } from 'react';
 import { OccasionLanding } from '@/components/OccasionLanding';
 
 export default function ListeDeNoel(): JSX.Element {

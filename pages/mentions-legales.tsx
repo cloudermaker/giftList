@@ -1,3 +1,4 @@
+import type { JSX } from 'react';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import SEO from '@/components/SEO';

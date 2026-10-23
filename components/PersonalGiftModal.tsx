@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type JSX } from 'react';
 import { Modal } from './atoms/Modal';
 import CustomButton from './atoms/customButton';
 

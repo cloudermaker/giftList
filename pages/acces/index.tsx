@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type JSX } from 'react';
 import Link from 'next/link';
 import { Layout } from '@/components/layout';
 import SEO from '@/components/SEO';

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type JSX } from 'react';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';

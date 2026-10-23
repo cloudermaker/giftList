@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, type JSX } from 'react';
 import { CustomFooter } from './atoms/CustomFooter';
 import { IdeasFab } from './atoms/IdeasFab';
 import { CustomHeader, EHeader } from './customHeader';

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ReactNode } from 'react';
+import { ReactNode, type JSX } from 'react';
 import { FacebookIcon } from '../icons/facebook';
 import { TwitterIcon } from '../icons/twitter';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';

@@ -1,3 +1,4 @@
+import type { JSX } from 'react';
 import { Check } from 'lucide-react';
 import { GiftShopLink } from '@/components/atoms/GiftShopLink';
 import { toSafeUrl } from '@/lib/ui/url';

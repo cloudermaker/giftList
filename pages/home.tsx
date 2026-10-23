@@ -1,7 +1,7 @@
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
 import SEO from '@/components/SEO';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type JSX } from 'react';
 import { Group } from '@prisma/client';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';

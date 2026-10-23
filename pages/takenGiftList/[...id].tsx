@@ -11,7 +11,7 @@ import { getPersonalGiftsByUser } from '@/lib/db/personalGiftManager';
 import { BOUGHT_RETENTION_MONTHS } from '@/lib/retention';
 import { User } from '@prisma/client';
 import { NextPageContext } from 'next';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type JSX } from 'react';
 import { toast, alertError, confirmDestructive } from '@/lib/ui/alert';
 import { toSafeUrl } from '@/lib/ui/url';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';

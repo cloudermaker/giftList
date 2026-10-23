@@ -1,4 +1,4 @@
-import { ReactNode, Suspense, useCallback, useEffect, useState } from 'react';
+import { ReactNode, Suspense, useCallback, useEffect, useState, type JSX } from 'react';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';

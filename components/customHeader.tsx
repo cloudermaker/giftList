@@ -1,5 +1,5 @@
 import Router from 'next/router';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, type JSX } from 'react';
 
 export enum EHeader {
     Homepage = 'Homepage',

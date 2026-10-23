@@ -1,3 +1,4 @@
+import type { JSX } from 'react';
 import { Layout } from '@/components/layout';
 import SEO from '@/components/SEO';
 import { GetStaticProps } from 'next';
