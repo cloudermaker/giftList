@@ -107,4 +107,34 @@ test.describe('Robustesse et liens', () => {
 
         await deleteCurrentGroup(page);
     });
+
+    test('un prénom avec un caractère spécial est refusé à la création et à l’invitation', async ({ page, browser }) => {
+        // Création de groupe : popin d'erreur, pas de redirection
+        await page.goto('/');
+        await page.getByText('Créer un groupe', { exact: true }).click();
+        await page.locator('#groupNameInputId').fill(uniqueName('e2e-name'));
+        await page.locator('#nameInputId').fill('Paul.');
+        await page.locator('#passwordInputId').fill('mdp');
+        await page.getByRole('button', { name: "C'est parti!" }).click();
+        await expect(page.getByText('Prénom invalide')).toBeVisible();
+        await expect(page).toHaveURL((url) => url.pathname === '/');
+        await page.getByRole('button', { name: 'OK' }).click();
+
+        // Un prénom composé reste accepté
+        const groupName = uniqueName('e2e-name');
+        await createGroup(page, groupName, "Jean-Marie O'Brien", 'mdp');
+
+        // Invitation : même règle pour un nouveau membre
+        const res = await page.request.get(`/api/group/${(await readSession(page))!.groupId}`);
+        const inviteToken = (await res.json()).group.inviteToken as string;
+        const ctx = await browser.newContext();
+        const pageB = await ctx.newPage();
+        await pageB.goto(`/join/${inviteToken}`);
+        await pageB.locator('#userNameInput').fill('Bob.');
+        await pageB.getByRole('button', { name: "C'est parti !" }).click();
+        await expect(pageB.getByText('Prénom invalide')).toBeVisible();
+        await ctx.close();
+
+        await deleteCurrentGroup(page);
+    });
 });

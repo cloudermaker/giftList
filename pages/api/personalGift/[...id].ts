@@ -1,7 +1,7 @@
 /**
  * API PersonalGift by ID - Opérations sur un cadeau personnel spécifique
  *
- * GET /api/personalGift/{id} - Récupérer un cadeau personnel
+ * GET /api/personalGift/{id} - Récupérer un cadeau personnel (propriétaire uniquement)
  * PUT /api/personalGift/{id} - Modifier un cadeau personnel
  * DELETE /api/personalGift/{id} - Supprimer un cadeau personnel
  */
@@ -28,9 +28,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // GET - Récupérer un cadeau personnel
         if (req.method === 'GET') {
+            const session = getSession(req);
+            if (!session) {
+                return res.status(401).json({ error: 'Authentification requise' });
+            }
             const gift = await getPersonalGiftById(id);
 
-            if (!gift) {
+            // 404 aussi pour un cadeau d'un autre : n'en révèle pas l'existence
+            if (!gift || gift.userId !== session.userId) {
                 return res.status(404).json({ error: 'Gift not found' });
             }
 

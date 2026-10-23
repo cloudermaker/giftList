@@ -79,6 +79,11 @@ to v5.8.0 2026-10-14 — all merged & deployed).
 ### Housekeeping (quick, anytime)
 
 - ✅ CI diagnostics stripped; CI stabilized (test DB on Neon DIRECT endpoint — the pooler caused stale-read flakes).
+- ✅ (2026-10-14) Dependabot triage: runtime alerts fixed (next 15.5.27, nodemailer 10.1.1, sharp 0.35.5) + non-breaking `npm audit fix`.
+  Remaining alerts are dev/build-only (trusted input): **Tailwind 3 → 4** (braces/micromatch/chokidar/postcss-selector-parser
+  chain) and **ESLint 8 → 9 + typescript-eslint 8** (minimatch/globby; `next lint` is deprecated anyway). `next` stays flagged
+  only via its pinned build-time postcss 8.4.31. Never apply npm's suggested eslint-config-next@14 / next-sitemap@4.0.9
+  "fixes": they are downgrades. (L each)
 - Rotate the Neon test-DB and Vercel prod-DB passwords (both were pasted in chats/tools), update secrets after.
 - ✅ Search Console: sitemap "Success — 10 URLs". Still watch: occasion pages indexing, stale `/login` dropping out.
 
@@ -137,9 +142,6 @@ to v5.8.0 2026-10-14 — all merged & deployed).
   test + prod), toggled by the reserver only (`PATCH /api/gift/{id}/take`), never exposed to the list owner (e2e-checked).
   **Purge**: weekly cron also deletes gifts bought > 6 months ago (`lib/retention.ts`; UNLIMITED keeps the gift, only the
   reservation goes), privacy page updated. Also fixed: admins could not take a SIMPLE gift on another member's list.
-- Open: `GET /api/personalGift` (+ `?forUserId` / `?groupId`, and `GET /api/personalGift/{id}`) need no session — a list owner
-  can read the personal gifts meant for them (now incl. bought status). Require the session, owner-only. (S/M)
-
 24. **URL import** — paste a product link → auto title/image/price (server-side OG scraper). Biggest product differentiator. Also
     covers the link preview on existing gifts with a URL (laptop: aligned; mobile: column). (L)
 25. **Secret Santa draw** within a group — strong seasonal fit, do before December. (M/L)

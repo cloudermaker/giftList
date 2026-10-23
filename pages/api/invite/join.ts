@@ -5,10 +5,12 @@ import { TAuthenticateResult } from '@/pages/api/authenticate';
 import { sessionCookieHeader } from '@/lib/auth/session';
 import { parseBody, inviteJoinSchema } from '@/lib/api/validation';
 import { sendVerificationEmail } from '@/lib/auth/emailRecovery';
+import { isValidUserName, INVALID_USER_NAME_MESSAGE } from '@/lib/userName';
 
 export type TInviteJoinResult = TAuthenticateResult & {
     needsConfirmation?: boolean;
     userExists?: boolean;
+    invalidName?: boolean;
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TInviteJoinResult>) {
@@ -28,6 +30,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         }
 
         const user = await getUserByGroupAndName(userName, group.id);
+
+        // Règle appliquée aux nouveaux profils seulement : les membres existants gardent leur accès
+        if (!user && !isValidUserName(userName)) {
+            return res.status(200).json({ success: false, error: INVALID_USER_NAME_MESSAGE, invalidName: true });
+        }
 
         if (!confirm) {
             // Toujours demander confirmation : évite l'usurpation d'un membre existant

@@ -4,6 +4,13 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.9.0] - 2026-10-23
+
+### Modifié
+
+- Sécurité : renforcement de l'accès aux données
+- Prénoms : lettres, chiffres, espaces, tirets et apostrophes uniquement, avec une alerte à la création d'un profil
+
 ## [5.8.0] - 2026-10-14
 
 ### Ajouté
