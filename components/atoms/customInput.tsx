@@ -20,7 +20,7 @@ export const CustomInput = ({
     placeholder?: string;
 }): JSX.Element => {
     const baseStyle =
-        'px-3 py-1.5 bg-white/50 border border-neutral-200 rounded-lg focus:outline-none focus:border-vertNoel focus:ring-1 focus:ring-vertNoel transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+        'px-3 py-1.5 bg-white/50 border border-neutral-200 rounded-lg focus:outline-hidden focus:border-vertNoel focus:ring-1 focus:ring-vertNoel transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
 
     if (onKeyDown) {
         return (

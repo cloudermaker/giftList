@@ -132,7 +132,7 @@ export const Home = (): JSX.Element => {
                     <div>
                         <p className="text-sm text-gray-500">Bonjour, {connectedUser?.userName}</p>
                         {loading ? (
-                            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mt-1" />
+                            <div className="h-8 w-48 bg-gray-200 rounded-sm animate-pulse mt-1" />
                         ) : (
                             <h1 className="text-2xl font-bold text-gray-800">{group?.name}</h1>
                         )}
@@ -149,9 +149,9 @@ export const Home = (): JSX.Element => {
                 {loading ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
                         {[...Array(3)].map((_, i) => (
-                            <div key={i} className="bg-white rounded-xl shadow-sm p-5 animate-pulse">
-                                <div className="h-5 bg-gray-200 rounded w-2/3 mb-4" />
-                                <div className="h-8 bg-gray-100 rounded" />
+                            <div key={i} className="bg-white rounded-xl shadow-xs p-5 animate-pulse">
+                                <div className="h-5 bg-gray-200 rounded-sm w-2/3 mb-4" />
+                                <div className="h-8 bg-gray-100 rounded-sm" />
                             </div>
                         ))}
                     </div>
@@ -164,7 +164,7 @@ export const Home = (): JSX.Element => {
                                 <div
                                     key={member.id}
                                     onClick={() => Router.push(`/giftList/${member.id}`)}
-                                    className={`bg-white rounded-xl shadow-sm p-5 flex flex-col gap-3 border-2 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 ${isMe ? 'border-rose-200' : 'border-transparent hover:border-gray-100'}`}
+                                    className={`bg-white rounded-xl shadow-xs p-5 flex flex-col gap-3 border-2 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 ${isMe ? 'border-rose-200' : 'border-transparent hover:border-gray-100'}`}
                                 >
                                     <div
                                         className="w-11 h-11 rounded-full flex items-center justify-center text-lg font-bold"
@@ -186,7 +186,7 @@ export const Home = (): JSX.Element => {
                         {members.length > 5 && (
                             <div
                                 onClick={() => Router.push(`/group/${group?.id}`)}
-                                className="bg-white rounded-xl shadow-sm p-5 flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-200 hover:border-gray-300 transition-colors cursor-pointer"
+                                className="bg-white rounded-xl shadow-xs p-5 flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-200 hover:border-gray-300 transition-colors cursor-pointer"
                             >
                                 <span className="text-2xl text-gray-300">+{members.length - 5}</span>
                                 <p className="text-sm text-gray-400">Voir tous les membres</p>

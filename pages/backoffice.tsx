@@ -170,7 +170,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
                         <div className="flex flex-col gap-3">
                             {[...Array(3)].map((_, i) => (
                                 <div key={i} className="flex justify-between items-center">
-                                    <div className="h-4 bg-gray-200 rounded animate-pulse w-1/4" />
+                                    <div className="h-4 bg-gray-200 rounded-sm animate-pulse w-1/4" />
                                     <div className="flex gap-2">
                                         <div className="h-8 w-20 bg-gray-200 rounded-xl animate-pulse" />
                                         <div className="h-8 w-20 bg-gray-200 rounded-xl animate-pulse" />
@@ -373,7 +373,7 @@ const Backoffice = ({
                     <PageTitle className="">Backoffice</PageTitle>
                     <button
                         onClick={logoutBackoffice}
-                        className="text-white text-sm bg-rougeNoel/80 hover:bg-rougeNoel px-3 py-1.5 rounded transition-colors"
+                        className="text-white text-sm bg-rougeNoel/80 hover:bg-rougeNoel px-3 py-1.5 rounded-sm transition-colors"
                     >
                         Se déconnecter
                     </button>

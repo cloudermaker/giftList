@@ -57,7 +57,7 @@ function SortableItem({
 
     return (
         <div
-            className={`item flex ${viewMode === 'grid' ? 'items-start !p-2 sm:!p-[18px]' : 'items-center !p-2.5 sm:!p-[18px]'}`}
+            className={`item flex ${viewMode === 'grid' ? 'items-start p-2! sm:p-[18px]!' : 'items-center p-2.5! sm:p-[18px]!'}`}
             ref={setNodeRef}
             style={style}
         >
@@ -522,7 +522,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 flex items-center gap-2">
                                                     Ce cadeau est déjà pris
                                                     {loadingGroupUsers ? (
-                                                        <span className="inline-block h-3 w-20 bg-red-200 rounded animate-pulse" />
+                                                        <span className="inline-block h-3 w-20 bg-red-200 rounded-sm animate-pulse" />
                                                     ) : (
                                                         groupUserMap[selectedGift!.takenUserId] && (
                                                             <>

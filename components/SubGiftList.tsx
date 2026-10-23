@@ -144,7 +144,7 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
                                     key={i}
                                     className="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-white animate-pulse"
                                 >
-                                    <div className="h-4 bg-gray-200 rounded w-2/3" />
+                                    <div className="h-4 bg-gray-200 rounded-sm w-2/3" />
                                     <div className="h-8 bg-gray-200 rounded-lg w-24" />
                                 </div>
                             ))}

@@ -482,7 +482,7 @@ export default function GiftIdeasGenerator(): JSX.Element {
                         {giftIdeas.map((idea, index) => (
                             <div
                                 key={index}
-                                className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                                className="bg-white p-4 rounded-lg border border-gray-200 shadow-xs hover:shadow-md transition-shadow"
                             >
                                 <div className="flex items-start gap-3">
                                     <span className="text-2xl">🎁</span>
