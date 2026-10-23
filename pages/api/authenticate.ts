@@ -7,6 +7,7 @@ import { Prisma } from '@prisma/client';
 import { parseBody, authenticateSchema } from '@/lib/api/validation';
 import { sessionCookieHeader } from '@/lib/auth/session';
 import { sendVerificationEmail } from '@/lib/auth/emailRecovery';
+import { isValidUserName, INVALID_USER_NAME_MESSAGE } from '@/lib/userName';
 
 export type TGroupAndUser = {
     groupName: string;
@@ -46,6 +47,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         if (isCreating && group != null) {
             res.status(200).json({ success: false, error: 'Ce nom de groupe existe déjà.' });
         } else if (isCreating) {
+            if (!isValidUserName(userName)) {
+                return res.status(200).json({ success: false, error: INVALID_USER_NAME_MESSAGE });
+            }
             if (!password) {
                 return res.status(400).json({ success: false, error: 'Il faut rentrer un mot de passe.' });
             }

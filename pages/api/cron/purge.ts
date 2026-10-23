@@ -2,6 +2,9 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { hashLegacyAdminPasswords, purgeInactiveGroups } from '@/lib/db/groupManager';
 import { purgeBoughtGifts } from '@/lib/db/userTakenGiftManager';
 
+// Le défaut Vercel (10 s) ne suffit pas pour un premier passage (hachages + suppressions)
+export const config = { maxDuration: 60 };
+
 // Maintenance hebdomadaire (purge RGPD + cadeaux achetés depuis 6 mois + hachage des anciens mots de passe), appelée par Vercel Cron (vercel.json), qui envoie « Authorization: Bearer $CRON_SECRET »
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const secret = process.env.CRON_SECRET;

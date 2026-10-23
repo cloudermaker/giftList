@@ -6,7 +6,8 @@ import { Layout } from '../components/layout';
 import { CustomInput } from '../components/atoms/customInput';
 import CustomButton from '../components/atoms/customButton';
 import { ErrorAlert } from '../components/atoms/ErrorAlert';
-import { checkInboxPopup, rememberAccessPopup } from '@/lib/ui/alert';
+import { checkInboxPopup, rememberAccessPopup, alertError } from '@/lib/ui/alert';
+import { isValidUserName, INVALID_USER_NAME_MESSAGE } from '@/lib/userName';
 import { useLogin } from '@/lib/hooks/useLogin';
 import SEO from '@/components/SEO';
 import { generatePageSchema, generateFAQSchema, generateWebAppSchema } from '@/lib/schema/schemaGenerators';
@@ -168,6 +169,10 @@ export default function Index(): JSX.Element {
 
             if (!formData.name) {
                 setFormData((prev) => ({ ...prev, error: ERROR_MESSAGES.NO_NAME }));
+                return;
+            }
+            if (mode === 'creating' && !isValidUserName(formData.name)) {
+                await alertError('Prénom invalide', INVALID_USER_NAME_MESSAGE);
                 return;
             }
             if (connectingAsAdmin && !formData.password) {

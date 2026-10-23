@@ -4,6 +4,16 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.9.0] - 2026-10-23
+
+### Modifié
+
+- Prénoms : lettres, chiffres, espaces, tirets et apostrophes uniquement, avec une alerte à la création d'un profil
+
+### Corrigé
+
+- La purge hebdomadaire ne s'arrête plus au bout de 10 secondes
+
 ## [5.8.0] - 2026-10-14
 
 ### Ajouté

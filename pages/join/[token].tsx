@@ -9,7 +9,7 @@ import { ErrorAlert } from '@/components/atoms/ErrorAlert';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import { TInviteJoinResult } from '@/pages/api/invite/join';
 import { getGroupByInviteToken } from '@/lib/db/groupManager';
-import { checkInboxPopup, rememberAccessPopup } from '@/lib/ui/alert';
+import { checkInboxPopup, rememberAccessPopup, alertError } from '@/lib/ui/alert';
 
 type Props = {
     groupName: string;
@@ -55,6 +55,8 @@ export default function JoinPage({ groupName, token, invalid }: Props): JSX.Elem
                 navigating = true;
                 NProgress.start();
                 window.location.href = '/home';
+            } else if (data?.invalidName) {
+                await alertError('Prénom invalide', data.error);
             } else if (data) {
                 setError(data.error ?? 'Erreur');
             }
