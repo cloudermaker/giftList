@@ -1,7 +1,7 @@
 import NProgress from 'nprogress';
 import Link from 'next/link';
 import Router from 'next/router';
-import { useState, useEffect, type JSX } from 'react';
+import { useState, useEffect } from 'react';
 import { Layout } from '../components/layout';
 import { CustomInput } from '../components/atoms/customInput';
 import CustomButton from '../components/atoms/customButton';
@@ -97,7 +97,7 @@ const MOCKUPS = [
     }
 ];
 
-export default function Index(): JSX.Element {
+export default function Index() {
     const { login } = useLogin();
 
     const [mockupIndex, setMockupIndex] = useState(0);

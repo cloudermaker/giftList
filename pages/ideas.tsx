@@ -1,4 +1,4 @@
-import { useEffect, useState, type JSX } from 'react';
+import { useEffect, useState } from 'react';
 import { Idea } from '@prisma/client';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
@@ -21,7 +21,7 @@ const readVotedIds = (): string[] => {
     }
 };
 
-const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
+const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }) => {
     const [localIdeas, setLocalIdeas] = useState<TIdeaItem[]>(ideas);
     const [votedIds, setVotedIds] = useState<string[]>([]);
     const [showDone, setShowDone] = useState(false);

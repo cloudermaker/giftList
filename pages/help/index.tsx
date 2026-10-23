@@ -1,4 +1,3 @@
-import type { JSX } from 'react';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import Link from 'next/link';
@@ -7,7 +6,7 @@ import SEO from '@/components/SEO';
 import { generateFAQSchema, generateHowToSchema } from '@/lib/schema/schemaGenerators';
 import CustomButton from '@/components/atoms/customButton';
 
-export default function Help(): JSX.Element {
+export default function Help() {
     // Define FAQ items for rich results
     const faqItems = [
         {

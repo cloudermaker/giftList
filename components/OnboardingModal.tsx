@@ -1,4 +1,4 @@
-import { useState, useEffect, type JSX } from 'react';
+import { useState, useEffect } from 'react';
 import CustomButton from './atoms/customButton';
 import { toast } from '@/lib/ui/alert';
 
@@ -17,7 +17,7 @@ const Dot = ({ active }: { active: boolean }) => (
     />
 );
 
-export const OnboardingModal = ({ userName, groupName, inviteToken, onClose }: Props): JSX.Element => {
+export const OnboardingModal = ({ userName, groupName, inviteToken, onClose }: Props) => {
     const [step, setStep] = useState(0);
 
     const inviteUrl = typeof window !== 'undefined' ? `${window.location.origin}/join/${inviteToken}` : `/join/${inviteToken}`;

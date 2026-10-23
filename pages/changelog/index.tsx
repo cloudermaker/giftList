@@ -1,4 +1,3 @@
-import type { JSX } from 'react';
 import { Layout } from '@/components/layout';
 import SEO from '@/components/SEO';
 import { GetStaticProps } from 'next';
@@ -28,7 +27,7 @@ const sectionConfig = {
     deprecated: { title: '⚠️ Dépréciations', color: 'text-yellow-600' }
 };
 
-export default function Changelog({ versions }: ChangelogProps): JSX.Element {
+export default function Changelog({ versions }: ChangelogProps) {
     const pageTitle = 'Historique des versions - Ma Liste de Cadeaux';
     const pageDescription = 'Découvrez les dernières améliorations et nouveautés de Ma Liste de Cadeaux';
 

@@ -1,4 +1,3 @@
-import type { JSX } from 'react';
 import { Check } from 'lucide-react';
 import { GiftShopLink } from '@/components/atoms/GiftShopLink';
 import { toSafeUrl } from '@/lib/ui/url';
@@ -46,7 +45,7 @@ export const TakenGiftRow = ({
     busy: boolean;
     onOpen: () => void;
     onToggleBought: () => void;
-}): JSX.Element => {
+}) => {
     const bought = !!row.boughtAt;
     const safeUrl = toSafeUrl(row.url);
 

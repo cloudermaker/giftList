@@ -1,4 +1,3 @@
-import type { JSX } from 'react';
 import Link from 'next/link';
 import Router from 'next/router';
 import { Layout } from '@/components/layout';
@@ -28,7 +27,7 @@ const OTHER_OCCASIONS = [
     { slug: '/liste-de-mariage', emoji: '💍', label: 'Liste de mariage' }
 ];
 
-export const OccasionLanding = (props: TOccasionLandingProps): JSX.Element => {
+export const OccasionLanding = (props: TOccasionLandingProps) => {
     const { slug, emoji, seoTitle, seoDescription, h1, intro, sections, faq, ctaLabel } = props;
     const goToCreate = () => Router.push('/');
 

@@ -1,4 +1,4 @@
-import { useState, type JSX } from 'react';
+import { useState } from 'react';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
@@ -22,7 +22,7 @@ const GroupComponent = ({
     group: Group;
     groupUsers: User[];
     inviteToken: string;
-}): JSX.Element => {
+}) => {
     const { connectedUser } = useCurrentUser();
 
     const [localUsers, setLocalUsers] = useState<User[]>(groupUsers);

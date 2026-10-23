@@ -1,4 +1,4 @@
-import { ReactNode, type JSX } from 'react';
+import { ReactNode } from 'react';
 import { CustomFooter } from './atoms/CustomFooter';
 import { IdeasFab } from './atoms/IdeasFab';
 import { CustomHeader, EHeader } from './customHeader';
@@ -19,7 +19,7 @@ export const Layout = ({
     selectedHeader?: EHeader;
     withHeader?: boolean;
     pageTitle?: string;
-}): JSX.Element => {
+}) => {
     const { logout } = useLogout();
     const { connectedUser } = useCurrentUser();
 

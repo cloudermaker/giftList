@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, type JSX } from 'react';
+import { ReactNode, useEffect } from 'react';
 
 interface ModalProps {
     title: string;
@@ -8,7 +8,7 @@ interface ModalProps {
     footer?: ReactNode;
 }
 
-export const Modal = ({ title, emoji, onClose, children, footer }: ModalProps): JSX.Element => {
+export const Modal = ({ title, emoji, onClose, children, footer }: ModalProps) => {
     useEffect(() => {
         document.body.style.overflow = 'hidden';
         return () => {

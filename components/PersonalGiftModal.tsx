@@ -1,4 +1,4 @@
-import { useState, type JSX } from 'react';
+import { useState } from 'react';
 import { Modal } from './atoms/Modal';
 import CustomButton from './atoms/customButton';
 
@@ -15,7 +15,7 @@ interface PersonalGiftModalProps {
     onSubmit: (data: TPersonalGiftForm) => Promise<void>;
 }
 
-export const PersonalGiftModal = ({ groupUsers, currentUserId, initial, onClose, onSubmit }: PersonalGiftModalProps): JSX.Element => {
+export const PersonalGiftModal = ({ groupUsers, currentUserId, initial, onClose, onSubmit }: PersonalGiftModalProps) => {
     const [name, setName] = useState(initial?.name ?? '');
     const [description, setDescription] = useState(initial?.description ?? '');
     const [link, setLink] = useState(initial?.link ?? '');

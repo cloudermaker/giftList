@@ -1,4 +1,4 @@
-import { useState, type JSX } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Layout } from '@/components/layout';
 import SEO from '@/components/SEO';
@@ -8,7 +8,7 @@ import { ErrorAlert } from '@/components/atoms/ErrorAlert';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 
 // « Accès oublié » : lien de connexion par email
-export default function AccessPage(): JSX.Element {
+export default function AccessPage() {
     const [email, setEmail] = useState('');
     const [sent, setSent] = useState(false);
     const [isLoading, setIsLoading] = useState(false);

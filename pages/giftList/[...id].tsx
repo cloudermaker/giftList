@@ -1,4 +1,4 @@
-import { ReactNode, Suspense, useCallback, useEffect, useState, type JSX } from 'react';
+import { ReactNode, Suspense, useCallback, useEffect, useState } from 'react';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
@@ -49,7 +49,7 @@ function SortableItem({
     const localListeners = canReorder ? listeners : null;
     const localStyle = canReorder ? { cursor: 'grab', touchAction: 'none' } : {};
 
-    const LeftIcon = (): JSX.Element => {
+    const LeftIcon = () => {
         if (idx <= 3) return <Medal className="pr-3 w-9" color={color} />;
         if (canReorder) return <Drag className="pr-3 w-9" />;
         return <div className="pr-3 w-9" />;
@@ -71,7 +71,7 @@ function SortableItem({
     );
 }
 
-const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTakenUserId[] }): JSX.Element => {
+const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTakenUserId[] }) => {
     const { connectedUser } = useCurrentUser();
 
     const isOwnList = user.id === connectedUser?.userId;

@@ -1,10 +1,9 @@
-import type { JSX } from 'react';
 interface ErrorAlertProps {
     message: string;
     onClose?: () => void;
 }
 
-export const ErrorAlert = ({ message, onClose }: ErrorAlertProps): JSX.Element => {
+export const ErrorAlert = ({ message, onClose }: ErrorAlertProps) => {
     return (
         <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">

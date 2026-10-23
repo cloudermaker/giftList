@@ -1,5 +1,5 @@
 import Router from 'next/router';
-import { useRef, useEffect, type JSX } from 'react';
+import { useRef, useEffect } from 'react';
 
 export enum EHeader {
     Homepage = 'Homepage',
@@ -19,7 +19,7 @@ export const CustomHeader = ({
     groupId: string;
     userId: string;
     customTitle?: string;
-}): JSX.Element => {
+}) => {
     const navRef = useRef<HTMLElement>(null);
     const pillRef = useRef<HTMLDivElement>(null);
     const initialized = useRef(false);

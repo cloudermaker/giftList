@@ -1,7 +1,6 @@
-import type { JSX } from 'react';
 import { OccasionLanding } from '@/components/OccasionLanding';
 
-export default function ListeDeMariage(): JSX.Element {
+export default function ListeDeMariage() {
     return (
         <OccasionLanding
             slug="/liste-de-mariage"

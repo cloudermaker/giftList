@@ -1,4 +1,4 @@
-import { ReactNode, type JSX } from 'react';
+import { ReactNode } from 'react';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import SEO from '@/components/SEO';
@@ -17,7 +17,7 @@ const ContactLink = () => (
     </Link>
 );
 
-export default function Confidentialite(): JSX.Element {
+export default function Confidentialite() {
     return (
         <Layout withHeader={false}>
             <SEO

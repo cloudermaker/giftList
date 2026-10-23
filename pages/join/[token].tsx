@@ -1,4 +1,4 @@
-import { useState, type JSX } from 'react';
+import { useState } from 'react';
 import { GetServerSideProps } from 'next';
 import NProgress from 'nprogress';
 import { Layout } from '@/components/layout';
@@ -18,7 +18,7 @@ type Props = {
     invalid?: boolean;
 };
 
-export default function JoinPage({ groupName, token, invalid }: Props): JSX.Element {
+export default function JoinPage({ groupName, token, invalid }: Props) {
     const [userName, setUserName] = useState('');
     const [email, setEmail] = useState('');
     const [error, setError] = useState('');

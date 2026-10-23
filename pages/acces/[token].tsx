@@ -1,4 +1,4 @@
-import { useState, type JSX } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { GetServerSideProps } from 'next';
 import NProgress from 'nprogress';
@@ -14,7 +14,7 @@ import { getProfilesByVerifiedEmail, TEmailProfile } from '@/lib/auth/emailRecov
 type Props = { token: string; valid: boolean; profiles: TEmailProfile[] };
 
 // Arrivée depuis le lien email : un clic choisit le profil (le lien n'est consommé qu'à ce moment)
-export default function ProfilePickerPage({ token, valid, profiles }: Props): JSX.Element {
+export default function ProfilePickerPage({ token, valid, profiles }: Props) {
     const { query } = useRouter();
     const [error, setError] = useState('');
     const [loadingId, setLoadingId] = useState<string | null>(null);

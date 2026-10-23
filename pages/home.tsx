@@ -1,7 +1,7 @@
 import { EHeader } from '@/components/customHeader';
 import { Layout } from '@/components/layout';
 import SEO from '@/components/SEO';
-import { useCallback, useEffect, useState, type JSX } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Group } from '@prisma/client';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
@@ -18,7 +18,7 @@ import { avatarColor } from '@/lib/ui/colors';
 
 type TMember = { id: string; name: string; isAdmin: boolean };
 
-export const Home = (): JSX.Element => {
+export const Home = () => {
     const { connectedUser } = useCurrentUser();
     const [group, setGroup] = useState<Group>();
     const [members, setMembers] = useState<TMember[]>([]);

@@ -3,12 +3,12 @@ import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import Router from 'next/router';
-import { useState, type JSX } from 'react';
+import { useState } from 'react';
 import { TSendEmailResult } from '../api/sendEmail';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import SEO from '@/components/SEO';
 
-export default function Contact(): JSX.Element {
+export default function Contact() {
     const [email, setEmail] = useState<string>();
     const [subject, setSubject] = useState<string>('');
     const [message, setMessage] = useState<string>();

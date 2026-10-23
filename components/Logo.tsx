@@ -1,4 +1,3 @@
-import type { JSX } from 'react';
 import Link from 'next/link';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 
@@ -8,7 +7,7 @@ interface LogoProps {
     className?: string;
 }
 
-export const Logo = ({ size = 'medium', showText = true, className = '' }: LogoProps): JSX.Element => {
+export const Logo = ({ size = 'medium', showText = true, className = '' }: LogoProps) => {
     const { connectedUser } = useCurrentUser();
     const href = connectedUser ? '/home' : '/';
 

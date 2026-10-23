@@ -1,7 +1,7 @@
-import { useState, type JSX } from 'react';
+import { useState } from 'react';
 import CustomButton from './atoms/customButton';
 
-export default function GiftIdeasGenerator(): JSX.Element {
+export default function GiftIdeasGenerator() {
     const [giftIdeasInput, setGiftIdeasInput] = useState('');
     const [giftIdeas, setGiftIdeas] = useState<string[]>([]);
     const [isLoadingIdeas, setIsLoadingIdeas] = useState(false);

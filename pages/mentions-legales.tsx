@@ -1,10 +1,9 @@
-import type { JSX } from 'react';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import SEO from '@/components/SEO';
 import Link from 'next/link';
 
-export default function MentionsLegales(): JSX.Element {
+export default function MentionsLegales() {
     return (
         <Layout withHeader={false}>
             <SEO

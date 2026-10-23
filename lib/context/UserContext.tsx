@@ -1,6 +1,6 @@
 import Router from 'next/router';
 import Cookies from 'js-cookie';
-import { createContext, useContext, useEffect, useState, ReactNode, type JSX } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { COOKIE_NAME } from '@/lib/auth/authService';
 import { TGroupAndUser } from '@/pages/api/authenticate';
 
@@ -23,7 +23,7 @@ const parseUserCookie = (): TGroupAndUser | null => {
 
 const UserContext = createContext<{ connectedUser: TGroupAndUser | null }>({ connectedUser: null });
 
-export const UserProvider = ({ children }: { children: ReactNode }): JSX.Element => {
+export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [connectedUser, setConnectedUser] = useState<TGroupAndUser | null>(null);
 
     useEffect(() => {

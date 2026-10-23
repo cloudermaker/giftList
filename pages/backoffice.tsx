@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type JSX } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
@@ -26,7 +26,7 @@ type TGroupRowProps = {
     onRename: (id: string, newName: string) => void;
 };
 
-const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element => {
+const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps) => {
     const [expanded, setExpanded] = useState(false);
     const [members, setMembers] = useState<TMember[]>([]);
     const [loading, setLoading] = useState(false);
@@ -255,7 +255,7 @@ const Backoffice = ({
     page = 1,
     totalCount = 0,
     pageSize = 10
-}: TBackofficeProps): JSX.Element => {
+}: TBackofficeProps) => {
     const [localGroups, setLocalGroups] = useState<TGroupItem[]>(groups);
     const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
@@ -447,7 +447,7 @@ const Backoffice = ({
 };
 
 // Modération de la boîte à idées (/ideas)
-const IdeasAdmin = (): JSX.Element => {
+const IdeasAdmin = () => {
     const [ideas, setIdeas] = useState<TIdeaAdminItem[]>([]);
     const [loaded, setLoaded] = useState(false);
 

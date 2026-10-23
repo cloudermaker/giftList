@@ -1,4 +1,4 @@
-import { ReactNode, useState, type JSX } from 'react';
+import { ReactNode, useState } from 'react';
 import { CircleLoader } from 'react-spinners';
 
 const VARIANT_CLASS = {
@@ -24,7 +24,7 @@ const CustomButton = ({
     variant?: keyof typeof VARIANT_CLASS;
     size?: 'md' | 'sm';
     type?: 'button' | 'submit' | 'reset' | undefined;
-}): JSX.Element => {
+}) => {
     const [isInProgress, setIsInProgress] = useState<boolean>(false);
 
     const customOnClick = async (): Promise<void> => {
