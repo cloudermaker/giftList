@@ -18,26 +18,34 @@ import { parseBody, personalGiftCreateSchema } from '@/lib/api/validation';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
-        // GET - Récupérer cadeaux personnels
+        // GET - Récupérer cadeaux personnels (session requise : on ne renvoie que ceux créés par l'appelant)
         if (req.method === 'GET') {
+            const session = getSession(req);
+            if (!session) {
+                return res.status(401).json({ error: 'Authentification requise' });
+            }
             const { userId, groupId, forUserId } = req.query;
+            const mine = <T extends { userId: string }>(gifts: T[]): T[] => gifts.filter((g) => g.userId === session.userId);
+            if (userId && userId !== session.userId) {
+                return res.status(403).json({ error: 'Forbidden: not the owner' });
+            }
 
             // Cadeaux pour un user spécifique
             if (forUserId && typeof forUserId === 'string') {
                 const gifts = await getPersonalGiftsForUser(forUserId, groupId as string | undefined);
-                return res.status(200).json({ gifts });
+                return res.status(200).json({ gifts: mine(gifts) });
             }
 
             // Cadeaux d'un user
             if (userId && typeof userId === 'string') {
                 const gifts = await getPersonalGiftsByUser(userId, groupId as string | undefined);
-                return res.status(200).json({ gifts });
+                return res.status(200).json({ gifts: mine(gifts) });
             }
 
             // Tous les cadeaux d'un groupe
             if (groupId && typeof groupId === 'string') {
                 const gifts = await getPersonalGiftsByGroup(groupId);
-                return res.status(200).json({ gifts });
+                return res.status(200).json({ gifts: mine(gifts) });
             }
 
             return res.status(400).json({ error: 'userId or groupId required' });

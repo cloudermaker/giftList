@@ -142,9 +142,6 @@ to v5.8.0 2026-10-14 — all merged & deployed).
   test + prod), toggled by the reserver only (`PATCH /api/gift/{id}/take`), never exposed to the list owner (e2e-checked).
   **Purge**: weekly cron also deletes gifts bought > 6 months ago (`lib/retention.ts`; UNLIMITED keeps the gift, only the
   reservation goes), privacy page updated. Also fixed: admins could not take a SIMPLE gift on another member's list.
-- Open: `GET /api/personalGift` (+ `?forUserId` / `?groupId`, and `GET /api/personalGift/{id}`) need no session — a list owner
-  can read the personal gifts meant for them (now incl. bought status). Require the session, owner-only. (S/M)
-
 24. **URL import** — paste a product link → auto title/image/price (server-side OG scraper). Biggest product differentiator. Also
     covers the link preview on existing gifts with a URL (laptop: aligned; mobile: column). (L)
 25. **Secret Santa draw** within a group — strong seasonal fit, do before December. (M/L)

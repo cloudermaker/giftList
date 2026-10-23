@@ -8,11 +8,8 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ### Modifié
 
+- Sécurité : renforcement de l'accès aux données
 - Prénoms : lettres, chiffres, espaces, tirets et apostrophes uniquement, avec une alerte à la création d'un profil
-
-### Corrigé
-
-- La purge hebdomadaire ne s'arrête plus au bout de 10 secondes
 
 ## [5.8.0] - 2026-10-14
 

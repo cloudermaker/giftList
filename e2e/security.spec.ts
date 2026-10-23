@@ -79,4 +79,37 @@ test.describe('Sécurité', () => {
         await expect(page.locator('h1')).toHaveText('Liste de cadeaux en ligne gratuite');
         await ctx.close();
     });
+
+    test('les cadeaux personnels ne sont lisibles que par leur créateur', async ({ request, playwright }) => {
+        const groupId = await createGroupViaApi(request, uniqueName('e2e-secu'));
+        const create = await request.post('/api/personalGift', { data: { personalGift: { name: 'Surprise', groupId } } });
+        expect(create.status()).toBe(201);
+        const giftId = (await create.json()).personalGift.id as string;
+
+        // Créateur : voit son cadeau
+        const own = await request.get(`/api/personalGift?groupId=${groupId}`);
+        expect((await own.json()).gifts).toHaveLength(1);
+        expect((await request.get(`/api/personalGift/${giftId}`)).status()).toBe(200);
+
+        // Sans session : 401
+        const anon = await playwright.request.newContext({ baseURL: E2E_BASE_URL });
+        expect((await anon.get(`/api/personalGift?groupId=${groupId}`)).status()).toBe(401);
+        expect((await anon.get(`/api/personalGift/${giftId}`)).status()).toBe(401);
+        await anon.dispose();
+
+        // Autre membre connecté : liste vide, fiche introuvable, userId d'un autre refusé
+        const other = await playwright.request.newContext({ baseURL: E2E_BASE_URL });
+        const otherGroup = await other.post('/api/authenticate', {
+            data: { groupName: uniqueName('e2e-secu'), userName: 'Autre', isCreating: true, password: 'e2e-password' }
+        });
+        const otherJson = await otherGroup.json();
+        expect((await (await other.get(`/api/personalGift?groupId=${groupId}`)).json()).gifts).toHaveLength(0);
+        expect((await other.get(`/api/personalGift/${giftId}`)).status()).toBe(404);
+        const ownerId = (await create.json()).personalGift.userId as string;
+        expect((await other.get(`/api/personalGift?userId=${ownerId}`)).status()).toBe(403);
+
+        await other.delete(`/api/group/${otherJson.groupUser.groupId}`);
+        await other.dispose();
+        expect((await request.delete(`/api/group/${groupId}`)).ok()).toBeTruthy();
+    });
 });
