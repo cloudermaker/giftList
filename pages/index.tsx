@@ -104,7 +104,6 @@ export default function Index(): JSX.Element {
 
     useEffect(() => {
         setMockupIndex(Math.floor(Math.random() * MOCKUPS.length));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // UI state consolidated
