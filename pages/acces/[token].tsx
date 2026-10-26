@@ -25,7 +25,7 @@ export default function ProfilePickerPage({ token, valid, profiles }: Props) {
         const res = await AxiosWrapper.post('/api/auth/email/login', { token, userId });
         if (res?.data?.success) {
             NProgress.start();
-            window.location.href = query.suite === 'profil' ? '/profil' : '/home';
+            window.location.assign(query.suite === 'profil' ? '/profil' : '/home');
             return;
         }
         setError(res?.data?.error ?? 'Connexion impossible.');

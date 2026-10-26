@@ -5,10 +5,9 @@ const config = [
     ...nextCoreWebVitals,
     {
         rules: {
-            // Règles React Compiler (non utilisé ici) et rechargement complet voulu après connexion (cookie de session)
+            // Lectures localStorage/cookie après montage (anti-hydratation) et chargements à l'ouverture : voulus
             'react-hooks/set-state-in-effect': 'off',
-            'react-hooks/immutability': 'off',
-            'react-hooks/static-components': 'off',
+            // Rechargement complet voulu après connexion (cookie de session)
             '@next/next/no-location-assign-relative-destination': 'off'
         }
     }
