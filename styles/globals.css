@@ -61,18 +61,7 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentcolor);
     }
-}
 
-@layer base {
-    a {
-        @apply no-underline text-current;
-    }
-    a:hover {
-        @apply no-underline text-current;
-    }
-}
-
-@layer base {
     html,
     body {
         padding: 0;
@@ -94,10 +83,40 @@
         min-height: 100vh;
         height: 100%;
     }
-}
-/* Make sure content doesn't push footer off the screen on short pages */
-.flex-grow {
-    flex: 1 0 auto;
+
+    a {
+        color: #4f46e5;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+        color: rgba(79, 70, 229, 0.8);
+        transition: all 0.2s ease-in-out;
+    }
+
+    h1 {
+        font-size: x-large;
+        padding-bottom: 10px;
+    }
+
+    h2 {
+        font-size: large;
+        padding-bottom: 5px;
+    }
+
+    hr {
+        margin: 5px 0px;
+    }
+
+    input {
+        margin: 0;
+        font-family: inherit;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
 }
 
 @layer components {
@@ -108,19 +127,6 @@
     }
 }
 
-@layer base {
-    a {
-        color: #4f46e5;
-        text-decoration: none;
-    }
-}
-@layer base {
-    a:hover {
-        text-decoration: underline;
-        color: rgba(79, 70, 229, 0.8);
-        transition: all 0.2s ease-in-out;
-    }
-}
 /* Boutons stylés via la classe .btn (posée par CustomButton) — les <button> nus restent neutres */
 .btn {
     box-shadow:
@@ -360,39 +366,8 @@
     margin-bottom: 20px;
 }
 
-@layer base {
-    h1 {
-        font-size: x-large;
-        padding-bottom: 10px;
-    }
-}
-
-@layer base {
-    h2 {
-        font-size: large;
-        padding-bottom: 5px;
-    }
-}
-
-@layer base {
-    hr {
-        margin: 5px 0px;
-    }
-}
-
 /* Base input reset */
-@layer base {
-    input {
-        margin: 0;
-        font-family: inherit;
-    }
-}
 
-@layer base {
-    * {
-        box-sizing: border-box;
-    }
-}
 /* Form input styling */
 .input-group {
     display: flex;
