@@ -4,6 +4,12 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.10.0] - 2026-10-26
+
+### Ajouté
+
+- Réserver ou libérer un cadeau s'affiche instantanément
+
 ## [5.9.0] - 2026-10-23
 
 ### Modifié
