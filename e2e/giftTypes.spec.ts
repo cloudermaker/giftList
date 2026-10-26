@@ -70,6 +70,10 @@ test.describe.serial('Cadeaux MULTIPLE et UNLIMITED', () => {
     test('Bob réserve un sous-cadeau ; Alice ne voit pas la réservation', async () => {
         await pageB.goto(`/giftList/${aliceUserId}`);
         await openGift(pageB, 'Manga');
+        // Le compteur est juste dès l'ouverture, avant de déplier la liste
+        await expect(
+            pageB.getByText('Afficher les sous-cadeaux').locator('xpath=..').getByText('2', { exact: true })
+        ).toBeVisible();
         await pageB.getByText('Afficher les sous-cadeaux').click();
 
         const tome1Row = pageB.locator('div.flex.items-center.justify-between', { hasText: 'Tome 1' });
