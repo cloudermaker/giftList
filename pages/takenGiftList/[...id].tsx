@@ -36,7 +36,7 @@ const toPersonalRow = (pg: any): TTakenRow => ({
     boughtAt: pg.boughtAt ? new Date(pg.boughtAt).toISOString() : null
 });
 
-const TakenGiftList = ({ reserved, personal }: { reserved: TTakenRow[]; personal: TTakenRow[] }): JSX.Element => {
+const TakenGiftList = ({ reserved, personal }: { reserved: TTakenRow[]; personal: TTakenRow[] }) => {
     const { connectedUser } = useCurrentUser();
     const [reservedRows, setReservedRows] = useState<TTakenRow[]>(reserved);
     const [personalRows, setPersonalRows] = useState<TTakenRow[]>(personal);
@@ -187,7 +187,7 @@ const TakenGiftList = ({ reserved, personal }: { reserved: TTakenRow[]; personal
                 {/* ── Cadeaux réservés, par destinataire ── */}
                 <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Cadeaux réservés</p>
                 {groups.length === 0 ? (
-                    <div className="bg-white rounded-xl p-8 text-center mb-8 shadow-sm">
+                    <div className="bg-white rounded-xl p-8 text-center mb-8 shadow-xs">
                         <p className="text-3xl mb-2">🎁</p>
                         <p className="text-sm text-gray-400">Aucun cadeau réservé pour le moment</p>
                     </div>
@@ -199,7 +199,7 @@ const TakenGiftList = ({ reserved, personal }: { reserved: TTakenRow[]; personal
                                 <section key={recipient.id} aria-label={`Pour ${recipient.name}`}>
                                     <div className="flex items-center gap-3 mb-2">
                                         <RecipientAvatar recipient={recipient} />
-                                        <h2 className="flex-1 min-w-0 font-semibold text-gray-800 break-words">
+                                        <h2 className="flex-1 min-w-0 font-semibold text-gray-800 wrap-break-word">
                                             Pour {recipient.name}
                                         </h2>
                                         <span className="shrink-0 text-xs text-gray-400">
@@ -224,7 +224,7 @@ const TakenGiftList = ({ reserved, personal }: { reserved: TTakenRow[]; personal
                     </CustomButton>
                 </div>
                 {personalRows.length === 0 ? (
-                    <div className="bg-white rounded-xl p-8 text-center mb-6 shadow-sm">
+                    <div className="bg-white rounded-xl p-8 text-center mb-6 shadow-xs">
                         <p className="text-3xl mb-2">📝</p>
                         <p className="text-sm text-gray-400">Aucun cadeau personnel ajouté</p>
                     </div>
@@ -282,7 +282,7 @@ const TakenGiftList = ({ reserved, personal }: { reserved: TTakenRow[]; personal
                             </p>
                             {selected.parentName && <p className="text-sm text-gray-500">Fait partie de : {selected.parentName}</p>}
                             {selected.description ? (
-                                <p className="whitespace-pre-line break-words">{selected.description}</p>
+                                <p className="whitespace-pre-line wrap-break-word">{selected.description}</p>
                             ) : (
                                 <p className="italic">Pas de description</p>
                             )}

@@ -1,4 +1,4 @@
-import { ReactNode, Suspense, useCallback, useEffect, useState } from 'react';
+import { ReactNode, Suspense, startTransition, useCallback, useEffect, useOptimistic, useState } from 'react';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
@@ -49,21 +49,24 @@ function SortableItem({
     const localListeners = canReorder ? listeners : null;
     const localStyle = canReorder ? { cursor: 'grab', touchAction: 'none' } : {};
 
-    const LeftIcon = (): JSX.Element => {
-        if (idx <= 3) return <Medal className="pr-3 w-9" color={color} />;
-        if (canReorder) return <Drag className="pr-3 w-9" />;
-        return <div className="pr-3 w-9" />;
-    };
+    const leftIcon =
+        idx <= 3 ? (
+            <Medal className="pr-3 w-9" color={color} />
+        ) : canReorder ? (
+            <Drag className="pr-3 w-9" />
+        ) : (
+            <div className="pr-3 w-9" />
+        );
 
     return (
         <div
-            className={`item flex ${viewMode === 'grid' ? 'items-start !p-2 sm:!p-[18px]' : 'items-center !p-2.5 sm:!p-[18px]'}`}
+            className={`item flex ${viewMode === 'grid' ? 'items-start p-2! sm:p-[18px]!' : 'items-center p-2.5! sm:p-[18px]!'}`}
             ref={setNodeRef}
             style={style}
         >
             {viewMode === 'list' && (
                 <div {...localListeners} style={localStyle}>
-                    <LeftIcon />
+                    {leftIcon}
                 </div>
             )}
             {children}
@@ -71,13 +74,29 @@ function SortableItem({
     );
 }
 
-const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTakenUserId[] }): JSX.Element => {
+const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTakenUserId[] }) => {
     const { connectedUser } = useCurrentUser();
 
     const isOwnList = user.id === connectedUser?.userId;
     const userCanAddGift = isOwnList || connectedUser?.isAdmin === true;
 
     const [localGifts, setLocalGifts] = useState<GiftWithTakenUserId[]>(giftList);
+    // Réservation/libération d'un cadeau simple affichée tout de suite, annulée si le serveur refuse
+    const [displayGifts, setOptimisticTaken] = useOptimistic(
+        localGifts,
+        (gifts, change: { id: string; takenUserId: string | null }) =>
+            gifts.map((g) =>
+                g.id === change.id
+                    ? ({
+                          ...g,
+                          takenUserId: change.takenUserId,
+                          takenByList: change.takenUserId
+                              ? [{ id: '', userId: change.takenUserId, takenAt: new Date().toISOString() }]
+                              : []
+                      } as GiftWithTakenUserId)
+                    : g
+            )
+    );
     const [filteringTakenGifts, setFilteringTakenGifts] = useState(false);
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
@@ -233,51 +252,58 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
         closeModal();
     };
 
-    const onBlockUnBlockGiftClick = async (giftToUpdate: GiftWithTakenUserId) => {
+    const onBlockUnBlockGiftClick = (giftToUpdate: GiftWithTakenUserId) => {
         const isTaken = giftToUpdate.takenUserId != null;
+        const isSimple = giftToUpdate.giftType === ('SIMPLE' as GiftType);
+        const takenUserId = isTaken ? null : (connectedUser?.userId ?? null);
         setTakingGiftId(giftToUpdate.id);
-        try {
-            const res = isTaken
-                ? await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`, { userId: connectedUser?.userId })
-                : await AxiosWrapper.post(`/api/gift/${giftToUpdate.id}/take`, { userId: connectedUser?.userId });
-            if (res?.data?.success) {
-                if (giftToUpdate.giftType === ('SIMPLE' as GiftType)) {
-                    // Cas simple : mise à jour locale, pas besoin de re-fetch
-                    const takenUserId = isTaken ? null : (connectedUser?.userId ?? null);
-                    setLocalGifts((prev) =>
-                        prev.map((g) =>
-                            g.id === giftToUpdate.id
-                                ? ({
-                                      ...g,
-                                      takenUserId,
-                                      takenByList: takenUserId
-                                          ? [{ id: '', userId: takenUserId, takenAt: new Date().toISOString() }]
-                                          : []
-                                  } as GiftWithTakenUserId)
-                                : g
-                        )
-                    );
-                } else {
-                    // MULTIPLE/UNLIMITED : état serveur plus riche (sous-cadeaux, multi-réservations) → re-fetch
-                    const refreshRes = await AxiosWrapper.get(`/api/gift?giftId=${giftToUpdate.id}`);
-                    const refreshData = refreshRes?.data as TGiftApiResult;
-                    if (refreshData?.success && refreshData.gift) {
-                        const updated: GiftWithTakenUserId = {
-                            ...refreshData.gift,
-                            takenUserId: (refreshData.gift as any).takenUserId ?? null
-                        };
-                        setLocalGifts((prev) => prev.map((g) => (g.id === giftToUpdate.id ? updated : g)));
+        startTransition(async () => {
+            if (isSimple) setOptimisticTaken({ id: giftToUpdate.id, takenUserId });
+            try {
+                const res = isTaken
+                    ? await AxiosWrapper.delete(`/api/gift/${giftToUpdate.id}/take`, { userId: connectedUser?.userId })
+                    : await AxiosWrapper.post(`/api/gift/${giftToUpdate.id}/take`, { userId: connectedUser?.userId });
+                if (res?.data?.success) {
+                    if (isSimple) {
+                        startTransition(() =>
+                            setLocalGifts((prev) =>
+                                prev.map((g) =>
+                                    g.id === giftToUpdate.id
+                                        ? ({
+                                              ...g,
+                                              takenUserId,
+                                              takenByList: takenUserId
+                                                  ? [{ id: '', userId: takenUserId, takenAt: new Date().toISOString() }]
+                                                  : []
+                                          } as GiftWithTakenUserId)
+                                        : g
+                                )
+                            )
+                        );
+                    } else {
+                        // MULTIPLE/UNLIMITED : état serveur plus riche (sous-cadeaux, multi-réservations) → re-fetch
+                        const refreshRes = await AxiosWrapper.get(`/api/gift?giftId=${giftToUpdate.id}`);
+                        const refreshData = refreshRes?.data as TGiftApiResult;
+                        if (refreshData?.success && refreshData.gift) {
+                            const updated: GiftWithTakenUserId = {
+                                ...refreshData.gift,
+                                takenUserId: (refreshData.gift as any).takenUserId ?? null
+                            };
+                            startTransition(() =>
+                                setLocalGifts((prev) => prev.map((g) => (g.id === giftToUpdate.id ? updated : g)))
+                            );
+                        }
                     }
+                    toast(isTaken ? 'Cadeau libéré !' : 'Cadeau réservé !');
+                } else {
+                    alertError('Erreur', 'Impossible de réserver ce cadeau.');
                 }
-                toast(isTaken ? 'Cadeau libéré !' : 'Cadeau réservé !');
-            } else {
-                alertError('Erreur', 'Impossible de réserver ce cadeau.');
+            } catch (err) {
+                alertError('Erreur', 'Erreur lors de la réservation');
+            } finally {
+                setTakingGiftId(null);
             }
-        } catch (err) {
-            alertError('Erreur', 'Erreur lors de la réservation');
-        } finally {
-            setTakingGiftId(null);
-        }
+        });
     };
 
     const sensors = useSensors(
@@ -297,10 +323,10 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
         );
     };
 
-    const visibleGiftsCount = localGifts.filter((g) => !filteringTakenGifts || !g.takenUserId).length;
+    const visibleGiftsCount = displayGifts.filter((g) => !filteringTakenGifts || !g.takenUserId).length;
 
     const isCreating = selectedGiftId === NEW_GIFT_SENTINEL;
-    const selectedGift = isCreating ? null : (localGifts.find((g) => g.id === selectedGiftId) ?? null);
+    const selectedGift = isCreating ? null : (displayGifts.find((g) => g.id === selectedGiftId) ?? null);
     const isEditing = !!editingGiftId && editingGiftId === selectedGift?.id;
     const modalOpen = selectedGiftId !== null;
 
@@ -367,7 +393,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                             <div
                                 className={viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 gap-3' : 'flex flex-col gap-2'}
                             >
-                                {localGifts
+                                {displayGifts
                                     .filter((gift) => !filteringTakenGifts || !gift.takenUserId)
                                     .map((gift, idx) => (
                                         <SortableItem
@@ -522,7 +548,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 flex items-center gap-2">
                                                     Ce cadeau est déjà pris
                                                     {loadingGroupUsers ? (
-                                                        <span className="inline-block h-3 w-20 bg-red-200 rounded animate-pulse" />
+                                                        <span className="inline-block h-3 w-20 bg-red-200 rounded-sm animate-pulse" />
                                                     ) : (
                                                         groupUserMap[selectedGift!.takenUserId] && (
                                                             <>
@@ -618,7 +644,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                             onClick={() => onBlockUnBlockGiftClick(selectedGift!)}
                                             disabled={takingGiftId === selectedGift!.id}
                                         >
-                                            {takingGiftId === selectedGift!.id ? 'Libération...' : 'Je ne prends plus ce cadeau'}
+                                            Je ne prends plus ce cadeau
                                         </CustomButton>
                                     )}
                                 {!isCreating &&
@@ -630,7 +656,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                             onClick={() => onBlockUnBlockGiftClick(selectedGift!)}
                                             disabled={takingGiftId === selectedGift!.id}
                                         >
-                                            {takingGiftId === selectedGift!.id ? 'Réservation...' : 'Je prends ce cadeau'}
+                                            Je prends ce cadeau
                                         </CustomButton>
                                     )}
                                 <CustomButton onClick={closeModal}>Fermer</CustomButton>

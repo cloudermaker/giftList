@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import CustomButton from './atoms/customButton';
 
-export default function GiftIdeasGenerator(): JSX.Element {
+export default function GiftIdeasGenerator() {
     const [giftIdeasInput, setGiftIdeasInput] = useState('');
     const [giftIdeas, setGiftIdeas] = useState<string[]>([]);
     const [isLoadingIdeas, setIsLoadingIdeas] = useState(false);
@@ -482,7 +482,7 @@ export default function GiftIdeasGenerator(): JSX.Element {
                         {giftIdeas.map((idea, index) => (
                             <div
                                 key={index}
-                                className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                                className="bg-white p-4 rounded-lg border border-gray-200 shadow-xs hover:shadow-md transition-shadow"
                             >
                                 <div className="flex items-start gap-3">
                                     <span className="text-2xl">🎁</span>

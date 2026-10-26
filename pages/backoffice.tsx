@@ -26,7 +26,7 @@ type TGroupRowProps = {
     onRename: (id: string, newName: string) => void;
 };
 
-const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element => {
+const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps) => {
     const [expanded, setExpanded] = useState(false);
     const [members, setMembers] = useState<TMember[]>([]);
     const [loading, setLoading] = useState(false);
@@ -170,7 +170,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps): JSX.Element =>
                         <div className="flex flex-col gap-3">
                             {[...Array(3)].map((_, i) => (
                                 <div key={i} className="flex justify-between items-center">
-                                    <div className="h-4 bg-gray-200 rounded animate-pulse w-1/4" />
+                                    <div className="h-4 bg-gray-200 rounded-sm animate-pulse w-1/4" />
                                     <div className="flex gap-2">
                                         <div className="h-8 w-20 bg-gray-200 rounded-xl animate-pulse" />
                                         <div className="h-8 w-20 bg-gray-200 rounded-xl animate-pulse" />
@@ -255,7 +255,7 @@ const Backoffice = ({
     page = 1,
     totalCount = 0,
     pageSize = 10
-}: TBackofficeProps): JSX.Element => {
+}: TBackofficeProps) => {
     const [localGroups, setLocalGroups] = useState<TGroupItem[]>(groups);
     const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
@@ -280,7 +280,16 @@ const Backoffice = ({
                 allowOutsideClick: true,
                 icon: 'question',
                 allowEscapeKey: true,
-                focusConfirm: true,
+                focusConfirm: false,
+                didOpen: () => {
+                    // Entrée dans un champ valide le formulaire
+                    document.querySelectorAll('#swal-login, #swal-pass').forEach((input) =>
+                        input.addEventListener('keydown', (e) => {
+                            if ((e as KeyboardEvent).key === 'Enter') swal.clickConfirm();
+                        })
+                    );
+                    document.getElementById('swal-login')?.focus();
+                },
                 preConfirm: () => {
                     const login = (document.getElementById('swal-login') as HTMLInputElement)?.value;
                     const pass = (document.getElementById('swal-pass') as HTMLInputElement)?.value;
@@ -371,12 +380,7 @@ const Backoffice = ({
             <div>
                 <div className="flex justify-between items-center mb-8">
                     <PageTitle className="">Backoffice</PageTitle>
-                    <button
-                        onClick={logoutBackoffice}
-                        className="text-white text-sm bg-rougeNoel/80 hover:bg-rougeNoel px-3 py-1.5 rounded transition-colors"
-                    >
-                        Se déconnecter
-                    </button>
+                    <CustomButton onClick={logoutBackoffice}>Se déconnecter</CustomButton>
                 </div>
 
                 <h2 className="text-base font-semibold text-gray-600 uppercase tracking-wide mb-4">Groupes</h2>
@@ -447,7 +451,7 @@ const Backoffice = ({
 };
 
 // Modération de la boîte à idées (/ideas)
-const IdeasAdmin = (): JSX.Element => {
+const IdeasAdmin = () => {
     const [ideas, setIdeas] = useState<TIdeaAdminItem[]>([]);
     const [loaded, setLoaded] = useState(false);
 

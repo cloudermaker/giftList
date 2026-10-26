@@ -14,7 +14,7 @@ import { getProfilesByVerifiedEmail, TEmailProfile } from '@/lib/auth/emailRecov
 type Props = { token: string; valid: boolean; profiles: TEmailProfile[] };
 
 // Arrivée depuis le lien email : un clic choisit le profil (le lien n'est consommé qu'à ce moment)
-export default function ProfilePickerPage({ token, valid, profiles }: Props): JSX.Element {
+export default function ProfilePickerPage({ token, valid, profiles }: Props) {
     const { query } = useRouter();
     const [error, setError] = useState('');
     const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -25,7 +25,7 @@ export default function ProfilePickerPage({ token, valid, profiles }: Props): JS
         const res = await AxiosWrapper.post('/api/auth/email/login', { token, userId });
         if (res?.data?.success) {
             NProgress.start();
-            window.location.href = query.suite === 'profil' ? '/profil' : '/home';
+            window.location.assign(query.suite === 'profil' ? '/profil' : '/home');
             return;
         }
         setError(res?.data?.error ?? 'Connexion impossible.');

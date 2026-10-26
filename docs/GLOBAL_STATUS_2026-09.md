@@ -80,10 +80,9 @@ to v5.8.0 2026-10-14 — all merged & deployed).
 
 - ✅ CI diagnostics stripped; CI stabilized (test DB on Neon DIRECT endpoint — the pooler caused stale-read flakes).
 - ✅ (2026-10-14) Dependabot triage: runtime alerts fixed (next 15.5.27, nodemailer 10.1.1, sharp 0.35.5) + non-breaking `npm audit fix`.
-  Remaining alerts are dev/build-only (trusted input): **Tailwind 3 → 4** (braces/micromatch/chokidar/postcss-selector-parser
-  chain) and **ESLint 8 → 9 + typescript-eslint 8** (minimatch/globby; `next lint` is deprecated anyway). `next` stays flagged
-  only via its pinned build-time postcss 8.4.31. Never apply npm's suggested eslint-config-next@14 / next-sitemap@4.0.9
-  "fixes": they are downgrades. (L each)
+  ✅ (2026-10-23) Tailwind 4, ESLint 9 (flat config, `npm run lint` = `eslint .`), Next 16 + React 19 (`proxy.ts` replaces
+  `middleware.ts`): `npm audit` = 0. Never apply npm's suggested eslint-config-next@14 / next-sitemap@4.0.9 "fixes": downgrades.
+  Left on purpose: Prisma 5 → 7 (driver adapters, hand-run SQL workflow), TypeScript 7, ESLint 10, `@types/node` 26 (runtime is Node 24).
 - Rotate the Neon test-DB and Vercel prod-DB passwords (both were pasted in chats/tools), update secrets after.
 - ✅ Search Console: sitemap "Success — 10 URLs". Still watch: occasion pages indexing, stale `/login` dropping out.
 

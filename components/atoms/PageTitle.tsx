@@ -9,7 +9,7 @@ export const PageTitle = ({
     children: ReactNode;
     eyebrow?: string;
     className?: string;
-}): JSX.Element => (
+}) => (
     <div className={className}>
         {eyebrow && <p className="text-sm text-gray-500 mb-1">{eyebrow}</p>}
         <h1 className="text-2xl font-bold text-gray-800">{children}</h1>

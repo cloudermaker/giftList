@@ -8,7 +8,7 @@ import { TSendEmailResult } from '../api/sendEmail';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import SEO from '@/components/SEO';
 
-export default function Contact(): JSX.Element {
+export default function Contact() {
     const [email, setEmail] = useState<string>();
     const [subject, setSubject] = useState<string>('');
     const [message, setMessage] = useState<string>();
@@ -91,7 +91,7 @@ export default function Contact(): JSX.Element {
                             className="space-y-6 relative"
                         >
                             <div className="text-center mb-6 relative">
-                                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-vertNoel/10 to-green-100 px-4 py-2 rounded-full">
+                                <div className="inline-flex items-center gap-2 bg-linear-to-r from-vertNoel/10 to-green-100 px-4 py-2 rounded-full">
                                     <span className="text-2xl">💬</span>
                                     <p className="text-gray-700 text-sm md:text-base font-medium">On est là pour vous aider !</p>
                                 </div>
@@ -106,7 +106,7 @@ export default function Contact(): JSX.Element {
                                 </label>
                                 <input
                                     id="email"
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-vertNoel focus:ring-2 focus:ring-vertNoel/20 transition-all duration-200 outline-none bg-white hover:border-gray-300"
+                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-vertNoel focus:ring-2 focus:ring-vertNoel/20 transition-all duration-200 outline-hidden bg-white hover:border-gray-300"
                                     type="email"
                                     placeholder="votre.email@exemple.com"
                                     onChange={(e) => setEmail(e.target.value)}
@@ -125,7 +125,7 @@ export default function Contact(): JSX.Element {
                                 </label>
                                 <select
                                     id="subject"
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-vertNoel focus:ring-2 focus:ring-vertNoel/20 transition-all duration-200 outline-none bg-white hover:border-gray-300"
+                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-vertNoel focus:ring-2 focus:ring-vertNoel/20 transition-all duration-200 outline-hidden bg-white hover:border-gray-300"
                                     onChange={(e) => setSubject(e.target.value)}
                                     value={subject}
                                     name="subject"
@@ -149,7 +149,7 @@ export default function Contact(): JSX.Element {
                                 </label>
                                 <textarea
                                     id="message"
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-vertNoel focus:ring-2 focus:ring-vertNoel/20 transition-all duration-200 outline-none resize-none bg-white hover:border-gray-300"
+                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-vertNoel focus:ring-2 focus:ring-vertNoel/20 transition-all duration-200 outline-hidden resize-none bg-white hover:border-gray-300"
                                     onChange={(e) => setMessage(e.target.value)}
                                     placeholder="Décrivez votre demande en détail..."
                                     value={message}

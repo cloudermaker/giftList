@@ -97,14 +97,13 @@ const MOCKUPS = [
     }
 ];
 
-export default function Index(): JSX.Element {
+export default function Index() {
     const { login } = useLogin();
 
     const [mockupIndex, setMockupIndex] = useState(0);
 
     useEffect(() => {
         setMockupIndex(Math.floor(Math.random() * MOCKUPS.length));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // UI state consolidated
@@ -374,7 +373,7 @@ export default function Index(): JSX.Element {
                                     <div className="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer">
                                         <input
                                             id="adminCheckbox"
-                                            className="cursor-pointer w-5 h-5 accent-vertNoel rounded"
+                                            className="cursor-pointer w-5 h-5 accent-vertNoel rounded-sm"
                                             type="checkbox"
                                             onChange={() => setConnectingAsAdmin((value) => !value)}
                                             disabled={isLoading}
@@ -538,7 +537,7 @@ export default function Index(): JSX.Element {
                                     {m.others.map((o, i) => (
                                         <div
                                             key={i}
-                                            className="bg-white rounded-xl border border-gray-100 px-5 py-4 shadow-sm flex items-center gap-3"
+                                            className="bg-white rounded-xl border border-gray-100 px-5 py-4 shadow-xs flex items-center gap-3"
                                         >
                                             <div
                                                 className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"

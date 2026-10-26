@@ -17,7 +17,7 @@ const ContactLink = () => (
     </Link>
 );
 
-export default function Confidentialite(): JSX.Element {
+export default function Confidentialite() {
     return (
         <Layout withHeader={false}>
             <SEO

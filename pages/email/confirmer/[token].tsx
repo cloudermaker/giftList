@@ -12,7 +12,7 @@ import prisma from '@/lib/db/dbSingleton';
 
 type Props = { token: string; valid: boolean; email: string; userId: string; userName: string; groupName: string };
 
-export default function ConfirmEmailPage({ token, valid, email, userId, userName, groupName }: Props): JSX.Element {
+export default function ConfirmEmailPage({ token, valid, email, userId, userName, groupName }: Props) {
     const { connectedUser } = useCurrentUser();
     const [done, setDone] = useState(false);
     const [error, setError] = useState('');

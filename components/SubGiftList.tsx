@@ -21,11 +21,14 @@ interface SubGiftListProps {
 export default function SubGiftList({ parentGift, userId, isAdmin = false, initialCount, onGiftUpdate }: SubGiftListProps) {
     const [subGifts, setSubGifts] = useState<GiftWithTakenUserId[]>([]);
     const [loading, setLoading] = useState(false);
+    const [loaded, setLoaded] = useState(false);
     const [expanded, setExpanded] = useState(false);
     const [creatingSubGift, setCreatingSubGift] = useState(false);
     const [newSubGiftName, setNewSubGiftName] = useState('');
 
     const isOwner = parentGift.userId === userId;
+    // Tant que la liste n'est pas chargée, le compteur vient du serveur (initialCount)
+    const subGiftsCount = loaded ? subGifts.length : (initialCount ?? 0);
 
     const loadSubGifts = useCallback(async () => {
         setLoading(true);
@@ -33,6 +36,7 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
             const response = await axios.get(`/api/gift/${parentGift.id}/subgifts`);
             if (response.data.success) {
                 setSubGifts(response.data.subGifts || []);
+                setLoaded(true);
             }
         } catch (error) {
             console.error('Error loading subgifts:', error);
@@ -128,9 +132,9 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
                 <span className="text-sm font-medium text-indigo-700 flex-1">
                     {expanded ? 'Masquer' : 'Afficher'} les sous-cadeaux
                 </span>
-                {(subGifts.length > 0 || (initialCount ?? 0) > 0) && (
+                {subGiftsCount > 0 && (
                     <span className="text-xs bg-indigo-200 text-indigo-700 px-2 py-0.5 rounded-full font-semibold">
-                        {loading ? (initialCount ?? 0) : subGifts.length}
+                        {subGiftsCount}
                     </span>
                 )}
             </div>
@@ -144,7 +148,7 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
                                     key={i}
                                     className="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-white animate-pulse"
                                 >
-                                    <div className="h-4 bg-gray-200 rounded w-2/3" />
+                                    <div className="h-4 bg-gray-200 rounded-sm w-2/3" />
                                     <div className="h-8 bg-gray-200 rounded-lg w-24" />
                                 </div>
                             ))}

@@ -19,7 +19,7 @@ export const CustomHeader = ({
     groupId: string;
     userId: string;
     customTitle?: string;
-}): JSX.Element => {
+}) => {
     const navRef = useRef<HTMLElement>(null);
     const pillRef = useRef<HTMLDivElement>(null);
     const initialized = useRef(false);
@@ -102,7 +102,7 @@ export const CustomHeader = ({
                     <span className="text-lg">{menu.icon}</span>
                     {/* Prénoms longs : libellé coupé (…) plutôt qu'une barre qui déborde de l'écran */}
                     <span
-                        className="hidden sm:inline-block max-w-[9rem] lg:max-w-[14rem] truncate align-bottom"
+                        className="hidden sm:inline-block max-w-36 lg:max-w-56 truncate align-bottom"
                         title={menu.name}
                     >
                         {menu.name}

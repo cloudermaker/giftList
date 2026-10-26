@@ -21,7 +21,7 @@ const readVotedIds = (): string[] => {
     }
 };
 
-const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
+const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }) => {
     const [localIdeas, setLocalIdeas] = useState<TIdeaItem[]>(ideas);
     const [votedIds, setVotedIds] = useState<string[]>([]);
     const [showDone, setShowDone] = useState(false);
@@ -165,7 +165,7 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }): JSX.Element => {
                     <label className="flex w-full sm:w-auto items-center gap-2 text-sm text-gray-600">
                         <span className="whitespace-nowrap shrink-0">Trier par</span>
                         <select
-                            className="input-field !p-1.5 flex-1 min-w-0 sm:flex-none sm:!w-44"
+                            className="input-field p-1.5! flex-1 min-w-0 sm:flex-none sm:w-44!"
                             style={{ maxWidth: '100%' }}
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value as typeof sortBy)}

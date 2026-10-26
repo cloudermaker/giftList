@@ -96,7 +96,7 @@ export default function ProfilePage({
         const res = await AxiosWrapper.post('/api/auth/switch', { userId });
         if (res?.data?.success) {
             NProgress.start();
-            window.location.href = '/home';
+            window.location.assign('/home');
         } else {
             alertError('Erreur', res?.data?.error ?? 'Changement de groupe impossible.');
         }

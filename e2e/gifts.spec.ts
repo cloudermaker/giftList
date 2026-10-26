@@ -217,6 +217,36 @@ test.describe.serial('Cadeaux et réservations', () => {
         await waitForToastGone(pageA);
     });
 
+    test('la réservation s’affiche tout de suite et revient en arrière si le serveur refuse', async () => {
+        const bobSession = await readSession(pageB);
+        await pageA.goto(`/giftList/${bobSession!.userId}`);
+        await pageA.locator('.item', { hasText: 'Casque audio' }).click();
+
+        // Serveur lent : l'état « pris » apparaît avant la réponse
+        await pageA.route('**/api/gift/*/take', async (route) => {
+            await new Promise((r) => setTimeout(r, 1500));
+            await route.continue();
+        });
+        await pageA.getByRole('button', { name: 'Je prends ce cadeau' }).click();
+        await expect(pageA.getByRole('button', { name: 'Je ne prends plus ce cadeau' })).toBeVisible({ timeout: 700 });
+        await expect(pageA.getByText('Cadeau réservé !')).toBeVisible();
+        await waitForToastGone(pageA);
+        await pageA.unroute('**/api/gift/*/take');
+
+        // Rejet serveur : retour à « libre » + message d'erreur
+        await pageA.route('**/api/gift/*/take', (route) => route.fulfill({ status: 500, json: { success: false } }));
+        await pageA.getByRole('button', { name: 'Je ne prends plus ce cadeau' }).click();
+        await expect(pageA.getByText('Impossible de réserver ce cadeau.')).toBeVisible();
+        await pageA.getByRole('button', { name: 'OK' }).click();
+        await expect(pageA.getByRole('button', { name: 'Je ne prends plus ce cadeau' })).toBeVisible();
+        await pageA.unroute('**/api/gift/*/take');
+
+        // Nettoyage : libère le cadeau
+        await pageA.getByRole('button', { name: 'Je ne prends plus ce cadeau' }).click();
+        await expect(pageA.getByRole('button', { name: 'Je prends ce cadeau' })).toBeVisible();
+        await waitForToastGone(pageA);
+    });
+
     test('un proche rejoint le groupe via le lien d’invitation', async ({ browser }) => {
         // Le token d'invitation via l'API (le bouton UI copie dans le presse-papier)
         const res = await pageA.request.get(`/api/group/${groupId}`);
@@ -262,6 +292,25 @@ test.describe.serial('Cadeaux et réservations', () => {
         await expect(page.getByRole('heading', { name: 'Groupes', exact: true })).toBeVisible();
         // Notre groupe de test (le plus récent) est en tête de la première page
         await expect(page.getByText(groupName)).toBeVisible();
+        await ctx.close();
+    });
+
+    test('le backoffice se valide avec Entrée et se quitte avec le bouton standard', async ({ browser }) => {
+        const ctx = await browser.newContext();
+        const page = await ctx.newPage();
+        await page.goto('/backoffice');
+        await expect(page.locator('#swal-login')).toBeFocused();
+        await page.locator('#swal-login').fill(process.env.BACKOFFICE_USERNAME ?? '');
+        await page.locator('#swal-pass').fill(process.env.BACKOFFICE_PASSWORD ?? '');
+        const authResponse = page.waitForResponse('**/api/backoffice/auth');
+        await page.locator('#swal-pass').press('Enter');
+        expect((await authResponse).status()).toBe(200);
+
+        const logout = page.getByRole('button', { name: 'Se déconnecter' });
+        await expect(logout).toBeVisible();
+        await expect(logout).toHaveClass(/btn/);
+        await logout.click();
+        await page.waitForURL((url) => url.pathname === '/');
         await ctx.close();
     });
 });

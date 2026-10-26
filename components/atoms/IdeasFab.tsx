@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 // Bouton flottant vers la boîte à idées (rendu par le Layout sur toutes les pages, sauf /ideas)
-export const IdeasFab = (): JSX.Element | null => {
+export const IdeasFab = () => {
     const { pathname } = useRouter();
     if (pathname === '/ideas') return null;
 

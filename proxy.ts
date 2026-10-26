@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { COOKIE_NAME } from './lib/auth/authService';
 
-// Vérification HMAC du cookie signé « payload.signature » (WebCrypto : runtime Edge)
+// Vérification HMAC du cookie signé « payload.signature » (WebCrypto)
 const isValidSession = async (rawCookieValue: string): Promise<boolean> => {
     try {
         const [payload, signature] = decodeURIComponent(rawCookieValue).split('.');
@@ -24,7 +24,7 @@ const isValidSession = async (rawCookieValue: string): Promise<boolean> => {
     }
 };
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     // Mode maintenance (activer en production avec la variable d'environnement)
     const isMaintenanceMode = process.env.MAINTENANCE_MODE === 'true';
 

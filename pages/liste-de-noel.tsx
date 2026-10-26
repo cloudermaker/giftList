@@ -1,6 +1,6 @@
 import { OccasionLanding } from '@/components/OccasionLanding';
 
-export default function ListeDeNoel(): JSX.Element {
+export default function ListeDeNoel() {
     return (
         <OccasionLanding
             slug="/liste-de-noel"

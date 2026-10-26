@@ -22,7 +22,7 @@ const GroupComponent = ({
     group: Group;
     groupUsers: User[];
     inviteToken: string;
-}): JSX.Element => {
+}) => {
     const { connectedUser } = useCurrentUser();
 
     const [localUsers, setLocalUsers] = useState<User[]>(groupUsers);

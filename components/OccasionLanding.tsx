@@ -27,7 +27,7 @@ const OTHER_OCCASIONS = [
     { slug: '/liste-de-mariage', emoji: '💍', label: 'Liste de mariage' }
 ];
 
-export const OccasionLanding = (props: TOccasionLandingProps): JSX.Element => {
+export const OccasionLanding = (props: TOccasionLandingProps) => {
     const { slug, emoji, seoTitle, seoDescription, h1, intro, sections, faq, ctaLabel } = props;
     const goToCreate = () => Router.push('/');
 

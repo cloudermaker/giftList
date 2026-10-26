@@ -23,7 +23,7 @@ const parseUserCookie = (): TGroupAndUser | null => {
 
 const UserContext = createContext<{ connectedUser: TGroupAndUser | null }>({ connectedUser: null });
 
-export const UserProvider = ({ children }: { children: ReactNode }): JSX.Element => {
+export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [connectedUser, setConnectedUser] = useState<TGroupAndUser | null>(null);
 
     useEffect(() => {

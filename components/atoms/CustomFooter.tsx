@@ -5,7 +5,7 @@ import { TwitterIcon } from '../icons/twitter';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import jsonPackage from '@/package.json';
 
-const FooterLink = ({ href, emoji, children }: { href: string; emoji: string; children: ReactNode }): JSX.Element => (
+const FooterLink = ({ href, emoji, children }: { href: string; emoji: string; children: ReactNode }) => (
     <Link
         href={href}
         className="flex items-center text-sm font-medium text-neutral-700 hover:text-rougeNoel active:scale-95 transition-all duration-300"
@@ -15,7 +15,7 @@ const FooterLink = ({ href, emoji, children }: { href: string; emoji: string; ch
     </Link>
 );
 
-const SocialLink = ({ href, children }: { href: string; children: ReactNode }): JSX.Element => (
+const SocialLink = ({ href, children }: { href: string; children: ReactNode }) => (
     <Link
         href={href}
         className="p-2 rounded-full bg-white/30 hover:bg-white/50 transition-all duration-300 hover:scale-110 active:scale-95"
@@ -26,7 +26,7 @@ const SocialLink = ({ href, children }: { href: string; children: ReactNode }): 
     </Link>
 );
 
-export const CustomFooter = (): JSX.Element => {
+export const CustomFooter = () => {
     const { connectedUser } = useCurrentUser();
 
     return (

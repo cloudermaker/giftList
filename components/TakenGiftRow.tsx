@@ -45,13 +45,13 @@ export const TakenGiftRow = ({
     busy: boolean;
     onOpen: () => void;
     onToggleBought: () => void;
-}): JSX.Element => {
+}) => {
     const bought = !!row.boughtAt;
     const safeUrl = toSafeUrl(row.url);
 
     // Toute la ligne est cliquable à la souris ; au clavier, c'est le bouton du nom
     return (
-        <div onClick={onOpen} className={`item flex items-center gap-3 cursor-pointer !p-2.5 sm:!p-[18px] ${bought ? 'opacity-60' : ''}`}>
+        <div onClick={onOpen} className={`item flex items-center gap-3 cursor-pointer p-2.5! sm:p-[18px]! ${bought ? 'opacity-60' : ''}`}>
             <button
                 type="button"
                 onClick={(e) => {
@@ -77,7 +77,7 @@ export const TakenGiftRow = ({
                 }}
                 className="flex-1 min-w-0 text-left bg-transparent border-0 p-0 cursor-pointer"
             >
-                <span className={`block font-medium break-words ${bought ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                <span className={`block font-medium wrap-break-word ${bought ? 'line-through text-gray-400' : 'text-gray-800'}`}>
                     {row.parentName && <span className="font-normal text-gray-400">{row.parentName} › </span>}
                     {row.name}
                 </span>

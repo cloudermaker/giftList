@@ -8,7 +8,7 @@ interface ModalProps {
     footer?: ReactNode;
 }
 
-export const Modal = ({ title, emoji, onClose, children, footer }: ModalProps): JSX.Element => {
+export const Modal = ({ title, emoji, onClose, children, footer }: ModalProps) => {
     useEffect(() => {
         document.body.style.overflow = 'hidden';
         return () => {
