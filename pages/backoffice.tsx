@@ -280,7 +280,16 @@ const Backoffice = ({
                 allowOutsideClick: true,
                 icon: 'question',
                 allowEscapeKey: true,
-                focusConfirm: true,
+                focusConfirm: false,
+                didOpen: () => {
+                    // Entrée dans un champ valide le formulaire
+                    document.querySelectorAll('#swal-login, #swal-pass').forEach((input) =>
+                        input.addEventListener('keydown', (e) => {
+                            if ((e as KeyboardEvent).key === 'Enter') swal.clickConfirm();
+                        })
+                    );
+                    document.getElementById('swal-login')?.focus();
+                },
                 preConfirm: () => {
                     const login = (document.getElementById('swal-login') as HTMLInputElement)?.value;
                     const pass = (document.getElementById('swal-pass') as HTMLInputElement)?.value;
@@ -371,12 +380,7 @@ const Backoffice = ({
             <div>
                 <div className="flex justify-between items-center mb-8">
                     <PageTitle className="">Backoffice</PageTitle>
-                    <button
-                        onClick={logoutBackoffice}
-                        className="text-white text-sm bg-rougeNoel/80 hover:bg-rougeNoel px-3 py-1.5 rounded-sm transition-colors"
-                    >
-                        Se déconnecter
-                    </button>
+                    <CustomButton onClick={logoutBackoffice}>Se déconnecter</CustomButton>
                 </div>
 
                 <h2 className="text-base font-semibold text-gray-600 uppercase tracking-wide mb-4">Groupes</h2>

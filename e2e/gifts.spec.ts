@@ -294,4 +294,23 @@ test.describe.serial('Cadeaux et réservations', () => {
         await expect(page.getByText(groupName)).toBeVisible();
         await ctx.close();
     });
+
+    test('le backoffice se valide avec Entrée et se quitte avec le bouton standard', async ({ browser }) => {
+        const ctx = await browser.newContext();
+        const page = await ctx.newPage();
+        await page.goto('/backoffice');
+        await expect(page.locator('#swal-login')).toBeFocused();
+        await page.locator('#swal-login').fill(process.env.BACKOFFICE_USERNAME ?? '');
+        await page.locator('#swal-pass').fill(process.env.BACKOFFICE_PASSWORD ?? '');
+        const authResponse = page.waitForResponse('**/api/backoffice/auth');
+        await page.locator('#swal-pass').press('Enter');
+        expect((await authResponse).status()).toBe(200);
+
+        const logout = page.getByRole('button', { name: 'Se déconnecter' });
+        await expect(logout).toBeVisible();
+        await expect(logout).toHaveClass(/btn/);
+        await logout.click();
+        await page.waitForURL((url) => url.pathname === '/');
+        await ctx.close();
+    });
 });

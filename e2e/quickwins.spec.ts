@@ -137,4 +137,12 @@ test.describe('Robustesse et liens', () => {
 
         await deleteCurrentGroup(page);
     });
+
+    test('les boutons actifs ont le curseur « main », les boutons désactivés non', async ({ page }) => {
+        await page.goto('/');
+        const cursorOf = (locator: import('@playwright/test').Locator) => locator.evaluate((el) => getComputedStyle(el).cursor);
+        expect(await cursorOf(page.getByRole('button', { name: "C'est parti!" }))).toBe('pointer');
+        await page.getByText('Créer un groupe', { exact: true }).click();
+        expect(await cursorOf(page.getByText('Se connecter', { exact: true }))).toBe('pointer');
+    });
 });
