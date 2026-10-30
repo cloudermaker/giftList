@@ -83,6 +83,7 @@ to v5.8.0 2026-10-14 — all merged & deployed).
   ✅ (2026-10-23) Tailwind 4, ESLint 9 (flat config, `npm run lint` = `eslint .`), Next 16 + React 19 (`proxy.ts` replaces
   `middleware.ts`): `npm audit` = 0. Never apply npm's suggested eslint-config-next@14 / next-sitemap@4.0.9 "fixes": downgrades.
   Left on purpose: Prisma 5 → 7 (driver adapters, hand-run SQL workflow), TypeScript 7, ESLint 10, `@types/node` 26 (runtime is Node 24).
+- ✅ (2026-10-29) Contact page tidied: plain labels, aligned buttons, one tone (vous), direct email link, calmer success/error states.
 - Rotate the Neon test-DB and Vercel prod-DB passwords (both were pasted in chats/tools), update secrets after.
 - ✅ Search Console: sitemap "Success — 10 URLs". Still watch: occasion pages indexing, stale `/login` dropping out.
 
