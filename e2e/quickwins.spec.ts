@@ -145,4 +145,46 @@ test.describe('Robustesse et liens', () => {
         await page.getByText('Créer un groupe', { exact: true }).click();
         expect(await cursorOf(page.getByText('Se connecter', { exact: true }))).toBe('pointer');
     });
+
+    test('le formulaire de contact envoie le message puis propose d’en écrire un autre', async ({ page }) => {
+        let payload: Record<string, string> = {};
+        await page.route('**/api/sendEmail', async (route) => {
+            payload = route.request().postDataJSON();
+            await route.fulfill({ status: 200, json: { success: true } });
+        });
+        await page.goto('/contact');
+
+        // Champs vides : les contrôles natifs bloquent l'envoi
+        await page.getByRole('button', { name: 'Envoyer' }).click();
+        await expect(page.getByText('Message envoyé')).toHaveCount(0);
+
+        await page.locator('#email').fill('quelquun@example.com');
+        await page.locator('#subject').selectOption('Question générale');
+        await page.locator('#message').fill('Bonjour, une question.');
+        await expect(page.getByText('22 / 1000')).toBeVisible();
+        await page.getByRole('button', { name: 'Envoyer' }).click();
+
+        await expect(page.getByRole('heading', { name: 'Message envoyé' })).toBeVisible();
+        await expect(page.getByText('quelquun@example.com')).toBeVisible();
+        expect(payload).toMatchObject({ senderEmail: 'quelquun@example.com', subject: 'Question générale' });
+
+        await page.getByRole('button', { name: 'Envoyer un autre message' }).click();
+        await expect(page.locator('#message')).toBeVisible();
+    });
+
+    test('la page de contact propose l’adresse directe et un bouton Annuler aligné', async ({ page }) => {
+        await page.goto('/contact');
+        await expect(page.getByRole('link', { name: 'contact@malistedecadeaux.fr' })).toHaveAttribute(
+            'href',
+            'mailto:contact@malistedecadeaux.fr'
+        );
+        // Boutons côte à côte (et non l'un sur l'autre) sur ordinateur
+        const cancel = await page.getByRole('button', { name: 'Annuler' }).boundingBox();
+        const send = await page.getByRole('button', { name: 'Envoyer' }).boundingBox();
+        expect(Math.abs(cancel!.y - send!.y)).toBeLessThan(4);
+        expect(send!.x - (cancel!.x + cancel!.width)).toBeGreaterThan(4);
+
+        await page.getByRole('button', { name: 'Annuler' }).click();
+        await page.waitForURL((url) => url.pathname === '/');
+    });
 });
