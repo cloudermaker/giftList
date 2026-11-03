@@ -4,6 +4,12 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.11.0] - 2026-11-03
+
+### Modifié
+
+- Page de contact plus claire : champs simplifiés, boutons alignés, adresse email directe
+
 ## [5.10.0] - 2026-10-26
 
 ### Ajouté
