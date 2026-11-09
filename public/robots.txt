@@ -7,14 +7,13 @@ Allow: /sitemap.xml
 Allow: /favicon.ico
 
 # Protected/private pages - no need to index
+# (/ideas and /acces stay crawlable: their noindex tag must be readable by Google)
 Disallow: /home
 Disallow: /giftList
 Disallow: /group
 Disallow: /takenGiftList
 Disallow: /backoffice
 Disallow: /join
-Disallow: /ideas
-Disallow: /acces
 Disallow: /profil
 Disallow: /email/
 Disallow: /api/
