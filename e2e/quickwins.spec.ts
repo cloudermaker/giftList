@@ -192,7 +192,7 @@ test.describe('Robustesse et liens', () => {
         const robots = await (await request.get('/robots.txt')).text();
         for (const path of ['/ideas', '/acces']) {
             // Bloquées par robots.txt, Google ne verrait jamais leur balise noindex
-            expect(robots).not.toMatch(new RegExp(`^Disallow: ${path}\s*$`, 'm'));
+            expect(robots).not.toMatch(new RegExp(`^Disallow: ${path}\\s*$`, 'm'));
             await page.goto(path);
             await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
         }
