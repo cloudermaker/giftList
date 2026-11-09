@@ -187,4 +187,16 @@ test.describe('Robustesse et liens', () => {
         await page.getByRole('button', { name: 'Annuler' }).click();
         await page.waitForURL((url) => url.pathname === '/');
     });
+
+    test('robots.txt laisse lire le noindex des pages publiques non indexées', async ({ page, request }) => {
+        const robots = await (await request.get('/robots.txt')).text();
+        for (const path of ['/ideas', '/acces']) {
+            // Bloquées par robots.txt, Google ne verrait jamais leur balise noindex
+            expect(robots).not.toMatch(new RegExp(`^Disallow: ${path}\\s*$`, 'm'));
+            await page.goto(path);
+            await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+        }
+        // Les pages privées restent interdites aux robots
+        expect(robots).toMatch(/^Disallow: \/home\s*$/m);
+    });
 });
