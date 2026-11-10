@@ -295,6 +295,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                         }
                     }
                     toast(isTaken ? 'Cadeau libéré !' : 'Cadeau réservé !');
+                    if (!isTaken) closeModal();
                 } else {
                     alertError('Erreur', 'Impossible de réserver ce cadeau.');
                 }
