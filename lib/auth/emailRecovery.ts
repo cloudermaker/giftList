@@ -111,20 +111,27 @@ export const sendVerificationEmail = async ({
 };
 
 // Réponse identique que l'email soit connu ou non (pas d'énumération des adresses)
-// `toProfile` : après connexion, retour direct sur la page profil (déverrouillage du changement d'email)
-export const sendLoginLink = async (email: string, toProfile = false): Promise<void> => {
+export type TUnlockReason = 'email' | 'groups';
+
+const UNLOCK_INTRO: Record<TUnlockReason, string> = {
+    email: 'Voici ton lien pour modifier ton email de secours.',
+    groups: "Voici ton lien de connexion sécurisée. Il te donne accès à tes autres groupes : tu pourras passer de l'un à l'autre ou fusionner tes profils en une seule liste."
+};
+
+// `unlock` : après connexion, retour direct sur la page profil, déverrouillée
+export const sendLoginLink = async (email: string, unlock?: TUnlockReason): Promise<void> => {
     const profiles = await getProfilesByVerifiedEmail(email);
     if (profiles.length === 0) return;
     const token = await createLoginToken({ purpose: 'LOGIN', email });
+    const toProfile = !!unlock;
     const mail = actionEmail({
-        intro: toProfile
-            ? 'Voici ton lien pour modifier ton email de secours.'
-            : 'Voici ton lien pour te reconnecter à ta liste de cadeaux.',
+        intro: unlock ? UNLOCK_INTRO[unlock] : 'Voici ton lien pour te reconnecter à ta liste de cadeaux.',
         buttonLabel: 'Me connecter',
         url: `${SITE_URL}/acces/${token}${toProfile ? '?suite=profil' : ''}`,
         outro: "Ce lien est valable 30 minutes et ne fonctionne qu'une fois. Si tu n'as rien demandé, ignore cet email."
     });
-    await sendMail({ to: normalizeEmail(email), subject: 'Ton lien de connexion — Ma Liste de Cadeaux', ...mail });
+    const subject = unlock === 'groups' ? 'Ton lien de connexion sécurisée' : 'Ton lien de connexion';
+    await sendMail({ to: normalizeEmail(email), subject: `${subject} — Ma Liste de Cadeaux`, ...mail });
 };
 
 const escapeHtml = (value: string): string =>

@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 .status(410)
                 .json({ success: false, error: 'Ce lien a expiré ou a déjà été utilisé. Demande-en un nouveau.' });
         }
-        const profile = (await getProfilesByVerifiedEmail(row.email)).find((p) => p.userId === body.userId);
+        const profile = (await getProfilesByVerifiedEmail(row.email)).find((p) => p.userId === body.userId && p.groupId === body.groupId);
         if (!profile) {
             return res.status(403).json({ success: false, error: "Ce profil n'est pas lié à cette adresse." });
         }

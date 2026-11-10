@@ -5,7 +5,7 @@ import { getEmailStatus, sendLoginLink } from '@/lib/auth/emailRecovery';
 
 const isRateLimited = createRateLimiter(3, 60 * 60 * 1000);
 
-// Profil connecté par prénom avec un email confirmé : envoie un lien à cette adresse pour pouvoir la modifier
+// Profil connecté par prénom avec un email confirmé : envoie un lien à cette adresse (modifier l'email ou gérer ses groupes)
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' });
     const session = getSession(req);
@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
         const { email, verified } = await getEmailStatus(session.userId);
         if (!email || !verified) return res.status(400).json({ success: false, error: 'Aucun email confirmé sur ce profil.' });
-        await sendLoginLink(email, true);
+        await sendLoginLink(email, req.body?.reason === 'groups' ? 'groups' : 'email');
         return res.status(200).json({ success: true });
     } catch (e) {
         console.error('Error in /api/auth/email/unlock:', e);

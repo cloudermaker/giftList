@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
         const { email } = await getEmailStatus(session.userId);
-        const profile = email ? (await getProfilesByVerifiedEmail(email)).find((p) => p.userId === body.userId) : undefined;
+        const profile = email ? (await getProfilesByVerifiedEmail(email)).find((p) => p.userId === body.userId && p.groupId === body.groupId) : undefined;
         if (!profile) return res.status(403).json({ success: false, error: "Ce profil n'est pas lié à ton email." });
 
         await touchGroupActivity(profile.groupId);

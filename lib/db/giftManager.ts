@@ -59,10 +59,12 @@ export const getGiftFromId = async (id: string): Promise<GiftWithTakenUserId | n
 
 export type TakenGiftEntry = GiftWithTakenUserId & { user: User | null; boughtAt: Date | null };
 
-export const getTakenGiftsFromUserId = async (userId: string): Promise<TakenGiftEntry[]> => {
+// groupId : seulement les réservations sur les listes des membres de ce groupe
+export const getTakenGiftsFromUserId = async (userId: string, groupId?: string): Promise<TakenGiftEntry[]> => {
     const takenGiftRecords = await prisma.userTakenGift.findMany({
         where: {
-            userId
+            userId,
+            ...(groupId && { gift: { user: { groupMemberships: { some: { groupId } } } } })
         },
         include: {
             gift: {

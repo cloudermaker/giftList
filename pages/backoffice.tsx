@@ -125,7 +125,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps) => {
             cancelText: 'Non'
         });
         if (!confirmed) return;
-        const result = await AxiosWrapper.delete(`/api/user/${member.id}`);
+        const result = await AxiosWrapper.delete(`/api/user/${member.id}?groupId=${group.id}`);
         if (result?.data?.success) {
             setMembers((m) => m.filter((m2) => m2.id !== member.id));
         } else {

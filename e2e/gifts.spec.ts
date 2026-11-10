@@ -75,9 +75,9 @@ test.describe.serial('Cadeaux et réservations', () => {
         // Bob réserve depuis la modale
         await pageB.locator('.item', { hasText: 'Cadeau Modifié' }).click();
         await pageB.getByRole('button', { name: 'Je prends ce cadeau' }).click();
-        await expect(pageB.getByRole('button', { name: 'Je ne prends plus ce cadeau' })).toBeVisible();
         await waitForToastGone(pageB);
-        await pageB.getByRole('button', { name: 'Fermer' }).click();
+        // La fiche se ferme une fois le cadeau réservé
+        await expect(pageB.getByRole('button', { name: 'Fermer' })).toHaveCount(0);
         await expect(pageB.getByText('Pris', { exact: true })).toBeVisible();
 
         // Alice, elle, ne voit AUCUNE trace de la réservation sur sa propre liste
@@ -210,8 +210,8 @@ test.describe.serial('Cadeaux et réservations', () => {
         // L'admin garde Modifier/Supprimer et peut réserver
         await expect(pageA.getByRole('button', { name: 'Modifier' })).toBeVisible();
         await pageA.getByRole('button', { name: 'Je prends ce cadeau' }).click();
-        await expect(pageA.getByRole('button', { name: 'Je ne prends plus ce cadeau' })).toBeVisible();
         await waitForToastGone(pageA);
+        await pageA.locator('.item', { hasText: 'Casque audio' }).click();
         await pageA.getByRole('button', { name: 'Je ne prends plus ce cadeau' }).click();
         await expect(pageA.getByRole('button', { name: 'Je prends ce cadeau' })).toBeVisible();
         await waitForToastGone(pageA);
@@ -232,6 +232,7 @@ test.describe.serial('Cadeaux et réservations', () => {
         await expect(pageA.getByText('Cadeau réservé !')).toBeVisible();
         await waitForToastGone(pageA);
         await pageA.unroute('**/api/gift/*/take');
+        await pageA.locator('.item', { hasText: 'Casque audio' }).click();
 
         // Rejet serveur : retour à « libre » + message d'erreur
         await pageA.route('**/api/gift/*/take', (route) => route.fulfill({ status: 500, json: { success: false } }));

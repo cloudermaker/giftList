@@ -19,10 +19,10 @@ export default function ProfilePickerPage({ token, valid, profiles }: Props) {
     const [error, setError] = useState('');
     const [loadingId, setLoadingId] = useState<string | null>(null);
 
-    const pick = async (userId: string): Promise<void> => {
+    const pick = async (userId: string, groupId: string): Promise<void> => {
         setError('');
-        setLoadingId(userId);
-        const res = await AxiosWrapper.post('/api/auth/email/login', { token, userId });
+        setLoadingId(`${userId}_${groupId}`);
+        const res = await AxiosWrapper.post('/api/auth/email/login', { token, userId, groupId });
         if (res?.data?.success) {
             NProgress.start();
             window.location.assign(query.suite === 'profil' ? '/profil' : '/home');
@@ -66,10 +66,10 @@ export default function ProfilePickerPage({ token, valid, profiles }: Props) {
                                 <div className="flex flex-col gap-3">
                                     {profiles.map((p) => (
                                         <CustomButton
-                                            key={p.userId}
+                                            key={`${p.userId}_${p.groupId}`}
                                             variant="green"
                                             className="w-full"
-                                            onClick={() => pick(p.userId)}
+                                            onClick={() => pick(p.userId, p.groupId)}
                                             disabled={loadingId !== null}
                                         >
                                             <span className="flex flex-col leading-tight">
