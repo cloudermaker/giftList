@@ -115,7 +115,7 @@ export type TUnlockReason = 'email' | 'groups';
 
 const UNLOCK_INTRO: Record<TUnlockReason, string> = {
     email: 'Voici ton lien pour modifier ton email de secours.',
-    groups: 'Voici ton lien pour retrouver tes autres groupes et fusionner tes profils.'
+    groups: "Voici ton lien de connexion sécurisée. Il te donne accès à tes autres groupes : tu pourras passer de l'un à l'autre ou fusionner tes profils en une seule liste."
 };
 
 // `unlock` : après connexion, retour direct sur la page profil, déverrouillée
@@ -130,7 +130,8 @@ export const sendLoginLink = async (email: string, unlock?: TUnlockReason): Prom
         url: `${SITE_URL}/acces/${token}${toProfile ? '?suite=profil' : ''}`,
         outro: "Ce lien est valable 30 minutes et ne fonctionne qu'une fois. Si tu n'as rien demandé, ignore cet email."
     });
-    await sendMail({ to: normalizeEmail(email), subject: 'Ton lien de connexion — Ma Liste de Cadeaux', ...mail });
+    const subject = unlock === 'groups' ? 'Ton lien de connexion sécurisée' : 'Ton lien de connexion';
+    await sendMail({ to: normalizeEmail(email), subject: `${subject} — Ma Liste de Cadeaux`, ...mail });
 };
 
 const escapeHtml = (value: string): string =>

@@ -235,8 +235,8 @@ export default function ProfilePage({
                         ) : (
                             <>
                                 <p className="text-sm text-gray-600">
-                                    🔒 Pour ta sécurité, tes autres groupes ne s&apos;affichent que si tu te connectes avec le
-                                    lien reçu par email (pas avec ton prénom ou le mot de passe du groupe).
+                                    🔒 Pour ta sécurité, tes autres groupes ne s&apos;affichent qu&apos;avec une connexion
+                                    sécurisée : le lien reçu par email (pas ton prénom ni le mot de passe du groupe).
                                 </p>
                                 <p className="text-sm text-gray-600">
                                     Reçois ce lien pour passer d&apos;un groupe à l&apos;autre ou fusionner tes profils en une
@@ -256,7 +256,8 @@ export default function ProfilePage({
                         <ol className="list-decimal pl-5 space-y-1 text-sm text-gray-600">
                             <li>Ajoute le même email sur ton profil dans chaque groupe, et confirme-le.</li>
                             <li>
-                                Connecte-toi avec le lien reçu par email : 🔒 seule cette connexion affiche tes autres groupes.
+                                Connecte-toi avec le lien reçu par email : 🔒 seule cette connexion sécurisée affiche tes autres
+                                groupes.
                             </li>
                             <li>
                                 Reviens ici pour passer d&apos;un groupe à l&apos;autre ou fusionner tes profils en une seule
