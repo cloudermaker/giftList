@@ -17,6 +17,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 - Mes réservations n'affiche que celles du groupe courant
 - Un admin ne peut modifier ou supprimer que les membres de son propre groupe
 - Réserver un cadeau ferme sa fiche
+- Mise à jour des dépendances vulnérables (follow-redirects, minimatch)
 
 ## [5.11.0] - 2026-11-03
 
