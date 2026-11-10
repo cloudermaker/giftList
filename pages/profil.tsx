@@ -23,6 +23,7 @@ type Props = {
     isAdminKey: boolean;
     canChange: boolean;
     otherProfiles: TEmailProfile[];
+    currentUserId: string;
 };
 
 const maskEmail = (email: string): string => {
@@ -37,7 +38,8 @@ export default function ProfilePage({
     verified,
     isAdminKey,
     canChange,
-    otherProfiles
+    otherProfiles,
+    currentUserId
 }: Props) {
     const [email, setEmail] = useState('');
     const [sentTo, setSentTo] = useState('');
@@ -46,20 +48,27 @@ export default function ProfilePage({
 
     useEffect(() => {
         if (query.email === 'confirme') toast('Adresse confirmée ✅');
-    }, [query.email]);
+        if (query.fusion === 'ok') toast('Profils fusionnés ✅');
+    }, [query.email, query.fusion]);
     const [isLoading, setIsLoading] = useState(false);
     const [unlockSent, setUnlockSent] = useState(false);
 
     // Email confirmé + connexion par prénom : un lien envoyé à l'adresse actuelle ouvre la modification
-    const requestUnlock = async (): Promise<void> => {
+    const [groupsLinkSent, setGroupsLinkSent] = useState(false);
+    // Lien en cours d'envoi : seul le bouton cliqué affiche « Envoi... »
+    const [sending, setSending] = useState<'email' | 'groups' | null>(null);
+    const requestUnlock = async (reason: 'email' | 'groups' = 'email'): Promise<void> => {
         setError('');
         setIsLoading(true);
+        setSending(reason);
         try {
-            const res = await AxiosWrapper.post('/api/auth/email/unlock');
-            if (res?.data?.success) setUnlockSent(true);
-            else setError(res?.data?.error ?? "Impossible d'envoyer le lien.");
+            const res = await AxiosWrapper.post('/api/auth/email/unlock', { reason });
+            if (!res?.data?.success) setError(res?.data?.error ?? "Impossible d'envoyer le lien.");
+            else if (reason === 'groups') setGroupsLinkSent(true);
+            else setUnlockSent(true);
         } finally {
             setIsLoading(false);
+            setSending(null);
         }
     };
 
@@ -92,8 +101,24 @@ export default function ProfilePage({
         else alertError('Erreur', res?.data?.error ?? 'Impossible de retirer cet email.');
     };
 
-    const switchTo = async (userId: string): Promise<void> => {
-        const res = await AxiosWrapper.post('/api/auth/switch', { userId });
+    const mergeWith = async (p: TEmailProfile): Promise<void> => {
+        const ok = await confirmDestructive({
+            title: `Fusionner avec « ${p.userName} » (${p.groupName}) ?`,
+            text: 'Tes deux listes seront réunies et visibles dans les deux groupes. Les cadeaux déjà réservés restent réservés.',
+            confirmText: 'Fusionner',
+            cancelText: 'Annuler'
+        });
+        if (!ok) return;
+        const res = await AxiosWrapper.post('/api/auth/merge', { userId: p.userId });
+        if (res?.data?.success) {
+            window.location.assign('/profil?fusion=ok');
+        } else {
+            alertError('Erreur', res?.data?.error ?? 'Fusion impossible.');
+        }
+    };
+
+    const switchTo = async (userId: string, groupId: string): Promise<void> => {
+        const res = await AxiosWrapper.post('/api/auth/switch', { userId, groupId });
         if (res?.data?.success) {
             NProgress.start();
             window.location.assign('/home');
@@ -136,8 +161,8 @@ export default function ProfilePage({
                                         Pour protéger ton accès, modifier cet email demande de confirmer que c&apos;est bien le
                                         tien.
                                     </p>
-                                    <CustomButton variant="slate" size="sm" onClick={requestUnlock} disabled={isLoading}>
-                                        {isLoading ? '⏳ Envoi...' : 'Modifier mon email'}
+                                    <CustomButton variant="slate" size="sm" onClick={() => requestUnlock()} disabled={isLoading}>
+                                        {sending === 'email' ? '⏳ Envoi...' : 'Modifier mon email'}
                                     </CustomButton>
                                 </div>
                             )}
@@ -176,21 +201,70 @@ export default function ProfilePage({
                     )}
                 </div>
 
-                {otherProfiles.length > 0 && (
-                    <div className="item space-y-3">
-                        <h2 className="text-lg font-semibold text-gray-800">👥 Mes autres groupes</h2>
+                {/* Une seule section : liste des groupes (session email), lien à recevoir (session prénom) ou mode d'emploi */}
+                <div className="item space-y-3">
+                    <h2 className="text-lg font-semibold text-gray-800">👥 Mes autres groupes</h2>
+                    {otherProfiles.length > 0 ? (
                         <div className="flex flex-col gap-2">
                             {otherProfiles.map((p) => (
-                                <CustomButton key={p.userId} variant="slate" size="sm" onClick={() => switchTo(p.userId)}>
-                                    <span className="flex flex-col leading-tight">
-                                        <span className="capitalize">{p.userName}</span>
-                                        <span className="text-xs font-normal opacity-90 break-all">{p.groupName}</span>
-                                    </span>
-                                </CustomButton>
+                                <div key={`${p.userId}_${p.groupId}`} className="flex gap-2">
+                                    <CustomButton
+                                        variant="slate"
+                                        size="sm"
+                                        className="flex-1"
+                                        onClick={() => switchTo(p.userId, p.groupId)}
+                                    >
+                                        <span className="flex flex-col leading-tight">
+                                            <span className="capitalize">{p.userName}</span>
+                                            <span className="text-xs font-normal opacity-90 break-all">{p.groupName}</span>
+                                        </span>
+                                    </CustomButton>
+                                    {p.userId !== currentUserId && (
+                                        <CustomButton variant="green" size="sm" onClick={() => mergeWith(p)}>
+                                            🔗 Fusionner
+                                        </CustomButton>
+                                    )}
+                                </div>
                             ))}
                         </div>
-                    </div>
-                )}
+                    ) : verified && !canChange ? (
+                        groupsLinkSent ? (
+                            <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-800">
+                                📧 Lien envoyé à <b>{displayEmail}</b>. Clique dessus : tu reviendras ici avec tes autres groupes.
+                            </div>
+                        ) : (
+                            <>
+                                <p className="text-sm text-gray-600">
+                                    🔒 Pour ta sécurité, tes autres groupes ne s&apos;affichent que si tu te connectes avec le
+                                    lien reçu par email (pas avec ton prénom ou le mot de passe du groupe).
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                    Reçois ce lien pour passer d&apos;un groupe à l&apos;autre ou fusionner tes profils en une
+                                    seule liste.
+                                </p>
+                                <CustomButton
+                                    variant="slate"
+                                    size="sm"
+                                    onClick={() => requestUnlock('groups')}
+                                    disabled={isLoading}
+                                >
+                                    {sending === 'groups' ? '⏳ Envoi...' : 'Gérer mes autres groupes'}
+                                </CustomButton>
+                            </>
+                        )
+                    ) : (
+                        <ol className="list-decimal pl-5 space-y-1 text-sm text-gray-600">
+                            <li>Ajoute le même email sur ton profil dans chaque groupe, et confirme-le.</li>
+                            <li>
+                                Connecte-toi avec le lien reçu par email : 🔒 seule cette connexion affiche tes autres groupes.
+                            </li>
+                            <li>
+                                Reviens ici pour passer d&apos;un groupe à l&apos;autre ou fusionner tes profils en une seule
+                                liste.
+                            </li>
+                        </ol>
+                    )}
+                </div>
             </div>
         </Layout>
     );
@@ -204,7 +278,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
     const emailAuth = !!session.emailAuth;
     const otherProfiles =
         emailAuth && status.email
-            ? (await getProfilesByVerifiedEmail(status.email)).filter((p) => p.userId !== session.userId)
+            ? (await getProfilesByVerifiedEmail(status.email)).filter((p) => p.groupId !== session.groupId)
             : [];
 
     return {
@@ -215,7 +289,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
             verified: status.verified,
             isAdminKey: status.isAdminKey,
             canChange: emailAuth || !status.verified,
-            otherProfiles
+            otherProfiles,
+            currentUserId: session.userId
         }
     };
 };

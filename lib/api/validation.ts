@@ -38,8 +38,10 @@ export const inviteJoinSchema = z.object({
 
 export const emailSchema = z.object({ email });
 export const emailTokenSchema = z.object({ token: linkToken });
-export const emailLoginSchema = z.object({ token: linkToken, userId: z.string().min(1).max(100) });
-export const switchProfileSchema = z.object({ userId: z.string().min(1).max(100) });
+// Un profil = un user dans un groupe (un même user peut être dans plusieurs groupes)
+export const emailLoginSchema = z.object({ token: linkToken, userId: id, groupId: id });
+export const switchProfileSchema = z.object({ userId: id, groupId: id });
+export const mergeProfileSchema = z.object({ userId: id });
 
 // Les objets gift/group/user des bodies portent des champs techniques : on valide l'essentiel, le reste passe
 const giftShape = z

@@ -3,6 +3,7 @@ import { uniqueName, readSession, createGroup } from './fixtures';
 import { createLoginToken } from '../lib/auth/loginToken';
 import { setVerifiedEmail } from '../lib/auth/emailRecovery';
 import prisma from '../lib/db/dbSingleton';
+import { leaveGroup } from '../lib/db/userManager';
 
 /**
  * Email de secours : liaison, confirmation, reconnexion par lien, règles de sécurité.
@@ -145,6 +146,22 @@ test.describe('Email de secours', () => {
         await deleteGroupAsAdmin(page.request, groupName, 'Dan');
     });
 
+    test('« Gérer mes autres groupes » envoie un lien depuis une connexion par prénom', async ({ page }) => {
+        const groupName = uniqueName('e2e-mail');
+        const email = uniqueEmail();
+        await createGroup(page, groupName, 'Eva', PASSWORD);
+        await setVerifiedEmail((await readSession(page))!.userId, email, false);
+        await page.request.post('/api/authenticate', { data: { groupName, userName: 'Eva' } });
+
+        await page.goto('/profil');
+        await expect(page.getByRole('button', { name: '🔗 Fusionner' })).toHaveCount(0);
+        await page.getByRole('button', { name: 'Gérer mes autres groupes' }).click();
+        await expect(page.getByText(/tu reviendras ici avec tes autres groupes/)).toBeVisible();
+        expect(await prisma.loginToken.count({ where: { email, purpose: 'LOGIN' } })).toBeGreaterThan(0);
+
+        await deleteGroupAsAdmin(page.request, groupName, 'Eva');
+    });
+
     test('un même email ouvre plusieurs groupes et permet de passer de l’un à l’autre', async ({ page }) => {
         const groupA = uniqueName('e2e-mail-A');
         const groupB = uniqueName('e2e-mail-B');
@@ -171,6 +188,49 @@ test.describe('Email de secours', () => {
 
         await deleteGroupAsAdmin(page.request, groupA, 'Chloé');
         await deleteGroupAsAdmin(page.request, groupB, 'Chloé');
+    });
+
+    test('fusion de deux profils liés au même email : une seule liste, visible dans les deux groupes', async ({ page }) => {
+        const groupA = uniqueName('e2e-merge-A');
+        const groupB = uniqueName('e2e-merge-B');
+        const email = uniqueEmail();
+
+        await createGroup(page, groupA, 'Chloé', PASSWORD);
+        const userA = (await readSession(page))!.userId;
+        await setVerifiedEmail(userA, email, true);
+        await page.context().clearCookies();
+        await createGroup(page, groupB, 'Chloé', PASSWORD);
+        const { userId: userB, groupId: groupBId } = (await readSession(page))!;
+        await setVerifiedEmail(userB, email, true);
+        await prisma.gift.create({ data: { name: 'Cadeau A', userId: userA } });
+        await prisma.gift.create({ data: { name: 'Cadeau B', userId: userB } });
+
+        await loginWithLink(page, email, groupA);
+        await page.goto('/profil');
+        await page.getByRole('button', { name: '🔗 Fusionner' }).click();
+        await page.getByRole('button', { name: 'Fusionner', exact: true }).click();
+        await expect(page.getByText('Profils fusionnés')).toBeVisible();
+
+        expect(await prisma.user.findUnique({ where: { id: userB } })).toBeNull();
+        expect(await prisma.userGroupMapping.count({ where: { userId: userA } })).toBe(2);
+        expect(await prisma.gift.count({ where: { userId: userA } })).toBe(2);
+
+        // Le groupe B reste accessible depuis le profil, avec le même user
+        await page.goto('/profil');
+        await expect(page.getByRole('button', { name: '🔗 Fusionner' })).toHaveCount(0);
+        await page.getByRole('button', { name: new RegExp(groupB) }).click();
+        await page.waitForURL('**/home');
+        expect(await readSession(page)).toMatchObject({ userId: userA, groupName: groupB });
+
+        // Quitter un groupe ne supprime ni le user ni ses cadeaux
+        const res = await page.request.delete(`/api/user/${userA}`);
+        expect((await res.json()).success).toBe(false); // dernier admin du groupe B
+        await leaveGroup(userA, groupBId);
+        expect(await prisma.userGroupMapping.count({ where: { userId: userA } })).toBe(1);
+        expect(await prisma.gift.count({ where: { userId: userA } })).toBe(2);
+
+        await prisma.group.delete({ where: { id: groupBId } });
+        await deleteGroupAsAdmin(page.request, groupA, 'Chloé');
     });
 
     test('« Accès oublié » répond pareil pour une adresse inconnue', async ({ page }) => {

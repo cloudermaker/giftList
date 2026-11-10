@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
 import { parseBody, userPatchSchema } from '@/lib/api/validation';
 import { PublicUser } from '@/lib/db/userManager';
-import { deleteUser, getUserById, getUserByGroupAndName, updateUser } from '@/lib/db/userManager';
+import { deleteUser, getUserById, getUserByGroupAndName, isGroupMember, leaveGroup, updateUser } from '@/lib/db/userManager';
 import { getUserGroups, countGroupAdmins, isUserGroupAdmin } from '@/lib/db/userGroupManager';
 
 export type TUserApiResult = {
@@ -12,13 +12,18 @@ export type TUserApiResult = {
     error?: string;
 };
 
-// Écritures réservées à un admin (session signée), au user lui-même ou au backoffice
-const canWriteUser = (req: NextApiRequest, targetUserId: string): boolean => {
+// Écritures réservées au user lui-même, à un admin de son groupe ou au backoffice
+const canWriteUser = async (req: NextApiRequest, targetUserId: string): Promise<boolean> => {
     if (isBackofficeSession(req)) return true;
     const session = getSession(req);
     if (!session) return false;
-    return session.isAdmin || session.userId === targetUserId;
+    if (session.userId === targetUserId) return true;
+    return session.isAdmin && (await isGroupMember(targetUserId, session.groupId));
 };
+
+// Groupe dont on retire le profil : celui de la session, ou celui passé par le backoffice
+const targetGroupId = (req: NextApiRequest): string | undefined =>
+    isBackofficeSession(req) ? req.query.groupId?.toString() : getSession(req)?.groupId;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TUserApiResult>) {
     const { query, body, method } = req;
@@ -33,26 +38,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             } else {
                 res.status(404).json({ success: false });
             }
-        } else if (method === 'DELETE' && userId && canWriteUser(req, userId)) {
-            const userGroups = await getUserGroups(userId);
+        } else if (method === 'DELETE' && userId && (await canWriteUser(req, userId))) {
+            const groupId = targetGroupId(req);
+            const userGroups = (await getUserGroups(userId)).filter((g) => !groupId || g.id === groupId);
 
             for (const group of userGroups) {
-                const isAdmin = await isUserGroupAdmin(userId, group.id);
-                if (isAdmin) {
-                    const adminCount = await countGroupAdmins(group.id);
-                    if (adminCount <= 1) {
-                        return res.status(400).json({
-                            success: false,
-                            error: `Impossible de supprimer cet utilisateur : il est le dernier administrateur du groupe "${group.name}".`
-                        });
-                    }
+                if ((await isUserGroupAdmin(userId, group.id)) && (await countGroupAdmins(group.id)) <= 1) {
+                    return res.status(400).json({
+                        success: false,
+                        error: `Impossible de supprimer cet utilisateur : il est le dernier administrateur du groupe "${group.name}".`
+                    });
                 }
             }
 
-            await deleteUser(userId);
+            if (groupId) await leaveGroup(userId, groupId);
+            else await deleteUser(userId);
 
             res.status(200).json({ success: true });
-        } else if (method === 'PATCH' && userId && body.user && canWriteUser(req, userId)) {
+        } else if (method === 'PATCH' && userId && body.user && (await canWriteUser(req, userId))) {
             if (!parseBody(userPatchSchema, req, res)) return;
             if (body.groupId && body.user.name) {
                 const existing = await getUserByGroupAndName(body.user.name, body.groupId as string);
@@ -65,7 +68,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const user = await updateUser(userId, body.user as PublicUser);
 
             res.status(200).json({ success: true, user });
-        } else if (req.method === 'PUT' && userId && body.user && canWriteUser(req, userId)) {
+        } else if (req.method === 'PUT' && userId && body.user && (await canWriteUser(req, userId))) {
             const userToUpdate = await getUserById(userId);
 
             if (userToUpdate) {

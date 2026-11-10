@@ -10,7 +10,9 @@ import { getTakenGiftsFromUserId } from '@/lib/db/giftManager';
 import { getPersonalGiftsByUser } from '@/lib/db/personalGiftManager';
 import { BOUGHT_RETENTION_MONTHS } from '@/lib/retention';
 import { User } from '@prisma/client';
-import { NextPageContext } from 'next';
+import { GetServerSidePropsContext } from 'next';
+import { verifySession } from '@/lib/auth/session';
+import { COOKIE_NAME } from '@/lib/auth/authService';
 import { useState, useEffect } from 'react';
 import { toast, alertError, confirmDestructive } from '@/lib/ui/alert';
 import { toSafeUrl } from '@/lib/ui/url';
@@ -322,10 +324,14 @@ const TakenGiftList = ({ reserved, personal }: { reserved: TTakenRow[]; personal
     );
 };
 
-export async function getServerSideProps(context: NextPageContext) {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
     const userId = context.query.id?.toString() ?? '';
+    const groupId = verifySession(context.req.cookies[COOKIE_NAME])?.groupId;
 
-    const [takenGifts, personalGifts] = await Promise.all([getTakenGiftsFromUserId(userId), getPersonalGiftsByUser(userId)]);
+    const [takenGifts, personalGifts] = await Promise.all([
+        getTakenGiftsFromUserId(userId, groupId),
+        getPersonalGiftsByUser(userId, groupId)
+    ]);
 
     // Les cadeaux orphelins (sans propriétaire) n'apparaissent plus
     const reserved: TTakenRow[] = takenGifts

@@ -4,6 +4,20 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.12.0] - 2026-11-10
+
+### Ajouté
+
+- 🔗 Fusion de deux profils liés au même email depuis « Mes autres groupes » : une seule liste partagée entre plusieurs groupes
+- Section « Mes autres groupes » toujours visible sur le profil : mode d'emploi, ou lien envoyé à l'email confirmé pour y accéder
+
+### Corrigé
+
+- Retirer un membre d'un groupe ne le supprime plus de ses autres groupes
+- Mes réservations n'affiche que celles du groupe courant
+- Un admin ne peut modifier ou supprimer que les membres de son propre groupe
+- Réserver un cadeau ferme sa fiche
+
 ## [5.11.0] - 2026-11-03
 
 ### Modifié
