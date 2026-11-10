@@ -204,6 +204,11 @@ export default function ProfilePage({
                 {/* Une seule section : liste des groupes (session email), lien à recevoir (session prénom) ou mode d'emploi */}
                 <div className="item space-y-3">
                     <h2 className="text-lg font-semibold text-gray-800">👥 Mes autres groupes</h2>
+                    {otherProfiles.length === 0 && (
+                        <p className="text-xs text-gray-500">
+                            Seulement si tu as un profil dans plusieurs groupes (par exemple famille et amis).
+                        </p>
+                    )}
                     {otherProfiles.length > 0 ? (
                         <div className="flex flex-col gap-2">
                             {otherProfiles.map((p) => (
