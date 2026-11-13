@@ -678,9 +678,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
     // Ouverture directe d'une liste (favori) : compte aussi comme activité du groupe
     const session = verifySession(context.req.cookies[COOKIE_NAME]);
-    if (session) await touchGroupActivity(session.groupId);
 
-    const [user, giftList] = await Promise.all([getUserById(userId), getGiftsFromUserId(userId)]);
+    // En parallèle des lectures : un aller-retour base de moins avant la réponse
+    const [user, giftList] = await Promise.all([
+        getUserById(userId),
+        getGiftsFromUserId(userId),
+        session ? touchGroupActivity(session.groupId) : null
+    ]);
 
     return {
         props: {

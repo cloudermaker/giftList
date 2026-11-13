@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import nodemailer from 'nodemailer';
+import { sendMail } from '@/lib/email/mailer';
 
 export type TSendEmailResult = {
     success: boolean;
@@ -55,26 +55,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const subject = escapeHtml(rawSubject.trim());
             const message = escapeHtml(rawMessage.trim());
 
-            // Configuration du transporteur SMTP MailerSend
-            const transporter = nodemailer.createTransport({
-                host: 'smtp.mailersend.net',
-                port: 587,
-                secure: false, // true pour 465, false pour autres ports
-                auth: {
-                    user: process.env.MAILERSEND_SMTP_USERNAME || '',
-                    pass: process.env.MAILERSEND_SMTP_PASSWORD || ''
-                }
-            });
-
             // Configuration de l'email avec timestamp pour éviter le groupement
             const timestamp = new Date().toISOString();
             const uniqueId = Math.random().toString(36).substring(7);
 
-            const mailOptions = {
-                from: {
-                    name: 'Ma Liste de Cadeaux',
-                    address: 'contact@malistedecadeaux.fr'
-                },
+            await sendMail({
                 to: 'contact@malistedecadeaux.fr',
                 replyTo: rawEmail,
                 subject: `${rawSubject.trim()} [#${uniqueId}]`, // Sujet unique avec ID aléatoire
@@ -177,10 +162,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                         </table>
                     </body>
                     </html>`
-            };
-
-            // Envoi de l'email
-            await transporter.sendMail(mailOptions);
+            });
 
             res.status(200).json({ success: true, error: '' });
         } else {

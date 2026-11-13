@@ -6,22 +6,46 @@ export const SITE_URL =
 
 const FROM = { name: 'Ma Liste de Cadeaux', address: 'contact@malistedecadeaux.fr' };
 
-// Sans identifiants SMTP (dev, e2e) ou avec EMAIL_DRY_RUN=true : l'email est seulement journalisé
-const isDryRun = (): boolean =>
-    process.env.EMAIL_DRY_RUN === 'true' || !process.env.MAILERSEND_SMTP_USERNAME || !process.env.MAILERSEND_SMTP_PASSWORD;
+type TSmtpConfig = { host: string; user: string; pass: string };
 
-export const sendMail = async ({ to, subject, html, text }: { to: string; subject: string; html: string; text: string }) => {
-    if (isDryRun()) {
+// Brevo (SMTP_*) ; repli temporaire sur MailerSend tant que les variables Vercel ne sont pas migrées
+const smtpConfig = (): TSmtpConfig | null => {
+    const { SMTP_HOST, SMTP_USERNAME, SMTP_PASSWORD, MAILERSEND_SMTP_USERNAME, MAILERSEND_SMTP_PASSWORD } = process.env;
+    if (SMTP_USERNAME && SMTP_PASSWORD) {
+        return { host: SMTP_HOST || 'smtp-relay.brevo.com', user: SMTP_USERNAME, pass: SMTP_PASSWORD };
+    }
+    if (MAILERSEND_SMTP_USERNAME && MAILERSEND_SMTP_PASSWORD) {
+        return { host: 'smtp.mailersend.net', user: MAILERSEND_SMTP_USERNAME, pass: MAILERSEND_SMTP_PASSWORD };
+    }
+    return null;
+};
+
+export const sendMail = async ({
+    to,
+    subject,
+    html,
+    text,
+    replyTo
+}: {
+    to: string;
+    subject: string;
+    html: string;
+    text: string;
+    replyTo?: string;
+}) => {
+    const config = smtpConfig();
+    // Sans identifiants SMTP (dev, e2e) ou avec EMAIL_DRY_RUN=true : l'email est seulement journalisé
+    if (process.env.EMAIL_DRY_RUN === 'true' || !config) {
         console.info(`[mail dry-run] to=${to} subject="${subject}"\n${text}`);
         return;
     }
     const transporter = nodemailer.createTransport({
-        host: 'smtp.mailersend.net',
+        host: config.host,
         port: 587,
         secure: false,
-        auth: { user: process.env.MAILERSEND_SMTP_USERNAME, pass: process.env.MAILERSEND_SMTP_PASSWORD }
+        auth: { user: config.user, pass: config.pass }
     });
-    await transporter.sendMail({ from: FROM, to, subject, html, text });
+    await transporter.sendMail({ from: FROM, to, subject, html, text, replyTo });
 };
 
 // Gabarit commun : un message court + un bouton

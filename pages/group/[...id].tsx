@@ -14,15 +14,7 @@ import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import { toast, alertError, confirmDestructive, promptText, getSwal } from '@/lib/ui/alert';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 
-const GroupComponent = ({
-    group,
-    groupUsers = [],
-    inviteToken
-}: {
-    group: Group;
-    groupUsers: User[];
-    inviteToken: string;
-}) => {
+const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group; groupUsers: User[]; inviteToken: string }) => {
     const { connectedUser } = useCurrentUser();
 
     const [localUsers, setLocalUsers] = useState<User[]>(groupUsers);
@@ -126,6 +118,12 @@ const GroupComponent = ({
                         {copiedInvite ? '✓ Lien copié !' : 'Inviter des proches'}
                     </CustomButton>
                 </div>
+
+                {localUsers.length === 0 && (
+                    <div className="item text-center text-sm text-gray-600">
+                        Aucun membre pour l&apos;instant. Invite tes proches avec le bouton ci-dessus.
+                    </div>
+                )}
 
                 {localUsers.map((user) => (
                     <div className="item" key={`group_${user.id}`}>
