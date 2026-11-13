@@ -141,12 +141,13 @@ test.describe.serial('Cadeaux et réservations', () => {
         await gotoUntilVisible(pageB, `/giftList/${aliceUserId}`, longName);
         await pageB.locator('.item', { hasText: longName }).click();
         await pageB.getByRole('button', { name: 'Je prends ce cadeau' }).click();
+        await expect(pageB.getByText('Cadeau réservé !')).toBeVisible();
         await waitForToastGone(pageB);
 
         const bobSession = await readSession(pageB);
         await pageB.setViewportSize({ width: 375, height: 812 });
         await gotoUntilVisible(pageB, `/takenGiftList/${bobSession!.userId}`, longName);
-        const name =pageB.locator('.item span.font-medium', { hasText: longName });
+        const name = pageB.locator('.item span.font-medium', { hasText: longName });
         await expect(name).toBeVisible();
         // Pas de troncature : le texte tient dans sa boîte
         expect(await name.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBeTruthy();
@@ -209,11 +210,14 @@ test.describe.serial('Cadeaux et réservations', () => {
         await pageA.locator('.item', { hasText: 'Casque audio' }).click();
         // L'admin garde Modifier/Supprimer et peut réserver
         await expect(pageA.getByRole('button', { name: 'Modifier' })).toBeVisible();
+        // Attendre la réponse serveur (toast) : la fiche ne se ferme qu'après, et un appel en cours serait coupé par la navigation suivante
         await pageA.getByRole('button', { name: 'Je prends ce cadeau' }).click();
+        await expect(pageA.getByText('Cadeau réservé !')).toBeVisible();
+        await expect(pageA.getByRole('button', { name: 'Fermer' })).toHaveCount(0);
         await waitForToastGone(pageA);
         await pageA.locator('.item', { hasText: 'Casque audio' }).click();
         await pageA.getByRole('button', { name: 'Je ne prends plus ce cadeau' }).click();
-        await expect(pageA.getByRole('button', { name: 'Je prends ce cadeau' })).toBeVisible();
+        await expect(pageA.getByText('Cadeau libéré !')).toBeVisible();
         await waitForToastGone(pageA);
     });
 
@@ -244,7 +248,7 @@ test.describe.serial('Cadeaux et réservations', () => {
 
         // Nettoyage : libère le cadeau
         await pageA.getByRole('button', { name: 'Je ne prends plus ce cadeau' }).click();
-        await expect(pageA.getByRole('button', { name: 'Je prends ce cadeau' })).toBeVisible();
+        await expect(pageA.getByText('Cadeau libéré !')).toBeVisible();
         await waitForToastGone(pageA);
     });
 

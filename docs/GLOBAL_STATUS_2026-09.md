@@ -170,6 +170,22 @@ Local measures (prod build, 375 px): CLS 0.09–0.11 on `/group`, `/giftList`, `
 33. ✅ (v5.7.0) **Quick link on gift rows** — open a gift's shop link straight from the list, without opening the gift first. Easy to build,
     but the design must stay clever: no clutter on rows, no conflict with the row click / drag handle, clear on mobile (small
     icon? only when a link exists?). (S)
+34. **Email notifications (Brevo)** — branch `feat/email-notifications` from `main` once the Brevo PR is merged. Reuses the weekly
+    `/api/cron/purge` job and `signPayload`. (M/L)
+    - **DB** (`scripts/email-notifications.sql`, test then prod): `User.emailReminders` boolean default `true`;
+      `Group.deletionWarnedAt` date; `UserTakenGift.remindedAt` date.
+    - **Group deletion warning (always sent)**: groups inactive for 3 years minus 30 days, not warned yet → email to admins with a
+      confirmed email (else members with one): « sera supprimé le JJ/MM, connecte-toi pour le garder ». `touchGroupActivity`
+      clears `deletionWarnedAt`.
+    - **Reservation reminder (opt-out)**: reservations older than 3 weeks, not bought, not reminded → one email per person listing
+      all their gifts, button to Mes réservations. Only with a confirmed email and `emailReminders` on. Checkbox on Mon profil
+      (ticked by default) + one-click signed unsubscribe link (`/email/rappels/stop`) + `List-Unsubscribe` header.
+    - **Bad addresses**: `/api/webhooks/brevo` (secret token in URL) on `hard_bounce`, `invalid_email`, `blocked`, `spam` →
+      `clearEmail` on every profile with that address; profile shows « adresse invalide ».
+    - **Limits/tests**: max 150 emails per run; dry-run in dev/e2e. E2E: cron sets the dates (not twice, not when unticked),
+      unsubscribe link, profile checkbox, webhook (and wrong token rejected).
+    - **Release**: run the SQL script, deploy, set the Brevo webhook URL, add `BREVO_WEBHOOK_SECRET` on Vercel.
+    - **To confirm**: 3 weeks before the first reminder (one reminder per reservation); warning 30 days before deletion.
 
 ### Ideas backlog (migrated from old TODO.md / README todo)
 
