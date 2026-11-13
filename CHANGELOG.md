@@ -4,6 +4,12 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.12.1] - 2026-11-13
+
+### Corrigé
+
+- Envoi des emails via Brevo : les liens de connexion et de confirmation arrivent de nouveau à tous les utilisateurs
+
 ## [5.12.0] - 2026-11-10
 
 ### Ajouté
