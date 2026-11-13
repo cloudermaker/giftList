@@ -4,6 +4,8 @@ const path = require('path');
 const nextConfig = {
     reactStrictMode: true,
     reactCompiler: true,
+    // Pas d'AGENTS.md généré par `next dev` quand un agent IA est détecté
+    agentRules: false,
     // Le serveur e2e local a son propre dossier : il ne corrompt pas celui du `npm run dev` lancé en parallèle
     distDir: process.env.NEXT_DIST_DIR || '.next',
     outputFileTracingRoot: path.join(__dirname),
