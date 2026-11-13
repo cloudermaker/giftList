@@ -199,4 +199,15 @@ test.describe('Robustesse et liens', () => {
         // Les pages privées restent interdites aux robots
         expect(robots).toMatch(/^Disallow: \/home\s*$/m);
     });
+
+    test('un groupe sans membre affiche un message au lieu d’une page vide', async ({ page }) => {
+        await createGroup(page, uniqueName('e2e-qw'), 'Alice', 'mdp');
+        const empty = await prisma.group.create({ data: { name: uniqueName('e2e-qw-vide'), adminPassword: 'x' } });
+
+        await page.goto(`/group/${empty.id}`);
+        await expect(page.getByText('Aucun membre pour l’instant'.replace('’', "'"))).toBeVisible();
+
+        await prisma.group.delete({ where: { id: empty.id } });
+        await deleteCurrentGroup(page);
+    });
 });

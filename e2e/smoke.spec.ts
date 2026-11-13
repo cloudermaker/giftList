@@ -32,6 +32,19 @@ test.describe('Smoke', () => {
         });
     }
 
+    test('déconnecté : le logo et /home ramènent à l’accueil public', async ({ page }) => {
+        await page.goto('/contact');
+        await page
+            .getByRole('link', { name: /Ma Liste/ })
+            .first()
+            .click();
+        await page.waitForURL((url) => url.pathname === '/');
+
+        await page.goto('/home');
+        await page.waitForURL((url) => url.pathname === '/');
+        await expect(page.locator('h1')).toHaveText('Liste de cadeaux en ligne gratuite');
+    });
+
     test('le pied de page est visible (toutes largeurs)', async ({ page }) => {
         await page.goto('/');
         await expect(page.locator('footer').getByRole('link', { name: /Aide/ })).toBeVisible();

@@ -9,6 +9,8 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ### Corrigé
 
 - Envoi des emails via Brevo : les liens de connexion et de confirmation arrivent de nouveau à tous les utilisateurs
+- Liste de cadeaux plus rapide à afficher
+- Message clair sur un groupe sans membre, au lieu d'une page vide
 
 ## [5.12.0] - 2026-11-10
 
