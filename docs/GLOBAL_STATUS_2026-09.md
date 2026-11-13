@@ -109,17 +109,27 @@ to v5.8.0 2026-10-14 — all merged & deployed).
 ### P7 — UX correctness & a11y — 1–2 days ← NEXT
 
 19. Error/empty states: ✅ (v5.7.0) home load error + deleted group, revoked invite token page; contact form already kept the
-    message (now covered by a test). Left: empty group renders nothing. (S)
+    message (now covered by a test). ✅ (`fix/quick-wins`) empty group shows a message instead of nothing. (S)
 20. Keyboard/a11y: nav, login tabs, member cards, gift rows are clickable `<div>`s; 7 unlabelled emoji buttons in backoffice;
     unlabelled checkbox. (M)
 21. giftList state fixes: `normalizeGift()` helper (5 copies), medal rank/reorder computed on filtered list, silent drag-save
     failures, ✅ `viewMode` hydration mismatch (v5.7.0), ✅ index-keyed lists in takenGiftList (v5.8.0). (M)
-22. Review leftover m-3: verify logged-out logo click (`href=/home`) redirects sanely. (S)
+22. ✅ (`fix/quick-wins`) Review leftover m-3: logged-out logo goes to `/`, `/home` redirects to `/` — covered by a smoke test. (S)
 
 ### P8 — Docs — ½ day
 
 23. README rewrite: env vars, scripts, DB workflow (hand-run SQL scripts in `scripts/`, test then prod, before deploy), deploy, the two-cookie auth model + deliberate
     open-access design, invite-token behaviour. (S/M)
+
+### P8b — Page speed (Vercel Speed Insights, Nov 2026: `/giftList` 71, `/join` 89, `/group` 52 "needs improvement")
+
+Local measures (prod build, 375 px): CLS 0.09–0.11 on `/group`, `/giftList`, `/ideas` (0.47 on `/home`); TTFB 160 ms on `/giftList` vs 45–50 ms on `/group`/`/join`; `/giftList` ships ~35 kB gz more JS than the others (dnd-kit).
+
+24a. **Layout shift (main cause)** — `Layout` renders the group name, icons and the tab bar (`CustomHeader`) only once `connectedUser` is read from the cookie in an effect, so the whole page jumps down after hydration. Render it on the server: return the session from `getServerSideProps` (`pageProps.session`) and seed `UserProvider` with it. Fixes `/group`, `/giftList`, `/home`; static pages (`/ideas`) need a reserved header height instead. (M)
+24b. ✅ (`fix/quick-wins`) **`/giftList` TTFB** — `await touchGroupActivity()` runs before the two reads; put it in the same `Promise.all`. (S)
+24c. **`/giftList` JS** — dnd-kit loads for everyone; lazy-load it for the owner/admin only, plain list for visitors (was deferred in P3 #9). (M)
+24d. **Check the DB side** — Neon auto-suspend (cold first request) and that the Vercel function region is next to the DB. (S, ops)
+24e. Later: Prisma 7 (no Rust engine, faster cold starts) with the Prisma upgrade; `/join` (89) is borderline, mostly TTFB. (L)
 
 ### P9 — Product features (pick per season/motivation)
 
