@@ -300,6 +300,32 @@ test.describe.serial('Cadeaux et réservations', () => {
         await ctx.close();
     });
 
+    test('backoffice sur téléphone : nom du groupe lisible, actions dans un menu', async ({ browser }) => {
+        const ctx = await browser.newContext({ viewport: { width: 375, height: 812 } });
+        const page = await ctx.newPage();
+        await page.goto('/backoffice');
+        await page.locator('#swal-login').fill(process.env.BACKOFFICE_USERNAME ?? '');
+        await page.locator('#swal-pass').fill(process.env.BACKOFFICE_PASSWORD ?? '');
+        await page.getByRole('button', { name: 'Connexion' }).click();
+
+        const row = page.locator('.item', { hasText: groupName });
+        const name = row.getByText(groupName, { exact: true });
+        await expect(name).toBeVisible();
+        // Nom affiché en entier (pas tronqué par les boutons)
+        expect(await name.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+        await expect(row.getByRole('button', { name: /Renommer/ })).toBeHidden();
+
+        await row.getByRole('button', { name: 'Actions du groupe' }).click();
+        const menu = row.getByRole('menu');
+        await expect(menu.getByRole('menuitem', { name: /Renommer/ })).toBeVisible();
+        await expect(menu.getByRole('menuitem', { name: /Mot de passe/ })).toBeVisible();
+        await expect(menu.getByRole('menuitem', { name: /Supprimer/ })).toBeVisible();
+        // Un clic ailleurs referme le menu
+        await page.getByRole('heading', { name: 'Groupes', exact: true }).click();
+        await expect(menu).toBeHidden();
+        await ctx.close();
+    });
+
     test('le backoffice se valide avec Entrée et se quitte avec le bouton standard', async ({ browser }) => {
         const ctx = await browser.newContext();
         const page = await ctx.newPage();

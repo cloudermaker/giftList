@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
@@ -31,6 +31,23 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps) => {
     const [members, setMembers] = useState<TMember[]>([]);
     const [loading, setLoading] = useState(false);
     const [groupName, setGroupName] = useState(group.name);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    // Ferme le menu mobile au clic extérieur ou sur Échap
+    useEffect(() => {
+        if (!menuOpen) return;
+        const onDown = (e: PointerEvent) => {
+            if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
+        };
+        const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false);
+        document.addEventListener('pointerdown', onDown);
+        document.addEventListener('keydown', onKey);
+        return () => {
+            document.removeEventListener('pointerdown', onDown);
+            document.removeEventListener('keydown', onKey);
+        };
+    }, [menuOpen]);
 
     useEffect(() => {
         if (!expanded || members.length > 0) return;
@@ -143,24 +160,64 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps) => {
                     <span className={`text-indigo-400 transition-transform duration-200 text-xs ${expanded ? 'rotate-90' : ''}`}>
                         ▶
                     </span>
-                    <span className="font-semibold truncate">{groupName}</span>
-                    <span className="hidden md:inline text-xs text-neutral-400 whitespace-nowrap">
-                        {group.createdAt ? DATE_FMT.format(new Date(group.createdAt)) : ''}
-                    </span>
+                    <div className="flex flex-col md:flex-row md:items-center md:gap-3 min-w-0">
+                        <span className="font-semibold break-words md:truncate">{groupName}</span>
+                        <span className="text-xs text-neutral-400 whitespace-nowrap">
+                            {group.createdAt ? DATE_FMT.format(new Date(group.createdAt)) : ''}
+                        </span>
+                    </div>
                 </div>
-                <div className="flex gap-2 md:gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
+                <div className="hidden md:flex gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
                     <CustomButton variant="green" size="sm" onClick={renameGroup}>
                         <span>✏️</span>
-                        <span className="hidden md:inline ml-1">Renommer</span>
+                        <span className="ml-1">Renommer</span>
                     </CustomButton>
                     <CustomButton variant="green" size="sm" onClick={changePassword}>
                         <span>🔑</span>
-                        <span className="hidden md:inline ml-1">Mot de passe</span>
+                        <span className="ml-1">Mot de passe</span>
                     </CustomButton>
                     <CustomButton size="sm" onClick={() => onRemove(group.id)}>
                         <span>🗑️</span>
-                        <span className="hidden md:inline ml-1">Supprimer</span>
+                        <span className="ml-1">Supprimer</span>
                     </CustomButton>
+                </div>
+                {/* Mobile : un seul menu pour laisser la place au nom */}
+                <div ref={menuRef} className="relative md:hidden shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <button
+                        type="button"
+                        aria-label="Actions du groupe"
+                        aria-haspopup="menu"
+                        aria-expanded={menuOpen}
+                        onClick={() => setMenuOpen((v) => !v)}
+                        className="w-9 h-9 rounded-lg text-xl leading-none text-neutral-600 hover:bg-neutral-100"
+                    >
+                        ⋯
+                    </button>
+                    {menuOpen && (
+                        <div
+                            role="menu"
+                            className="absolute right-0 top-full mt-1 z-20 min-w-44 py-1 bg-white rounded-lg shadow-lg border border-neutral-200"
+                        >
+                            {[
+                                { label: '✏️ Renommer', action: renameGroup },
+                                { label: '🔑 Mot de passe', action: changePassword },
+                                { label: '🗑️ Supprimer', action: () => onRemove(group.id), danger: true }
+                            ].map((item) => (
+                                <button
+                                    key={item.label}
+                                    type="button"
+                                    role="menuitem"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        item.action();
+                                    }}
+                                    className={`block w-full text-left px-4 py-2 text-sm hover:bg-neutral-50 ${item.danger ? 'text-red-600' : ''}`}
+                                >
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
