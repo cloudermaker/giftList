@@ -686,9 +686,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         session ? touchGroupActivity(session.groupId) : null
     ]);
 
+    // Membre supprimé (ou purgé) : lien obsolète → 404
+    if (!user) return { notFound: true };
+
     return {
         props: {
-            user: (({ updatedAt, createdAt, ...u }) => u)(user!),
+            user: (({ updatedAt, createdAt, ...u }) => u)(user),
             giftList: giftList.map(({ updatedAt, createdAt, ...gift }) => ({
                 ...gift,
                 takenByList: (gift.takenByList ?? []).map((t) => ({

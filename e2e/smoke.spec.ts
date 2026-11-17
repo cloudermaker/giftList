@@ -32,6 +32,13 @@ test.describe('Smoke', () => {
         });
     }
 
+    test('une liste d’un membre supprimé répond 404 (pas une erreur 500)', async ({ page }) => {
+        await createGroup(page, uniqueName('e2e'), 'TestE2E', 'mot-de-passe');
+        const response = await page.goto('/giftList/00000000-0000-0000-0000-000000000000');
+        expect(response?.status()).toBe(404);
+        await deleteCurrentGroup(page);
+    });
+
     test('déconnecté : le logo et /home ramènent à l’accueil public', async ({ page }) => {
         await page.goto('/contact');
         await page

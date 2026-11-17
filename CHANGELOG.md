@@ -4,6 +4,16 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.12.2] - 2026-11-17
+
+### Corrigé
+
+- Page 404 au lieu d'une erreur sur la liste d'un membre supprimé
+
+### Sécurité
+
+- Mise à jour de Next.js en 16.4.6 (faille GHSA-mfr8-8qww-v76h)
+
 ## [5.12.1] - 2026-11-13
 
 ### Corrigé
