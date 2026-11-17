@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
 import CustomButton from '@/components/atoms/customButton';
+import ActionsMenu from '@/components/atoms/ActionsMenu';
 import { getGroupsPage } from '@/lib/db/groupManager';
 import { TGroupApiResult } from './api/group';
 import { Group } from '@prisma/client';
@@ -31,23 +32,6 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps) => {
     const [members, setMembers] = useState<TMember[]>([]);
     const [loading, setLoading] = useState(false);
     const [groupName, setGroupName] = useState(group.name);
-    const [menuOpen, setMenuOpen] = useState(false);
-    const menuRef = useRef<HTMLDivElement>(null);
-
-    // Ferme le menu mobile au clic extérieur ou sur Échap
-    useEffect(() => {
-        if (!menuOpen) return;
-        const onDown = (e: PointerEvent) => {
-            if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
-        };
-        const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false);
-        document.addEventListener('pointerdown', onDown);
-        document.addEventListener('keydown', onKey);
-        return () => {
-            document.removeEventListener('pointerdown', onDown);
-            document.removeEventListener('keydown', onKey);
-        };
-    }, [menuOpen]);
 
     useEffect(() => {
         if (!expanded || members.length > 0) return;
@@ -167,58 +151,14 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps) => {
                         </span>
                     </div>
                 </div>
-                <div className="hidden md:flex gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
-                    <CustomButton variant="green" size="sm" onClick={renameGroup}>
-                        <span>✏️</span>
-                        <span className="ml-1">Renommer</span>
-                    </CustomButton>
-                    <CustomButton variant="green" size="sm" onClick={changePassword}>
-                        <span>🔑</span>
-                        <span className="ml-1">Mot de passe</span>
-                    </CustomButton>
-                    <CustomButton size="sm" onClick={() => onRemove(group.id)}>
-                        <span>🗑️</span>
-                        <span className="ml-1">Supprimer</span>
-                    </CustomButton>
-                </div>
-                {/* Mobile : un seul menu pour laisser la place au nom */}
-                <div ref={menuRef} className="relative md:hidden shrink-0" onClick={(e) => e.stopPropagation()}>
-                    <button
-                        type="button"
-                        aria-label="Actions du groupe"
-                        aria-haspopup="menu"
-                        aria-expanded={menuOpen}
-                        onClick={() => setMenuOpen((v) => !v)}
-                        className="w-9 h-9 rounded-lg text-xl leading-none text-neutral-600 hover:bg-neutral-100"
-                    >
-                        ⋯
-                    </button>
-                    {menuOpen && (
-                        <div
-                            role="menu"
-                            className="absolute right-0 top-full mt-1 z-20 min-w-44 py-1 bg-white rounded-lg shadow-lg border border-neutral-200"
-                        >
-                            {[
-                                { label: '✏️ Renommer', action: renameGroup },
-                                { label: '🔑 Mot de passe', action: changePassword },
-                                { label: '🗑️ Supprimer', action: () => onRemove(group.id), danger: true }
-                            ].map((item) => (
-                                <button
-                                    key={item.label}
-                                    type="button"
-                                    role="menuitem"
-                                    onClick={() => {
-                                        setMenuOpen(false);
-                                        item.action();
-                                    }}
-                                    className={`block w-full text-left px-4 py-2 text-sm hover:bg-neutral-50 ${item.danger ? 'text-red-600' : ''}`}
-                                >
-                                    {item.label}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                <ActionsMenu
+                    label="Actions du groupe"
+                    actions={[
+                        { icon: '✏️', label: 'Renommer', onClick: renameGroup },
+                        { icon: '🔑', label: 'Mot de passe', onClick: changePassword },
+                        { icon: '🗑️', label: 'Supprimer', onClick: () => onRemove(group.id), danger: true }
+                    ]}
+                />
             </div>
 
             {expanded && (
@@ -244,45 +184,37 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps) => {
                                     key={member.id}
                                     className={`flex justify-between items-center ${index > 0 ? 'border-t border-neutral-200 pt-2' : ''}`}
                                 >
-                                    <span className="text-sm flex-1 min-w-0 truncate mr-2">
-                                        {member.name}
+                                    <span className="text-sm flex-1 min-w-0 break-words mr-2">
+                                        <span>{member.name}</span>
                                         {member.isAdmin && (
                                             <span className="ml-2 text-xs text-rougeNoel font-medium">(admin)</span>
                                         )}
                                         {member.createdAt && (
-                                            <span className="hidden md:inline ml-2 text-xs text-neutral-400">
+                                            <span className="block md:inline md:ml-2 text-xs text-neutral-400">
                                                 {DATE_FMT.format(new Date(member.createdAt))}
                                             </span>
                                         )}
                                     </span>
-                                    <div className="flex gap-2 md:gap-3 shrink-0">
-                                        <CustomButton
-                                            variant="slate"
-                                            size="sm"
-                                            onClick={() => Router.push(`/giftList/${member.id}`)}
-                                        >
-                                            <span>🎁</span>
-                                            <span className="hidden md:inline ml-1">Voir liste</span>
-                                        </CustomButton>
-                                        <CustomButton variant="green" size="sm" onClick={() => renameMember(member)}>
-                                            <span>✏️</span>
-                                            <span className="hidden md:inline ml-1">Renommer</span>
-                                        </CustomButton>
-                                        <CustomButton
-                                            variant={member.isAdmin ? 'red' : 'green'}
-                                            size="sm"
-                                            onClick={() => toggleRole(member)}
-                                        >
-                                            <span>{member.isAdmin ? '⬇️' : '⭐'}</span>
-                                            <span className="hidden md:inline ml-1">
-                                                {member.isAdmin ? 'Rétrograder' : 'Promouvoir'}
-                                            </span>
-                                        </CustomButton>
-                                        <CustomButton size="sm" onClick={() => removeMember(member)}>
-                                            <span>🗑️</span>
-                                            <span className="hidden md:inline ml-1">Supprimer</span>
-                                        </CustomButton>
-                                    </div>
+                                    <ActionsMenu
+                                        label={`Actions de ${member.name}`}
+                                        actions={[
+                                            {
+                                                icon: '🎁',
+                                                label: 'Voir la liste',
+                                                onClick: () => Router.push(`/giftList/${member.id}`)
+                                            },
+                                            { icon: '✏️', label: 'Renommer', onClick: () => renameMember(member) },
+                                            member.isAdmin
+                                                ? { icon: '⬇️', label: 'Rétrograder', onClick: () => toggleRole(member) }
+                                                : { icon: '⭐', label: 'Promouvoir', onClick: () => toggleRole(member) },
+                                            {
+                                                icon: '🗑️',
+                                                label: 'Supprimer',
+                                                onClick: () => removeMember(member),
+                                                danger: true
+                                            }
+                                        ]}
+                                    />
                                 </div>
                             ))}
                             <div className="border-t border-neutral-200 pt-2">
@@ -306,13 +238,7 @@ type TBackofficeProps = {
     pageSize: number;
 };
 
-const Backoffice = ({
-    groups = [],
-    isAuthenticated = false,
-    page = 1,
-    totalCount = 0,
-    pageSize = 10
-}: TBackofficeProps) => {
+const Backoffice = ({ groups = [], isAuthenticated = false, page = 1, totalCount = 0, pageSize = 10 }: TBackofficeProps) => {
     const [localGroups, setLocalGroups] = useState<TGroupItem[]>(groups);
     const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 

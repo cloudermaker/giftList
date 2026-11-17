@@ -300,7 +300,7 @@ test.describe.serial('Cadeaux et réservations', () => {
         await ctx.close();
     });
 
-    test('backoffice sur téléphone : nom du groupe lisible, actions dans un menu', async ({ browser }) => {
+    test('backoffice sur téléphone : noms lisibles, actions des groupes et membres dans un menu', async ({ browser }) => {
         const ctx = await browser.newContext({ viewport: { width: 375, height: 812 } });
         const page = await ctx.newPage();
         await page.goto('/backoffice');
@@ -308,20 +308,34 @@ test.describe.serial('Cadeaux et réservations', () => {
         await page.locator('#swal-pass').fill(process.env.BACKOFFICE_PASSWORD ?? '');
         await page.getByRole('button', { name: 'Connexion' }).click();
 
+        const isFullyShown = (el: Element) => el.scrollWidth <= el.clientWidth;
         const row = page.locator('.item', { hasText: groupName });
         const name = row.getByText(groupName, { exact: true });
         await expect(name).toBeVisible();
-        // Nom affiché en entier (pas tronqué par les boutons)
-        expect(await name.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
-        await expect(row.getByRole('button', { name: /Renommer/ })).toBeHidden();
+        expect(await name.evaluate(isFullyShown)).toBe(true);
 
+        // Menu du groupe : visible en entier (pas coupé par la carte) et cliquable
         await row.getByRole('button', { name: 'Actions du groupe' }).click();
-        const menu = row.getByRole('menu');
-        await expect(menu.getByRole('menuitem', { name: /Renommer/ })).toBeVisible();
-        await expect(menu.getByRole('menuitem', { name: /Mot de passe/ })).toBeVisible();
-        await expect(menu.getByRole('menuitem', { name: /Supprimer/ })).toBeVisible();
-        // Un clic ailleurs referme le menu
-        await page.getByRole('heading', { name: 'Groupes', exact: true }).click();
+        const menu = page.getByRole('menu');
+        for (const item of [/Renommer/, /Mot de passe/, /Supprimer/]) {
+            await expect(menu.getByRole('menuitem', { name: item })).toBeInViewport({ ratio: 1 });
+        }
+        await menu.getByRole('menuitem', { name: /Renommer/ }).click();
+        await expect(page.locator('.swal2-input')).toBeVisible();
+        await page.getByRole('button', { name: 'Annuler' }).click();
+        await expect(menu).toBeHidden();
+
+        // Membres : nom lisible, actions dans un menu
+        await name.click();
+        const member = row.getByText(/^alice$/i);
+        await expect(member).toBeVisible();
+        expect(await member.evaluate(isFullyShown)).toBe(true);
+        await row.getByRole('button', { name: /Actions de alice/i }).click();
+        for (const item of [/Voir la liste/, /Renommer/, /Rétrograder/, /Supprimer/]) {
+            await expect(menu.getByRole('menuitem', { name: item })).toBeInViewport({ ratio: 1 });
+        }
+        // Échap referme le menu
+        await page.keyboard.press('Escape');
         await expect(menu).toBeHidden();
         await ctx.close();
     });
