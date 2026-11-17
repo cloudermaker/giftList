@@ -186,6 +186,17 @@ Local measures (prod build, 375 px): CLS 0.09–0.11 on `/group`, `/giftList`, `
       unsubscribe link, profile checkbox, webhook (and wrong token rejected).
     - **Release**: run the SQL script, deploy, set the Brevo webhook URL, add `BREVO_WEBHOOK_SECRET` on Vercel.
     - **To confirm**: 3 weeks before the first reminder (one reminder per reservation); warning 30 days before deletion.
+35. **Backoffice KPI dashboard + mobile rework** — new section on `/backoffice`, one endpoint `/api/backoffice/stats`
+    (Prisma `count`/`groupBy`, no DB change, counts only, no emails). (M ~½ day incl. e2e)
+    - **KPI tiles**: groups (total, new 7 d / 30 d), active groups (`lastActivityAt` < 30 d), members, gifts, reservations,
+      % bought, % users with a confirmed email.
+    - **Empty groups**: count and % of groups still at default (1 member, 0 gifts) — total and among new groups; filter
+      in the table.
+    - **New groups table**: name, created, members, gifts, reservations, last activity; sortable.
+    - **Chart**: new groups per week over 12 weeks.
+    - ✅ (v5.12.2) **Mobile**: group rows unreadable (3 buttons eat the name) → one « ⋯ » menu (Renommer, Mot de passe,
+      Supprimer) on mobile, buttons kept on desktop; created date under the name. Counts under the name come with the KPIs.
+    - **Limit**: no login history (`lastActivityAt` = latest only) → no DAU/WAU trend without a daily-stats table.
 
 ### Ideas backlog (migrated from old TODO.md / README todo)
 
