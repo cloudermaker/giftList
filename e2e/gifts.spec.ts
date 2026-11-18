@@ -82,10 +82,34 @@ test.describe.serial('Cadeaux et réservations', () => {
         const cross = await pageA.getByText('✕', { exact: true }).boundingBox();
         expect(Math.abs(help!.y + help!.height / 2 - (cross!.y + cross!.height / 2))).toBeLessThanOrEqual(1);
 
+        // La petite fiche s'ouvre juste sous le « ? »
+        const box = await dates.boundingBox();
+        expect(box!.y - (help!.y + help!.height)).toBeLessThanOrEqual(12);
+
         // Un clic ailleurs dans la fiche referme la petite fiche, pas la grande
         await pageA.getByRole('heading', { name: 'Cadeau Modifié' }).click();
         await expect(dates).toBeHidden();
         await pageA.getByRole('button', { name: 'Fermer' }).click();
+    });
+
+    test('avec un nom très long, la petite fiche des dates reste collée au « ? »', async () => {
+        const longName = 'Un cadeau au nom vraiment très long pour remplir plusieurs lignes dans la fiche '.repeat(2).trim();
+        await pageA.goto(`/giftList/${aliceUserId}`);
+        await pageA.getByRole('button', { name: 'Ajouter un cadeau' }).first().click();
+        await pageA.locator('#giftFormNameInput').fill(longName);
+        await pageA.getByRole('button', { name: 'Créer' }).click();
+        await waitForToastGone(pageA);
+
+        await pageA.locator('.item', { hasText: longName }).click();
+        const help = pageA.getByRole('button', { name: 'Dates du cadeau' });
+        await help.click();
+        const helpBox = (await help.boundingBox())!;
+        const datesBox = (await pageA.getByRole('dialog', { name: 'Dates du cadeau' }).boundingBox())!;
+        expect(datesBox.y - (helpBox.y + helpBox.height)).toBeLessThanOrEqual(12);
+
+        await pageA.getByRole('button', { name: 'Supprimer' }).click();
+        await pageA.locator('.swal2-confirm').click();
+        await expect(pageA.locator('.item', { hasText: longName })).toHaveCount(0);
     });
 
     test('réordonner la liste ne change pas la date de modification', async () => {

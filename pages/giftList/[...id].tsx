@@ -529,7 +529,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                 <h2 className="font-bold text-lg leading-snug">
                                     {isCreating ? 'Nouveau cadeau' : selectedGift!.name}
                                 </h2>
-                                <div ref={datesRef} className="flex items-center gap-2 shrink-0">
+                                <div ref={datesRef} className="relative flex items-center gap-2 shrink-0">
                                     {!isCreating && (
                                         <button
                                             type="button"
@@ -715,7 +715,7 @@ const GiftDates = ({ gift, showTaken }: { gift: GiftWithTakenUserId; showTaken: 
         <div
             role="dialog"
             aria-label="Dates du cadeau"
-            className="absolute right-4 top-full mt-1 z-10 bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 text-sm text-gray-700 space-y-1"
+            className="absolute right-0 top-full mt-2 z-10 whitespace-nowrap bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 text-sm text-gray-700 space-y-1"
         >
             <p>Ajouté le {created}</p>
             {/* Modifié le même jour que l'ajout : rien de plus à dire */}
