@@ -4,12 +4,6 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
-## [5.13.1] - 2026-11-18
-
-### Corrigé
-
-- Les dates d'un cadeau s'affichent juste sous le « ? », même avec un nom long
-
 ## [5.13.0] - 2026-11-18
 
 ### Ajouté
