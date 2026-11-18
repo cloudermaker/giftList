@@ -148,6 +148,7 @@ export const updateGifts = async (gifts: Gift[]): Promise<number> => {
 };
 
 export const upsertGift = async (gift: Gift): Promise<Gift> => {
+    const now = new Date();
     const latestGift = await prisma.gift.aggregate({
         where: { userId: gift.userId },
         _max: {
@@ -164,7 +165,9 @@ export const upsertGift = async (gift: Gift): Promise<Gift> => {
             name: gift.name.trim(),
             user: { connect: { id: gift.userId as string } },
             ...(gift.parentGiftId && { parentGift: { connect: { id: gift.parentGiftId } } }),
-            updatedAt: new Date(),
+            // Même horodatage : un cadeau jamais modifié n'affiche pas « Modifié le »
+            createdAt: now,
+            updatedAt: now,
             order: (latestGift._max.order ?? 0) + 1
         },
         update: {

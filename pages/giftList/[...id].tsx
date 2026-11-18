@@ -1,4 +1,4 @@
-import { ReactNode, Suspense, startTransition, useCallback, useEffect, useOptimistic, useState } from 'react';
+import { ReactNode, Suspense, startTransition, useCallback, useEffect, useOptimistic, useRef, useState } from 'react';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
@@ -122,6 +122,21 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     const [takingGiftId, setTakingGiftId] = useState<string | null>(null);
 
     const [datesOpen, setDatesOpen] = useState(false);
+    const datesRef = useRef<HTMLDivElement>(null);
+    // Fiche « ? » : se ferme au clic en dehors ou sur Échap
+    useEffect(() => {
+        if (!datesOpen) return;
+        const onDown = (e: PointerEvent) => {
+            if (!datesRef.current?.contains(e.target as Node)) setDatesOpen(false);
+        };
+        const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setDatesOpen(false);
+        document.addEventListener('pointerdown', onDown);
+        document.addEventListener('keydown', onKey);
+        return () => {
+            document.removeEventListener('pointerdown', onDown);
+            document.removeEventListener('keydown', onKey);
+        };
+    }, [datesOpen]);
     const clearForm = useCallback(() => {
         setFormName('');
         setFormDescription('');
@@ -225,8 +240,12 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 const res = await AxiosWrapper.patch(`/api/gift/${giftId}`, { gift: giftToSave });
                 const data = res?.data as TGiftApiResult;
                 if (data?.success && data.gift) {
-                    const updated: GiftWithTakenUserId = { ...data.gift, takenUserId: (data.gift as any).takenUserId ?? null };
-                    setLocalGifts((prev) => prev.map((g) => (g.id === giftId ? updated : g)));
+                    // La réponse ne porte pas les réservations : on garde celles déjà connues
+                    setLocalGifts((prev) =>
+                        prev.map((g) =>
+                            g.id === giftId ? { ...data.gift!, takenUserId: g.takenUserId, takenByList: g.takenByList } : g
+                        )
+                    );
                     toast('Cadeau modifié !');
                 } else {
                     alertError('Erreur', 'Impossible de modifier ce cadeau.');
@@ -510,26 +529,26 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                 <h2 className="font-bold text-lg leading-snug">
                                     {isCreating ? 'Nouveau cadeau' : selectedGift!.name}
                                 </h2>
-                                <div className="flex items-center gap-2 shrink-0">
+                                <div ref={datesRef} className="flex items-center gap-2 shrink-0">
                                     {!isCreating && (
                                         <button
                                             type="button"
                                             aria-label="Dates du cadeau"
                                             aria-expanded={datesOpen}
                                             onClick={() => setDatesOpen((v) => !v)}
-                                            className="w-7 h-7 rounded-full border border-gray-300 text-sm font-semibold text-gray-500 hover:bg-gray-100"
+                                            className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 text-sm font-semibold text-gray-500 hover:bg-gray-100"
                                         >
                                             ?
                                         </button>
                                     )}
                                     <div
                                         onClick={closeModal}
-                                        className="text-gray-400 hover:text-gray-600 text-2xl leading-none cursor-pointer mt-0.5"
+                                        className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-600 text-2xl leading-none cursor-pointer"
                                     >
                                         ✕
                                     </div>
+                                    {datesOpen && !isCreating && <GiftDates gift={selectedGift!} showTaken={!isOwnList} />}
                                 </div>
-                                {datesOpen && !isCreating && <GiftDates gift={selectedGift!} showTaken={!isOwnList} />}
                             </div>
 
                             {/* Body */}
@@ -689,8 +708,8 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
 
 /** Petite fiche « ? » : quand le cadeau a été ajouté, modifié et (pour les autres) réservé. */
 const GiftDates = ({ gift, showTaken }: { gift: GiftWithTakenUserId; showTaken: boolean }) => {
-    const created = new Date(gift.createdAt);
-    const updated = new Date(gift.updatedAt);
+    const created = formatDay(gift.createdAt);
+    const updated = formatDay(gift.updatedAt);
     const takenAt = gift.giftType === 'SIMPLE' ? gift.takenByList?.[0]?.takenAt : undefined;
     return (
         <div
@@ -698,9 +717,9 @@ const GiftDates = ({ gift, showTaken }: { gift: GiftWithTakenUserId; showTaken: 
             aria-label="Dates du cadeau"
             className="absolute right-4 top-full mt-1 z-10 bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 text-sm text-gray-700 space-y-1"
         >
-            <p>Ajouté le {formatDay(created)}</p>
-            {/* Une modification dans la seconde = la création elle-même */}
-            {updated.getTime() - created.getTime() > 1000 && <p>Modifié le {formatDay(updated)}</p>}
+            <p>Ajouté le {created}</p>
+            {/* Modifié le même jour que l'ajout : rien de plus à dire */}
+            {updated !== created && <p>Modifié le {updated}</p>}
             {showTaken && takenAt && <p>Réservé le {formatDay(takenAt)}</p>}
         </div>
     );

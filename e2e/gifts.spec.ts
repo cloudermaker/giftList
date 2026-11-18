@@ -68,13 +68,23 @@ test.describe.serial('Cadeaux et réservations', () => {
         await expect(pageA.locator('.item', { hasText: 'Cadeau Modifié' })).toBeVisible();
     });
 
-    test('Alice voit quand son cadeau a été ajouté et modifié', async () => {
+    test('Alice voit quand son cadeau a été ajouté', async () => {
         await pageA.locator('.item', { hasText: 'Cadeau Modifié' }).click();
         await pageA.getByRole('button', { name: 'Dates du cadeau' }).click();
         const dates = pageA.getByRole('dialog', { name: 'Dates du cadeau' });
         await expect(dates.getByText(`Ajouté le ${TODAY}`)).toBeVisible();
-        await expect(dates.getByText(`Modifié le ${TODAY}`)).toBeVisible();
+        // Ajouté et modifié le même jour : seule la date d'ajout s'affiche
+        await expect(dates.getByText(/Modifié le/)).toHaveCount(0);
         await expect(dates.getByText(/Réservé le/)).toHaveCount(0);
+
+        // « ? » et ✕ alignés
+        const help = await pageA.getByRole('button', { name: 'Dates du cadeau' }).boundingBox();
+        const cross = await pageA.getByText('✕', { exact: true }).boundingBox();
+        expect(Math.abs(help!.y + help!.height / 2 - (cross!.y + cross!.height / 2))).toBeLessThanOrEqual(1);
+
+        // Un clic ailleurs dans la fiche referme la petite fiche, pas la grande
+        await pageA.getByRole('heading', { name: 'Cadeau Modifié' }).click();
+        await expect(dates).toBeHidden();
         await pageA.getByRole('button', { name: 'Fermer' }).click();
     });
 
