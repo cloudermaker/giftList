@@ -1,7 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getGiftFromId, updateGifts, upsertGift } from '@/lib/db/giftManager';
 import { Gift } from '@prisma/client';
-import { getSession, isBackofficeSession } from '@/lib/auth/session';
+import { isBackofficeSession } from '@/lib/auth/session';
+import { canManageList, canReadList } from '@/lib/auth/giftAccess';
+import prisma from '@/lib/db/dbSingleton';
 import { parseBody, giftUpsertSchema, giftsReorderSchema } from '@/lib/api/validation';
 
 export type TGiftApiResult = {
@@ -12,56 +14,54 @@ export type TGiftApiResult = {
     error?: string;
 };
 
-const verbsWithAuthorization = ['POST'];
-const isAuthorized = (req: NextApiRequest): boolean => {
-    if (!verbsWithAuthorization.includes(req.method as string)) {
-        return true;
+// Création/édition : propriétaire de la liste ou admin de son groupe ; un membre du groupe peut suggérer un cadeau
+const canUpsertGift = async (req: NextApiRequest, gift: Gift): Promise<boolean> => {
+    const existing = gift.id ? await getGiftFromId(gift.id) : null;
+    if (existing) return canManageList(req, existing.userId);
+
+    const ownerId = gift.userId;
+    if (gift.parentGiftId) {
+        const parent = await getGiftFromId(gift.parentGiftId);
+        if (!parent || parent.userId !== ownerId) return false;
     }
-    if (isBackofficeSession(req)) {
-        return true;
-    }
+    if (await canManageList(req, ownerId)) return true;
+    return gift.isSuggestedGift === true && !isBackofficeSession(req) && canReadList(req, ownerId);
+};
 
-    // Session signée : le contenu du cookie ne peut plus être forgé côté client
-    const connectedUser = getSession(req);
-    if (!connectedUser) return false;
-
-    const userGiftId = req.body?.userGiftId ?? req.query?.userGiftId ?? 'None';
-    const giftOwnerId = req.body?.gift?.userId ?? req.body?.gifts?.[0]?.userId;
-    const takenUserId = req.body?.gift?.takenUserId;
-
-    // Autorisé si admin du groupe, propriétaire de la liste, cadeau suggéré sur la liste d'un autre,
-    // ou cadeau personnel (userId null) créé par le user connecté
-    return (
-        connectedUser.isAdmin ||
-        connectedUser.userId === userGiftId ||
-        typeof giftOwnerId === 'string' ||
-        (req.body?.gift?.userId === null && takenUserId === connectedUser.userId)
-    );
+// Réordonnancement : tous les cadeaux doivent venir d'une même liste que l'on gère
+const canReorderGifts = async (req: NextApiRequest, gifts: Gift[]): Promise<boolean> => {
+    const ids = [...new Set(gifts.map((g) => g.id))];
+    const owners = await prisma.gift.findMany({ where: { id: { in: ids } }, select: { userId: true } });
+    const ownerIds = new Set(owners.map((o) => o.userId));
+    if (owners.length !== ids.length || ownerIds.size !== 1) return false;
+    return canManageList(req, [...ownerIds][0]);
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TGiftApiResult>) {
     const { body, query } = req;
 
     try {
-        const isAuthorizedRequest = await isAuthorized(req);
-
-        if (!isAuthorizedRequest) {
-            res.status(403).json({ success: false });
-            return;
-        }
-
         if (req.method === 'POST' && body.gift && !parseBody(giftUpsertSchema, req, res)) return;
         if (req.method === 'POST' && body.gifts && !parseBody(giftsReorderSchema, req, res)) return;
+
+        if (req.method === 'POST') {
+            const allowed = body.gift ? await canUpsertGift(req, body.gift) : await canReorderGifts(req, body.gifts ?? []);
+            if (!allowed) {
+                res.status(403).json({ success: false });
+                return;
+            }
+        }
 
         if (req.method === 'GET' && query.giftId) {
             const gift = await getGiftFromId(query.giftId as string);
 
-            if (gift) {
+            if (!gift) {
+                res.status(404).json({ success: false });
+            } else if (!(await canReadList(req, gift.userId))) {
+                res.status(403).json({ success: false });
+            } else {
                 res.status(200).json({ success: true, gift });
-                return;
             }
-
-            res.status(404).json({ success: false });
         } else if (req.method === 'POST' && body.gift) {
             const gift = await upsertGift(body.gift as Gift);
 

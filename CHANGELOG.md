@@ -4,6 +4,12 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.12.3] - 2026-11-18
+
+### Corrigé
+
+- Améliorations de fiabilité sur les listes de cadeaux et le backoffice
+
 ## [5.12.2] - 2026-11-17
 
 ### Corrigé

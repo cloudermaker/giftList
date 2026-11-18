@@ -8,6 +8,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSubGifts, createSubGift, getGiftFromId } from '../../../../lib/db/giftManager';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
+import { canManageList, canReadList } from '@/lib/auth/giftAccess';
 import { parseBody, subGiftSchema } from '@/lib/api/validation';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -20,6 +21,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // GET - Récupérer les sous-cadeaux
         if (req.method === 'GET') {
+            const parent = await getGiftFromId(id);
+            if (!parent) return res.status(404).json({ error: 'Parent gift not found' });
+            if (!(await canReadList(req, parent.userId))) return res.status(403).json({ error: 'Forbidden' });
             const subGifts = await getSubGifts(id);
 
             return res.status(200).json({ success: true, subGifts });
@@ -31,18 +35,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (!parsed) return;
             const { name, description, url } = parsed;
 
-            const session = getSession(req);
-            if (!isBackofficeSession(req)) {
-                if (!session) {
-                    return res.status(401).json({ error: 'Authentification requise' });
-                }
-                if (!session.isAdmin) {
-                    const parent = await getGiftFromId(id);
-                    if (parent && parent.userId !== session.userId) {
-                        return res.status(403).json({ error: 'Forbidden' });
-                    }
-                }
+            if (!isBackofficeSession(req) && !getSession(req)) {
+                return res.status(401).json({ error: 'Authentification requise' });
             }
+            const parent = await getGiftFromId(id);
+            if (!parent) return res.status(404).json({ error: 'Parent gift not found' });
+            if (!(await canManageList(req, parent.userId))) return res.status(403).json({ error: 'Forbidden' });
 
             const subGift = await createSubGift(id, name.trim(), description?.trim(), url?.trim());
 

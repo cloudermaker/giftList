@@ -11,6 +11,7 @@ import { toast, alertError, confirmDestructive, promptText, getSwal } from '@/li
 import Router from 'next/router';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import { GetServerSidePropsContext } from 'next';
+import { BACKOFFICE_COOKIE, isValidBackofficeToken } from '@/lib/auth/session';
 
 type TMember = { id: string; name: string; isAdmin: boolean; createdAt?: string };
 
@@ -538,7 +539,7 @@ const IdeasAdmin = () => {
 const PAGE_SIZE = 10;
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-    const isAuthenticated = context.req.cookies['backoffice_session'] === '1';
+    const isAuthenticated = isValidBackofficeToken(context.req.cookies[BACKOFFICE_COOKIE]);
 
     if (!isAuthenticated) {
         return { props: { groups: [], isAuthenticated: false, page: 1, totalCount: 0, pageSize: PAGE_SIZE } };

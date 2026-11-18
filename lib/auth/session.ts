@@ -45,4 +45,18 @@ export const sessionCookieHeader = (session: TGroupAndUser): string =>
 // Session vérifiée depuis la requête API (null si absente, non signée ou falsifiée)
 export const getSession = (req: NextApiRequest): TGroupAndUser | null => verifySession(req.cookies[COOKIE_NAME]);
 
-export const isBackofficeSession = (req: NextApiRequest): boolean => req.cookies['backoffice_session'] === '1';
+export const BACKOFFICE_COOKIE = 'backoffice_session';
+export const BACKOFFICE_MAX_AGE = 60 * 60 * 8;
+
+// Jeton backoffice signé et daté (le « kind » empêche de réutiliser une session utilisateur)
+type TBackofficeToken = { kind: 'backoffice'; exp: number };
+
+export const signBackofficeToken = (): string =>
+    signPayload({ kind: 'backoffice', exp: Date.now() + BACKOFFICE_MAX_AGE * 1000 } satisfies TBackofficeToken);
+
+export const isValidBackofficeToken = (cookieValue?: string): boolean => {
+    const token = verifyPayload<TBackofficeToken>(cookieValue);
+    return token?.kind === 'backoffice' && typeof token.exp === 'number' && token.exp > Date.now();
+};
+
+export const isBackofficeSession = (req: NextApiRequest): boolean => isValidBackofficeToken(req.cookies[BACKOFFICE_COOKIE]);

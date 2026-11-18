@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getSession, isBackofficeSession } from '@/lib/auth/session';
+import { canManageList, canReadList } from '@/lib/auth/giftAccess';
 import { parseBody, giftPatchSchema } from '@/lib/api/validation';
 import { deleteGift, getGiftFromId, updateGift } from '@/lib/db/giftManager';
 import { Gift } from '@prisma/client';
@@ -12,15 +12,9 @@ export type TGiftApiResult = {
     error?: string;
 };
 
-// Écritures réservées au propriétaire du cadeau, à un admin du groupe ou au backoffice
-const canWriteGift = async (req: NextApiRequest, giftId: string): Promise<boolean> => {
-    if (isBackofficeSession(req)) return true;
-    const session = getSession(req);
-    if (!session) return false;
-    if (session.isAdmin) return true;
-    const gift = await getGiftFromId(giftId);
-    return gift?.userId === session.userId;
-};
+// Écritures réservées au propriétaire de la liste, à un admin de son groupe ou au backoffice
+const canWriteGift = async (req: NextApiRequest, giftId: string): Promise<boolean> =>
+    canManageList(req, (await getGiftFromId(giftId))?.userId);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TGiftApiResult>) {
     const { query, body, method } = req;
@@ -30,10 +24,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         if (method === 'GET' && giftId) {
             const gift = await getGiftFromId(giftId);
 
-            if (gift) {
-                res.status(200).json({ success: true, gift });
-            } else {
+            if (!gift) {
                 res.status(404).json({ success: false });
+            } else if (!(await canReadList(req, gift.userId))) {
+                res.status(403).json({ success: false });
+            } else {
+                res.status(200).json({ success: true, gift });
             }
             return;
         }

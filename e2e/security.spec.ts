@@ -112,4 +112,68 @@ test.describe('Sécurité', () => {
         await other.dispose();
         expect((await request.delete(`/api/group/${groupId}`)).ok()).toBeTruthy();
     });
+    test('un cookie backoffice forgé ne donne aucun droit', async ({ request, playwright }) => {
+        const groupId = await createGroupViaApi(request, uniqueName('e2e-secu'));
+        // Valeur « 1 » écrite à la main, ou session utilisateur signée recopiée dans le cookie backoffice
+        const userToken = (await request.storageState()).cookies.find((c) => c.name === 'currentUser')!.value;
+        for (const value of ['1', userToken]) {
+            const forged = await playwright.request.newContext({
+                baseURL: E2E_BASE_URL,
+                extraHTTPHeaders: { cookie: `backoffice_session=${value}` }
+            });
+            expect((await forged.delete(`/api/group/${groupId}`)).status()).toBe(403);
+            await forged.dispose();
+        }
+        expect((await request.delete(`/api/group/${groupId}`)).ok()).toBeTruthy();
+    });
+
+    test('les cadeaux d’une liste ne sont modifiables que par son groupe', async ({ playwright }) => {
+        const newSession = async (label: string) => {
+            const ctx = await playwright.request.newContext({ baseURL: E2E_BASE_URL });
+            const res = await ctx.post('/api/authenticate', {
+                data: { groupName: uniqueName(label), userName: 'Secu', isCreating: true, password: 'e2e-password' }
+            });
+            const { groupId, userId } = (await res.json()).groupUser;
+            return { ctx, groupId: groupId as string, userId: userId as string };
+        };
+        const alice = await newSession('e2e-secu-a');
+        const mallory = await newSession('e2e-secu-m'); // admin de SON groupe, étranger au groupe d'Alice
+
+        const created = await alice.ctx.post('/api/gift', {
+            data: { gift: { name: 'Cadeau Alice', userId: alice.userId, giftType: 'SIMPLE' }, userGiftId: alice.userId }
+        });
+        expect(created.ok()).toBeTruthy();
+        const gift = (await created.json()).gift;
+
+        // Lecture, création, édition (2 routes), réordonnancement, suppression : tout est refusé
+        expect((await mallory.ctx.get(`/api/gift?giftId=${gift.id}`)).status()).toBe(403);
+        expect((await mallory.ctx.get(`/api/gift/${gift.id}`)).status()).toBe(403);
+        const intrusions = [
+            mallory.ctx.post('/api/gift', { data: { gift: { name: 'Intrus', userId: alice.userId } } }),
+            mallory.ctx.post('/api/gift', { data: { gift: { name: 'Intrus', isSuggestedGift: true, userId: alice.userId } } }),
+            mallory.ctx.post('/api/gift', { data: { gift: { ...gift, name: 'Piraté', userId: mallory.userId } } }),
+            mallory.ctx.patch(`/api/gift/${gift.id}`, { data: { gift: { name: 'Piraté' } } }),
+            mallory.ctx.post('/api/gift', { data: { gifts: [{ ...gift, userId: mallory.userId, order: 9 }] } }),
+            mallory.ctx.post(`/api/gift/${gift.id}/take`, { data: {} }),
+            mallory.ctx.get(`/api/gift/${gift.id}/subgifts`),
+            mallory.ctx.post(`/api/gift/${gift.id}/subgifts`, { data: { name: 'Intrus' } }),
+            mallory.ctx.delete(`/api/gift/${gift.id}`)
+        ];
+        for (const res of await Promise.all(intrusions)) expect(res.status()).toBe(403);
+
+        // Le cadeau est intact
+        const after = (await (await alice.ctx.get(`/api/gift?giftId=${gift.id}`)).json()).gift;
+        expect(after.name).toBe('Cadeau Alice');
+        expect(after.order).toBe(gift.order);
+
+        // Alice garde tous ses droits
+        expect((await alice.ctx.patch(`/api/gift/${gift.id}`, { data: { gift: { name: 'Renommé' } } })).ok()).toBeTruthy();
+        expect((await alice.ctx.post('/api/gift', { data: { gifts: [{ ...gift, order: 3 }] } })).ok()).toBeTruthy();
+        expect((await alice.ctx.delete(`/api/gift/${gift.id}`)).ok()).toBeTruthy();
+
+        for (const s of [alice, mallory]) {
+            await s.ctx.delete(`/api/group/${s.groupId}`);
+            await s.ctx.dispose();
+        }
+    });
 });

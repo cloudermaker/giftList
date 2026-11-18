@@ -10,6 +10,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { takeGift, releaseGift, releaseOneTakenGift, setTakenGiftBought } from '../../../../lib/db/userTakenGiftManager';
 import prisma from '../../../../lib/db/dbSingleton';
 import { getSession } from '@/lib/auth/session';
+import { canReadList } from '@/lib/auth/giftAccess';
 import { parseBody, takeBoughtSchema } from '@/lib/api/validation';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -28,6 +29,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (req.method === 'POST') {
             if (!userId) {
                 return res.status(401).json({ error: 'Authentification requise' });
+            }
+            // Seulement sur la liste d'un membre de son groupe
+            const gift = await prisma.gift.findUnique({ where: { id }, select: { userId: true } });
+            if (gift && !(await canReadList(req, gift.userId))) {
+                return res.status(403).json({ error: 'Forbidden' });
             }
 
             try {

@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-
-const COOKIE_NAME = 'backoffice_session';
+import { BACKOFFICE_COOKIE as COOKIE_NAME, BACKOFFICE_MAX_AGE, signBackofficeToken } from '@/lib/auth/session';
 const BASE_ATTRS = `HttpOnly; SameSite=Strict; Path=/`;
 const SECURE = process.env.NODE_ENV === 'production' ? '; Secure' : '';
 
@@ -15,7 +14,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
             return res.status(401).json({ success: false });
         }
 
-        res.setHeader('Set-Cookie', `${COOKIE_NAME}=1; ${BASE_ATTRS}; Max-Age=${60 * 60 * 8}${SECURE}`);
+        res.setHeader('Set-Cookie', `${COOKIE_NAME}=${signBackofficeToken()}; ${BASE_ATTRS}; Max-Age=${BACKOFFICE_MAX_AGE}${SECURE}`);
         return res.status(200).json({ success: true });
     }
 
