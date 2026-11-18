@@ -208,8 +208,11 @@ test.describe('Email de secours', () => {
         await loginWithLink(page, email, groupA);
         await page.goto('/profil');
         await page.getByRole('button', { name: '🔗 Fusionner' }).click();
+        // Fusion côté serveur puis rechargement du profil : on attend la page d'arrivée (le toast ne dure que 1,5 s)
+        const merged = page.waitForResponse((r) => r.url().includes('/api/auth/merge'));
         await page.getByRole('button', { name: 'Fusionner', exact: true }).click();
-        await expect(page.getByText('Profils fusionnés')).toBeVisible();
+        expect((await merged).ok()).toBeTruthy();
+        await page.waitForURL('**/profil?fusion=ok', { timeout: 20000 });
 
         expect(await prisma.user.findUnique({ where: { id: userB } })).toBeNull();
         expect(await prisma.userGroupMapping.count({ where: { userId: userA } })).toBe(2);
