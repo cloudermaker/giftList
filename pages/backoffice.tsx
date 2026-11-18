@@ -3,6 +3,7 @@ import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { EHeader } from '@/components/customHeader';
 import CustomButton from '@/components/atoms/customButton';
+import ActionsMenu from '@/components/atoms/ActionsMenu';
 import { getGroupsPage } from '@/lib/db/groupManager';
 import { TGroupApiResult } from './api/group';
 import { Group } from '@prisma/client';
@@ -143,25 +144,21 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps) => {
                     <span className={`text-indigo-400 transition-transform duration-200 text-xs ${expanded ? 'rotate-90' : ''}`}>
                         ▶
                     </span>
-                    <span className="font-semibold truncate">{groupName}</span>
-                    <span className="hidden md:inline text-xs text-neutral-400 whitespace-nowrap">
-                        {group.createdAt ? DATE_FMT.format(new Date(group.createdAt)) : ''}
-                    </span>
+                    <div className="flex flex-col md:flex-row md:items-center md:gap-3 min-w-0">
+                        <span className="font-semibold break-words md:truncate">{groupName}</span>
+                        <span className="text-xs text-neutral-400 whitespace-nowrap">
+                            {group.createdAt ? DATE_FMT.format(new Date(group.createdAt)) : ''}
+                        </span>
+                    </div>
                 </div>
-                <div className="flex gap-2 md:gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
-                    <CustomButton variant="green" size="sm" onClick={renameGroup}>
-                        <span>✏️</span>
-                        <span className="hidden md:inline ml-1">Renommer</span>
-                    </CustomButton>
-                    <CustomButton variant="green" size="sm" onClick={changePassword}>
-                        <span>🔑</span>
-                        <span className="hidden md:inline ml-1">Mot de passe</span>
-                    </CustomButton>
-                    <CustomButton size="sm" onClick={() => onRemove(group.id)}>
-                        <span>🗑️</span>
-                        <span className="hidden md:inline ml-1">Supprimer</span>
-                    </CustomButton>
-                </div>
+                <ActionsMenu
+                    label="Actions du groupe"
+                    actions={[
+                        { icon: '✏️', label: 'Renommer', onClick: renameGroup },
+                        { icon: '🔑', label: 'Mot de passe', onClick: changePassword },
+                        { icon: '🗑️', label: 'Supprimer', onClick: () => onRemove(group.id), danger: true }
+                    ]}
+                />
             </div>
 
             {expanded && (
@@ -187,45 +184,37 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps) => {
                                     key={member.id}
                                     className={`flex justify-between items-center ${index > 0 ? 'border-t border-neutral-200 pt-2' : ''}`}
                                 >
-                                    <span className="text-sm flex-1 min-w-0 truncate mr-2">
-                                        {member.name}
+                                    <span className="text-sm flex-1 min-w-0 break-words mr-2">
+                                        <span>{member.name}</span>
                                         {member.isAdmin && (
                                             <span className="ml-2 text-xs text-rougeNoel font-medium">(admin)</span>
                                         )}
                                         {member.createdAt && (
-                                            <span className="hidden md:inline ml-2 text-xs text-neutral-400">
+                                            <span className="block md:inline md:ml-2 text-xs text-neutral-400">
                                                 {DATE_FMT.format(new Date(member.createdAt))}
                                             </span>
                                         )}
                                     </span>
-                                    <div className="flex gap-2 md:gap-3 shrink-0">
-                                        <CustomButton
-                                            variant="slate"
-                                            size="sm"
-                                            onClick={() => Router.push(`/giftList/${member.id}`)}
-                                        >
-                                            <span>🎁</span>
-                                            <span className="hidden md:inline ml-1">Voir liste</span>
-                                        </CustomButton>
-                                        <CustomButton variant="green" size="sm" onClick={() => renameMember(member)}>
-                                            <span>✏️</span>
-                                            <span className="hidden md:inline ml-1">Renommer</span>
-                                        </CustomButton>
-                                        <CustomButton
-                                            variant={member.isAdmin ? 'red' : 'green'}
-                                            size="sm"
-                                            onClick={() => toggleRole(member)}
-                                        >
-                                            <span>{member.isAdmin ? '⬇️' : '⭐'}</span>
-                                            <span className="hidden md:inline ml-1">
-                                                {member.isAdmin ? 'Rétrograder' : 'Promouvoir'}
-                                            </span>
-                                        </CustomButton>
-                                        <CustomButton size="sm" onClick={() => removeMember(member)}>
-                                            <span>🗑️</span>
-                                            <span className="hidden md:inline ml-1">Supprimer</span>
-                                        </CustomButton>
-                                    </div>
+                                    <ActionsMenu
+                                        label={`Actions de ${member.name}`}
+                                        actions={[
+                                            {
+                                                icon: '🎁',
+                                                label: 'Voir la liste',
+                                                onClick: () => Router.push(`/giftList/${member.id}`)
+                                            },
+                                            { icon: '✏️', label: 'Renommer', onClick: () => renameMember(member) },
+                                            member.isAdmin
+                                                ? { icon: '⬇️', label: 'Rétrograder', onClick: () => toggleRole(member) }
+                                                : { icon: '⭐', label: 'Promouvoir', onClick: () => toggleRole(member) },
+                                            {
+                                                icon: '🗑️',
+                                                label: 'Supprimer',
+                                                onClick: () => removeMember(member),
+                                                danger: true
+                                            }
+                                        ]}
+                                    />
                                 </div>
                             ))}
                             <div className="border-t border-neutral-200 pt-2">
@@ -249,13 +238,7 @@ type TBackofficeProps = {
     pageSize: number;
 };
 
-const Backoffice = ({
-    groups = [],
-    isAuthenticated = false,
-    page = 1,
-    totalCount = 0,
-    pageSize = 10
-}: TBackofficeProps) => {
+const Backoffice = ({ groups = [], isAuthenticated = false, page = 1, totalCount = 0, pageSize = 10 }: TBackofficeProps) => {
     const [localGroups, setLocalGroups] = useState<TGroupItem[]>(groups);
     const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
