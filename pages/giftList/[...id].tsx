@@ -27,6 +27,7 @@ import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import { TUserApiResult } from '../api/user';
 import SubGiftList from '@/components/SubGiftList';
 import UnlimitedGiftTakers from '@/components/UnlimitedGiftTakers';
+import { formatDay } from '@/lib/ui/dates';
 
 const NEW_GIFT_SENTINEL = 'new';
 
@@ -120,12 +121,14 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     const [loadingGroupUsers, setLoadingGroupUsers] = useState(true);
     const [takingGiftId, setTakingGiftId] = useState<string | null>(null);
 
+    const [datesOpen, setDatesOpen] = useState(false);
     const clearForm = useCallback(() => {
         setFormName('');
         setFormDescription('');
         setFormLink('');
         setFormType('SIMPLE');
         setEditingGiftId('');
+        setDatesOpen(false);
     }, []);
 
     const closeModal = useCallback(() => {
@@ -503,16 +506,30 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                         <div className="absolute inset-0 bg-black/50" onClick={closeModal} />
                         <div className="relative bg-white w-full sm:max-w-lg sm:rounded-xl rounded-t-2xl shadow-xl max-h-[90vh] flex flex-col">
                             {/* Header */}
-                            <div className="flex items-start justify-between px-5 py-4 border-b gap-3">
+                            <div className="relative flex items-start justify-between px-5 py-4 border-b gap-3">
                                 <h2 className="font-bold text-lg leading-snug">
                                     {isCreating ? 'Nouveau cadeau' : selectedGift!.name}
                                 </h2>
-                                <div
-                                    onClick={closeModal}
-                                    className="shrink-0 text-gray-400 hover:text-gray-600 text-2xl leading-none cursor-pointer mt-0.5"
-                                >
-                                    ✕
+                                <div className="flex items-center gap-2 shrink-0">
+                                    {!isCreating && (
+                                        <button
+                                            type="button"
+                                            aria-label="Dates du cadeau"
+                                            aria-expanded={datesOpen}
+                                            onClick={() => setDatesOpen((v) => !v)}
+                                            className="w-7 h-7 rounded-full border border-gray-300 text-sm font-semibold text-gray-500 hover:bg-gray-100"
+                                        >
+                                            ?
+                                        </button>
+                                    )}
+                                    <div
+                                        onClick={closeModal}
+                                        className="text-gray-400 hover:text-gray-600 text-2xl leading-none cursor-pointer mt-0.5"
+                                    >
+                                        ✕
+                                    </div>
                                 </div>
+                                {datesOpen && !isCreating && <GiftDates gift={selectedGift!} showTaken={!isOwnList} />}
                             </div>
 
                             {/* Body */}
@@ -670,6 +687,25 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
     );
 };
 
+/** Petite fiche « ? » : quand le cadeau a été ajouté, modifié et (pour les autres) réservé. */
+const GiftDates = ({ gift, showTaken }: { gift: GiftWithTakenUserId; showTaken: boolean }) => {
+    const created = new Date(gift.createdAt);
+    const updated = new Date(gift.updatedAt);
+    const takenAt = gift.giftType === 'SIMPLE' ? gift.takenByList?.[0]?.takenAt : undefined;
+    return (
+        <div
+            role="dialog"
+            aria-label="Dates du cadeau"
+            className="absolute right-4 top-full mt-1 z-10 bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 text-sm text-gray-700 space-y-1"
+        >
+            <p>Ajouté le {formatDay(created)}</p>
+            {/* Une modification dans la seconde = la création elle-même */}
+            {updated.getTime() - created.getTime() > 1000 && <p>Modifié le {formatDay(updated)}</p>}
+            {showTaken && takenAt && <p>Réservé le {formatDay(takenAt)}</p>}
+        </div>
+    );
+};
+
 export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { query } = context;
     const userId = query.id?.toString() ?? '';
@@ -688,16 +724,24 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
     // Membre supprimé (ou purgé) : lien obsolète → 404
     if (!user) return { notFound: true };
+    const isOwner = session?.userId === user.id;
 
     return {
         props: {
             user: (({ updatedAt, createdAt, ...u }) => u)(user),
-            giftList: giftList.map(({ updatedAt, createdAt, ...gift }) => ({
+            giftList: giftList.map((gift) => ({
                 ...gift,
-                takenByList: (gift.takenByList ?? []).map((t) => ({
-                    ...t,
-                    takenAt: t.takenAt instanceof Date ? t.takenAt.toISOString() : t.takenAt
-                }))
+                createdAt: gift.createdAt.toISOString(),
+                updatedAt: gift.updatedAt.toISOString(),
+                // Le propriétaire ne reçoit aucune trace des réservations
+                ...(isOwner
+                    ? { takenUserId: null, takenByList: [] }
+                    : {
+                          takenByList: (gift.takenByList ?? []).map((t) => ({
+                              ...t,
+                              takenAt: t.takenAt instanceof Date ? t.takenAt.toISOString() : t.takenAt
+                          }))
+                      })
             }))
         }
     };

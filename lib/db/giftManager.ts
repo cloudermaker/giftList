@@ -138,21 +138,13 @@ export const updateGift = async (giftId: string, gift: Gift): Promise<Gift> => {
     return result;
 };
 
-export const updateGifts = async (gifts: Gift[]): Promise<Gift[]> => {
-    // Réordonnancement atomique : tout ou rien (un cadeau supprimé entre-temps annule proprement)
-    try {
-        return await prisma.$transaction(
-            gifts.map((gift) =>
-                prisma.gift.update({
-                    where: { id: gift.id },
-                    data: { ...editableGiftFields(gift), updatedAt: new Date() }
-                })
-            )
-        );
-    } catch (e) {
-        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') return [];
-        throw e;
-    }
+export const updateGifts = async (gifts: Gift[]): Promise<number> => {
+    // Réordonnancement : seul l'ordre change (SQL brut pour ne pas toucher à updatedAt, ni au contenu)
+    const updates = gifts
+        .filter((gift) => typeof gift.order === 'number')
+        .map((gift) => prisma.$executeRaw`UPDATE "Gift" SET "order" = ${gift.order} WHERE "id" = ${gift.id}`);
+    const counts = await prisma.$transaction(updates);
+    return counts.reduce((sum, n) => sum + n, 0);
 };
 
 export const upsertGift = async (gift: Gift): Promise<Gift> => {
