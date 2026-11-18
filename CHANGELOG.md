@@ -4,6 +4,16 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.13.0] - 2026-11-18
+
+### Ajouté
+
+- Bouton « ? » sur un cadeau : date d'ajout, de modification et de réservation
+
+### Corrigé
+
+- Réordonner sa liste ne change plus la date de modification des cadeaux
+
 ## [5.12.2] - 2026-11-17
 
 ### Corrigé

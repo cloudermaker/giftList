@@ -67,9 +67,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             res.status(200).json({ success: true, gift });
         } else if (req.method === 'POST' && body.gifts) {
-            const gifts = await updateGifts(body.gifts as Gift[]);
+            await updateGifts(body.gifts as Gift[]);
 
-            res.status(200).json({ success: true, gifts });
+            res.status(200).json({ success: true });
         } else {
             res.status(400).json({ success: false });
         }

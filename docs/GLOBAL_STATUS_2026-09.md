@@ -197,10 +197,12 @@ Local measures (prod build, 375 px): CLS 0.09–0.11 on `/group`, `/giftList`, `
     - ✅ (v5.12.2) **Mobile**: group rows unreadable (3 buttons eat the name) → one « ⋯ » menu (Renommer, Mot de passe,
       Supprimer) on mobile, buttons kept on desktop; created date under the name. Counts under the name come with the KPIs.
     - **Limit**: no login history (`lastActivityAt` = latest only) → no DAU/WAU trend without a daily-stats table.
-36. **Gift dates** — spot old ideas (last year's gift or not). « ? » icon in the gift popin → small popin: « Ajouté le »,
+36. ✅ (v5.13.0) **Gift dates** — spot old ideas (last year's gift or not). « ? » icon in the gift popin → small popin: « Ajouté le »,
     « Modifié le », and « Réservé le » for others only (never to the list owner). No DB change: `Gift.createdAt`/`updatedAt`
     and `UserTakenGift.takenAt` exist, but `giftList` props strip them today. Check `updatedAt` only moves on real edits (not
     on drag-and-drop reorder). Maybe a hint on rows for gifts older than 1 year. (S)
+    - Done: « ? » in the gift popin; reorder now only writes `order` (raw SQL, keeps `updatedAt`, no more content
+      overwrite); owner page props no longer carry `takenUserId`/`takenByList`. Not done: row hint for old gifts.
 
 ### Ideas backlog (migrated from old TODO.md / README todo)
 

@@ -5,6 +5,8 @@ import { createGroup, deleteCurrentGroup, gotoUntilVisible, readSession, uniqueN
  * Flux cœur du produit : cadeaux, réservation secrète, invitation, gestion des membres.
  * Un seul groupe (Alice admin + Bob membre) partagé par les tests, exécutés en série.
  */
+const TODAY = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long', timeZone: 'Europe/Paris' }).format(new Date());
+
 test.describe.serial('Cadeaux et réservations', () => {
     let ctxA: BrowserContext;
     let ctxB: BrowserContext;
@@ -66,6 +68,53 @@ test.describe.serial('Cadeaux et réservations', () => {
         await expect(pageA.locator('.item', { hasText: 'Cadeau Modifié' })).toBeVisible();
     });
 
+    test('Alice voit quand son cadeau a été ajouté', async () => {
+        await pageA.locator('.item', { hasText: 'Cadeau Modifié' }).click();
+        await pageA.getByRole('button', { name: 'Dates du cadeau' }).click();
+        const dates = pageA.getByRole('dialog', { name: 'Dates du cadeau' });
+        await expect(dates.getByText(`Ajouté le ${TODAY}`)).toBeVisible();
+        // Ajouté et modifié le même jour : seule la date d'ajout s'affiche
+        await expect(dates.getByText(/Modifié le/)).toHaveCount(0);
+        await expect(dates.getByText(/Réservé le/)).toHaveCount(0);
+
+        // « ? » et ✕ alignés
+        const help = await pageA.getByRole('button', { name: 'Dates du cadeau' }).boundingBox();
+        const cross = await pageA.getByText('✕', { exact: true }).boundingBox();
+        expect(Math.abs(help!.y + help!.height / 2 - (cross!.y + cross!.height / 2))).toBeLessThanOrEqual(1);
+
+        // Un clic ailleurs dans la fiche referme la petite fiche, pas la grande
+        await pageA.getByRole('heading', { name: 'Cadeau Modifié' }).click();
+        await expect(dates).toBeHidden();
+        await pageA.getByRole('button', { name: 'Fermer' }).click();
+    });
+
+    test('réordonner la liste ne change pas la date de modification', async () => {
+        await pageA.goto(`/giftList/${aliceUserId}`);
+        await pageA.getByRole('button', { name: 'Ajouter un cadeau' }).first().click();
+        await pageA.locator('#giftFormNameInput').fill('Cadeau Second');
+        await pageA.getByRole('button', { name: 'Créer' }).click();
+        await waitForToastGone(pageA);
+        await gotoUntilVisible(pageA, `/giftList/${aliceUserId}`, 'Cadeau Second');
+
+        const gifts: { id: string; updatedAt: string }[] = await pageA.evaluate(
+            () => (window as any).__NEXT_DATA__.props.pageProps.giftList
+        );
+        const reordered = [...gifts].reverse().map((g, i) => ({ ...g, order: i + 1, name: 'Écrasé' }));
+        const res = await pageA.request.post('/api/gift', {
+            data: { gifts: reordered, initiatorUserId: aliceUserId, userGiftId: aliceUserId }
+        });
+        expect(res.ok()).toBeTruthy();
+
+        for (const gift of gifts) {
+            const after = (await (await pageA.request.get(`/api/gift?giftId=${gift.id}`)).json()).gift;
+            expect(after.updatedAt).toBe(gift.updatedAt);
+            // Le réordonnancement ne touche que l'ordre, jamais le contenu
+            expect(after.name).not.toBe('Écrasé');
+        }
+
+        await pageA.request.delete(`/api/gift/${gifts.find((g: any) => g.name === 'Cadeau Second')!.id}`);
+    });
+
     test('Bob réserve le cadeau en secret : Alice ne voit rien', async () => {
         // Bob voit le cadeau « Libre » sur la liste d'Alice
         await pageB.goto(`/giftList/${aliceUserId}`);
@@ -85,6 +134,14 @@ test.describe.serial('Cadeaux et réservations', () => {
         await expect(pageA.getByText('Cadeau Modifié', { exact: true })).toBeVisible();
         await expect(pageA.getByText('Pris', { exact: true })).toHaveCount(0);
         await expect(pageA.getByText('Bob')).toHaveCount(0);
+        // Ni dans les données de la page
+        expect(await pageA.content()).not.toContain('takenAt');
+
+        // Bob voit quand il l'a réservé
+        await pageB.locator('.item', { hasText: 'Cadeau Modifié' }).click();
+        await pageB.getByRole('button', { name: 'Dates du cadeau' }).click();
+        await expect(pageB.getByRole('dialog', { name: 'Dates du cadeau' }).getByText(`Réservé le ${TODAY}`)).toBeVisible();
+        await pageB.getByRole('button', { name: 'Fermer' }).click();
     });
 
     test('Bob marque sa réservation comme achetée : Alice ne voit rien', async () => {

@@ -138,24 +138,17 @@ export const updateGift = async (giftId: string, gift: Gift): Promise<Gift> => {
     return result;
 };
 
-export const updateGifts = async (gifts: Gift[]): Promise<Gift[]> => {
-    // Réordonnancement atomique : tout ou rien (un cadeau supprimé entre-temps annule proprement)
-    try {
-        return await prisma.$transaction(
-            gifts.map((gift) =>
-                prisma.gift.update({
-                    where: { id: gift.id },
-                    data: { ...editableGiftFields(gift), updatedAt: new Date() }
-                })
-            )
-        );
-    } catch (e) {
-        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') return [];
-        throw e;
-    }
+export const updateGifts = async (gifts: Gift[]): Promise<number> => {
+    // Réordonnancement : seul l'ordre change (SQL brut pour ne pas toucher à updatedAt, ni au contenu)
+    const updates = gifts
+        .filter((gift) => typeof gift.order === 'number')
+        .map((gift) => prisma.$executeRaw`UPDATE "Gift" SET "order" = ${gift.order} WHERE "id" = ${gift.id}`);
+    const counts = await prisma.$transaction(updates);
+    return counts.reduce((sum, n) => sum + n, 0);
 };
 
 export const upsertGift = async (gift: Gift): Promise<Gift> => {
+    const now = new Date();
     const latestGift = await prisma.gift.aggregate({
         where: { userId: gift.userId },
         _max: {
@@ -172,7 +165,9 @@ export const upsertGift = async (gift: Gift): Promise<Gift> => {
             name: gift.name.trim(),
             user: { connect: { id: gift.userId as string } },
             ...(gift.parentGiftId && { parentGift: { connect: { id: gift.parentGiftId } } }),
-            updatedAt: new Date(),
+            // Même horodatage : un cadeau jamais modifié n'affiche pas « Modifié le »
+            createdAt: now,
+            updatedAt: now,
             order: (latestGift._max.order ?? 0) + 1
         },
         update: {
