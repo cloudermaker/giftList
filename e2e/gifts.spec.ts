@@ -59,7 +59,10 @@ test.describe.serial('Cadeaux et réservations', () => {
         await pageA.locator('.item', { hasText: 'Cadeau Test' }).click();
         await pageA.getByRole('button', { name: 'Modifier' }).click();
         await pageA.locator('#giftFormNameInput').fill('Cadeau Modifié');
+        // Attendre la réponse du serveur avant de recharger (sinon le reload annule l'enregistrement)
+        const saved = pageA.waitForResponse((r) => r.url().includes('/api/gift/') && r.request().method() === 'PATCH');
         await pageA.getByRole('button', { name: 'Valider' }).click();
+        expect((await saved).ok()).toBeTruthy();
         await waitForToastGone(pageA);
         await expect(pageA.getByText('Cadeau Modifié', { exact: true })).toBeVisible();
 
