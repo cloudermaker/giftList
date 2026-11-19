@@ -6,7 +6,7 @@ let cached: SwalModule | null = null;
 
 // sweetalert2 chargé à la demande : ~40 kB gz hors du bundle initial
 export const getSwal = async (): Promise<SwalModule> => {
-    if (!cached) cached = (await import('sweetalert2')).default;
+    if (!cached) cached = (await import('sweetalert2')).default.mixin({ theme: 'auto' });
     return cached;
 };
 

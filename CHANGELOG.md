@@ -4,6 +4,12 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.14.0] - 2026-11-19
+
+### Ajouté
+
+- Mode sombre, selon le réglage de ton appareil
+
 ## [5.13.0] - 2026-11-18
 
 ### Ajouté

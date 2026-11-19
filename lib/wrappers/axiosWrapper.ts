@@ -1,9 +1,8 @@
 import axios, { AxiosResponse } from 'axios';
+import { alertError } from '../ui/alert';
 
-// sweetalert2 chargé à la demande : sinon il embarque ~40 kB dans le bundle de chaque page
 const showNetworkError = async (text: string): Promise<void> => {
-    const { default: Swal } = await import('sweetalert2');
-    Swal.fire('Erreur', text, 'error');
+    await alertError('Erreur', text);
 };
 
 export default class AxiosWrapper {

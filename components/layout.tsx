@@ -31,7 +31,7 @@ export const Layout = ({
     return (
         <div className="flex flex-col min-h-screen">
             {/* Logo et statut utilisateur en haut */}
-            <div className="border-b border-black/6" style={{ background: '#f2ebe0' }}>
+            <div className="border-b border-black/6" style={{ background: 'var(--band-bg)' }}>
                 {/* Mobile : le nom du groupe prend tout l'espace entre le logo et les icônes ; desktop : 3 colonnes égales (nom centré) */}
                 <div className="body-padding py-3 sm:py-5 grid grid-cols-[auto_1fr_auto] sm:grid-cols-3 gap-3 items-center">
                     <Logo size="medium" showText={true} />
