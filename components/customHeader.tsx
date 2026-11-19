@@ -80,7 +80,7 @@ export const CustomHeader = ({
         <nav
             ref={navRef}
             className="flex justify-evenly w-full items-center p-1.5 mb-6 rounded-full relative"
-            style={{ background: 'rgba(58,46,37,0.08)' }}
+            style={{ background: 'var(--nav-tint)' }}
         >
             <div
                 ref={pillRef}

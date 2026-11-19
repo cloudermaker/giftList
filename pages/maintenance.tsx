@@ -10,7 +10,7 @@ const Maintenance: NextPage = () => {
                 <meta name="robots" content="noindex, nofollow" />
             </Head>
 
-            <div className="min-h-screen bg-[#fff1f2] flex items-center justify-center px-4">
+            <div className="min-h-screen bg-rose-50 flex items-center justify-center px-4">
                 <div className="max-w-lg w-full bg-white rounded-2xl shadow-card p-8 md:p-12 text-center">
                     {/* Logo */}
                     <div className="mb-8 flex justify-center">

@@ -658,25 +658,25 @@ export default function Index() {
 
                 <div className="grid md:grid-cols-2 gap-4 mt-6">
                     <div className="item bg-green-50 border-l-4 border-vertNoel p-4">
-                        <p className="italic" style={{ color: '#333' }}>
+                        <p className="italic text-gray-700">
                             &quot;Fini les doublons et les cadeaux ratés ! On utilise Ma liste de cadeaux depuis 2 ans.&quot;
                         </p>
                         <p className="text-sm mt-2 font-semibold text-vertNoel">— Marie, Lyon</p>
                     </div>
                     <div className="item bg-red-50 border-l-4 border-rougeNoel p-4">
-                        <p className="italic" style={{ color: '#333' }}>
+                        <p className="italic text-gray-700">
                             &quot;Mon oncle Jean m&apos;a enfin offert autre chose que des chaussettes ! 🧦😂&quot;
                         </p>
                         <p className="text-sm mt-2 font-semibold text-rougeNoel">— Thomas, Paris</p>
                     </div>
                     <div className="item bg-green-50 border-l-4 border-vertNoel p-4">
-                        <p className="italic" style={{ color: '#333' }}>
+                        <p className="italic text-gray-700">
                             &quot;Plus besoin de faire semblant d&apos;être surprise avec le 3ème grille-pain... Merci !&quot;
                         </p>
                         <p className="text-sm mt-2 font-semibold text-vertNoel">— Sophie, Bordeaux</p>
                     </div>
                     <div className="item bg-red-50 border-l-4 border-rougeNoel p-4">
-                        <p className="italic" style={{ color: '#333' }}>
+                        <p className="italic text-gray-700">
                             &quot;Avec 12 personnes dans la famille, cette app a sauvé notre Noël ! 🎄&quot;
                         </p>
                         <p className="text-sm mt-2 font-semibold text-rougeNoel">— Antoine, Marseille</p>
