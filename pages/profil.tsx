@@ -136,28 +136,28 @@ export default function ProfilePage({
                 </PageTitle>
 
                 <div className="item space-y-4">
-                    <h2 className="text-lg font-semibold text-gray-800">📧 Email de secours</h2>
+                    <h2 className="text-lg font-semibold text-fg">📧 Email de secours</h2>
                     {error && <ErrorAlert message={error} onClose={() => setError('')} />}
 
                     {verified && displayEmail ? (
                         <>
-                            <p className="text-sm text-gray-700">
+                            <p className="text-sm text-fg-soft">
                                 ✅ <b>{displayEmail}</b> est lié à ton profil. En cas d&apos;oubli, utilise « Accès oublié ? » sur
                                 la page de connexion.
                             </p>
-                            {isAdminKey && <p className="text-xs text-gray-500">🛡️ Ce lien te reconnecte aussi en mode admin.</p>}
+                            {isAdminKey && <p className="text-xs text-fg-faint">🛡️ Ce lien te reconnecte aussi en mode admin.</p>}
                             {canChange ? (
                                 <CustomButton size="sm" onClick={removeEmail}>
                                     Retirer cet email
                                 </CustomButton>
                             ) : unlockSent ? (
-                                <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-800">
+                                <div className="p-3 bg-success-soft border border-success-line rounded-xl text-sm text-success-fg-deep">
                                     📧 Lien envoyé à <b>{displayEmail}</b>. Clique dessus : tu reviendras ici et pourras modifier
                                     ton email.
                                 </div>
                             ) : (
                                 <div className="space-y-2">
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-fg-faint">
                                         Pour protéger ton accès, modifier cet email demande de confirmer que c&apos;est bien le
                                         tien.
                                     </p>
@@ -168,7 +168,7 @@ export default function ProfilePage({
                             )}
                         </>
                     ) : (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-fg-muted">
                             Ajoute un email pour retrouver ton accès si tu oublies le nom du groupe ou ton prénom. Il n&apos;est
                             visible par personne d&apos;autre.
                         </p>
@@ -195,7 +195,7 @@ export default function ProfilePage({
                     )}
 
                     {sentTo && (
-                        <div className="p-4 bg-green-50 border border-green-200 rounded-xl text-sm text-green-800">
+                        <div className="p-4 bg-success-soft border border-success-line rounded-xl text-sm text-success-fg-deep">
                             📧 Un lien de confirmation a été envoyé à <b>{sentTo}</b>. Clique dessus pour terminer.
                         </div>
                     )}
@@ -203,9 +203,9 @@ export default function ProfilePage({
 
                 {/* Une seule section : liste des groupes (session email), lien à recevoir (session prénom) ou mode d'emploi */}
                 <div className="item space-y-3">
-                    <h2 className="text-lg font-semibold text-gray-800">👥 Mes autres groupes</h2>
+                    <h2 className="text-lg font-semibold text-fg">👥 Mes autres groupes</h2>
                     {otherProfiles.length === 0 && (
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-fg-faint">
                             Seulement si tu as un profil dans plusieurs groupes (par exemple famille et amis).
                         </p>
                     )}
@@ -234,16 +234,16 @@ export default function ProfilePage({
                         </div>
                     ) : verified && !canChange ? (
                         groupsLinkSent ? (
-                            <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-800">
+                            <div className="p-3 bg-success-soft border border-success-line rounded-xl text-sm text-success-fg-deep">
                                 📧 Lien envoyé à <b>{displayEmail}</b>. Clique dessus : tu reviendras ici avec tes autres groupes.
                             </div>
                         ) : (
                             <>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-fg-muted">
                                     🔒 Pour ta sécurité, tes autres groupes ne s&apos;affichent qu&apos;avec une connexion
                                     sécurisée : le lien reçu par email (pas ton prénom ni le mot de passe du groupe).
                                 </p>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-fg-muted">
                                     Reçois ce lien pour passer d&apos;un groupe à l&apos;autre ou fusionner tes profils en une
                                     seule liste.
                                 </p>
@@ -258,7 +258,7 @@ export default function ProfilePage({
                             </>
                         )
                     ) : (
-                        <ol className="list-decimal pl-5 space-y-1 text-sm text-gray-600">
+                        <ol className="list-decimal pl-5 space-y-1 text-sm text-fg-muted">
                             <li>Ajoute le même email sur ton profil dans chaque groupe, et confirme-le.</li>
                             <li>
                                 Connecte-toi avec le lien reçu par email : 🔒 seule cette connexion sécurisée affiche tes autres

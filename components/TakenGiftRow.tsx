@@ -63,7 +63,7 @@ export const TakenGiftRow = ({
                 aria-label={bought ? `Marquer ${row.name} comme pas encore acheté` : `Marquer ${row.name} comme acheté`}
                 title={bought ? 'Pas encore acheté' : 'Marquer comme acheté'}
                 className={`shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-colors cursor-pointer disabled:cursor-wait ${
-                    bought ? 'bg-vertNoel border-vertNoel text-white' : 'border-gray-300 text-transparent hover:border-vertNoel'
+                    bought ? 'bg-vertNoel border-vertNoel text-white' : 'border-line-strong text-transparent hover:border-vertNoel'
                 }`}
             >
                 <Check className="w-4 h-4" aria-hidden="true" />
@@ -77,22 +77,22 @@ export const TakenGiftRow = ({
                 }}
                 className="flex-1 min-w-0 text-left bg-transparent border-0 p-0 cursor-pointer"
             >
-                <span className={`block font-medium wrap-break-word ${bought ? 'line-through text-gray-400' : 'text-gray-800'}`}>
-                    {row.parentName && <span className="font-normal text-gray-400">{row.parentName} › </span>}
+                <span className={`block font-medium wrap-break-word ${bought ? 'line-through text-fg-subtle' : 'text-fg'}`}>
+                    {row.parentName && <span className="font-normal text-fg-subtle">{row.parentName} › </span>}
                     {row.name}
                 </span>
                 <span className="flex flex-wrap items-center gap-2 mt-1 empty:hidden">
                     {row.kind === 'personal' && (
-                        <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                        <span className="inline-flex items-center gap-1 text-xs text-fg-faint">
                             <RecipientAvatar recipient={row.recipient} size="sm" />
                             {row.recipient ? `Pour ${row.recipient.name}` : 'Pour personne en particulier'}
                         </span>
                     )}
                     {row.giftType === 'UNLIMITED' && (
-                        <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">🔁 Illimité</span>
+                        <span className="text-xs bg-accent-tint text-accent-fg-strong px-2 py-0.5 rounded-full font-medium">🔁 Illimité</span>
                     )}
                     {bought && (
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Acheté</span>
+                        <span className="text-xs bg-success-tint text-success-fg-strong px-2 py-0.5 rounded-full font-medium">Acheté</span>
                     )}
                 </span>
             </button>

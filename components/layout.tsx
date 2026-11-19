@@ -3,6 +3,7 @@ import { CustomFooter } from './atoms/CustomFooter';
 import { IdeasFab } from './atoms/IdeasFab';
 import { CustomHeader, EHeader } from './customHeader';
 import { Logo } from './Logo';
+import { ThemeToggle } from './atoms/ThemeToggle';
 import Router from 'next/router';
 import Link from 'next/link';
 import { Power } from 'lucide-react';
@@ -31,52 +32,57 @@ export const Layout = ({
     return (
         <div className="flex flex-col min-h-screen">
             {/* Logo et statut utilisateur en haut */}
-            <div className="border-b border-black/6" style={{ background: 'var(--band-bg)' }}>
+            <div className="border-b border-black/6 bg-band">
                 {/* Mobile : le nom du groupe prend tout l'espace entre le logo et les icônes ; desktop : 3 colonnes égales (nom centré) */}
                 <div className="body-padding py-3 sm:py-5 grid grid-cols-[auto_1fr_auto] sm:grid-cols-3 gap-3 items-center">
                     <Logo size="medium" showText={true} />
 
-                    {connectedUser && (
+                    {connectedUser ? (
                         <div className="flex flex-col items-center min-w-0">
-                            <p className="text-xs font-medium tracking-widest uppercase text-gray-400 leading-none mb-1">
+                            <p className="text-xs font-medium tracking-widest uppercase text-fg-subtle leading-none mb-1">
                                 Groupe
                             </p>
                             <p
-                                className="text-base text-center font-bold text-gray-800 leading-tight line-clamp-2 wrap-break-word max-w-full"
+                                className="text-base text-center font-bold text-fg leading-tight line-clamp-2 wrap-break-word max-w-full"
                                 title={connectedUser.groupName}
                             >
                                 {connectedUser.groupName}
                             </p>
                         </div>
+                    ) : (
+                        <div />
                     )}
 
-                    {connectedUser && (
-                        <div className="flex justify-end">
-                            <div className="flex items-center gap-2 text-sm cursor-default flex-nowrap">
-                                <span className="hidden sm:inline-block w-2 h-2 bg-green-500 rounded-full" />
-                                {connectedUser.isAdmin && (
-                                    <span className="hidden sm:inline-flex text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-300 px-2 py-0.5 rounded-full select-none items-center gap-1">
-                                        🛡️ Admin
-                                    </span>
-                                )}
-                                <Link
-                                    href="/profil"
-                                    className="icon-btn text-gray-400 hover:text-vertNoel hover:no-underline transition-colors"
-                                    title={`Mon profil (${connectedUser.userName})`}
-                                    aria-label="Mon profil"
-                                >
-                                    👤
-                                </Link>
-                                <button
-                                    className="icon-btn text-gray-400 hover:text-rougeNoel transition-colors"
-                                    onClick={onDisconnectClick}
-                                    title="Se déconnecter"
-                                >
-                                    <Power className="w-4 h-4" aria-hidden="true" />
-                                </button>
-                            </div>
+                    <div className="flex justify-end">
+                        <div className="flex items-center gap-2 text-sm cursor-default flex-nowrap">
+                            <ThemeToggle />
+                            {connectedUser && (
+                                <>
+                                    <span className="hidden sm:inline-block w-2 h-2 bg-success rounded-full" />
+                                    {connectedUser.isAdmin && (
+                                        <span className="hidden sm:inline-flex text-xs font-semibold bg-warning-tint text-warning-fg-strong border border-warning-line-strong px-2 py-0.5 rounded-full select-none items-center gap-1">
+                                            🛡️ Admin
+                                        </span>
+                                    )}
+                                    <Link
+                                        href="/profil"
+                                        className="icon-btn text-fg-subtle hover:text-vertNoel hover:no-underline transition-colors"
+                                        title={`Mon profil (${connectedUser.userName})`}
+                                        aria-label="Mon profil"
+                                    >
+                                        👤
+                                    </Link>
+                                    <button
+                                        className="icon-btn text-fg-subtle hover:text-rougeNoel transition-colors"
+                                        onClick={onDisconnectClick}
+                                        title="Se déconnecter"
+                                    >
+                                        <Power className="w-4 h-4" aria-hidden="true" />
+                                    </button>
+                                </>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
 

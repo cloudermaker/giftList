@@ -10,8 +10,8 @@ const Maintenance: NextPage = () => {
                 <meta name="robots" content="noindex, nofollow" />
             </Head>
 
-            <div className="min-h-screen bg-rose-50 flex items-center justify-center px-4">
-                <div className="max-w-lg w-full bg-white rounded-2xl shadow-card p-8 md:p-12 text-center">
+            <div className="min-h-screen bg-danger-soft flex items-center justify-center px-4">
+                <div className="max-w-lg w-full bg-surface rounded-2xl shadow-card p-8 md:p-12 text-center">
                     {/* Logo */}
                     <div className="mb-8 flex justify-center">
                         <Logo size="large" showText={true} />
@@ -25,23 +25,23 @@ const Maintenance: NextPage = () => {
                     </div>
 
                     {/* Title */}
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Maintenance en cours</h1>
+                    <h1 className="text-3xl md:text-4xl font-bold text-fg-strong mb-4">Maintenance en cours</h1>
 
                     {/* Description */}
-                    <p className="text-gray-600 text-lg mb-6">
+                    <p className="text-fg-muted text-lg mb-6">
                         Nous mettons à jour <strong className="text-rougeNoel">Ma Liste de Cadeaux</strong> pour vous offrir une
                         meilleure expérience.
                     </p>
 
                     {/* Info Box */}
                     <div className="bg-linear-to-br from-rougeNoel/5 to-vertNoel/5 rounded-xl p-4 mb-8 border border-rougeNoel/10">
-                        <p className="text-sm text-gray-700">
+                        <p className="text-sm text-fg-soft">
                             <strong className="text-rougeNoel">⏱️ Durée estimée :</strong> 5-10 minutes
                         </p>
                     </div>
 
                     {/* Message */}
-                    <p className="text-gray-500 mb-8">Merci de votre patience ! 🎁✨</p>
+                    <p className="text-fg-faint mb-8">Merci de votre patience ! 🎁✨</p>
 
                     {/* Refresh Button */}
                     <div className="mt-8">
@@ -54,7 +54,7 @@ const Maintenance: NextPage = () => {
                     </div>
 
                     {/* Footer */}
-                    <p className="text-xs text-gray-400 mt-8">Vous pouvez réessayer dans quelques minutes</p>
+                    <p className="text-xs text-fg-subtle mt-8">Vous pouvez réessayer dans quelques minutes</p>
                 </div>
             </div>
         </>

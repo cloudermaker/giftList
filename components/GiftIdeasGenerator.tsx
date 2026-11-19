@@ -452,7 +452,7 @@ export default function GiftIdeasGenerator() {
     return (
         <section className="home-section">
             <h2 className="font-bold">💡 Besoin d&apos;inspiration ?</h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-fg-muted mb-6">
                 Décrivez la personne et ses centres d&apos;intérêt, nous vous suggérons des idées de cadeaux !
             </p>
 
@@ -461,7 +461,7 @@ export default function GiftIdeasGenerator() {
                     value={giftIdeasInput}
                     onChange={(e) => setGiftIdeasInput(e.target.value)}
                     placeholder="Ex: Pour ma sœur de 25 ans qui adore le yoga et la cuisine végétarienne..."
-                    className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vertNoel focus:border-transparent resize-none"
+                    className="w-full p-4 border border-line-strong rounded-lg focus:ring-2 focus:ring-vertNoel focus:border-transparent resize-none"
                     rows={3}
                     disabled={isLoadingIdeas}
                 />
@@ -477,21 +477,21 @@ export default function GiftIdeasGenerator() {
 
             {giftIdeas.length > 0 && (
                 <div className="mt-8 max-w-4xl mx-auto">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">🎁 Suggestions pour vous :</h3>
+                    <h3 className="text-lg font-semibold text-fg mb-4 text-center">🎁 Suggestions pour vous :</h3>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {giftIdeas.map((idea, index) => (
                             <div
                                 key={index}
-                                className="bg-white p-4 rounded-lg border border-gray-200 shadow-xs hover:shadow-md transition-shadow"
+                                className="bg-surface p-4 rounded-lg border border-line shadow-xs hover:shadow-md transition-shadow"
                             >
                                 <div className="flex items-start gap-3">
                                     <span className="text-2xl">🎁</span>
-                                    <p className="text-gray-700 font-medium">{idea}</p>
+                                    <p className="text-fg-soft font-medium">{idea}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    <p className="text-center text-sm text-gray-500 mt-6">
+                    <p className="text-center text-sm text-fg-faint mt-6">
                         💡 Ajoutez ces idées directement dans votre liste une fois connecté !
                     </p>
                 </div>

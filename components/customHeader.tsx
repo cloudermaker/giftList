@@ -77,14 +77,10 @@ export const CustomHeader = ({
     };
 
     return (
-        <nav
-            ref={navRef}
-            className="flex justify-evenly w-full items-center p-1.5 mb-6 rounded-full relative"
-            style={{ background: 'var(--nav-tint)' }}
-        >
+        <nav ref={navRef} className="flex justify-evenly w-full items-center p-1.5 mb-6 rounded-full relative bg-nav-tint">
             <div
                 ref={pillRef}
-                className="absolute top-1 bottom-1 rounded-full bg-white pointer-events-none"
+                className="absolute top-1 bottom-1 rounded-full bg-surface pointer-events-none"
                 style={{
                     boxShadow: '0 1px 6px rgba(0,0,0,0.1)',
                     transition: 'left 0.28s cubic-bezier(.4,0,.2,1), width 0.28s cubic-bezier(.4,0,.2,1)'
@@ -95,16 +91,13 @@ export const CustomHeader = ({
                     key={`menu_${menu.name}`}
                     data-active={menu.isSelected ? 'true' : undefined}
                     onClick={() => onMenuClick(menu)}
-                    className={`flex items-center gap-2 px-3 md:px-4 lg:px-6 py-3 rounded-full text-base text-gray-700 cursor-pointer select-none whitespace-nowrap relative z-10 transition-all duration-200 ${
+                    className={`flex items-center gap-2 px-3 md:px-4 lg:px-6 py-3 rounded-full text-base text-fg-soft cursor-pointer select-none whitespace-nowrap relative z-10 transition-all duration-200 ${
                         menu.isSelected ? 'font-bold' : 'hover:ring-1 hover:ring-inset hover:ring-black/10'
                     }`}
                 >
                     <span className="text-lg">{menu.icon}</span>
                     {/* Prénoms longs : libellé coupé (…) plutôt qu'une barre qui déborde de l'écran */}
-                    <span
-                        className="hidden sm:inline-block max-w-36 lg:max-w-56 truncate align-bottom"
-                        title={menu.name}
-                    >
+                    <span className="hidden sm:inline-block max-w-36 lg:max-w-56 truncate align-bottom" title={menu.name}>
                         {menu.name}
                     </span>
                 </div>

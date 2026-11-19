@@ -70,7 +70,7 @@ export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, o
         const rows = takenByList
             .map((t) => {
                 const name = groupUserMap[t.userId]?.name ?? 'Utilisateur inconnu';
-                return `<li class="py-1 border-b border-gray-100 last:border-0 text-sm"><b>${name}</b> — ${formatDate(t.takenAt)}</li>`;
+                return `<li class="py-1 border-b border-line-soft last:border-0 text-sm"><b>${name}</b> — ${formatDate(t.takenAt)}</li>`;
             })
             .join('');
 
@@ -86,15 +86,15 @@ export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, o
             {/* Toggle */}
             <div
                 onClick={() => setExpanded(!expanded)}
-                className="flex items-center gap-3 px-4 py-2.5 mb-3 rounded-lg border border-orange-200 bg-orange-50 hover:bg-orange-100 cursor-pointer select-none transition-colors duration-150"
+                className="flex items-center gap-3 px-4 py-2.5 mb-3 rounded-lg border border-accent-line bg-accent-soft hover:bg-accent-tint cursor-pointer select-none transition-colors duration-150"
             >
-                <span className={`text-orange-500 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}>▶</span>
-                <span className="text-sm font-medium text-orange-700 flex-1">
+                <span className={`text-accent transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}>▶</span>
+                <span className="text-sm font-medium text-accent-fg-strong flex-1">
                     {expanded ? 'Masquer' : 'Voir'} qui a pris ce cadeau
                 </span>
 
                 {/* Pill count */}
-                <span className="text-xs bg-orange-200 text-orange-800 px-2 py-0.5 rounded-full font-semibold">
+                <span className="text-xs bg-accent-tint-strong text-accent-fg-deep px-2 py-0.5 rounded-full font-semibold">
                     {takenCount} pris
                 </span>
 
@@ -106,20 +106,20 @@ export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, o
                         showDetails();
                     }}
                     title="Voir les détails"
-                    className="w-4 h-4 rounded-full border border-orange-300 text-orange-300 hover:text-orange-500 hover:border-orange-500 text-[10px] font-bold flex items-center justify-center shrink-0 cursor-pointer transition-colors select-none"
+                    className="w-4 h-4 rounded-full border border-accent-line-strong text-accent-muted hover:text-accent hover:border-accent text-[10px] font-bold flex items-center justify-center shrink-0 cursor-pointer transition-colors select-none"
                 >
                     i
                 </span>
             </div>
 
             {expanded && (
-                <div className="border border-orange-200 rounded-lg p-3 space-y-2">
+                <div className="border border-accent-line rounded-lg p-3 space-y-2">
                     {takenByList.length === 0 && (
-                        <p className="text-sm text-gray-500 italic">Personne n&apos;a encore pris ce cadeau.</p>
+                        <p className="text-sm text-fg-faint italic">Personne n&apos;a encore pris ce cadeau.</p>
                     )}
 
                     {takenByList.length > 0 && (
-                        <div className="divide-y divide-gray-100">
+                        <div className="divide-y divide-line-soft">
                             {takenByList.map((t) => {
                                 const name = groupUserMap[t.userId]?.name ?? '…';
                                 const isMe = t.userId === userId;
@@ -127,8 +127,8 @@ export default function UnlimitedGiftTakers({ gift, userId, groupUserMap = {}, o
                                     <div key={t.id} className="flex items-center justify-between py-2 px-2 gap-2">
                                         <div>
                                             <span className="text-sm font-medium">{name}</span>
-                                            {isMe && <span className="ml-2 text-xs text-orange-600 font-medium">vous</span>}
-                                            <span className="block text-xs text-gray-400">{formatDate(t.takenAt)}</span>
+                                            {isMe && <span className="ml-2 text-xs text-accent-fg font-medium">vous</span>}
+                                            <span className="block text-xs text-fg-subtle">{formatDate(t.takenAt)}</span>
                                         </div>
                                         {isMe && (
                                             <button

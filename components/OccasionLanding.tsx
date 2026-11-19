@@ -46,9 +46,9 @@ export const OccasionLanding = (props: TOccasionLandingProps) => {
                     <div className="text-5xl mb-4" role="img" aria-hidden="true">
                         {emoji}
                     </div>
-                    <h1 className="text-3xl font-bold text-gray-800 mb-4">{h1}</h1>
+                    <h1 className="text-3xl font-bold text-fg mb-4">{h1}</h1>
                     {intro.map((p, i) => (
-                        <p key={i} className="text-gray-600 leading-relaxed mb-3">
+                        <p key={i} className="text-fg-muted leading-relaxed mb-3">
                             {p}
                         </p>
                     ))}
@@ -57,29 +57,29 @@ export const OccasionLanding = (props: TOccasionLandingProps) => {
                             {ctaLabel}
                         </CustomButton>
                     </div>
-                    <p className="text-xs text-gray-400 mt-3">Gratuit · Sans email · Prêt en 2 minutes</p>
+                    <p className="text-xs text-fg-subtle mt-3">Gratuit · Sans email · Prêt en 2 minutes</p>
                 </header>
 
                 {/* Comment ça marche */}
                 <section className="mb-10">
-                    <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">Comment ça marche ?</h2>
+                    <h2 className="text-xl font-bold text-fg mb-4 text-center">Comment ça marche ?</h2>
                     <div className="grid md:grid-cols-3 gap-4 text-center">
-                        <div className="item bg-white p-5 rounded-xl">
+                        <div className="item bg-surface p-5 rounded-xl">
                             <p className="text-2xl mb-2">1️⃣</p>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-fg-muted">
                                 Créez votre groupe avec le nom de votre famille ou de vos amis — aucun compte ni email demandé.
                             </p>
                         </div>
-                        <div className="item bg-white p-5 rounded-xl">
+                        <div className="item bg-surface p-5 rounded-xl">
                             <p className="text-2xl mb-2">2️⃣</p>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-fg-muted">
                                 Chacun rejoint le groupe avec son prénom et remplit sa liste de cadeaux, avec liens et
                                 descriptions.
                             </p>
                         </div>
-                        <div className="item bg-white p-5 rounded-xl">
+                        <div className="item bg-surface p-5 rounded-xl">
                             <p className="text-2xl mb-2">3️⃣</p>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-fg-muted">
                                 Les proches réservent en secret : le concerné ne voit jamais qui a pris quoi. Fini les doublons !
                             </p>
                         </div>
@@ -89,9 +89,9 @@ export const OccasionLanding = (props: TOccasionLandingProps) => {
                 {/* Sections de contenu */}
                 {sections.map((section) => (
                     <section key={section.title} className="mb-10">
-                        <h2 className="text-xl font-bold text-gray-800 mb-3">{section.title}</h2>
+                        <h2 className="text-xl font-bold text-fg mb-3">{section.title}</h2>
                         {section.paragraphs.map((p, i) => (
-                            <p key={i} className="text-gray-600 leading-relaxed mb-3">
+                            <p key={i} className="text-fg-muted leading-relaxed mb-3">
                                 {p}
                             </p>
                         ))}
@@ -100,26 +100,26 @@ export const OccasionLanding = (props: TOccasionLandingProps) => {
 
                 {/* FAQ */}
                 <section className="mb-10">
-                    <h2 className="text-xl font-bold text-gray-800 mb-4">Questions fréquentes</h2>
+                    <h2 className="text-xl font-bold text-fg mb-4">Questions fréquentes</h2>
                     {faq.map((item) => (
-                        <details key={item.question} className="item bg-white rounded-xl p-4 mb-3">
-                            <summary className="font-semibold text-gray-800 cursor-pointer">{item.question}</summary>
-                            <p className="text-sm text-gray-600 leading-relaxed mt-2">{item.answer}</p>
+                        <details key={item.question} className="item bg-surface rounded-xl p-4 mb-3">
+                            <summary className="font-semibold text-fg cursor-pointer">{item.question}</summary>
+                            <p className="text-sm text-fg-muted leading-relaxed mt-2">{item.answer}</p>
                         </details>
                     ))}
                 </section>
 
                 {/* CTA final */}
                 <section className="text-center mb-10">
-                    <h2 className="text-xl font-bold text-gray-800 mb-3">Prêt à commencer ?</h2>
+                    <h2 className="text-xl font-bold text-fg mb-3">Prêt à commencer ?</h2>
                     <CustomButton variant="green" onClick={goToCreate}>
                         {ctaLabel}
                     </CustomButton>
                 </section>
 
                 {/* Maillage interne */}
-                <nav className="border-t border-neutral-200 pt-6 text-center">
-                    <p className="text-sm text-gray-500 mb-3">Une autre occasion ?</p>
+                <nav className="border-t border-line pt-6 text-center">
+                    <p className="text-sm text-fg-faint mb-3">Une autre occasion ?</p>
                     <div className="flex flex-wrap justify-center gap-4">
                         {OTHER_OCCASIONS.filter((o) => o.slug !== slug).map((o) => (
                             <Link key={o.slug} href={o.slug} className="text-sm text-bleuNoel hover:underline">

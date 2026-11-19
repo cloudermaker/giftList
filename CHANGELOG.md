@@ -8,7 +8,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ### Ajouté
 
-- Mode sombre, selon le réglage de ton appareil
+- Mode sombre : bouton en haut à droite (automatique, clair ou sombre)
 
 ## [5.13.0] - 2026-11-18
 

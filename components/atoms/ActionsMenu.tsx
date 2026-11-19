@@ -54,7 +54,7 @@ const ActionsMenu = ({ label, actions }: TActionsMenuProps) => {
                 aria-haspopup="menu"
                 aria-expanded={!!pos}
                 onClick={toggle}
-                className="w-9 h-9 rounded-lg text-xl leading-none text-neutral-600 hover:bg-neutral-100"
+                className="w-9 h-9 rounded-lg text-xl leading-none text-fg-muted hover:bg-surface-sunken"
             >
                 ⋯
             </button>
@@ -64,7 +64,7 @@ const ActionsMenu = ({ label, actions }: TActionsMenuProps) => {
                         ref={menuRef}
                         role="menu"
                         style={{ top: pos.top, right: pos.right }}
-                        className="fixed z-50 min-w-44 py-1 bg-white rounded-lg shadow-lg border border-neutral-200"
+                        className="fixed z-50 min-w-44 py-1 bg-surface rounded-lg shadow-lg border border-line"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {actions.map((action) => (
@@ -76,7 +76,7 @@ const ActionsMenu = ({ label, actions }: TActionsMenuProps) => {
                                     setPos(null);
                                     action.onClick();
                                 }}
-                                className={`flex items-center gap-2 w-full h-10 text-left px-4 text-sm hover:bg-neutral-50 ${action.danger ? 'text-red-600' : ''}`}
+                                className={`flex items-center gap-2 w-full h-10 text-left px-4 text-sm hover:bg-surface-muted ${action.danger ? 'text-danger-fg' : ''}`}
                             >
                                 <span aria-hidden>{action.icon}</span>
                                 {action.label}

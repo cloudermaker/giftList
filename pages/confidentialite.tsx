@@ -6,8 +6,8 @@ import Link from 'next/link';
 
 const Section = ({ title, children }: { title: string; children: ReactNode }) => (
     <section className="mb-8">
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">{title}</h2>
-        <div className="text-sm text-gray-700 leading-relaxed space-y-2">{children}</div>
+        <h2 className="text-lg font-semibold text-fg mb-2">{title}</h2>
+        <div className="text-sm text-fg-soft leading-relaxed space-y-2">{children}</div>
     </section>
 );
 

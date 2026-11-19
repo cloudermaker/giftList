@@ -38,16 +38,16 @@ export default function ConfirmEmailPage({ token, valid, email, userId, userName
         <Layout withHeader={false}>
             <SEO title="Confirmer mon email" noIndex />
             <section className="flex justify-center items-start px-4 py-8">
-                <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div className="w-full max-w-md bg-surface rounded-2xl shadow-xl overflow-hidden">
                     <div className="p-6 space-y-4 text-center">
-                        <h1 className="text-2xl font-bold text-gray-800">📧 Confirmer mon email</h1>
+                        <h1 className="text-2xl font-bold text-fg">📧 Confirmer mon email</h1>
                         {error && <ErrorAlert message={error} onClose={() => setError('')} />}
 
-                        {!valid && <p className="text-sm text-gray-600">Ce lien a expiré ou a déjà été utilisé.</p>}
+                        {!valid && <p className="text-sm text-fg-muted">Ce lien a expiré ou a déjà été utilisé.</p>}
 
                         {valid && !done && (
                             <>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-fg-muted">
                                     Lier <b>{email}</b> au profil <b className="capitalize">{userName}</b> du groupe{' '}
                                     <b>{groupName}</b> ?
                                 </p>
@@ -58,14 +58,14 @@ export default function ConfirmEmailPage({ token, valid, email, userId, userName
                         )}
 
                         {done && (
-                            <div className="p-4 bg-green-50 border border-green-200 rounded-xl text-sm text-green-800">
+                            <div className="p-4 bg-success-soft border border-success-line rounded-xl text-sm text-success-fg-deep">
                                 ✅ C&apos;est fait ! Si tu oublies un jour le nom du groupe ou ton prénom, utilise « Accès oublié
                                 ? » sur la page de connexion.
                             </div>
                         )}
                     </div>
-                    <div className="p-6 bg-gray-50 text-sm text-center">
-                        <Link href="/" className="text-gray-500 hover:underline">
+                    <div className="p-6 bg-surface-muted text-sm text-center">
+                        <Link href="/" className="text-fg-faint hover:underline">
                             Aller sur le site →
                         </Link>
                     </div>

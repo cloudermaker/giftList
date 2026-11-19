@@ -15,10 +15,10 @@ const ModernLink: React.FC<ModernLinkProps> = ({ href }) => {
             href={safeHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center px-4 py-2 bg-white/50 text-gray-700 rounded-lg 
-                     hover:bg-white/80 transition-all duration-200 gap-2 shadow-xs hover:shadow-sm
-                     border border-gray-100 no-underline hover:no-underline hover:scale-105 
-                     active:scale-95 focus:outline-hidden focus:ring-2 focus:ring-gray-200"
+            className="inline-flex items-center px-4 py-2 bg-surface/50 text-fg-soft rounded-lg 
+                     hover:bg-surface/80 transition-all duration-200 gap-2 shadow-xs hover:shadow-sm
+                     border border-line-soft no-underline hover:no-underline hover:scale-105 
+                     active:scale-95 focus:outline-hidden focus:ring-2 focus:ring-line"
             style={{ textDecoration: 'none' }}
         >
             <span>Voir le cadeau</span>

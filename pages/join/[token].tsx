@@ -93,10 +93,10 @@ export default function JoinPage({ groupName, token, invalid }: Props) {
             <Layout withHeader={false}>
                 <SEO title="Lien d'invitation invalide" noIndex />
                 <section className="flex justify-center items-start px-4 py-8">
-                    <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 text-center space-y-4">
+                    <div className="w-full max-w-md bg-surface rounded-2xl shadow-xl p-6 text-center space-y-4">
                         <p className="text-4xl">🔗</p>
-                        <h1 className="text-2xl font-bold text-gray-800">Ce lien d&apos;invitation n&apos;est plus valable</h1>
-                        <p className="text-sm text-gray-600">
+                        <h1 className="text-2xl font-bold text-fg">Ce lien d&apos;invitation n&apos;est plus valable</h1>
+                        <p className="text-sm text-fg-muted">
                             Il a peut-être été mal copié, ou le groupe a été supprimé. Demande un nouveau lien à la personne qui
                             t&apos;a invité, ou connecte-toi avec le nom du groupe et ton prénom.
                         </p>
@@ -114,21 +114,21 @@ export default function JoinPage({ groupName, token, invalid }: Props) {
             <SEO title="Rejoindre un groupe" noIndex />
             <section className="flex justify-center items-start px-4 py-8">
                 <div className="w-full max-w-md">
-                    <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                    <div className="bg-surface rounded-2xl shadow-xl overflow-hidden">
                         <div className="p-6">
-                            <h1 className="text-2xl font-bold text-center text-gray-800 mb-1">🎁 Rejoindre le groupe</h1>
+                            <h1 className="text-2xl font-bold text-center text-fg mb-1">🎁 Rejoindre le groupe</h1>
                             <p className="text-center text-vertNoel font-semibold text-lg mb-4">{groupName}</p>
 
                             {!needsConfirmation && (
                                 <>
-                                    <p className="text-sm text-gray-600 text-center mb-6">
+                                    <p className="text-sm text-fg-muted text-center mb-6">
                                         Entre ton prénom pour rejoindre le groupe.
                                     </p>
 
                                     {error && <ErrorAlert message={error} onClose={() => setError('')} />}
 
                                     <div className="space-y-2">
-                                        <label htmlFor="userNameInput" className="block text-sm font-medium text-gray-700">
+                                        <label htmlFor="userNameInput" className="block text-sm font-medium text-fg-soft">
                                             Prénom
                                         </label>
                                         <CustomInput
@@ -144,9 +144,9 @@ export default function JoinPage({ groupName, token, invalid }: Props) {
                                     </div>
 
                                     <div className="space-y-2 mt-4">
-                                        <label htmlFor="joinEmailInput" className="block text-sm font-medium text-gray-700">
-                                            Email <span className="font-normal text-gray-500">(facultatif)</span>
-                                            <span className="block text-xs font-normal text-gray-500 mt-0.5">
+                                        <label htmlFor="joinEmailInput" className="block text-sm font-medium text-fg-soft">
+                                            Email <span className="font-normal text-fg-faint">(facultatif)</span>
+                                            <span className="block text-xs font-normal text-fg-faint mt-0.5">
                                                 Pour retrouver ton accès en cas d&apos;oubli — jamais partagé
                                             </span>
                                         </label>
@@ -165,20 +165,20 @@ export default function JoinPage({ groupName, token, invalid }: Props) {
                             )}
 
                             {needsConfirmation && (
-                                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-2">
-                                    <p className="text-sm font-semibold text-amber-800 mb-1">⚠️ Confirmation</p>
+                                <div className="bg-warning-soft border border-warning-line rounded-xl p-4 mt-2">
+                                    <p className="text-sm font-semibold text-warning-fg-deep mb-1">⚠️ Confirmation</p>
                                     {userExists ? (
-                                        <p className="text-sm text-amber-700">
+                                        <p className="text-sm text-warning-fg-strong">
                                             Le prénom <strong>&quot;{userName}&quot;</strong> est déjà membre de ce groupe. Es-tu
                                             bien cette personne ?
                                         </p>
                                     ) : (
                                         <>
-                                            <p className="text-sm text-amber-700">
+                                            <p className="text-sm text-warning-fg-strong">
                                                 Le prénom <strong>&quot;{userName}&quot;</strong> n&apos;existe pas encore dans ce
                                                 groupe. Vérifie que tu n&apos;as pas fait de faute de frappe.
                                             </p>
-                                            <p className="text-sm text-amber-700 mt-2">
+                                            <p className="text-sm text-warning-fg-strong mt-2">
                                                 Si tu es bien un nouveau membre, confirme pour rejoindre le groupe.
                                             </p>
                                         </>
@@ -187,7 +187,7 @@ export default function JoinPage({ groupName, token, invalid }: Props) {
                             )}
                         </div>
 
-                        <div className="p-6 bg-gray-50 flex flex-col gap-2">
+                        <div className="p-6 bg-surface-muted flex flex-col gap-2">
                             {!needsConfirmation && (
                                 <CustomButton variant="green" className="w-full p-3" onClick={handleJoin} disabled={isLoading}>
                                     {isLoading ? '⏳ Chargement...' : "C'est parti !"}

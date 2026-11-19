@@ -120,7 +120,7 @@ const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group;
                 </div>
 
                 {localUsers.length === 0 && (
-                    <div className="item text-center text-sm text-gray-600">
+                    <div className="item text-center text-sm text-fg-muted">
                         Aucun membre pour l&apos;instant. Invite tes proches avec le bouton ci-dessus.
                     </div>
                 )}
@@ -128,7 +128,7 @@ const GroupComponent = ({ group, groupUsers = [], inviteToken }: { group: Group;
                 {localUsers.map((user) => (
                     <div className="item" key={`group_${user.id}`}>
                         <div className="flex items-center justify-between gap-2">
-                            <span className="font-medium text-gray-800 flex-1 min-w-0 truncate">{user.name}</span>
+                            <span className="font-medium text-fg flex-1 min-w-0 truncate">{user.name}</span>
                             <div className="flex items-center gap-2 shrink-0">
                                 <CustomButton variant="slate" size="sm" onClick={() => Router.push(`/giftList/${user.id}`)}>
                                     <span>🎁</span>

@@ -108,7 +108,7 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }) => {
                         💡
                     </div>
                     <PageTitle className="mb-2">Boîte à idées</PageTitle>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-fg-faint">
                         Une envie, une amélioration ? Proposez votre idée et votez pour celles des autres — les plus populaires
                         seront réalisées en priorité.
                     </p>
@@ -153,7 +153,7 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }) => {
 
                 {/* Filtres */}
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
-                    <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer whitespace-nowrap">
+                    <label className="flex items-center gap-2 text-sm text-fg-muted cursor-pointer whitespace-nowrap">
                         <input
                             type="checkbox"
                             className="accent-vertNoel w-4 h-4 shrink-0"
@@ -162,7 +162,7 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }) => {
                         />
                         Afficher les idées déjà réalisées
                     </label>
-                    <label className="flex w-full sm:w-auto items-center gap-2 text-sm text-gray-600">
+                    <label className="flex w-full sm:w-auto items-center gap-2 text-sm text-fg-muted">
                         <span className="whitespace-nowrap shrink-0">Trier par</span>
                         <select
                             className="input-field p-1.5! flex-1 min-w-0 sm:flex-none sm:w-44!"
@@ -182,7 +182,7 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }) => {
                 {visibleIdeas.length === 0 && (
                     <div className="text-center py-12">
                         <p className="text-4xl mb-3">💡</p>
-                        <p className="text-sm text-gray-400">Aucune idée pour le moment — proposez la première !</p>
+                        <p className="text-sm text-fg-subtle">Aucune idée pour le moment — proposez la première !</p>
                     </div>
                 )}
                 {visibleIdeas.map((idea) => {
@@ -191,13 +191,13 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }) => {
                         <div key={idea.id} className="item">
                             <div className="flex items-start justify-between gap-3">
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-gray-800">{idea.title}</p>
-                                    {idea.description && <p className="text-sm text-gray-500 mt-1">{idea.description}</p>}
-                                    <p className="text-xs text-gray-400 mt-1">
+                                    <p className="font-medium text-fg">{idea.title}</p>
+                                    {idea.description && <p className="text-sm text-fg-faint mt-1">{idea.description}</p>}
+                                    <p className="text-xs text-fg-subtle mt-1">
                                         Ajoutée le {DATE_FMT.format(new Date(idea.createdAt))}
                                     </p>
                                     {idea.doneAt && (
-                                        <span className="inline-block mt-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+                                        <span className="inline-block mt-2 text-xs bg-success-tint text-success-fg-strong px-2 py-0.5 rounded-full font-medium">
                                             ✅ Réalisée le {DATE_FMT.format(new Date(idea.doneAt))}
                                         </span>
                                     )}
@@ -208,7 +208,7 @@ const IdeasPage = ({ ideas }: { ideas: TIdeaItem[] }) => {
                                     className={`shrink-0 flex items-center gap-2 px-5 py-3 rounded-xl text-base font-semibold border-2 transition-colors ${
                                         hasVoted
                                             ? 'bg-vertNoel text-white border-vertNoel'
-                                            : 'bg-white text-gray-600 border-gray-300 hover:border-vertNoel hover:text-vertNoel'
+                                            : 'bg-surface text-fg-muted border-line-strong hover:border-vertNoel hover:text-vertNoel'
                                     }`}
                                 >
                                     <span className="text-xl leading-none">👍</span> {idea.likes}

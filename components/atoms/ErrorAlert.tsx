@@ -5,7 +5,7 @@ interface ErrorAlertProps {
 
 export const ErrorAlert = ({ message, onClose }: ErrorAlertProps) => {
     return (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4 flex items-center justify-between">
+        <div className="bg-danger-soft border border-danger-line text-danger-fg-deep px-4 py-3 rounded-lg mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
                 <span className="text-xl">⚠️</span>
                 <span className="font-medium">{message}</span>

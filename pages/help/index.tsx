@@ -165,10 +165,10 @@ export default function Help() {
                 <section className="home-section">
                     <h2 className="text-center font-bold">🔗 Liens utiles</h2>
                     <div className="flex justify-center gap-4">
-                        <Link href="/mentions-legales" className="text-blue-500 hover:underline">
+                        <Link href="/mentions-legales" className="text-info hover:underline">
                             Mentions légales
                         </Link>
-                        <Link href="/confidentialite" className="text-blue-500 hover:underline">
+                        <Link href="/confidentialite" className="text-info hover:underline">
                             Politique de confidentialité
                         </Link>
                     </div>

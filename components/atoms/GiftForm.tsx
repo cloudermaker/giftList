@@ -42,7 +42,7 @@ export default function GiftForm({
                 <textarea className="input-field" value={formLink} onChange={(e) => setFormLink(e.target.value)} />
             </div>
             <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700">Type de cadeau :</p>
+                <p className="text-sm font-medium text-fg-soft">Type de cadeau :</p>
                 <div className="flex flex-col gap-1.5">
                     <label className="flex items-center gap-2 cursor-pointer text-sm">
                         <input
@@ -58,21 +58,21 @@ export default function GiftForm({
                         <input
                             type="radio"
                             name="giftType"
-                            className="accent-indigo-500"
+                            className="accent-info"
                             checked={formType === 'MULTIPLE'}
                             onChange={() => setFormType('MULTIPLE')}
                         />
-                        Avec sous-éléments <span className="text-gray-400">(ex : manga avec ses tomes)</span>
+                        Avec sous-éléments <span className="text-fg-subtle">(ex : manga avec ses tomes)</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer text-sm">
                         <input
                             type="radio"
                             name="giftType"
-                            className="accent-orange-500"
+                            className="accent-accent"
                             checked={formType === 'UNLIMITED'}
                             onChange={() => setFormType('UNLIMITED')}
                         />
-                        Illimité <span className="text-gray-400">(plusieurs personnes peuvent le prendre)</span>
+                        Illimité <span className="text-fg-subtle">(plusieurs personnes peuvent le prendre)</span>
                     </label>
                 </div>
             </div>

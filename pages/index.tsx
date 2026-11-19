@@ -277,10 +277,10 @@ export default function Index() {
 
             {/* Hero Section with H1 */}
             <section className="text-center py-8 px-4">
-                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-3 max-w-4xl mx-auto">
+                <h1 className="text-3xl md:text-5xl font-bold text-fg-strong mb-3 max-w-4xl mx-auto">
                     Liste de cadeaux en ligne gratuite
                 </h1>
-                <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+                <p className="text-lg md:text-xl text-fg-muted max-w-3xl mx-auto">
                     Organisez vos cadeaux de Noël et anniversaires en famille
                 </p>
             </section>
@@ -291,16 +291,16 @@ export default function Index() {
                     <div className="w-full md:w-1/2 card-container">
                         <div
                             key={mode}
-                            className={`bg-white rounded-2xl shadow-xl overflow-hidden ${mode === 'joining' ? 'animate-flip-in' : 'animate-flip-in-reverse'}`}
+                            className={`bg-surface rounded-2xl shadow-xl overflow-hidden ${mode === 'joining' ? 'animate-flip-in' : 'animate-flip-in-reverse'}`}
                         >
                             {/* Tabs */}
-                            <div className="flex border-b border-gray-200">
+                            <div className="flex border-b border-line">
                                 <div
                                     onClick={() => !isLoading && handleModeChange('joining')}
                                     className={`flex-1 px-4 py-3 cursor-pointer transition-all text-center flex items-center justify-center ${
                                         mode === 'joining'
                                             ? 'font-semibold text-rougeNoel border-b-2 border-rougeNoel -mb-px'
-                                            : 'font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                            : 'font-medium text-fg-muted hover:text-fg-strong hover:bg-surface-muted'
                                     } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     Se connecter
@@ -310,7 +310,7 @@ export default function Index() {
                                     className={`flex-1 px-4 py-3 cursor-pointer transition-all text-center flex items-center justify-center ${
                                         mode === 'creating'
                                             ? 'font-semibold text-vertNoel border-b-2 border-vertNoel -mb-px'
-                                            : 'font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                            : 'font-medium text-fg-muted hover:text-fg-strong hover:bg-surface-muted'
                                     } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     Créer un groupe
@@ -319,10 +319,10 @@ export default function Index() {
 
                             {/* Header */}
                             <div className="p-6 overflow-hidden">
-                                <h2 className="text-2xl font-bold text-center text-gray-800">
+                                <h2 className="text-2xl font-bold text-center text-fg">
                                     {mode === 'creating' ? '✨ Créer ton groupe' : '🎁 Rejoindre un groupe'}
                                 </h2>
-                                <p className="text-sm text-gray-600 text-center mt-2">
+                                <p className="text-sm text-fg-muted text-center mt-2">
                                     {mode === 'creating'
                                         ? 'Commencez une nouvelle liste de cadeaux pour ta famille ou tes amis'
                                         : 'Connecte-toi à un groupe existant avec ton nom ou prénom'}
@@ -339,7 +339,7 @@ export default function Index() {
                                 )}
 
                                 <div className="space-y-2">
-                                    <label htmlFor="groupNameInputId" className="block text-sm font-medium text-gray-700">
+                                    <label htmlFor="groupNameInputId" className="block text-sm font-medium text-fg-soft">
                                         Nom du groupe
                                     </label>
                                     <CustomInput
@@ -355,7 +355,7 @@ export default function Index() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="nameInputId" className="block text-sm font-medium text-gray-700">
+                                    <label htmlFor="nameInputId" className="block text-sm font-medium text-fg-soft">
                                         Prénom
                                     </label>
                                     <CustomInput
@@ -370,7 +370,7 @@ export default function Index() {
                                 </div>
 
                                 {mode === 'joining' && (
-                                    <div className="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer">
+                                    <div className="flex items-center p-4 bg-surface-muted rounded-lg border border-line hover:bg-surface-sunken transition-colors cursor-pointer">
                                         <input
                                             id="adminCheckbox"
                                             className="cursor-pointer w-5 h-5 accent-vertNoel rounded-sm"
@@ -380,7 +380,7 @@ export default function Index() {
                                         />
                                         <label
                                             htmlFor="adminCheckbox"
-                                            className="ml-3 text-sm font-medium text-gray-700 cursor-pointer flex-1"
+                                            className="ml-3 text-sm font-medium text-fg-soft cursor-pointer flex-1"
                                         >
                                             Je veux me connecter comme admin
                                         </label>
@@ -389,10 +389,10 @@ export default function Index() {
 
                                 {(connectingAsAdmin || mode === 'creating') && (
                                     <div className="space-y-2">
-                                        <label htmlFor="passwordInputId" className="block text-sm font-medium text-gray-700">
+                                        <label htmlFor="passwordInputId" className="block text-sm font-medium text-fg-soft">
                                             Mot de passe admin
                                             {mode === 'creating' && (
-                                                <span className="block text-xs font-normal text-gray-500 mt-0.5">
+                                                <span className="block text-xs font-normal text-fg-faint mt-0.5">
                                                     Pour gérer le groupe
                                                 </span>
                                             )}
@@ -435,9 +435,9 @@ export default function Index() {
 
                                 {mode === 'creating' && (
                                     <div className="space-y-2">
-                                        <label htmlFor="emailInputId" className="block text-sm font-medium text-gray-700">
-                                            Email <span className="font-normal text-gray-500">(facultatif)</span>
-                                            <span className="block text-xs font-normal text-gray-500 mt-0.5">
+                                        <label htmlFor="emailInputId" className="block text-sm font-medium text-fg-soft">
+                                            Email <span className="font-normal text-fg-faint">(facultatif)</span>
+                                            <span className="block text-xs font-normal text-fg-faint mt-0.5">
                                                 Pour retrouver ton accès en cas d&apos;oubli — jamais partagé
                                             </span>
                                         </label>
@@ -456,7 +456,7 @@ export default function Index() {
                             </div>
 
                             {/* Actions */}
-                            <div className="p-6 bg-gray-50 flex flex-col gap-3">
+                            <div className="p-6 bg-surface-muted flex flex-col gap-3">
                                 {mode === 'joining' && (
                                     <div className="text-sm text-center">
                                         <Link href="/acces" className="text-rougeNoel hover:underline">
@@ -492,10 +492,10 @@ export default function Index() {
                                             {m.groupInitial}
                                         </div>
                                         <div>
-                                            <p className="text-xs text-gray-400 uppercase tracking-widest leading-none mb-0.5">
+                                            <p className="text-xs text-fg-subtle uppercase tracking-widest leading-none mb-0.5">
                                                 Groupe
                                             </p>
-                                            <p className="font-bold text-gray-800 leading-none">{m.group}</p>
+                                            <p className="font-bold text-fg leading-none">{m.group}</p>
                                         </div>
                                     </div>
 
@@ -509,22 +509,22 @@ export default function Index() {
                                                 {m.featured.initial}
                                             </div>
                                             <div>
-                                                <p className="font-semibold text-gray-800 text-sm leading-none">
+                                                <p className="font-semibold text-fg text-sm leading-none">
                                                     {m.featured.name}
                                                 </p>
-                                                <p className="text-xs text-gray-400 mt-0.5">{m.featured.count} cadeaux</p>
+                                                <p className="text-xs text-fg-subtle mt-0.5">{m.featured.count} cadeaux</p>
                                             </div>
                                         </div>
                                         <div className="space-y-2">
                                             {m.featured.items.map((item, i) => (
                                                 <div
                                                     key={i}
-                                                    className={`flex items-center gap-2 text-sm ${item.reserved ? 'text-gray-700' : 'text-gray-700'}`}
+                                                    className={`flex items-center gap-2 text-sm ${item.reserved ? 'text-fg-soft' : 'text-fg-soft'}`}
                                                 >
                                                     <span className="text-vertNoel font-bold">✓</span>
                                                     <span>{item.label}</span>
                                                     {item.reserved && (
-                                                        <span className="ml-auto text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+                                                        <span className="ml-auto text-xs bg-warning-tint text-warning-fg-strong px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
                                                             Réservé 🤫
                                                         </span>
                                                     )}
@@ -537,7 +537,7 @@ export default function Index() {
                                     {m.others.map((o, i) => (
                                         <div
                                             key={i}
-                                            className="bg-white rounded-xl border border-gray-100 px-5 py-4 shadow-xs flex items-center gap-3"
+                                            className="bg-surface rounded-xl border border-line-soft px-5 py-4 shadow-xs flex items-center gap-3"
                                         >
                                             <div
                                                 className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
@@ -546,10 +546,10 @@ export default function Index() {
                                                 {o.initial}
                                             </div>
                                             <div className="flex-1">
-                                                <p className="font-semibold text-gray-800 text-sm">{o.name}</p>
-                                                <p className="text-xs text-gray-400">{o.count} cadeaux</p>
+                                                <p className="font-semibold text-fg text-sm">{o.name}</p>
+                                                <p className="text-xs text-fg-subtle">{o.count} cadeaux</p>
                                             </div>
-                                            <p className="text-xs text-gray-400">Voir →</p>
+                                            <p className="text-xs text-fg-subtle">Voir →</p>
                                         </div>
                                     ))}
                                 </div>
@@ -562,34 +562,34 @@ export default function Index() {
             {/* Occasions — long-tail keyword anchors */}
             <section className="home-section" id="occasions">
                 <h2 className="font-bold text-center text-2xl md:text-3xl mb-2">Pour quelle occasion ?</h2>
-                <p className="text-center text-gray-500 mb-8">Une seule plateforme pour toutes vos listes de cadeaux</p>
+                <p className="text-center text-fg-faint mb-8">Une seule plateforme pour toutes vos listes de cadeaux</p>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Link href="/liste-de-noel" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
+                    <Link href="/liste-de-noel" className="item bg-surface p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">🎄</div>
-                        <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux de Noël</h3>
-                        <p className="text-sm text-gray-500">
+                        <h3 className="font-semibold text-fg mb-1">Liste de cadeaux de Noël</h3>
+                        <p className="text-sm text-fg-faint">
                             Organisez les échanges de cadeaux en famille sans doublons ni mauvaises surprises.
                         </p>
                     </Link>
-                    <Link href="/liste-de-naissance" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
+                    <Link href="/liste-de-naissance" className="item bg-surface p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">👶</div>
-                        <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux de naissance</h3>
-                        <p className="text-sm text-gray-500">
+                        <h3 className="font-semibold text-fg mb-1">Liste de cadeaux de naissance</h3>
+                        <p className="text-sm text-fg-faint">
                             Créez votre liste de naissance gratuite, sans boutique imposée, partageable en un lien.
                         </p>
                     </Link>
-                    <Link href="/liste-anniversaire" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
+                    <Link href="/liste-anniversaire" className="item bg-surface p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">🎂</div>
-                        <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux anniversaire</h3>
-                        <p className="text-sm text-gray-500">
+                        <h3 className="font-semibold text-fg mb-1">Liste de cadeaux anniversaire</h3>
+                        <p className="text-sm text-fg-faint">
                             Fini les doublons pour les anniversaires enfants ou adultes — chacun réserve en secret.
                         </p>
                     </Link>
-                    <Link href="/liste-de-mariage" className="item bg-white p-5 rounded-xl text-center hover:no-underline">
+                    <Link href="/liste-de-mariage" className="item bg-surface p-5 rounded-xl text-center hover:no-underline">
                         <div className="text-3xl mb-2">💍</div>
-                        <h3 className="font-semibold text-gray-800 mb-1">Liste de cadeaux mariage</h3>
-                        <p className="text-sm text-gray-500">
+                        <h3 className="font-semibold text-fg mb-1">Liste de cadeaux mariage</h3>
+                        <p className="text-sm text-fg-faint">
                             Partagez vos envies avec vos invités et laissez chacun choisir librement ce qu&apos;il offrira.
                         </p>
                     </Link>
@@ -607,32 +607,32 @@ export default function Index() {
                 </p>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 mb-6">
-                    <div className="item bg-white p-3 rounded-lg border border-gray-200 text-center">
+                    <div className="item bg-surface p-3 rounded-lg border border-line text-center">
                         <div className="text-2xl mb-1">💰</div>
                         <div className="text-sm">
                             <strong className="block">100%</strong>
-                            <span className="text-gray-600">gratuit</span>
+                            <span className="text-fg-muted">gratuit</span>
                         </div>
                     </div>
-                    <div className="item bg-white p-3 rounded-lg border border-gray-200 text-center">
+                    <div className="item bg-surface p-3 rounded-lg border border-line text-center">
                         <div className="text-2xl mb-1">🔒</div>
                         <div className="text-sm">
                             <strong className="block">Zéro</strong>
-                            <span className="text-gray-600">tracking</span>
+                            <span className="text-fg-muted">tracking</span>
                         </div>
                     </div>
-                    <div className="item bg-white p-3 rounded-lg border border-gray-200 text-center">
+                    <div className="item bg-surface p-3 rounded-lg border border-line text-center">
                         <div className="text-2xl mb-1">⚡</div>
                         <div className="text-sm">
                             <strong className="block">2 min</strong>
-                            <span className="text-gray-600">chrono</span>
+                            <span className="text-fg-muted">chrono</span>
                         </div>
                     </div>
-                    <div className="item bg-white p-3 rounded-lg border border-gray-200 text-center">
+                    <div className="item bg-surface p-3 rounded-lg border border-line text-center">
                         <div className="text-2xl mb-1">🤫</div>
                         <div className="text-sm">
                             <strong className="block">100%</strong>
-                            <span className="text-gray-600">secret</span>
+                            <span className="text-fg-muted">secret</span>
                         </div>
                     </div>
                 </div>
@@ -657,26 +657,26 @@ export default function Index() {
                 <h2 className="font-bold">💬 Ils ont simplifié leurs cadeaux avec nous</h2>
 
                 <div className="grid md:grid-cols-2 gap-4 mt-6">
-                    <div className="item bg-green-50 border-l-4 border-vertNoel p-4">
-                        <p className="italic text-gray-700">
+                    <div className="item bg-success-soft border-l-4 border-vertNoel p-4">
+                        <p className="italic text-fg-soft">
                             &quot;Fini les doublons et les cadeaux ratés ! On utilise Ma liste de cadeaux depuis 2 ans.&quot;
                         </p>
                         <p className="text-sm mt-2 font-semibold text-vertNoel">— Marie, Lyon</p>
                     </div>
-                    <div className="item bg-red-50 border-l-4 border-rougeNoel p-4">
-                        <p className="italic text-gray-700">
+                    <div className="item bg-danger-soft border-l-4 border-rougeNoel p-4">
+                        <p className="italic text-fg-soft">
                             &quot;Mon oncle Jean m&apos;a enfin offert autre chose que des chaussettes ! 🧦😂&quot;
                         </p>
                         <p className="text-sm mt-2 font-semibold text-rougeNoel">— Thomas, Paris</p>
                     </div>
-                    <div className="item bg-green-50 border-l-4 border-vertNoel p-4">
-                        <p className="italic text-gray-700">
+                    <div className="item bg-success-soft border-l-4 border-vertNoel p-4">
+                        <p className="italic text-fg-soft">
                             &quot;Plus besoin de faire semblant d&apos;être surprise avec le 3ème grille-pain... Merci !&quot;
                         </p>
                         <p className="text-sm mt-2 font-semibold text-vertNoel">— Sophie, Bordeaux</p>
                     </div>
-                    <div className="item bg-red-50 border-l-4 border-rougeNoel p-4">
-                        <p className="italic text-gray-700">
+                    <div className="item bg-danger-soft border-l-4 border-rougeNoel p-4">
+                        <p className="italic text-fg-soft">
                             &quot;Avec 12 personnes dans la famille, cette app a sauvé notre Noël ! 🎄&quot;
                         </p>
                         <p className="text-sm mt-2 font-semibold text-rougeNoel">— Antoine, Marseille</p>
@@ -795,7 +795,7 @@ export default function Index() {
                             inscription email, et commencez à planifier vos prochains échanges de cadeaux sereinement.
                         </p>
 
-                        <p className="text-sm italic text-gray-600 mt-6">
+                        <p className="text-sm italic text-fg-muted mt-6">
                             🎁 Astuce : Pour Noël en famille, créez votre liste de cadeaux dès novembre pour laisser le temps à
                             chacun de choisir et commander tranquillement. Votre liste reste accessible toute l&apos;année pour
                             tous vos événements !
@@ -827,9 +827,9 @@ export default function Index() {
 
             {/* Cookie Banner */}
             {showCookieBanner && (
-                <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-50">
+                <div className="fixed bottom-0 left-0 right-0 bg-surface border-t border-line p-4 shadow-lg z-50">
                     <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:justify-between gap-3">
-                        <div className="flex-1 text-sm text-gray-700 text-center md:text-left">
+                        <div className="flex-1 text-sm text-fg-soft text-center md:text-left">
                             <p>
                                 🍪 Ce site n&apos;utilise <strong>aucun cookie publicitaire</strong>. Un cookie technique sert à
                                 la connexion et la fréquentation est mesurée sans cookie ni donnée personnelle ({' '}

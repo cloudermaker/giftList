@@ -126,42 +126,42 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
             {/* Toggle pour expand/collapse */}
             <div
                 onClick={() => setExpanded(!expanded)}
-                className="flex items-center gap-3 px-4 py-2.5 mb-3 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 cursor-pointer select-none transition-colors duration-150"
+                className="flex items-center gap-3 px-4 py-2.5 mb-3 rounded-lg border border-info-line bg-info-soft hover:bg-info-tint cursor-pointer select-none transition-colors duration-150"
             >
-                <span className={`text-indigo-500 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}>▶</span>
-                <span className="text-sm font-medium text-indigo-700 flex-1">
+                <span className={`text-info transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}>▶</span>
+                <span className="text-sm font-medium text-info-fg-strong flex-1">
                     {expanded ? 'Masquer' : 'Afficher'} les sous-cadeaux
                 </span>
                 {subGiftsCount > 0 && (
-                    <span className="text-xs bg-indigo-200 text-indigo-700 px-2 py-0.5 rounded-full font-semibold">
+                    <span className="text-xs bg-info-tint-strong text-info-fg-strong px-2 py-0.5 rounded-full font-semibold">
                         {subGiftsCount}
                     </span>
                 )}
             </div>
 
             {expanded && (
-                <div className="space-y-2 border border-indigo-200 rounded-lg p-3">
+                <div className="space-y-2 border border-info-line rounded-lg p-3">
                     {loading && (
                         <>
                             {Array.from({ length: subGifts.length || initialCount || 1 }).map((_, i) => (
                                 <div
                                     key={i}
-                                    className="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-white animate-pulse"
+                                    className="flex items-center justify-between p-3 rounded-lg border border-line bg-surface animate-pulse"
                                 >
-                                    <div className="h-4 bg-gray-200 rounded-sm w-2/3" />
-                                    <div className="h-8 bg-gray-200 rounded-lg w-24" />
+                                    <div className="h-4 bg-surface-strong rounded-sm w-2/3" />
+                                    <div className="h-8 bg-surface-strong rounded-lg w-24" />
                                 </div>
                             ))}
                         </>
                     )}
 
                     {!loading && subGifts.length === 0 && (
-                        <div className="text-sm text-gray-500 italic">Aucun sous-cadeau pour le moment</div>
+                        <div className="text-sm text-fg-faint italic">Aucun sous-cadeau pour le moment</div>
                     )}
 
                     {/* Liste des sous-cadeaux */}
                     {!loading && subGifts.length > 0 && (
-                        <div className="divide-y divide-gray-100">
+                        <div className="divide-y divide-line-soft">
                             {subGifts.map((subGift) => {
                                 const isTaken = subGift.takenUserId != null;
                                 const takenByMe = subGift.takenUserId === userId;
@@ -171,13 +171,13 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
                                         <div className="flex-1 flex items-center gap-2">
                                             <div>
                                                 <span
-                                                    className={`text-sm ${!isOwner && isTaken ? 'line-through text-gray-400' : 'text-gray-800'}`}
+                                                    className={`text-sm ${!isOwner && isTaken ? 'line-through text-fg-subtle' : 'text-fg'}`}
                                                 >
                                                     {subGift.name}
                                                 </span>
                                                 {!isOwner && (
                                                     <span
-                                                        className={`ml-2 text-xs font-medium ${isTaken ? 'text-red-500' : 'text-green-600'}`}
+                                                        className={`ml-2 text-xs font-medium ${isTaken ? 'text-danger' : 'text-success-fg'}`}
                                                     >
                                                         {isTaken
                                                             ? takenByMe
@@ -222,7 +222,7 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
                                         onChange={(e) => setNewSubGiftName(e.target.value)}
                                         onKeyPress={(e) => e.key === 'Enter' && handleCreateSubGift()}
                                         placeholder="Nom du sous-cadeau (ex: Tome 1)"
-                                        className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
+                                        className="flex-1 px-3 py-2 text-sm border border-line-strong rounded-lg focus:ring-2 focus:ring-info-muted"
                                         autoFocus
                                     />
                                     <CustomButton onClick={handleCreateSubGift} variant="green">

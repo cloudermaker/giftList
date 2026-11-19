@@ -19,12 +19,12 @@ interface ChangelogProps {
 }
 
 const sectionConfig = {
-    added: { title: '✨ Nouveautés', color: 'text-green-600' },
-    modified: { title: '🔧 Améliorations', color: 'text-blue-600' },
-    fixed: { title: '🐛 Corrections', color: 'text-orange-600' },
-    security: { title: '🔒 Sécurité', color: 'text-red-600' },
-    removed: { title: '🗑️ Suppressions', color: 'text-gray-600' },
-    deprecated: { title: '⚠️ Dépréciations', color: 'text-yellow-600' }
+    added: { title: '✨ Nouveautés', color: 'text-success-fg' },
+    modified: { title: '🔧 Améliorations', color: 'text-info-fg' },
+    fixed: { title: '🐛 Corrections', color: 'text-accent-fg' },
+    security: { title: '🔒 Sécurité', color: 'text-danger-fg' },
+    removed: { title: '🗑️ Suppressions', color: 'text-fg-muted' },
+    deprecated: { title: '⚠️ Dépréciations', color: 'text-warning-fg' }
 };
 
 export default function Changelog({ versions }: ChangelogProps) {
@@ -36,13 +36,13 @@ export default function Changelog({ versions }: ChangelogProps) {
             <SEO title={pageTitle} description={pageDescription} canonicalPath="/changelog" />
 
             <div className="py-8">
-                <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">Historique des versions</h1>
-                <p className="text-center text-gray-600 mb-12">
+                <h1 className="text-4xl font-bold text-center mb-8 text-fg">Historique des versions</h1>
+                <p className="text-center text-fg-muted mb-12">
                     Découvrez les dernières améliorations et nouveautés de Ma Liste de Cadeaux
                 </p>
 
                 {versions.length === 0 ? (
-                    <div className="text-center text-gray-500 py-12">
+                    <div className="text-center text-fg-faint py-12">
                         <p>Aucune version disponible pour le moment.</p>
                     </div>
                 ) : (
@@ -50,8 +50,8 @@ export default function Changelog({ versions }: ChangelogProps) {
                         <div key={version.version}>
                             <div className="mb-12">
                                 <div className="flex items-center gap-3 mb-4">
-                                    <h2 className="text-2xl font-bold text-gray-800">Version {version.version}</h2>
-                                    <span className="text-sm text-gray-500">{version.date}</span>
+                                    <h2 className="text-2xl font-bold text-fg">Version {version.version}</h2>
+                                    <span className="text-sm text-fg-faint">{version.date}</span>
                                 </div>
 
                                 <div className="space-y-4">
@@ -60,7 +60,7 @@ export default function Changelog({ versions }: ChangelogProps) {
                                         return (
                                             <div key={sectionIdx}>
                                                 <h3 className={`text-lg font-semibold ${config.color} mb-2`}>{config.title}</h3>
-                                                <ul className="list-disc list-inside space-y-1 text-gray-700">
+                                                <ul className="list-disc list-inside space-y-1 text-fg-soft">
                                                     {section.items.map((item, itemIdx) => (
                                                         <li key={itemIdx}>{item}</li>
                                                     ))}
@@ -71,7 +71,7 @@ export default function Changelog({ versions }: ChangelogProps) {
                                 </div>
                             </div>
 
-                            {idx < versions.length - 1 && <hr className="my-8 border-gray-300" />}
+                            {idx < versions.length - 1 && <hr className="my-8 border-line-strong" />}
                         </div>
                     ))
                 )}
