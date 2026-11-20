@@ -13,7 +13,7 @@ const STEPS = 3;
 
 const Dot = ({ active }: { active: boolean }) => (
     <span
-        className={`inline-block rounded-full transition-all duration-300 ${active ? 'w-6 h-2 bg-vertNoel' : 'w-2 h-2 bg-gray-300'}`}
+        className={`inline-block rounded-full transition-all duration-300 ${active ? 'w-6 h-2 bg-vertNoel' : 'w-2 h-2 bg-surface-stronger'}`}
     />
 );
 
@@ -54,9 +54,9 @@ export const OnboardingModal = ({ userName, groupName, inviteToken, onClose }: P
             emoji: '🎁',
             title: `Bienvenue, ${userName} !`,
             content: (
-                <div className="text-gray-600 space-y-4 text-base">
+                <div className="text-fg-muted space-y-4 text-base">
                     <p>
-                        Votre groupe <strong className="text-gray-800">{groupName}</strong> est prêt.
+                        Votre groupe <strong className="text-fg">{groupName}</strong> est prêt.
                     </p>
                     <p>
                         Pour l&apos;instant, vous êtes le seul membre. Une liste de cadeaux prend tout son sens quand vos proches
@@ -71,17 +71,17 @@ export const OnboardingModal = ({ userName, groupName, inviteToken, onClose }: P
             title: 'Invitez vos proches',
             content: (
                 <div className="space-y-4">
-                    <p className="text-gray-600 text-base">
+                    <p className="text-fg-muted text-base">
                         Partagez ce lien à votre famille ou vos amis. Chacun pourra rejoindre le groupe et partager sa propre
                         liste.
                     </p>
-                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-3">
-                        <p className="text-sm text-gray-500 font-mono truncate mb-3">{inviteUrl}</p>
+                    <div className="bg-surface-muted border border-line rounded-xl p-3">
+                        <p className="text-sm text-fg-faint font-mono truncate mb-3">{inviteUrl}</p>
                         <CustomButton variant="green" className="w-full" onClick={share}>
                             Partager le lien d&apos;invitation
                         </CustomButton>
                     </div>
-                    <p className="text-base text-gray-600">
+                    <p className="text-base text-fg-muted">
                         En tant qu&apos;administrateur, vous pouvez aussi ajouter des membres directement depuis la page
                         d&apos;accueil — utile si quelqu&apos;un n&apos;a pas de smartphone.
                     </p>
@@ -93,18 +93,18 @@ export const OnboardingModal = ({ userName, groupName, inviteToken, onClose }: P
             title: 'Revenez facilement',
             content: (
                 <div className="space-y-4">
-                    <p className="text-gray-600 text-base">
-                        Votre session dure <strong className="text-gray-800">400 jours</strong> — revenez simplement sur le site
+                    <p className="text-fg-muted text-base">
+                        Votre session dure <strong className="text-fg">400 jours</strong> — revenez simplement sur le site
                         et vous serez connecté automatiquement.
                     </p>
-                    <p className="text-gray-600 text-base">Pour garder le lien sous la main, envoyez-le vous par email :</p>
+                    <p className="text-fg-muted text-base">Pour garder le lien sous la main, envoyez-le vous par email :</p>
                     <a
                         href={mailtoLink}
                         className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl border-2 border-bleuNoel text-bleuNoel font-semibold text-base hover:bg-bleuNoel hover:text-white transition-colors"
                     >
                         ✉️ M&apos;envoyer le lien par email
                     </a>
-                    <p className="text-base text-gray-600 text-center">Ou ajoutez cette page en favori dans votre navigateur.</p>
+                    <p className="text-base text-fg-muted text-center">Ou ajoutez cette page en favori dans votre navigateur.</p>
                 </div>
             )
         }
@@ -117,21 +117,21 @@ export const OnboardingModal = ({ userName, groupName, inviteToken, onClose }: P
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
             style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
         >
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+            <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
                 {/* Header */}
                 <div className="p-8 pb-4">
                     <div className="flex justify-between items-start mb-5">
                         <span className="text-4xl">{current.emoji}</span>
-                        <button className="icon-btn text-gray-400 hover:text-gray-600" onClick={onClose}>
+                        <button className="icon-btn text-fg-subtle hover:text-fg-muted" onClick={onClose}>
                             ✕
                         </button>
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-5">{current.title}</h2>
+                    <h2 className="text-2xl font-bold text-fg mb-5">{current.title}</h2>
                     {current.content}
                 </div>
 
                 {/* Footer */}
-                <div className="px-8 py-6 flex items-center justify-between gap-3 border-t border-gray-100 mt-4">
+                <div className="px-8 py-6 flex items-center justify-between gap-3 border-t border-line-soft mt-4">
                     <div className="flex gap-1.5 items-center">
                         {Array.from({ length: STEPS }).map((_, i) => (
                             <Dot key={i} active={i === step} />

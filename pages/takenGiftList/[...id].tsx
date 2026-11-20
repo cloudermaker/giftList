@@ -187,11 +187,11 @@ const TakenGiftList = ({ reserved, personal }: { reserved: TTakenRow[]; personal
                 <PageTitle>Mes réservations</PageTitle>
 
                 {/* ── Cadeaux réservés, par destinataire ── */}
-                <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Cadeaux réservés</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-fg-subtle mb-4">Cadeaux réservés</p>
                 {groups.length === 0 ? (
-                    <div className="bg-white rounded-xl p-8 text-center mb-8 shadow-xs">
+                    <div className="bg-surface rounded-xl p-8 text-center mb-8 shadow-xs">
                         <p className="text-3xl mb-2">🎁</p>
-                        <p className="text-sm text-gray-400">Aucun cadeau réservé pour le moment</p>
+                        <p className="text-sm text-fg-subtle">Aucun cadeau réservé pour le moment</p>
                     </div>
                 ) : (
                     <div className="mb-8 space-y-6">
@@ -201,10 +201,10 @@ const TakenGiftList = ({ reserved, personal }: { reserved: TTakenRow[]; personal
                                 <section key={recipient.id} aria-label={`Pour ${recipient.name}`}>
                                     <div className="flex items-center gap-3 mb-2">
                                         <RecipientAvatar recipient={recipient} />
-                                        <h2 className="flex-1 min-w-0 font-semibold text-gray-800 wrap-break-word">
+                                        <h2 className="flex-1 min-w-0 font-semibold text-fg wrap-break-word">
                                             Pour {recipient.name}
                                         </h2>
-                                        <span className="shrink-0 text-xs text-gray-400">
+                                        <span className="shrink-0 text-xs text-fg-subtle">
                                             {boughtCount}/{rows.length} acheté{boughtCount > 1 ? 's' : ''}
                                         </span>
                                     </div>
@@ -218,17 +218,17 @@ const TakenGiftList = ({ reserved, personal }: { reserved: TTakenRow[]; personal
                 {/* ── Cadeaux personnels ── */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3 mt-8 mb-4">
                     <div>
-                        <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Cadeaux personnels</p>
-                        <p className="text-sm text-gray-400">Visibles uniquement par toi</p>
+                        <p className="text-xs font-bold uppercase tracking-widest text-fg-subtle mb-1">Cadeaux personnels</p>
+                        <p className="text-sm text-fg-subtle">Visibles uniquement par toi</p>
                     </div>
                     <CustomButton variant="green" size="sm" onClick={() => setPersonalFormKey('new')}>
                         Ajouter un cadeau personnel
                     </CustomButton>
                 </div>
                 {personalRows.length === 0 ? (
-                    <div className="bg-white rounded-xl p-8 text-center mb-6 shadow-xs">
+                    <div className="bg-surface rounded-xl p-8 text-center mb-6 shadow-xs">
                         <p className="text-3xl mb-2">📝</p>
-                        <p className="text-sm text-gray-400">Aucun cadeau personnel ajouté</p>
+                        <p className="text-sm text-fg-subtle">Aucun cadeau personnel ajouté</p>
                     </div>
                 ) : (
                     <div className="flex flex-col gap-2 mb-6">{[...personalRows].sort(byBoughtThenName).map(renderRow)}</div>
@@ -272,17 +272,17 @@ const TakenGiftList = ({ reserved, personal }: { reserved: TTakenRow[]; personal
                             </div>
                         }
                     >
-                        <div className="space-y-4 text-gray-700">
-                            <p className="flex items-center gap-2 text-sm text-gray-500">
+                        <div className="space-y-4 text-fg-soft">
+                            <p className="flex items-center gap-2 text-sm text-fg-faint">
                                 <RecipientAvatar recipient={selected.recipient} size="sm" />
                                 {selected.recipient ? `Pour ${selected.recipient.name}` : 'Pour personne en particulier'}
                                 {selected.giftType === 'UNLIMITED' && (
-                                    <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+                                    <span className="text-xs bg-accent-tint text-accent-fg-strong px-2 py-0.5 rounded-full font-medium">
                                         🔁 Illimité
                                     </span>
                                 )}
                             </p>
-                            {selected.parentName && <p className="text-sm text-gray-500">Fait partie de : {selected.parentName}</p>}
+                            {selected.parentName && <p className="text-sm text-fg-faint">Fait partie de : {selected.parentName}</p>}
                             {selected.description ? (
                                 <p className="whitespace-pre-line wrap-break-word">{selected.description}</p>
                             ) : (
@@ -290,9 +290,9 @@ const TakenGiftList = ({ reserved, personal }: { reserved: TTakenRow[]; personal
                             )}
                             {toSafeUrl(selected.url) ? <ModernLink href={selected.url} /> : <p className="italic">Pas de lien</p>}
                             {selected.boughtAt && (
-                                <p className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
+                                <p className="p-3 bg-success-soft border border-success-line rounded-lg text-sm text-success-fg-strong">
                                     ✓ Acheté le {new Date(selected.boughtAt).toLocaleDateString('fr-FR')}
-                                    <span className="block text-xs text-green-600 mt-1">
+                                    <span className="block text-xs text-success-fg mt-1">
                                         Retiré automatiquement {BOUGHT_RETENTION_MONTHS} mois après l&apos;achat
                                     </span>
                                 </p>

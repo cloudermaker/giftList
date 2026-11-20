@@ -137,16 +137,16 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps) => {
     return (
         <div className="item">
             <div
-                className="flex justify-between items-center px-4 py-3 cursor-pointer hover:bg-neutral-50 transition-colors"
+                className="flex justify-between items-center px-4 py-3 cursor-pointer hover:bg-surface-muted transition-colors"
                 onClick={() => setExpanded((v) => !v)}
             >
                 <div className="flex items-center gap-3 flex-1 min-w-0 mr-2">
-                    <span className={`text-indigo-400 transition-transform duration-200 text-xs ${expanded ? 'rotate-90' : ''}`}>
+                    <span className={`text-info-muted transition-transform duration-200 text-xs ${expanded ? 'rotate-90' : ''}`}>
                         ▶
                     </span>
                     <div className="flex flex-col md:flex-row md:items-center md:gap-3 min-w-0">
                         <span className="font-semibold break-words md:truncate">{groupName}</span>
-                        <span className="text-xs text-neutral-400 whitespace-nowrap">
+                        <span className="text-xs text-fg-subtle whitespace-nowrap">
                             {group.createdAt ? DATE_FMT.format(new Date(group.createdAt)) : ''}
                         </span>
                     </div>
@@ -162,27 +162,27 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps) => {
             </div>
 
             {expanded && (
-                <div className="bg-neutral-50 px-4 py-3 mx-3 mb-3 rounded-lg border border-neutral-200">
+                <div className="bg-surface-muted px-4 py-3 mx-3 mb-3 rounded-lg border border-line">
                     {loading ? (
                         <div className="flex flex-col gap-3">
                             {[...Array(3)].map((_, i) => (
                                 <div key={i} className="flex justify-between items-center">
-                                    <div className="h-4 bg-gray-200 rounded-sm animate-pulse w-1/4" />
+                                    <div className="h-4 bg-surface-strong rounded-sm animate-pulse w-1/4" />
                                     <div className="flex gap-2">
-                                        <div className="h-8 w-20 bg-gray-200 rounded-xl animate-pulse" />
-                                        <div className="h-8 w-20 bg-gray-200 rounded-xl animate-pulse" />
-                                        <div className="h-8 w-24 bg-gray-200 rounded-xl animate-pulse" />
+                                        <div className="h-8 w-20 bg-surface-strong rounded-xl animate-pulse" />
+                                        <div className="h-8 w-20 bg-surface-strong rounded-xl animate-pulse" />
+                                        <div className="h-8 w-24 bg-surface-strong rounded-xl animate-pulse" />
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
                         <div className="flex flex-col gap-2">
-                            {members.length === 0 && <p className="text-sm text-neutral-400">Aucun membre</p>}
+                            {members.length === 0 && <p className="text-sm text-fg-subtle">Aucun membre</p>}
                             {members.map((member, index) => (
                                 <div
                                     key={member.id}
-                                    className={`flex justify-between items-center ${index > 0 ? 'border-t border-neutral-200 pt-2' : ''}`}
+                                    className={`flex justify-between items-center ${index > 0 ? 'border-t border-line pt-2' : ''}`}
                                 >
                                     <span className="text-sm flex-1 min-w-0 break-words mr-2">
                                         <span>{member.name}</span>
@@ -190,7 +190,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps) => {
                                             <span className="ml-2 text-xs text-rougeNoel font-medium">(admin)</span>
                                         )}
                                         {member.createdAt && (
-                                            <span className="block md:inline md:ml-2 text-xs text-neutral-400">
+                                            <span className="block md:inline md:ml-2 text-xs text-fg-subtle">
                                                 {DATE_FMT.format(new Date(member.createdAt))}
                                             </span>
                                         )}
@@ -217,7 +217,7 @@ const GroupRow = ({ group, onRemove, onRename }: TGroupRowProps) => {
                                     />
                                 </div>
                             ))}
-                            <div className="border-t border-neutral-200 pt-2">
+                            <div className="border-t border-line pt-2">
                                 <CustomButton variant="green" onClick={addMember}>
                                     Ajouter un membre
                                 </CustomButton>
@@ -366,7 +366,7 @@ const Backoffice = ({ groups = [], isAuthenticated = false, page = 1, totalCount
                     <CustomButton onClick={logoutBackoffice}>Se déconnecter</CustomButton>
                 </div>
 
-                <h2 className="text-base font-semibold text-gray-600 uppercase tracking-wide mb-4">Groupes</h2>
+                <h2 className="text-base font-semibold text-fg-muted uppercase tracking-wide mb-4">Groupes</h2>
 
                 {localGroups.map((group) => (
                     <GroupRow
@@ -384,7 +384,7 @@ const Backoffice = ({ groups = [], isAuthenticated = false, page = 1, totalCount
                         <CustomButton disabled={page <= 1} onClick={() => Router.push(`/backoffice?page=${page - 1}`)}>
                             ← Précédent
                         </CustomButton>
-                        <span className="text-sm text-neutral-500">
+                        <span className="text-sm text-fg-faint">
                             Page {page} / {totalPages}
                         </span>
                         <CustomButton disabled={page >= totalPages} onClick={() => Router.push(`/backoffice?page=${page + 1}`)}>
@@ -504,18 +504,18 @@ const IdeasAdmin = () => {
 
     return (
         <div className="mt-12">
-            <h2 className="text-base font-semibold text-gray-600 uppercase tracking-wide mb-4">Boîte à idées</h2>
-            {loaded && ideas.length === 0 && <p className="text-sm text-neutral-400">Aucune idée proposée.</p>}
+            <h2 className="text-base font-semibold text-fg-muted uppercase tracking-wide mb-4">Boîte à idées</h2>
+            {loaded && ideas.length === 0 && <p className="text-sm text-fg-subtle">Aucune idée proposée.</p>}
             {ideas.map((idea) => (
                 <div className="item" key={idea.id}>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                            <span className="font-medium text-gray-800">{idea.title}</span>
-                            <span className="ml-2 text-xs text-neutral-400 whitespace-nowrap">👍 {idea.likes}</span>
+                            <span className="font-medium text-fg">{idea.title}</span>
+                            <span className="ml-2 text-xs text-fg-subtle whitespace-nowrap">👍 {idea.likes}</span>
                             {idea.doneAt && (
-                                <span className="ml-2 text-xs text-green-600 font-medium whitespace-nowrap">✅ Réalisée</span>
+                                <span className="ml-2 text-xs text-success-fg font-medium whitespace-nowrap">✅ Réalisée</span>
                             )}
-                            {idea.description && <p className="text-xs text-neutral-400 truncate">{idea.description}</p>}
+                            {idea.description && <p className="text-xs text-fg-subtle truncate">{idea.description}</p>}
                         </div>
                         <div className="flex items-center gap-2 md:gap-3 shrink-0 flex-wrap">
                             <CustomButton variant="green" size="sm" onClick={() => toggleDone(idea)}>

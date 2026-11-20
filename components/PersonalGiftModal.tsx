@@ -55,9 +55,9 @@ export const PersonalGiftModal = ({ groupUsers, currentUserId, initial, onClose,
             }
         >
             <div className="space-y-4">
-                <p className="text-sm text-gray-400 -mt-3">Visible uniquement par toi</p>
+                <p className="text-sm text-fg-subtle -mt-3">Visible uniquement par toi</p>
 
-                {error && <p className="text-red-500 text-sm">{error}</p>}
+                {error && <p className="text-danger text-sm">{error}</p>}
 
                 <div className="input-group">
                     <label className="input-label" htmlFor="newGiftInputId">

@@ -25,7 +25,7 @@ export default function Custom404() {
                     </video>
                 </div>
 
-                <p className="text-gray-600 mb-8">Oups ! On dirait que la page que vous recherchez a été déballée ailleurs.</p>
+                <p className="text-fg-muted mb-8">Oups ! On dirait que la page que vous recherchez a été déballée ailleurs.</p>
 
                 <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
                     <CustomButton variant="slate" onClick={() => Router.push('/')}>

@@ -1,21 +1,22 @@
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, ReactNode, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-export type TMenuAction = { label: string; icon: string; onClick: () => void; danger?: boolean };
+export type TMenuAction = { label: string; icon: string; onClick: () => void; danger?: boolean; dividerBefore?: boolean };
 
-type TActionsMenuProps = { label: string; actions: TMenuAction[] };
+type TActionsMenuProps = { label: string; actions: TMenuAction[]; trigger?: ReactNode; triggerClassName?: string };
 
 const ITEM_HEIGHT = 40;
+const DIVIDER_HEIGHT = 9;
 
 /** Bouton « ⋯ » ouvrant un menu d'actions, rendu dans le body pour ne jamais être coupé par la carte. */
-const ActionsMenu = ({ label, actions }: TActionsMenuProps) => {
+const ActionsMenu = ({ label, actions, trigger = '⋯', triggerClassName }: TActionsMenuProps) => {
     const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
 
     const place = () => {
         const rect = buttonRef.current!.getBoundingClientRect();
-        const height = actions.length * ITEM_HEIGHT + 8;
+        const height = actions.length * ITEM_HEIGHT + actions.filter((a) => a.dividerBefore).length * DIVIDER_HEIGHT + 8;
         // Ouvre vers le haut s'il n'y a pas la place en dessous
         const top = rect.bottom + 4 + height > window.innerHeight ? rect.top - 4 - height : rect.bottom + 4;
         setPos({ top, right: window.innerWidth - rect.right });
@@ -54,9 +55,9 @@ const ActionsMenu = ({ label, actions }: TActionsMenuProps) => {
                 aria-haspopup="menu"
                 aria-expanded={!!pos}
                 onClick={toggle}
-                className="w-9 h-9 rounded-lg text-xl leading-none text-neutral-600 hover:bg-neutral-100"
+                className={triggerClassName ?? 'w-9 h-9 rounded-lg text-xl leading-none text-fg-muted hover:bg-surface-sunken'}
             >
-                ⋯
+                {trigger}
             </button>
             {pos &&
                 createPortal(
@@ -64,23 +65,25 @@ const ActionsMenu = ({ label, actions }: TActionsMenuProps) => {
                         ref={menuRef}
                         role="menu"
                         style={{ top: pos.top, right: pos.right }}
-                        className="fixed z-50 min-w-44 py-1 bg-white rounded-lg shadow-lg border border-neutral-200"
+                        className="fixed z-50 min-w-44 py-1 bg-surface rounded-lg shadow-lg border border-line"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {actions.map((action) => (
-                            <button
-                                key={action.label}
-                                type="button"
-                                role="menuitem"
-                                onClick={() => {
-                                    setPos(null);
-                                    action.onClick();
-                                }}
-                                className={`flex items-center gap-2 w-full h-10 text-left px-4 text-sm hover:bg-neutral-50 ${action.danger ? 'text-red-600' : ''}`}
-                            >
-                                <span aria-hidden>{action.icon}</span>
-                                {action.label}
-                            </button>
+                            <Fragment key={action.label}>
+                                {action.dividerBefore && <div role="separator" className="my-1 border-t border-line" />}
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    onClick={() => {
+                                        setPos(null);
+                                        action.onClick();
+                                    }}
+                                    className={`flex items-center gap-2 w-full h-10 text-left px-4 text-sm hover:bg-surface-muted ${action.danger ? 'text-danger-fg' : ''}`}
+                                >
+                                    <span aria-hidden>{action.icon}</span>
+                                    {action.label}
+                                </button>
+                            </Fragment>
                         ))}
                     </div>,
                     document.body

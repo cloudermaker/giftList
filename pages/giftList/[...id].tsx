@@ -380,7 +380,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                             </CustomButton>
                         )}
                     </div>
-                    <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden">
+                    <div className="inline-flex rounded-lg border border-line overflow-hidden">
                         <button
                             type="button"
                             onClick={() => {
@@ -389,7 +389,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                             }}
                             title="Vue liste"
                             className={`px-3 py-1.5 text-sm transition-colors cursor-pointer select-none ${
-                                viewMode === 'list' ? 'bg-vertNoel text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
+                                viewMode === 'list' ? 'bg-vertNoel text-white' : 'bg-surface text-fg-faint hover:bg-surface-muted'
                             }`}
                         >
                             <List className="w-4 h-4" aria-hidden="true" />
@@ -401,8 +401,8 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                 localStorage.setItem('giftListViewMode', 'grid');
                             }}
                             title="Vue grille"
-                            className={`px-3 py-1.5 text-sm transition-colors cursor-pointer select-none border-l border-gray-200 ${
-                                viewMode === 'grid' ? 'bg-vertNoel text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
+                            className={`px-3 py-1.5 text-sm transition-colors cursor-pointer select-none border-l border-line ${
+                                viewMode === 'grid' ? 'bg-vertNoel text-white' : 'bg-surface text-fg-faint hover:bg-surface-muted'
                             }`}
                         >
                             <LayoutGrid className="w-4 h-4" aria-hidden="true" />
@@ -435,7 +435,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                 onClick={() => setSelectedGiftId(gift.id)}
                                             >
                                                 <span
-                                                    className={`font-medium ${viewMode === 'grid' ? `w-full ${toSafeUrl(gift.url) ? 'pr-7' : ''}` : 'w-full sm:w-auto sm:flex-1 min-w-0'} ${!isOwnList && gift.takenUserId && gift.giftType !== ('UNLIMITED' as GiftType) && gift.giftType !== ('MULTIPLE' as GiftType) ? 'line-through text-gray-400' : ''}`}
+                                                    className={`font-medium ${viewMode === 'grid' ? `w-full ${toSafeUrl(gift.url) ? 'pr-7' : ''}` : 'w-full sm:w-auto sm:flex-1 min-w-0'} ${!isOwnList && gift.takenUserId && gift.giftType !== ('UNLIMITED' as GiftType) && gift.giftType !== ('MULTIPLE' as GiftType) ? 'line-through text-fg-subtle' : ''}`}
                                                 >
                                                     {gift.name}
                                                 </span>
@@ -452,13 +452,13 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                     className={`flex items-center gap-2 shrink-0 empty:hidden ${viewMode === 'grid' ? 'w-full' : 'w-full sm:w-auto'}`}
                                                 >
                                                     {gift.giftType === 'MULTIPLE' && (
-                                                        <span className="shrink-0 text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
+                                                        <span className="shrink-0 text-xs bg-info-tint text-info-fg px-2 py-0.5 rounded-full font-medium">
                                                             🧩 {gift.subGiftsCount ?? 0} élément
                                                             {(gift.subGiftsCount ?? 0) !== 1 ? 's' : ''}
                                                         </span>
                                                     )}
                                                     {gift.giftType === ('UNLIMITED' as GiftType) && (
-                                                        <span className="shrink-0 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+                                                        <span className="shrink-0 text-xs bg-accent-tint text-accent-fg-strong px-2 py-0.5 rounded-full font-medium">
                                                             {isOwnList
                                                                 ? '🔁 Illimité'
                                                                 : `🔁 ${(gift.takenByList ?? []).length} pris`}
@@ -468,8 +468,8 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                                         <span
                                                             className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
                                                                 gift.takenUserId
-                                                                    ? 'bg-red-100 text-red-600'
-                                                                    : 'bg-green-100 text-green-700'
+                                                                    ? 'bg-danger-tint text-danger-fg'
+                                                                    : 'bg-success-tint text-success-fg-strong'
                                                             }`}
                                                         >
                                                             {gift.takenUserId ? 'Pris' : 'Libre'}
@@ -496,15 +496,15 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                         <p className="text-4xl mb-3">🎁</p>
                         {isOwnList ? (
                             <>
-                                <p className="font-semibold text-gray-700 mb-1">Ta liste est vide pour l&apos;instant</p>
-                                <p className="text-sm text-gray-400">
+                                <p className="font-semibold text-fg-soft mb-1">Ta liste est vide pour l&apos;instant</p>
+                                <p className="text-sm text-fg-subtle">
                                     Ajoute tes premières envies — tes proches pourront les réserver en secret !
                                 </p>
                             </>
                         ) : (
                             <>
-                                <p className="font-semibold text-gray-700 mb-1">Cette liste est encore vide</p>
-                                <p className="text-sm text-gray-400">
+                                <p className="font-semibold text-fg-soft mb-1">Cette liste est encore vide</p>
+                                <p className="text-sm text-fg-subtle">
                                     Revenez plus tard, des idées cadeaux seront bientôt ajoutées.
                                 </p>
                             </>
@@ -523,7 +523,7 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                 {modalOpen && (
                     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
                         <div className="absolute inset-0 bg-black/50" onClick={closeModal} />
-                        <div className="relative bg-white w-full sm:max-w-lg sm:rounded-xl rounded-t-2xl shadow-xl max-h-[90vh] flex flex-col">
+                        <div className="relative bg-surface w-full sm:max-w-lg sm:rounded-xl rounded-t-2xl shadow-xl max-h-[90vh] flex flex-col">
                             {/* Header */}
                             <div className="relative flex items-start justify-between px-5 py-4 border-b gap-3">
                                 <h2 className="font-bold text-lg leading-snug">
@@ -536,14 +536,14 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                             aria-label="Dates du cadeau"
                                             aria-expanded={datesOpen}
                                             onClick={() => setDatesOpen((v) => !v)}
-                                            className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 text-sm font-semibold text-gray-500 hover:bg-gray-100"
+                                            className="w-7 h-7 flex items-center justify-center rounded-full border border-line-strong text-sm font-semibold text-fg-faint hover:bg-surface-sunken"
                                         >
                                             ?
                                         </button>
                                     )}
                                     <div
                                         onClick={closeModal}
-                                        className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-600 text-2xl leading-none cursor-pointer"
+                                        className="w-7 h-7 flex items-center justify-center text-fg-subtle hover:text-fg-muted text-2xl leading-none cursor-pointer"
                                     >
                                         ✕
                                     </div>
@@ -568,24 +568,24 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                                 ) : (
                                     <>
                                         {selectedGift!.description ? (
-                                            <p className="text-gray-700">{selectedGift!.description}</p>
+                                            <p className="text-fg-soft">{selectedGift!.description}</p>
                                         ) : (
-                                            <p className="text-gray-700 italic">Pas de description</p>
+                                            <p className="text-fg-soft italic">Pas de description</p>
                                         )}
                                         {toSafeUrl(selectedGift!.url) ? (
                                             <p>
                                                 <ModernLink href={selectedGift!.url} />
                                             </p>
                                         ) : (
-                                            <p className="text-gray-700 italic">Pas de lien</p>
+                                            <p className="text-fg-soft italic">Pas de lien</p>
                                         )}
                                         {!isOwnList &&
                                             selectedGift!.takenUserId &&
                                             selectedGift!.takenUserId !== connectedUser?.userId && (
-                                                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 flex items-center gap-2">
+                                                <div className="p-3 bg-danger-soft border border-danger-line rounded-lg text-sm text-danger-fg-strong flex items-center gap-2">
                                                     Ce cadeau est déjà pris
                                                     {loadingGroupUsers ? (
-                                                        <span className="inline-block h-3 w-20 bg-red-200 rounded-sm animate-pulse" />
+                                                        <span className="inline-block h-3 w-20 bg-danger-tint-strong rounded-sm animate-pulse" />
                                                     ) : (
                                                         groupUserMap[selectedGift!.takenUserId] && (
                                                             <>
@@ -715,7 +715,7 @@ const GiftDates = ({ gift, showTaken }: { gift: GiftWithTakenUserId; showTaken: 
         <div
             role="dialog"
             aria-label="Dates du cadeau"
-            className="absolute right-0 top-full mt-2 z-10 whitespace-nowrap bg-white border border-gray-200 rounded-lg shadow-lg px-4 py-3 text-sm text-gray-700 space-y-1"
+            className="absolute right-0 top-full mt-2 z-10 whitespace-nowrap bg-surface border border-line rounded-lg shadow-lg px-4 py-3 text-sm text-fg-soft space-y-1"
         >
             <p>Ajouté le {created}</p>
             {/* Modifié le même jour que l'ajout : rien de plus à dire */}

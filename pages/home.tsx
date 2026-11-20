@@ -109,16 +109,16 @@ export const Home = () => {
                     <p className="text-4xl">😕</p>
                     {loadError === 'gone' ? (
                         <>
-                            <p className="font-semibold text-gray-800">Ce groupe n&apos;existe plus.</p>
-                            <p className="text-sm text-gray-500">Il a peut-être été supprimé par son administrateur.</p>
+                            <p className="font-semibold text-fg">Ce groupe n&apos;existe plus.</p>
+                            <p className="text-sm text-fg-faint">Il a peut-être été supprimé par son administrateur.</p>
                             <CustomButton variant="green" onClick={leaveDeletedGroup}>
                                 Revenir à l&apos;accueil
                             </CustomButton>
                         </>
                     ) : (
                         <>
-                            <p className="font-semibold text-gray-800">Impossible de charger ton groupe pour le moment.</p>
-                            <p className="text-sm text-gray-500">Vérifie ta connexion internet, puis réessaie.</p>
+                            <p className="font-semibold text-fg">Impossible de charger ton groupe pour le moment.</p>
+                            <p className="text-sm text-fg-faint">Vérifie ta connexion internet, puis réessaie.</p>
                             <CustomButton variant="green" onClick={loadGroup}>
                                 Réessayer
                             </CustomButton>
@@ -130,11 +130,11 @@ export const Home = () => {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
                     <div>
-                        <p className="text-sm text-gray-500">Bonjour, {connectedUser?.userName}</p>
+                        <p className="text-sm text-fg-faint">Bonjour, {connectedUser?.userName}</p>
                         {loading ? (
-                            <div className="h-8 w-48 bg-gray-200 rounded-sm animate-pulse mt-1" />
+                            <div className="h-8 w-48 bg-surface-strong rounded-sm animate-pulse mt-1" />
                         ) : (
-                            <h1 className="text-2xl font-bold text-gray-800">{group?.name}</h1>
+                            <h1 className="text-2xl font-bold text-fg">{group?.name}</h1>
                         )}
                     </div>
                     {group?.inviteToken && (
@@ -145,13 +145,13 @@ export const Home = () => {
                 </div>
 
                 {/* Member cards */}
-                <h2 className="text-base font-semibold text-gray-600 uppercase tracking-wide mb-4">Listes de cadeaux</h2>
+                <h2 className="text-base font-semibold text-fg-muted uppercase tracking-wide mb-4">Listes de cadeaux</h2>
                 {loading ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
                         {[...Array(3)].map((_, i) => (
-                            <div key={i} className="bg-white rounded-xl shadow-xs p-5 animate-pulse">
-                                <div className="h-5 bg-gray-200 rounded-sm w-2/3 mb-4" />
-                                <div className="h-8 bg-gray-100 rounded-sm" />
+                            <div key={i} className="bg-surface rounded-xl shadow-xs p-5 animate-pulse">
+                                <div className="h-5 bg-surface-strong rounded-sm w-2/3 mb-4" />
+                                <div className="h-8 bg-surface-sunken rounded-sm" />
                             </div>
                         ))}
                     </div>
@@ -164,7 +164,7 @@ export const Home = () => {
                                 <div
                                     key={member.id}
                                     onClick={() => Router.push(`/giftList/${member.id}`)}
-                                    className={`bg-white rounded-xl shadow-xs p-5 flex flex-col gap-3 border-2 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 ${isMe ? 'border-rose-200' : 'border-transparent hover:border-gray-100'}`}
+                                    className={`bg-surface rounded-xl shadow-xs p-5 flex flex-col gap-3 border-2 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 ${isMe ? 'border-danger-line' : 'border-transparent hover:border-line-soft'}`}
                                 >
                                     <div
                                         className="w-11 h-11 rounded-full flex items-center justify-center text-lg font-bold"
@@ -173,23 +173,23 @@ export const Home = () => {
                                         {member.name.charAt(0).toUpperCase()}
                                     </div>
                                     <div className="flex-1">
-                                        <p className="font-semibold text-gray-800 truncate">{member.name}</p>
+                                        <p className="font-semibold text-fg truncate">{member.name}</p>
                                         <div className="flex gap-2 mt-0.5">
-                                            {isMe && <span className="text-xs text-gray-400">Vous</span>}
-                                            {member.isAdmin && <span className="text-xs text-rose-400">Admin</span>}
+                                            {isMe && <span className="text-xs text-fg-subtle">Vous</span>}
+                                            {member.isAdmin && <span className="text-xs text-danger-muted">Admin</span>}
                                         </div>
                                     </div>
-                                    <p className="text-xs text-gray-400">Voir les cadeaux →</p>
+                                    <p className="text-xs text-fg-subtle">Voir les cadeaux →</p>
                                 </div>
                             );
                         })}
                         {members.length > 5 && (
                             <div
                                 onClick={() => Router.push(`/group/${group?.id}`)}
-                                className="bg-white rounded-xl shadow-xs p-5 flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-200 hover:border-gray-300 transition-colors cursor-pointer"
+                                className="bg-surface rounded-xl shadow-xs p-5 flex flex-col items-center justify-center gap-2 border-2 border-dashed border-line hover:border-line-strong transition-colors cursor-pointer"
                             >
-                                <span className="text-2xl text-gray-300">+{members.length - 5}</span>
-                                <p className="text-sm text-gray-400">Voir tous les membres</p>
+                                <span className="text-2xl text-fg-ghost">+{members.length - 5}</span>
+                                <p className="text-sm text-fg-subtle">Voir tous les membres</p>
                             </div>
                         )}
                     </div>

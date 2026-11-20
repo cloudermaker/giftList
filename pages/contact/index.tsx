@@ -9,7 +9,7 @@ import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import SEO from '@/components/SEO';
 
 const FIELD_CLASS =
-    'w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-vertNoel focus:ring-2 focus:ring-vertNoel/20 outline-hidden transition-colors disabled:opacity-60';
+    'w-full px-4 py-2.5 rounded-xl border border-line-strong bg-surface hover:border-line-stronger focus:border-vertNoel focus:ring-2 focus:ring-vertNoel/20 outline-hidden transition-colors disabled:opacity-60';
 
 const SUBJECTS = [
     'Mot de passe oublié',
@@ -87,7 +87,7 @@ export default function Contact() {
                     <PageTitle className="" eyebrow="Support">
                         Contactez-nous
                     </PageTitle>
-                    <p className="text-gray-500 text-sm mt-2">
+                    <p className="text-fg-faint text-sm mt-2">
                         Une question, une suggestion ou besoin d&apos;aide ? Nous répondons sous 24 à 48 h.
                     </p>
                 </div>
@@ -102,7 +102,7 @@ export default function Contact() {
                             className="space-y-5"
                         >
                             <div className="space-y-1.5">
-                                <label className="block text-sm font-medium text-gray-700" htmlFor="email">
+                                <label className="block text-sm font-medium text-fg-soft" htmlFor="email">
                                     Votre email
                                 </label>
                                 <input
@@ -119,7 +119,7 @@ export default function Contact() {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="block text-sm font-medium text-gray-700" htmlFor="subject">
+                                <label className="block text-sm font-medium text-fg-soft" htmlFor="subject">
                                     Sujet
                                 </label>
                                 <select
@@ -141,7 +141,7 @@ export default function Contact() {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="block text-sm font-medium text-gray-700" htmlFor="message">
+                                <label className="block text-sm font-medium text-fg-soft" htmlFor="message">
                                     Votre message
                                 </label>
                                 <textarea
@@ -156,7 +156,7 @@ export default function Contact() {
                                     disabled={isLoading}
                                     maxLength={1000}
                                 />
-                                <div className="text-right text-xs text-gray-400">{message?.length || 0} / 1000</div>
+                                <div className="text-right text-xs text-fg-subtle">{message?.length || 0} / 1000</div>
                             </div>
 
                             <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-1">
@@ -168,9 +168,9 @@ export default function Contact() {
                                 </CustomButton>
                             </div>
 
-                            <p className="text-center text-xs text-gray-500 pt-3 border-t border-gray-100">
+                            <p className="text-center text-xs text-fg-faint pt-3 border-t border-line-soft">
                                 Vous préférez nous écrire directement ?{' '}
-                                <a href="mailto:contact@malistedecadeaux.fr" className="text-indigo-600 hover:underline">
+                                <a href="mailto:contact@malistedecadeaux.fr" className="text-info-fg hover:underline">
                                     contact@malistedecadeaux.fr
                                 </a>
                             </p>
@@ -180,8 +180,8 @@ export default function Contact() {
                     {isSubmitted && (
                         <div className="text-center py-6">
                             <div className="text-5xl mb-4">✅</div>
-                            <h3 className="text-xl font-bold text-gray-800 mb-2">Message envoyé</h3>
-                            <p className="text-gray-600 text-sm max-w-sm mx-auto mb-6">
+                            <h3 className="text-xl font-bold text-fg mb-2">Message envoyé</h3>
+                            <p className="text-fg-muted text-sm max-w-sm mx-auto mb-6">
                                 Merci, nous l&apos;avons bien reçu. Nous vous répondrons à <strong>{email}</strong> sous 24 à 48
                                 h.
                             </p>
@@ -199,10 +199,10 @@ export default function Contact() {
                     {hasError && (
                         <div className="text-center py-6">
                             <div className="text-5xl mb-4">⚠️</div>
-                            <h3 className="text-xl font-bold text-gray-800 mb-2">Oups, une erreur est survenue</h3>
-                            <p className="text-gray-600 text-sm max-w-sm mx-auto mb-6">
+                            <h3 className="text-xl font-bold text-fg mb-2">Oups, une erreur est survenue</h3>
+                            <p className="text-fg-muted text-sm max-w-sm mx-auto mb-6">
                                 Votre message n&apos;a pas pu être envoyé. Vous pouvez réessayer, ou nous écrire directement à{' '}
-                                <a href="mailto:contact@malistedecadeaux.fr" className="text-indigo-600 hover:underline">
+                                <a href="mailto:contact@malistedecadeaux.fr" className="text-info-fg hover:underline">
                                     contact@malistedecadeaux.fr
                                 </a>
                                 .

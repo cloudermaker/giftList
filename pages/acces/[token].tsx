@@ -36,13 +36,13 @@ export default function ProfilePickerPage({ token, valid, profiles }: Props) {
         <Layout withHeader={false}>
             <SEO title="Connexion" noIndex />
             <section className="flex justify-center items-start px-4 py-8">
-                <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div className="w-full max-w-md bg-surface rounded-2xl shadow-xl overflow-hidden">
                     <div className="p-6 space-y-4">
-                        <h1 className="text-2xl font-bold text-center text-gray-800">🎁 Te reconnecter</h1>
+                        <h1 className="text-2xl font-bold text-center text-fg">🎁 Te reconnecter</h1>
                         {error && <ErrorAlert message={error} onClose={() => setError('')} />}
 
                         {!valid && (
-                            <p className="text-sm text-gray-600 text-center">
+                            <p className="text-sm text-fg-muted text-center">
                                 Ce lien a expiré ou a déjà été utilisé.{' '}
                                 <Link href="/acces" className="text-rougeNoel hover:underline">
                                     Demande un nouveau lien
@@ -52,7 +52,7 @@ export default function ProfilePickerPage({ token, valid, profiles }: Props) {
                         )}
 
                         {valid && profiles.length === 0 && (
-                            <p className="text-sm text-gray-600 text-center">
+                            <p className="text-sm text-fg-muted text-center">
                                 Aucun profil n&apos;est encore lié à cette adresse. Connecte-toi avec le nom du groupe et ton
                                 prénom, puis ajoute ton email depuis ton profil 👤.
                             </p>
@@ -60,7 +60,7 @@ export default function ProfilePickerPage({ token, valid, profiles }: Props) {
 
                         {valid && profiles.length > 0 && (
                             <>
-                                <p className="text-sm text-gray-600 text-center">
+                                <p className="text-sm text-fg-muted text-center">
                                     {profiles.length > 1 ? 'Choisis le groupe à ouvrir :' : 'Ton profil :'}
                                 </p>
                                 <div className="flex flex-col gap-3">
@@ -85,8 +85,8 @@ export default function ProfilePickerPage({ token, valid, profiles }: Props) {
                             </>
                         )}
                     </div>
-                    <div className="p-6 bg-gray-50 text-sm text-center">
-                        <Link href="/" className="text-gray-500 hover:underline">
+                    <div className="p-6 bg-surface-muted text-sm text-center">
+                        <Link href="/" className="text-fg-faint hover:underline">
                             ← Retour à l&apos;accueil
                         </Link>
                     </div>

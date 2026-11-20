@@ -11,7 +11,7 @@ export const PageTitle = ({
     className?: string;
 }) => (
     <div className={className}>
-        {eyebrow && <p className="text-sm text-gray-500 mb-1">{eyebrow}</p>}
-        <h1 className="text-2xl font-bold text-gray-800">{children}</h1>
+        {eyebrow && <p className="text-sm text-fg-faint mb-1">{eyebrow}</p>}
+        <h1 className="text-2xl font-bold text-fg">{children}</h1>
     </div>
 );

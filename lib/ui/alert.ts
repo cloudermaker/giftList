@@ -1,13 +1,14 @@
 import type Swal from 'sweetalert2';
+import { currentTheme } from './theme';
 
 type SwalModule = typeof Swal;
 
 let cached: SwalModule | null = null;
 
-// sweetalert2 chargé à la demande : ~40 kB gz hors du bundle initial
+// sweetalert2 chargé à la demande : ~40 kB gz hors du bundle initial ; suit le thème du site
 export const getSwal = async (): Promise<SwalModule> => {
-    if (!cached) cached = (await import('sweetalert2')).default.mixin({ theme: 'auto' });
-    return cached;
+    if (!cached) cached = (await import('sweetalert2')).default;
+    return cached.mixin({ theme: currentTheme() });
 };
 
 export const toast = async (title: string, icon: 'success' | 'error' | 'info' = 'success'): Promise<void> => {

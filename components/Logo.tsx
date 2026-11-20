@@ -47,8 +47,8 @@ export const Logo = ({ size = 'medium', showText = true, className = '' }: LogoP
 
             {showText && (
                 <div className="hidden sm:flex flex-col leading-tight">
-                    <span className={`${textSizeClasses[size]} font-bold text-gray-800`}>Ma Liste</span>
-                    <span className={`text-sm font-normal text-gray-400 tracking-wide`}>de cadeaux</span>
+                    <span className={`${textSizeClasses[size]} font-bold text-fg`}>Ma Liste</span>
+                    <span className={`text-sm font-normal text-fg-subtle tracking-wide`}>de cadeaux</span>
                 </div>
             )}
         </Link>

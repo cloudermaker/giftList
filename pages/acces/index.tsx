@@ -34,10 +34,10 @@ export default function AccessPage() {
         <Layout withHeader={false}>
             <SEO title="Accès oublié" noIndex />
             <section className="flex justify-center items-start px-4 py-8">
-                <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div className="w-full max-w-md bg-surface rounded-2xl shadow-xl overflow-hidden">
                     <div className="p-6 space-y-4">
-                        <h1 className="text-2xl font-bold text-center text-gray-800">🔑 Accès oublié ?</h1>
-                        <p className="text-sm text-gray-600 text-center">
+                        <h1 className="text-2xl font-bold text-center text-fg">🔑 Accès oublié ?</h1>
+                        <p className="text-sm text-fg-muted text-center">
                             Si tu as lié un email à ton profil, on t&apos;envoie un lien pour te reconnecter — sans retaper le nom
                             du groupe.
                         </p>
@@ -45,14 +45,14 @@ export default function AccessPage() {
                         {error && <ErrorAlert message={error} onClose={() => setError('')} />}
 
                         {sent ? (
-                            <div className="p-4 bg-green-50 border border-green-200 rounded-xl text-sm text-green-800">
+                            <div className="p-4 bg-success-soft border border-success-line rounded-xl text-sm text-success-fg-deep">
                                 📧 Si un profil est lié à <b>{email.trim()}</b>, un lien de connexion vient d&apos;y être envoyé.
                                 Il est valable 30 minutes.
                             </div>
                         ) : (
                             <>
                                 <div className="space-y-2">
-                                    <label htmlFor="accessEmailInput" className="block text-sm font-medium text-gray-700">
+                                    <label htmlFor="accessEmailInput" className="block text-sm font-medium text-fg-soft">
                                         Ton email
                                     </label>
                                     <CustomInput
@@ -73,7 +73,7 @@ export default function AccessPage() {
                             </>
                         )}
                     </div>
-                    <div className="p-6 bg-gray-50 text-sm text-center text-gray-600 space-y-2">
+                    <div className="p-6 bg-surface-muted text-sm text-center text-fg-muted space-y-2">
                         <p>
                             Pas d&apos;email lié ?{' '}
                             <Link href="/contact" className="text-rougeNoel hover:underline">
@@ -81,7 +81,7 @@ export default function AccessPage() {
                             </Link>
                         </p>
                         <p>
-                            <Link href="/" className="text-gray-500 hover:underline">
+                            <Link href="/" className="text-fg-faint hover:underline">
                                 ← Retour à la connexion
                             </Link>
                         </p>

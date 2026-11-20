@@ -8,7 +8,7 @@ import jsonPackage from '@/package.json';
 const FooterLink = ({ href, emoji, children }: { href: string; emoji: string; children: ReactNode }) => (
     <Link
         href={href}
-        className="flex items-center text-sm font-medium text-neutral-700 hover:text-rougeNoel active:scale-95 transition-all duration-300"
+        className="flex items-center text-sm font-medium text-fg-soft hover:text-rougeNoel active:scale-95 transition-all duration-300"
     >
         <span className="mr-1.5">{emoji}</span>
         {children}
@@ -18,7 +18,7 @@ const FooterLink = ({ href, emoji, children }: { href: string; emoji: string; ch
 const SocialLink = ({ href, children }: { href: string; children: ReactNode }) => (
     <Link
         href={href}
-        className="p-2 rounded-full bg-white/30 hover:bg-white/50 transition-all duration-300 hover:scale-110 active:scale-95"
+        className="p-2 rounded-full bg-surface/30 hover:bg-surface/50 transition-all duration-300 hover:scale-110 active:scale-95"
         target="_blank"
         rel="noopener noreferrer"
     >
@@ -30,7 +30,7 @@ export const CustomFooter = () => {
     const { connectedUser } = useCurrentUser();
 
     return (
-        <footer className="mt-auto inset-x-0 bottom-0 border-t border-neutral-200">
+        <footer className="mt-auto inset-x-0 bottom-0 border-t border-line">
             <div className="container mx-auto max-w-5xl px-4 py-6">
                 <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between">
                     {/* Bloc gauche : tous les liens, sur plusieurs lignes si besoin */}
@@ -64,18 +64,18 @@ export const CustomFooter = () => {
                     <div className="flex flex-col items-center gap-6 md:flex-row md:shrink-0">
                         <div className="flex gap-3">
                             <SocialLink href="https://www.facebook.com/malistedecadeaux">
-                                <FacebookIcon className="w-5 text-neutral-600 hover:text-rougeNoel" />
+                                <FacebookIcon className="w-5 text-fg-muted hover:text-rougeNoel" />
                             </SocialLink>
                             <SocialLink href="https://twitter.com/malistedecadeaux">
-                                <TwitterIcon className="w-5 text-neutral-600 hover:text-rougeNoel" />
+                                <TwitterIcon className="w-5 text-fg-muted hover:text-rougeNoel" />
                             </SocialLink>
                         </div>
-                        <div className="text-sm text-neutral-600 flex items-center whitespace-nowrap">
+                        <div className="text-sm text-fg-muted flex items-center whitespace-nowrap">
                             <span className="mr-2">🎁</span>
                             <span className="hidden md:inline">Copyright&nbsp;</span>© {new Date().getFullYear()} PLR
                             <Link
                                 href="/changelog"
-                                className="ml-2 px-2 py-0.5 rounded-full bg-white/30 text-xs text-vertNoel hover:bg-white/50 transition-all"
+                                className="ml-2 px-2 py-0.5 rounded-full bg-surface/30 text-xs text-vertNoel hover:bg-surface/50 transition-all"
                             >
                                 v{jsonPackage.version}
                             </Link>
