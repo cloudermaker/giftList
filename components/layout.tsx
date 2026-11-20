@@ -58,7 +58,6 @@ export const Layout = ({
                             <ThemeToggle />
                             {connectedUser && (
                                 <>
-                                    <span className="hidden sm:inline-block w-2 h-2 bg-success rounded-full" />
                                     {connectedUser.isAdmin && (
                                         <span className="hidden sm:inline-flex text-xs font-semibold bg-warning-tint text-warning-fg-strong border border-warning-line-strong px-2 py-0.5 rounded-full select-none items-center gap-1">
                                             🛡️ Admin
