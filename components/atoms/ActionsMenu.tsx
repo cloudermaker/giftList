@@ -1,14 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export type TMenuAction = { label: string; icon: string; onClick: () => void; danger?: boolean };
 
-type TActionsMenuProps = { label: string; actions: TMenuAction[] };
+type TActionsMenuProps = { label: string; actions: TMenuAction[]; trigger?: ReactNode; triggerClassName?: string };
 
 const ITEM_HEIGHT = 40;
 
 /** Bouton « ⋯ » ouvrant un menu d'actions, rendu dans le body pour ne jamais être coupé par la carte. */
-const ActionsMenu = ({ label, actions }: TActionsMenuProps) => {
+const ActionsMenu = ({ label, actions, trigger = '⋯', triggerClassName }: TActionsMenuProps) => {
     const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -54,9 +54,9 @@ const ActionsMenu = ({ label, actions }: TActionsMenuProps) => {
                 aria-haspopup="menu"
                 aria-expanded={!!pos}
                 onClick={toggle}
-                className="w-9 h-9 rounded-lg text-xl leading-none text-fg-muted hover:bg-surface-sunken"
+                className={triggerClassName ?? 'w-9 h-9 rounded-lg text-xl leading-none text-fg-muted hover:bg-surface-sunken'}
             >
-                ⋯
+                {trigger}
             </button>
             {pos &&
                 createPortal(

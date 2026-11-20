@@ -4,6 +4,8 @@ import { IdeasFab } from './atoms/IdeasFab';
 import { CustomHeader, EHeader } from './customHeader';
 import { Logo } from './Logo';
 import { ThemeToggle } from './atoms/ThemeToggle';
+import ActionsMenu from './atoms/ActionsMenu';
+import { THEME_EMOJI, THEME_LABEL, useThemePreference } from '@/lib/hooks/useThemePreference';
 import Router from 'next/router';
 import Link from 'next/link';
 import { Power } from 'lucide-react';
@@ -23,6 +25,7 @@ export const Layout = ({
 }) => {
     const { logout } = useLogout();
     const { connectedUser } = useCurrentUser();
+    const { pref: themePref, cycle: cycleTheme } = useThemePreference();
 
     const onDisconnectClick = async (): Promise<void> => {
         await logout();
@@ -55,7 +58,12 @@ export const Layout = ({
 
                     <div className="flex justify-end">
                         <div className="flex items-center gap-2 text-sm cursor-default flex-nowrap">
-                            <ThemeToggle />
+                            {/* Sur mobile, connecté : un seul menu compte pour laisser la place au nom du groupe */}
+                            <ThemeToggle
+                                pref={themePref}
+                                onCycle={cycleTheme}
+                                className={connectedUser ? 'hidden sm:inline-block' : ''}
+                            />
                             {connectedUser && (
                                 <>
                                     {connectedUser.isAdmin && (
@@ -65,19 +73,39 @@ export const Layout = ({
                                     )}
                                     <Link
                                         href="/profil"
-                                        className="icon-btn text-fg-subtle hover:text-vertNoel hover:no-underline transition-colors"
+                                        className="hidden sm:inline-block icon-btn text-fg-subtle hover:text-vertNoel hover:no-underline transition-colors"
                                         title={`Mon profil (${connectedUser.userName})`}
                                         aria-label="Mon profil"
                                     >
                                         👤
                                     </Link>
                                     <button
-                                        className="icon-btn text-fg-subtle hover:text-rougeNoel transition-colors"
+                                        className="hidden sm:inline-block icon-btn text-fg-subtle hover:text-rougeNoel transition-colors"
                                         onClick={onDisconnectClick}
                                         title="Se déconnecter"
                                     >
                                         <Power className="w-4 h-4" aria-hidden="true" />
                                     </button>
+                                    <div className="sm:hidden">
+                                        <ActionsMenu
+                                            label="Mon compte"
+                                            trigger="👤"
+                                            triggerClassName="icon-btn"
+                                            actions={[
+                                                {
+                                                    label: `Mon profil (${connectedUser.userName})`,
+                                                    icon: '👤',
+                                                    onClick: () => Router.push('/profil')
+                                                },
+                                                {
+                                                    label: THEME_LABEL[themePref],
+                                                    icon: THEME_EMOJI[themePref],
+                                                    onClick: cycleTheme
+                                                },
+                                                { label: 'Se déconnecter', icon: '⏻', onClick: onDisconnectClick, danger: true }
+                                            ]}
+                                        />
+                                    </div>
                                 </>
                             )}
                         </div>
