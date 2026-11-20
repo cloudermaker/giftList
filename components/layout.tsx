@@ -102,7 +102,12 @@ export const Layout = ({
                                                     icon: THEME_EMOJI[themePref],
                                                     onClick: cycleTheme
                                                 },
-                                                { label: 'Se déconnecter', icon: '⏻', onClick: onDisconnectClick, danger: true }
+                                                {
+                                                    label: 'Se déconnecter',
+                                                    icon: '⏻',
+                                                    onClick: onDisconnectClick,
+                                                    dividerBefore: true
+                                                }
                                             ]}
                                         />
                                     </div>
