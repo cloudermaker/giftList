@@ -54,7 +54,9 @@ export default function Confidentialite() {
                         </li>
                         <li>
                             <strong>Messages du formulaire de contact</strong> : uniquement pour vous répondre (base légale :
-                            intérêt légitime à traiter votre demande).
+                            intérêt légitime à traiter votre demande). Si vous êtes connecté, le message inclut votre prénom, vos
+                            groupes, la page d&apos;où vous écrivez et votre navigateur, pour comprendre votre demande sans
+                            avoir à vous la redemander.
                         </li>
                     </ul>
                     <p>

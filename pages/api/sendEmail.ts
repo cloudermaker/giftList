@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { sendMail } from '@/lib/email/mailer';
+import { buildSupportContext, sanitizeFromPath } from '@/lib/email/supportContext';
 
 export type TSendEmailResult = {
     success: boolean;
@@ -10,6 +11,7 @@ type TSendEmailInput = {
     senderEmail: string;
     subject: string;
     message: string;
+    fromPath?: string;
 };
 
 const escapeHtml = (value: string): string =>
@@ -31,7 +33,7 @@ const isRateLimited = (ip: string): boolean => {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TSendEmailResult>) {
-    const { senderEmail: rawEmail, subject: rawSubject, message: rawMessage }: TSendEmailInput = req.body;
+    const { senderEmail: rawEmail, subject: rawSubject, message: rawMessage, fromPath: rawFromPath }: TSendEmailInput = req.body ?? {};
 
     try {
         if (req.method === 'POST') {
@@ -55,15 +57,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const subject = escapeHtml(rawSubject.trim());
             const message = escapeHtml(rawMessage.trim());
 
+            const context = await buildSupportContext(req, sanitizeFromPath(rawFromPath));
+            const contextText = context.map((l) => `${l.label}: ${l.value}`).join('\n');
+            const contextHtml = context
+                .map(
+                    (l) =>
+                        `<p style="margin: 0 0 6px; color: #333; font-size: 13px; line-height: 1.5;"><strong>${escapeHtml(l.label)} :</strong> ${escapeHtml(l.value)}</p>`
+                )
+                .join('');
+
             // Configuration de l'email avec timestamp pour éviter le groupement
             const timestamp = new Date().toISOString();
             const uniqueId = Math.random().toString(36).substring(7);
+
+            // Réponse préremplie : message d'origine cité (tronqué pour rester sous les limites des liens mailto)
+            const quoted = rawMessage
+                .trim()
+                .slice(0, 1200)
+                .split('\n')
+                .map((line) => `> ${line}`)
+                .join('\n');
+            const replyBody = `Bonjour,\n\n\n\nL'équipe Ma Liste de Cadeaux\n\n---\nVotre message du ${new Date().toLocaleDateString('fr-FR')} :\n${quoted}`;
+            const replyHref = escapeHtml(
+                `mailto:${encodeURIComponent(rawEmail).replace('%40', '@')}?subject=${encodeURIComponent(`Re: ${rawSubject.trim()} [#${uniqueId}]`)}&body=${encodeURIComponent(replyBody)}`
+            );
 
             await sendMail({
                 to: 'contact@malistedecadeaux.fr',
                 replyTo: rawEmail,
                 subject: `${rawSubject.trim()} [#${uniqueId}]`, // Sujet unique avec ID aléatoire
-                text: `Nouveau message reçu via le formulaire de contact\n\nDe: ${rawEmail}\nSujet: ${rawSubject.trim()}\nDate: ${new Date().toLocaleString('fr-FR')}\n\nMessage:\n${rawMessage.trim()}`,
+                text: `Nouveau message reçu via le formulaire de contact\n\nDe: ${rawEmail}\nSujet: ${rawSubject.trim()}\nDate: ${new Date().toLocaleString('fr-FR')}\n\nMessage:\n${rawMessage.trim()}\n\nContexte:\n${contextText}`,
                 html: `
                     <!DOCTYPE html>
                     <html lang="fr">
@@ -136,9 +159,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                                                     </div>
                                                 </div>
 
+                                                <!-- Context -->
+                                                <div style="margin-bottom: 20px; padding: 15px; background-color: #fff8e6; border-left: 4px solid #f0ad4e; border-radius: 4px;">
+                                                    <p style="margin: 0 0 10px; color: #666; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                        Contexte
+                                                    </p>
+                                                    ${contextHtml}
+                                                </div>
+
                                                 <!-- Reply Button -->
                                                 <div style="margin-top: 30px; text-align: center;">
-                                                    <a href="mailto:${senderEmail}?subject=Re: ${encodeURIComponent(subject)}" 
+                                                    <a href="${replyHref}"
                                                        style="display: inline-block; padding: 12px 30px; background-color: #667eea; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px;">
                                                         Répondre à ${senderEmail}
                                                     </a>
