@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { ReactNode } from 'react';
+import { useRouter } from 'next/router';
+import { ReactNode, useEffect, useState } from 'react';
 import { FacebookIcon } from '../icons/facebook';
 import { TwitterIcon } from '../icons/twitter';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
@@ -28,6 +29,14 @@ const SocialLink = ({ href, children }: { href: string; children: ReactNode }) =
 
 export const CustomFooter = () => {
     const { connectedUser } = useCurrentUser();
+    const { asPath, isReady } = useRouter();
+    // Page d'origine transmise au support, calculée côté client (asPath SSR = motif de route sur les pages statiques)
+    const [contactHref, setContactHref] = useState('/contact');
+    useEffect(() => {
+        if (!isReady) return;
+        const path = asPath.split(/[?#]/)[0];
+        setContactHref(path.startsWith('/contact') ? '/contact' : `/contact?from=${encodeURIComponent(path)}`);
+    }, [asPath, isReady]);
 
     return (
         <footer className="mt-auto inset-x-0 bottom-0 border-t border-line">
@@ -38,7 +47,7 @@ export const CustomFooter = () => {
                         <FooterLink href={connectedUser ? '/home' : '/'} emoji="🏠">
                             Accueil
                         </FooterLink>
-                        <FooterLink href="/contact" emoji="✉️">
+                        <FooterLink href={contactHref} emoji="✉️">
                             Nous contacter
                         </FooterLink>
                         <FooterLink href="/help" emoji="❓">

@@ -19,15 +19,30 @@ const generateInviteToken = (): string => randomBytes(5).toString('hex');
 
 export type TGroupSummary = { id: string; name: string; createdAt: Date | null };
 
-export const getGroupsPage = async (page: number, pageSize = 10): Promise<{ groups: TGroupSummary[]; totalCount: number }> => {
+export const getGroupsPage = async (
+    page: number,
+    pageSize = 10,
+    search = ''
+): Promise<{ groups: TGroupSummary[]; totalCount: number }> => {
+    const term = search.trim();
+    // Filtre sur le nom du groupe ou le prénom d'un membre
+    const where = term
+        ? {
+              OR: [
+                  { name: { contains: term, mode: 'insensitive' as const } },
+                  { userMemberships: { some: { user: { name: { contains: term, mode: 'insensitive' as const } } } } }
+              ]
+          }
+        : undefined;
     const [groups, totalCount] = await prisma.$transaction([
         prisma.group.findMany({
+            where,
             skip: (page - 1) * pageSize,
             take: pageSize,
             orderBy: { createdAt: 'desc' },
             select: { id: true, name: true, createdAt: true }
         }),
-        prisma.group.count()
+        prisma.group.count({ where })
     ]);
 
     return { groups, totalCount };
