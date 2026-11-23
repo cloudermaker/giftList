@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { sendMail } from '@/lib/email/mailer';
-import { buildSupportContext, sanitizeFromPath } from '@/lib/email/supportContext';
+import { buildReplyMailto, buildSupportContext, sanitizeFromPath } from '@/lib/email/supportContext';
 
 export type TSendEmailResult = {
     success: boolean;
@@ -70,16 +70,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const timestamp = new Date().toISOString();
             const uniqueId = Math.random().toString(36).substring(7);
 
-            // Réponse préremplie : message d'origine cité (tronqué pour rester sous les limites des liens mailto)
-            const quoted = rawMessage
-                .trim()
-                .slice(0, 1200)
-                .split('\n')
-                .map((line) => `> ${line}`)
-                .join('\n');
-            const replyBody = `Bonjour,\n\n\n\nL'équipe Ma Liste de Cadeaux\n\n---\nVotre message du ${new Date().toLocaleDateString('fr-FR')} :\n${quoted}`;
             const replyHref = escapeHtml(
-                `mailto:${encodeURIComponent(rawEmail).replace('%40', '@')}?subject=${encodeURIComponent(`Re: ${rawSubject.trim()} [#${uniqueId}]`)}&body=${encodeURIComponent(replyBody)}`
+                buildReplyMailto(rawEmail, `${rawSubject.trim()} [#${uniqueId}]`, rawMessage, new Date())
             );
 
             await sendMail({
