@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { ReactNode } from 'react';
 import { FacebookIcon } from '../icons/facebook';
 import { TwitterIcon } from '../icons/twitter';
@@ -28,6 +29,9 @@ const SocialLink = ({ href, children }: { href: string; children: ReactNode }) =
 
 export const CustomFooter = () => {
     const { connectedUser } = useCurrentUser();
+    const { asPath } = useRouter();
+    // Page d'origine transmise au support
+    const contactHref = asPath.startsWith('/contact') ? '/contact' : `/contact?from=${encodeURIComponent(asPath)}`;
 
     return (
         <footer className="mt-auto inset-x-0 bottom-0 border-t border-line">
@@ -38,7 +42,7 @@ export const CustomFooter = () => {
                         <FooterLink href={connectedUser ? '/home' : '/'} emoji="🏠">
                             Accueil
                         </FooterLink>
-                        <FooterLink href="/contact" emoji="✉️">
+                        <FooterLink href={contactHref} emoji="✉️">
                             Nous contacter
                         </FooterLink>
                         <FooterLink href="/help" emoji="❓">

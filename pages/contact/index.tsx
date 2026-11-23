@@ -2,8 +2,12 @@ import CustomButton from '@/components/atoms/customButton';
 import { Layout } from '@/components/layout';
 import { PageTitle } from '@/components/atoms/PageTitle';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
-import Router from 'next/router';
+import Router, { useRouter } from 'next/router';
 import { useState } from 'react';
+import type { GetServerSideProps } from 'next';
+import { verifySession } from '@/lib/auth/session';
+import { COOKIE_NAME } from '@/lib/auth/authService';
+import { getEmailStatus } from '@/lib/auth/emailRecovery';
 import { TSendEmailResult } from '../api/sendEmail';
 import AxiosWrapper from '@/lib/wrappers/axiosWrapper';
 import SEO from '@/components/SEO';
@@ -19,8 +23,11 @@ const SUBJECTS = [
     'Autre demande'
 ];
 
-export default function Contact() {
-    const [email, setEmail] = useState<string>();
+type Props = { prefillEmail: string };
+
+export default function Contact({ prefillEmail }: Props) {
+    const { query } = useRouter();
+    const [email, setEmail] = useState<string>(prefillEmail);
     const [subject, setSubject] = useState<string>('');
     const [message, setMessage] = useState<string>();
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -57,7 +64,8 @@ export default function Contact() {
             const response = await AxiosWrapper.post('/api/sendEmail', {
                 senderEmail: email,
                 subject: subject || 'Message de contact',
-                message: message
+                message: message,
+                fromPath: typeof query.from === 'string' ? query.from : undefined
             });
             const data = response?.data as TSendEmailResult;
 
@@ -222,3 +230,15 @@ export default function Contact() {
         </Layout>
     );
 }
+
+// Email complet seulement si la session a été ouverte par le lien email (même règle que le profil)
+export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
+    const session = verifySession(context.req.cookies[COOKIE_NAME]);
+    if (!session?.emailAuth) return { props: { prefillEmail: '' } };
+    try {
+        const status = await getEmailStatus(session.userId);
+        return { props: { prefillEmail: status.email ?? '' } };
+    } catch {
+        return { props: { prefillEmail: '' } };
+    }
+};
