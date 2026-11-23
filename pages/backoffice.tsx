@@ -236,11 +236,32 @@ type TBackofficeProps = {
     page: number;
     totalCount: number;
     pageSize: number;
+    search: string;
 };
 
-const Backoffice = ({ groups = [], isAuthenticated = false, page = 1, totalCount = 0, pageSize = 10 }: TBackofficeProps) => {
+const backofficeUrl = (page: number, search: string): string => {
+    const params = new URLSearchParams();
+    if (page > 1) params.set('page', String(page));
+    if (search) params.set('q', search);
+    const query = params.toString();
+    return query ? `/backoffice?${query}` : '/backoffice';
+};
+
+const Backoffice = ({
+    groups = [],
+    isAuthenticated = false,
+    page = 1,
+    totalCount = 0,
+    pageSize = 10,
+    search = ''
+}: TBackofficeProps) => {
     const [localGroups, setLocalGroups] = useState<TGroupItem[]>(groups);
     const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+    const [searchInput, setSearchInput] = useState<string>(search);
+
+    useEffect(() => {
+        setSearchInput(search);
+    }, [search]);
 
     // Resynchronise l'état local quand les props SSR changent (navigation client : login, pagination)
     useEffect(() => {
@@ -368,6 +389,40 @@ const Backoffice = ({ groups = [], isAuthenticated = false, page = 1, totalCount
 
                 <h2 className="text-base font-semibold text-fg-muted uppercase tracking-wide mb-4">Groupes</h2>
 
+                <form
+                    className="flex flex-col sm:flex-row gap-2 mb-4"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        Router.push(backofficeUrl(1, searchInput.trim()));
+                    }}
+                >
+                    <input
+                        type="search"
+                        aria-label="Rechercher un groupe ou un membre"
+                        className="input-field flex-1"
+                        placeholder="Nom du groupe ou prénom d'un membre"
+                        value={searchInput}
+                        maxLength={100}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                    />
+                    <div className="flex gap-2">
+                        <CustomButton type="submit" onClick={() => undefined}>
+                            Rechercher
+                        </CustomButton>
+                        {search && (
+                            <CustomButton variant="slate" type="button" onClick={() => Router.push(backofficeUrl(1, ''))}>
+                                Effacer
+                            </CustomButton>
+                        )}
+                    </div>
+                </form>
+
+                {search && (
+                    <p className="text-sm text-fg-faint mb-3">
+                        {totalCount} groupe{totalCount > 1 ? 's' : ''} pour « {search} »
+                    </p>
+                )}
+
                 {localGroups.map((group) => (
                     <GroupRow
                         key={group.id}
@@ -381,13 +436,13 @@ const Backoffice = ({ groups = [], isAuthenticated = false, page = 1, totalCount
 
                 {totalPages > 1 && (
                     <div className="flex items-center justify-center gap-4 mt-4 mb-2">
-                        <CustomButton disabled={page <= 1} onClick={() => Router.push(`/backoffice?page=${page - 1}`)}>
+                        <CustomButton disabled={page <= 1} onClick={() => Router.push(backofficeUrl(page - 1, search))}>
                             ← Précédent
                         </CustomButton>
                         <span className="text-sm text-fg-faint">
                             Page {page} / {totalPages}
                         </span>
-                        <CustomButton disabled={page >= totalPages} onClick={() => Router.push(`/backoffice?page=${page + 1}`)}>
+                        <CustomButton disabled={page >= totalPages} onClick={() => Router.push(backofficeUrl(page + 1, search))}>
                             Suivant →
                         </CustomButton>
                     </div>
@@ -541,16 +596,18 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const isAuthenticated = context.req.cookies['backoffice_session'] === '1';
 
     if (!isAuthenticated) {
-        return { props: { groups: [], isAuthenticated: false, page: 1, totalCount: 0, pageSize: PAGE_SIZE } };
+        return { props: { groups: [], isAuthenticated: false, page: 1, totalCount: 0, pageSize: PAGE_SIZE, search: '' } };
     }
 
     const page = Math.max(1, parseInt((context.query.page as string) ?? '1', 10) || 1);
-    const { groups, totalCount } = await getGroupsPage(page, PAGE_SIZE);
+    const search = typeof context.query.q === 'string' ? context.query.q.slice(0, 100) : '';
+    const { groups, totalCount } = await getGroupsPage(page, PAGE_SIZE, search);
 
     return {
         props: {
             isAuthenticated: true,
             page,
+            search,
             totalCount,
             pageSize: PAGE_SIZE,
             groups: groups.map((group) => ({
