@@ -161,4 +161,21 @@ test.describe.serial('Cadeaux communs', () => {
         await gotoUntilVisible(pageB, `/giftList/${bobUserId}`, 'Weekend à Rome');
         await expect(pageB.getByText('Dîner étoilé')).toHaveCount(0);
     });
+
+    test('quand le créateur est supprimé, le cadeau commun reste sur la liste principale du partenaire', async () => {
+        const session = (await readSession(pageA))!;
+        const addDan = await pageA.request.post('/api/user', { data: { user: { name: 'Dan' }, groupId: session.groupId } });
+        const danId = (await addDan.json()).user.id;
+        const created = await pageA.request.post('/api/gift', {
+            data: { gift: { name: 'Cadeau de Dan', userId: danId, coOwnerId: bobUserId }, userGiftId: danId }
+        });
+        expect(created.ok()).toBeTruthy();
+        const sharedId = (await created.json()).gift.id;
+
+        expect((await pageA.request.delete(`/api/user/${danId}`)).ok()).toBeTruthy();
+
+        await gotoUntilVisible(pageB, `/giftList/${bobUserId}`, 'Cadeau de Dan');
+        const edit = await pageB.request.patch(`/api/gift/${sharedId}`, { data: { gift: { name: 'Cadeau de Dan, repris' } } });
+        expect(edit.status()).toBe(200);
+    });
 });
