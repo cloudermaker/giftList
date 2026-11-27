@@ -58,6 +58,7 @@ model User {
 
   // Relations
   gifts                Gift[]             @relation(name: "user")
+  coOwnedGifts         Gift[]             @relation(name: "coOwner")
   groupMemberships     UserGroupMapping[]
   userTakenGifts       UserTakenGift[]
   personalGifts        PersonalGift[]     @relation("PersonalGiftCreator")
@@ -113,6 +114,10 @@ model Gift {
   user   User?   @relation(fields: [userId], references: [id], name: "user", onDelete: Cascade)
   userId String?
 
+  // Second propriétaire (cadeau commun) : suppression du user => le cadeau redevient un cadeau simple
+  coOwner   User?   @relation(fields: [coOwnerId], references: [id], name: "coOwner", onDelete: SetNull)
+  coOwnerId String?
+
   // Sub-gifts (self-relation)
   parentGiftId String?
   parentGift   Gift?   @relation("SubGifts", fields: [parentGiftId], references: [id], onDelete: Cascade)
@@ -125,6 +130,7 @@ model Gift {
 
   @@index([userId, order])
   @@index([parentGiftId])
+  @@index([coOwnerId])
 }
 
 model UserTakenGift {

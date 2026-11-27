@@ -5,6 +5,7 @@
  */
 
 import { GiftWithTakenUserId } from '@/lib/db/giftManager';
+import { isGiftOwner } from '@/lib/giftOwnership';
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import CustomButton from './atoms/customButton';
@@ -26,7 +27,7 @@ export default function SubGiftList({ parentGift, userId, isAdmin = false, initi
     const [creatingSubGift, setCreatingSubGift] = useState(false);
     const [newSubGiftName, setNewSubGiftName] = useState('');
 
-    const isOwner = parentGift.userId === userId;
+    const isOwner = isGiftOwner(parentGift, userId);
     // Tant que la liste n'est pas chargée, le compteur vient du serveur (initialCount)
     const subGiftsCount = loaded ? subGifts.length : (initialCount ?? 0);
 

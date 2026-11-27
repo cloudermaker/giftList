@@ -49,7 +49,8 @@ const giftShape = z
         name: z.string().trim().min(1).max(200),
         description: longText.nullish(),
         url: longText.nullish(),
-        giftType: z.enum(['SIMPLE', 'MULTIPLE', 'UNLIMITED']).optional()
+        giftType: z.enum(['SIMPLE', 'MULTIPLE', 'UNLIMITED']).optional(),
+        coOwnerId: id.nullish()
     })
     .passthrough();
 

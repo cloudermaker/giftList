@@ -5,6 +5,7 @@
 
 import prisma from './dbSingleton';
 import { BOUGHT_RETENTION_MONTHS } from '../retention';
+import { isGiftOwner } from '../giftOwnership';
 
 /**
  * Réserver un cadeau (logique hybride parent/enfant)
@@ -14,15 +15,15 @@ export const takeGift = async (userId: string, giftId: string) => {
     // Récupérer le cadeau avec ses sous-cadeaux
     const gift = await prisma.gift.findUnique({
         where: { id: giftId },
-        include: { subGifts: true }
+        include: { subGifts: true, parentGift: { select: { userId: true, coOwnerId: true } } }
     });
 
     if (!gift) {
         throw new Error('Gift not found');
     }
 
-    // Vérifier que le user ne prend pas son propre cadeau
-    if (gift.userId === userId) {
+    // Vérifier que le user ne prend pas son propre cadeau (ni un sous-cadeau d'un cadeau dont il est propriétaire)
+    if (isGiftOwner(gift, userId) || (gift.parentGift && isGiftOwner(gift.parentGift, userId))) {
         throw new Error('Cannot take your own gift');
     }
 

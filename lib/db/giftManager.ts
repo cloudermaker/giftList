@@ -1,5 +1,6 @@
 import { Gift, User, GiftType, Prisma } from '@prisma/client';
 import prisma from './dbSingleton';
+import { isGroupMember } from './userManager';
 
 export type TakenByEntry = { id: string; userId: string; takenAt: Date | string };
 export type GiftWithTakenUserId = Gift & {
@@ -7,6 +8,17 @@ export type GiftWithTakenUserId = Gift & {
     subGiftsCount?: number;
     takenByList?: TakenByEntry[];
     userTakenGiftId?: string;
+    ownerName?: string;
+    coOwnerName?: string | null;
+};
+
+export class InvalidCoOwnerError extends Error {}
+
+// Le partenaire d'un cadeau commun : un autre membre du groupe
+export const assertValidCoOwner = async (ownerId: string, coOwnerId: string | null | undefined, groupId: string): Promise<void> => {
+    if (!coOwnerId) return;
+    if (coOwnerId === ownerId) throw new InvalidCoOwnerError('Le partenaire doit être un autre membre.');
+    if (!(await isGroupMember(coOwnerId, groupId))) throw new InvalidCoOwnerError('Le partenaire doit être membre du groupe.');
 };
 
 export const buildDefaultGift = (
@@ -22,6 +34,7 @@ export const buildDefaultGift = (
         description: description ?? '',
         url: url ?? '',
         userId,
+        coOwnerId: null,
         order,
         takenUserId: null,
         subGiftsCount: 0,
@@ -70,6 +83,7 @@ export const getTakenGiftsFromUserId = async (userId: string, groupId?: string):
             gift: {
                 include: {
                     user: true,
+                    coOwner: true, // Cadeau commun : second destinataire
                     takenBy: true, // Pour calculer takenUserId
                     parentGift: true // Pour les sous-cadeaux
                 }
@@ -94,6 +108,7 @@ export const getGiftsFromUserId = async (userId: string): Promise<GiftWithTakenU
     const gifts = await prisma.gift.findMany({
         where: {
             userId,
+            coOwnerId: null, // les cadeaux communs ont leur propre section
             parentGiftId: null
         },
         include: {
@@ -117,6 +132,29 @@ export const getGiftsFromUserId = async (userId: string): Promise<GiftWithTakenU
     }) as GiftWithTakenUserId[];
 };
 
+// Cadeaux communs d'un membre (il en est le créateur ou le partenaire), du plus ancien au plus récent
+export const getJointGiftsFromUserId = async (userId: string): Promise<GiftWithTakenUserId[]> => {
+    const gifts = await prisma.gift.findMany({
+        where: { parentGiftId: null, coOwnerId: { not: null }, OR: [{ userId }, { coOwnerId: userId }] },
+        include: {
+            takenBy: true,
+            _count: { select: { subGifts: true } },
+            user: { select: { name: true } },
+            coOwner: { select: { name: true } }
+        },
+        orderBy: { createdAt: 'asc' }
+    });
+
+    return gifts.map(({ takenBy, _count, user, coOwner, ...gift }) => ({
+        ...gift,
+        takenUserId: takenBy.length > 0 ? takenBy[0].userId : null,
+        takenByList: takenBy.map((t) => ({ id: t.id, userId: t.userId, takenAt: t.takenAt })),
+        subGiftsCount: _count.subGifts,
+        ownerName: user?.name,
+        coOwnerName: coOwner?.name ?? null
+    }));
+};
+
 // Seuls les champs éditables passent à Prisma (liste blanche — tout le reste du body est ignoré)
 const editableGiftFields = (gift: Gift) => ({
     ...(gift.name ? { name: gift.name.trim() } : {}),
@@ -127,12 +165,18 @@ const editableGiftFields = (gift: Gift) => ({
     ...(gift.order !== undefined && gift.order !== null ? { order: gift.order } : {})
 });
 
+// Partenaire : string = lier, null = délier, undefined = inchangé (Prisma refuse coOwnerId brut à côté d'une relation)
+const coOwnerUpdate = (gift: Gift) =>
+    gift.coOwnerId === undefined
+        ? {}
+        : { coOwner: gift.coOwnerId ? { connect: { id: gift.coOwnerId } } : { disconnect: true } };
+
 export const updateGift = async (giftId: string, gift: Gift): Promise<Gift> => {
     const result = await prisma.gift.update({
         where: {
             id: giftId
         },
-        data: { ...editableGiftFields(gift), updatedAt: new Date() }
+        data: { ...editableGiftFields(gift), ...coOwnerUpdate(gift), updatedAt: new Date() }
     });
 
     return result;
@@ -164,6 +208,7 @@ export const upsertGift = async (gift: Gift): Promise<Gift> => {
             ...editableGiftFields(gift),
             name: gift.name.trim(),
             user: { connect: { id: gift.userId as string } },
+            ...(gift.coOwnerId && { coOwner: { connect: { id: gift.coOwnerId } } }),
             ...(gift.parentGiftId && { parentGift: { connect: { id: gift.parentGiftId } } }),
             // Même horodatage : un cadeau jamais modifié n'affiche pas « Modifié le »
             createdAt: now,
@@ -172,6 +217,7 @@ export const upsertGift = async (gift: Gift): Promise<Gift> => {
         },
         update: {
             ...editableGiftFields(gift),
+            ...coOwnerUpdate(gift),
             updatedAt: new Date()
         }
     });

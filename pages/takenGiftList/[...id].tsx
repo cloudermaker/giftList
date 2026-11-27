@@ -349,7 +349,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 description: gift.description,
                 url: gift.url,
                 giftType: gift.giftType,
-                recipient: { id: gift.user!.id, name: gift.user!.name },
+                recipient: {
+                    id: gift.user!.id,
+                    name: (gift as any).coOwner ? `${gift.user!.name} & ${(gift as any).coOwner.name}` : gift.user!.name
+                },
                 boughtAt: gift.boughtAt?.toISOString() ?? null
             };
         });
