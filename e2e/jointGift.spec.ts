@@ -105,4 +105,60 @@ test.describe.serial('Cadeaux communs', () => {
     test('la liste des cadeaux réservés montre les deux destinataires', async () => {
         await gotoUntilVisible(pageC, `/takenGiftList/${chloeUserId}`, 'Alice & Bob');
     });
+
+    const createJoint = async (name: string, extra: Record<string, unknown> = {}): Promise<string> => {
+        const res = await pageA.request.post('/api/gift', {
+            data: { gift: { name, userId: aliceUserId, coOwnerId: bobUserId, ...extra }, userGiftId: aliceUserId }
+        });
+        expect(res.ok()).toBeTruthy();
+        return (await res.json()).gift.id;
+    };
+
+    test('le partenaire peut ajouter un sous-cadeau à un cadeau commun', async () => {
+        const parentId = await createJoint('Coffret partagé', { giftType: 'MULTIPLE' });
+        const res = await pageB.request.post(`/api/gift/${parentId}/subgifts`, { data: { name: 'Tome 1' } });
+        expect(res.status()).toBe(201);
+        const subGiftId = (await res.json()).subGift.id;
+        expect((await pageB.request.delete(`/api/gift/${subGiftId}`)).status()).toBe(200);
+    });
+
+    test('un partenaire invalide est refusé à la création et à la modification', async () => {
+        const otherCtx = await ctxA.browser()!.newContext();
+        const otherPage = await otherCtx.newPage();
+        await createGroup(otherPage, uniqueName('e2e-joint-other'), 'Zoé', 'e2e-password');
+        const strangerId = (await readSession(otherPage))!.userId;
+
+        for (const coOwnerId of [aliceUserId, strangerId]) {
+            const create = await pageA.request.post('/api/gift', {
+                data: { gift: { name: 'Refusé', userId: aliceUserId, coOwnerId }, userGiftId: aliceUserId }
+            });
+            expect(create.status()).toBe(400);
+            const patch = await pageA.request.patch(`/api/gift/${giftId}`, { data: { gift: { coOwnerId } } });
+            expect(patch.status()).toBe(400);
+        }
+
+        await deleteCurrentGroup(otherPage);
+        await otherCtx.close();
+    });
+
+    test('le partenaire modifie le cadeau puis le délie : il retourne sur la liste du créateur seul', async () => {
+        const id = await createJoint('Concert');
+        const edit = await pageB.request.patch(`/api/gift/${id}`, { data: { gift: { name: 'Concert à Lyon' } } });
+        expect(edit.status()).toBe(200);
+        const unlink = await pageB.request.patch(`/api/gift/${id}`, { data: { gift: { coOwnerId: null } } });
+        expect(unlink.status()).toBe(200);
+
+        await gotoUntilVisible(pageA, `/giftList/${aliceUserId}`, 'Concert à Lyon');
+        await gotoUntilVisible(pageB, `/giftList/${bobUserId}`, 'Weekend à Rome');
+        await expect(pageB.getByText('Concert à Lyon')).toHaveCount(0);
+    });
+
+    test('le partenaire supprime le cadeau commun pour les deux', async () => {
+        const id = await createJoint('Dîner étoilé');
+        expect((await pageB.request.delete(`/api/gift/${id}`)).status()).toBe(200);
+        await gotoUntilVisible(pageA, `/giftList/${aliceUserId}`, 'Weekend à Rome');
+        await expect(pageA.getByText('Dîner étoilé')).toHaveCount(0);
+        await gotoUntilVisible(pageB, `/giftList/${bobUserId}`, 'Weekend à Rome');
+        await expect(pageB.getByText('Dîner étoilé')).toHaveCount(0);
+    });
 });

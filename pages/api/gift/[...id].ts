@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
 import { parseBody, giftPatchSchema } from '@/lib/api/validation';
-import { deleteGift, getGiftFromId, updateGift } from '@/lib/db/giftManager';
+import { assertValidCoOwner, deleteGift, getGiftFromId, InvalidCoOwnerError, updateGift } from '@/lib/db/giftManager';
+import { isGiftOwner } from '@/lib/giftOwnership';
 import { Gift } from '@prisma/client';
 
 export type TGiftApiResult = {
@@ -19,7 +20,11 @@ const canWriteGift = async (req: NextApiRequest, giftId: string): Promise<boolea
     if (!session) return false;
     if (session.isAdmin) return true;
     const gift = await getGiftFromId(giftId);
-    return gift?.userId === session.userId;
+    if (!gift) return false;
+    if (isGiftOwner(gift, session.userId)) return true;
+    // Un sous-cadeau suit son parent (cadeau commun)
+    const parent = gift.parentGiftId ? await getGiftFromId(gift.parentGiftId) : null;
+    return !!parent && isGiftOwner(parent, session.userId);
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TGiftApiResult>) {
@@ -44,6 +49,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 return;
             }
             if ((method === 'PATCH' || method === 'PUT') && body.gift && !parseBody(giftPatchSchema, req, res)) return;
+
+            // Nouveau partenaire : un autre membre du groupe (le backoffice, sans session, n'est pas contrôlé)
+            const session = getSession(req);
+            if ((method === 'PATCH' || method === 'PUT') && body.gift?.coOwnerId && session) {
+                const current = await getGiftFromId(giftId);
+                if (current?.userId) await assertValidCoOwner(current.userId, body.gift.coOwnerId, session.groupId);
+            }
         }
 
         if (method === 'DELETE' && giftId) {
@@ -68,6 +80,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             res.status(400).json({ success: false });
         }
     } catch (e) {
+        if (e instanceof InvalidCoOwnerError) {
+            res.status(400).json({ success: false, error: e.message });
+            return;
+        }
         console.log(e);
         res.status(500).json({ success: false, error: 'Erreur interne' });
     }

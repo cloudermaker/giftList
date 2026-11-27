@@ -8,6 +8,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSubGifts, createSubGift, getGiftFromId } from '../../../../lib/db/giftManager';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
+import { isGiftOwner } from '@/lib/giftOwnership';
 import { parseBody, subGiftSchema } from '@/lib/api/validation';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -38,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 }
                 if (!session.isAdmin) {
                     const parent = await getGiftFromId(id);
-                    if (parent && parent.userId !== session.userId) {
+                    if (parent && !isGiftOwner(parent, session.userId)) {
                         return res.status(403).json({ error: 'Forbidden' });
                     }
                 }
