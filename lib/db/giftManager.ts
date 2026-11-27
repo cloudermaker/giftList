@@ -83,6 +83,7 @@ export const getTakenGiftsFromUserId = async (userId: string, groupId?: string):
             gift: {
                 include: {
                     user: true,
+                    coOwner: true, // Cadeau commun : second destinataire
                     takenBy: true, // Pour calculer takenUserId
                     parentGift: true // Pour les sous-cadeaux
                 }

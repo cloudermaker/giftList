@@ -18,6 +18,7 @@ import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable } 
 import { CSS } from '@dnd-kit/utilities';
 import { Drag } from '@/components/icons/drag';
 import { Gift, GiftType, User } from '@prisma/client';
+import { isGiftOwner } from '@/lib/giftOwnership';
 import { buildDefaultGift, getGiftsFromUserId, getJointGiftsFromUserId, GiftWithTakenUserId } from '@/lib/db/giftManager';
 import { TGiftApiResult } from '@/pages/api/gift';
 import { getUserById } from '@/lib/db/userManager';
@@ -509,6 +510,15 @@ const GiftPage = ({
                                     <p className="text-xs text-gray-500">
                                         {gift.ownerName} &amp; {gift.coOwnerName}
                                     </p>
+                                    {!isGiftOwner(gift, connectedUser?.userId) && gift.giftType === 'SIMPLE' && (
+                                        <span
+                                            className={`mt-1 inline-block text-xs px-2 py-0.5 rounded-full font-medium ${
+                                                gift.takenUserId ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'
+                                            }`}
+                                        >
+                                            {gift.takenUserId ? 'Pris' : 'Libre'}
+                                        </span>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -787,12 +797,19 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                           }))
                       })
             })),
+            // Créateur et partenaire ne reçoivent aucune trace des réservations de leur cadeau commun
             jointGifts: jointGiftList.map((gift) => ({
                 ...gift,
                 createdAt: gift.createdAt.toISOString(),
                 updatedAt: gift.updatedAt.toISOString(),
-                takenUserId: null,
-                takenByList: []
+                ...(isGiftOwner(gift, session?.userId)
+                    ? { takenUserId: null, takenByList: [] }
+                    : {
+                          takenByList: (gift.takenByList ?? []).map((t) => ({
+                              ...t,
+                              takenAt: t.takenAt instanceof Date ? t.takenAt.toISOString() : t.takenAt
+                          }))
+                      })
             }))
         }
     };
