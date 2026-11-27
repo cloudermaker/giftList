@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getGiftFromId, updateGifts, upsertGift } from '@/lib/db/giftManager';
+import { assertValidCoOwner, getGiftFromId, InvalidCoOwnerError, updateGifts, upsertGift } from '@/lib/db/giftManager';
 import { Gift } from '@prisma/client';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
 import { parseBody, giftUpsertSchema, giftsReorderSchema } from '@/lib/api/validation';
@@ -63,6 +63,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             res.status(404).json({ success: false });
         } else if (req.method === 'POST' && body.gift) {
+            const session = getSession(req);
+            if (session) {
+                try {
+                    await assertValidCoOwner(body.gift.userId, body.gift.coOwnerId, session.groupId);
+                } catch (e) {
+                    if (e instanceof InvalidCoOwnerError) {
+                        res.status(400).json({ success: false, error: e.message });
+                        return;
+                    }
+                    throw e;
+                }
+            }
             const gift = await upsertGift(body.gift as Gift);
 
             res.status(200).json({ success: true, gift });

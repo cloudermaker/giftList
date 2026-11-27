@@ -18,7 +18,7 @@ import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable } 
 import { CSS } from '@dnd-kit/utilities';
 import { Drag } from '@/components/icons/drag';
 import { Gift, GiftType, User } from '@prisma/client';
-import { buildDefaultGift, getGiftsFromUserId, GiftWithTakenUserId } from '@/lib/db/giftManager';
+import { buildDefaultGift, getGiftsFromUserId, getJointGiftsFromUserId, GiftWithTakenUserId } from '@/lib/db/giftManager';
 import { TGiftApiResult } from '@/pages/api/gift';
 import { getUserById } from '@/lib/db/userManager';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
@@ -75,7 +75,15 @@ function SortableItem({
     );
 }
 
-const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTakenUserId[] }) => {
+const GiftPage = ({
+    user,
+    giftList = [],
+    jointGifts = []
+}: {
+    user: User;
+    giftList: GiftWithTakenUserId[];
+    jointGifts: GiftWithTakenUserId[];
+}) => {
     const { connectedUser } = useCurrentUser();
 
     const isOwnList = user.id === connectedUser?.userId;
@@ -491,7 +499,23 @@ const GiftPage = ({ user, giftList = [] }: { user: User; giftList: GiftWithTaken
                     </DndContext>
                 </Suspense>
 
-                {visibleGiftsCount === 0 && (
+                {jointGifts.length > 0 && (
+                    <section className="mt-6">
+                        <h2 className="font-semibold text-gray-700 mb-2">Cadeaux communs</h2>
+                        <div className="flex flex-col gap-2">
+                            {jointGifts.map((gift) => (
+                                <div key={`joint_${gift.id}`} className="rounded-lg border p-3">
+                                    <p className="font-medium">{gift.name}</p>
+                                    <p className="text-xs text-gray-500">
+                                        {gift.ownerName} &amp; {gift.coOwnerName}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {visibleGiftsCount === 0 && jointGifts.length === 0 && (
                     <div className="text-center py-12">
                         <p className="text-4xl mb-3">🎁</p>
                         {isOwnList ? (
@@ -735,9 +759,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const session = verifySession(context.req.cookies[COOKIE_NAME]);
 
     // En parallèle des lectures : un aller-retour base de moins avant la réponse
-    const [user, giftList] = await Promise.all([
+    const [user, giftList, jointGiftList] = await Promise.all([
         getUserById(userId),
         getGiftsFromUserId(userId),
+        getJointGiftsFromUserId(userId),
         session ? touchGroupActivity(session.groupId) : null
     ]);
 
@@ -761,6 +786,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                               takenAt: t.takenAt instanceof Date ? t.takenAt.toISOString() : t.takenAt
                           }))
                       })
+            })),
+            jointGifts: jointGiftList.map((gift) => ({
+                ...gift,
+                createdAt: gift.createdAt.toISOString(),
+                updatedAt: gift.updatedAt.toISOString(),
+                takenUserId: null,
+                takenByList: []
             }))
         }
     };
