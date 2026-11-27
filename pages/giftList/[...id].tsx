@@ -79,7 +79,7 @@ function SortableItem({
 const GiftPage = ({
     user,
     giftList = [],
-    jointGifts = []
+    jointGifts
 }: {
     user: User;
     giftList: GiftWithTakenUserId[];
@@ -89,8 +89,11 @@ const GiftPage = ({
 
     const isOwnList = user.id === connectedUser?.userId;
     const userCanAddGift = isOwnList || connectedUser?.isAdmin === true;
+    // Le visiteur est propriétaire du cadeau (cadeau commun : créateur ou partenaire)
+    const isGiftMine = (g: GiftWithTakenUserId) => (g.coOwnerId ? isGiftOwner(g, connectedUser?.userId) : isOwnList);
+    const canEditGift = (g: GiftWithTakenUserId) => (g.coOwnerId ? isGiftMine(g) || connectedUser?.isAdmin === true : userCanAddGift);
 
-    const [localGifts, setLocalGifts] = useState<GiftWithTakenUserId[]>(giftList);
+    const [localGifts, setLocalGifts] = useState<GiftWithTakenUserId[]>([...giftList, ...jointGifts]);
     // Réservation/libération d'un cadeau simple affichée tout de suite, annulée si le serveur refuse
     const [displayGifts, setOptimisticTaken] = useOptimistic(
         localGifts,
@@ -125,6 +128,7 @@ const GiftPage = ({
     const [formDescription, setFormDescription] = useState('');
     const [formLink, setFormLink] = useState('');
     const [formType, setFormType] = useState<'SIMPLE' | 'MULTIPLE' | 'UNLIMITED'>('SIMPLE');
+    const [formCoOwnerId, setFormCoOwnerId] = useState<string | null>(null);
 
     const [groupUserMap, setGroupUserMap] = useState<{ [key: string]: User }>({});
     const [loadingGroupUsers, setLoadingGroupUsers] = useState(true);
@@ -151,6 +155,7 @@ const GiftPage = ({
         setFormDescription('');
         setFormLink('');
         setFormType('SIMPLE');
+        setFormCoOwnerId(null);
         setEditingGiftId('');
         setDatesOpen(false);
     }, []);
@@ -166,9 +171,9 @@ const GiftPage = ({
 
     // Resync à la navigation vers une autre liste
     useEffect(() => {
-        setLocalGifts(giftList);
+        setLocalGifts([...giftList, ...jointGifts]);
         closeModal();
-    }, [user.id, giftList, closeModal]);
+    }, [user.id, giftList, jointGifts, closeModal]);
 
     // Fermer avec Escape
     useEffect(() => {
@@ -202,6 +207,7 @@ const GiftPage = ({
         setFormDescription(gift.description ?? '');
         setFormLink(gift.url ?? '');
         setFormType((gift.giftType as 'SIMPLE' | 'MULTIPLE' | 'UNLIMITED') ?? 'SIMPLE');
+        setFormCoOwnerId(gift.coOwnerId ?? null);
         setEditingGiftId(gift.id);
     };
 
@@ -226,6 +232,27 @@ const GiftPage = ({
         }
     };
 
+    // Noms des deux propriétaires pour l'affichage
+    const withNames = (g: Gift, prev?: GiftWithTakenUserId): GiftWithTakenUserId =>
+        ({
+            ...g,
+            ownerName: groupUserMap[g.userId ?? '']?.name ?? prev?.ownerName,
+            coOwnerName: g.coOwnerId ? (groupUserMap[g.coOwnerId]?.name ?? prev?.coOwnerName ?? null) : null
+        }) as GiftWithTakenUserId;
+    // Un cadeau délié par le partenaire quitte sa page
+    const onThisPage = (g: GiftWithTakenUserId) => g.userId === user.id || !!g.coOwnerId;
+
+    // Partenaires proposés (le partenaire lui-même ne peut que garder ou délier)
+    const getFormPartners = (gift: GiftWithTakenUserId | null): { id: string; name: string }[] => {
+        if (gift?.coOwnerId && gift.coOwnerId === connectedUser?.userId && gift.userId !== connectedUser?.userId) {
+            return [{ id: gift.coOwnerId, name: gift.ownerName ?? groupUserMap[gift.userId ?? '']?.name ?? '' }];
+        }
+        const ownerId = gift?.userId ?? user.id;
+        return Object.values(groupUserMap)
+            .filter((u) => u.id !== ownerId)
+            .map((u) => ({ id: u.id, name: u.name }));
+    };
+
     const saveGift = async (giftId: string | null = null) => {
         const currentGift: GiftWithTakenUserId = structuredClone(localGifts.find((g) => g.id === giftId)!);
 
@@ -243,6 +270,7 @@ const GiftPage = ({
         giftToSave.description = formDescription;
         giftToSave.url = formLink;
         giftToSave.giftType = formType as any;
+        giftToSave.coOwnerId = formCoOwnerId;
 
         try {
             if (giftId) {
@@ -251,9 +279,13 @@ const GiftPage = ({
                 if (data?.success && data.gift) {
                     // La réponse ne porte pas les réservations : on garde celles déjà connues
                     setLocalGifts((prev) =>
-                        prev.map((g) =>
-                            g.id === giftId ? { ...data.gift!, takenUserId: g.takenUserId, takenByList: g.takenByList } : g
-                        )
+                        prev
+                            .map((g) =>
+                                g.id === giftId
+                                    ? { ...withNames(data.gift!, g), takenUserId: g.takenUserId, takenByList: g.takenByList }
+                                    : g
+                            )
+                            .filter(onThisPage)
                     );
                     toast('Cadeau modifié !');
                 } else {
@@ -268,7 +300,7 @@ const GiftPage = ({
                 });
                 const data = res?.data as TGiftApiResult;
                 if (data?.success && data.gift) {
-                    const created: GiftWithTakenUserId = { ...data.gift, takenUserId: (data.gift as any).takenUserId ?? null };
+                    const created: GiftWithTakenUserId = { ...withNames(data.gift), takenUserId: (data.gift as any).takenUserId ?? null };
                     setLocalGifts((prev) => [...prev, created]);
                     toast('Cadeau ajouté !');
                 } else {
@@ -346,15 +378,18 @@ const GiftPage = ({
     const handleDragEnd = (event: { active: any; over: any }) => {
         const { active, over } = event;
         if (!over || active.id === over.id) return;
-        const oldIndex = localGifts.findIndex((g) => g.id === active.id);
-        const newIndex = localGifts.findIndex((g) => g.id === over.id);
-        const reordered = arrayMove(localGifts, oldIndex, newIndex).map((g, i) => ({ ...g, order: i + 1 }));
-        setLocalGifts(reordered);
+        const main = localGifts.filter((g) => !g.coOwnerId);
+        const oldIndex = main.findIndex((g) => g.id === active.id);
+        const newIndex = main.findIndex((g) => g.id === over.id);
+        const reordered = arrayMove(main, oldIndex, newIndex).map((g, i) => ({ ...g, order: i + 1 }));
+        setLocalGifts([...reordered, ...localGifts.filter((g) => g.coOwnerId)]);
         AxiosWrapper.post('/api/gift', { gifts: reordered, initiatorUserId: connectedUser?.userId, userGiftId: user.id }).catch(
             (err) => console.error('Erreur mise à jour ordre:', err)
         );
     };
 
+    const mainGifts = displayGifts.filter((g) => !g.coOwnerId);
+    const sharedGifts = displayGifts.filter((g) => g.coOwnerId);
     const visibleGiftsCount = displayGifts.filter((g) => !filteringTakenGifts || !g.takenUserId).length;
 
     const isCreating = selectedGiftId === NEW_GIFT_SENTINEL;
@@ -363,6 +398,73 @@ const GiftPage = ({
     const modalOpen = selectedGiftId !== null;
 
     const pageTitle = isOwnList ? 'Ma liste' : `Liste de ${user.name}`;
+
+    // Contenu d'une ligne de cadeau (liste principale et section des cadeaux communs)
+    const renderGiftBody = (gift: GiftWithTakenUserId) => (
+    <div
+        className={`w-full cursor-pointer rounded-lg flex items-start gap-3 ${
+            viewMode === 'grid'
+                ? 'flex-wrap p-1 sm:p-3'
+                : 'flex-wrap sm:flex-nowrap gap-y-2 p-1.5 sm:p-3 justify-between'
+        }`}
+        onClick={() => setSelectedGiftId(gift.id)}
+    >
+        <span
+            className={`font-medium ${viewMode === 'grid' ? `w-full ${toSafeUrl(gift.url) ? 'pr-7' : ''}` : 'w-full sm:w-auto sm:flex-1 min-w-0'} ${!isGiftMine(gift) && gift.takenUserId && gift.giftType !== ('UNLIMITED' as GiftType) && gift.giftType !== ('MULTIPLE' as GiftType) ? 'line-through text-fg-subtle' : ''}`}
+        >
+            {gift.name}
+        </span>
+        {viewMode === 'grid' && toSafeUrl(gift.url) && (
+            // Grille : lien dans le coin haut-droit de la carte, la ligne du bas reste aux badges
+            <GiftShopLink
+                url={toSafeUrl(gift.url)!}
+                name={gift.name}
+                className="absolute top-1 right-1 sm:top-2 sm:right-2"
+            />
+        )}
+        {/* Badges (+ lien en vue liste) : sous le nom en grille et en liste sur mobile (badges à gauche, lien à droite), en bout de ligne sinon */}
+        <div
+            className={`flex items-center gap-2 shrink-0 empty:hidden ${viewMode === 'grid' ? 'w-full' : 'w-full sm:w-auto'}`}
+        >
+            {gift.coOwnerId && (
+                <span className="shrink-0 text-xs bg-surface-sunken text-fg-soft px-2 py-0.5 rounded-full font-medium capitalize">
+                    🤝 {gift.ownerName} &amp; {gift.coOwnerName}
+                </span>
+            )}
+            {gift.giftType === 'MULTIPLE' && (
+                <span className="shrink-0 text-xs bg-info-tint text-info-fg px-2 py-0.5 rounded-full font-medium">
+                    🧩 {gift.subGiftsCount ?? 0} élément
+                    {(gift.subGiftsCount ?? 0) !== 1 ? 's' : ''}
+                </span>
+            )}
+            {gift.giftType === ('UNLIMITED' as GiftType) && (
+                <span className="shrink-0 text-xs bg-accent-tint text-accent-fg-strong px-2 py-0.5 rounded-full font-medium">
+                    {isGiftMine(gift)
+                        ? '🔁 Illimité'
+                        : `🔁 ${(gift.takenByList ?? []).length} pris`}
+                </span>
+            )}
+            {!isGiftMine(gift) && gift.giftType === 'SIMPLE' && (
+                <span
+                    className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
+                        gift.takenUserId
+                            ? 'bg-danger-tint text-danger-fg'
+                            : 'bg-success-tint text-success-fg-strong'
+                    }`}
+                >
+                    {gift.takenUserId ? 'Pris' : 'Libre'}
+                </span>
+            )}
+            {viewMode === 'list' && toSafeUrl(gift.url) && (
+                <GiftShopLink
+                    url={toSafeUrl(gift.url)!}
+                    name={gift.name}
+                    className="-my-1 ml-auto"
+                />
+            )}
+        </div>
+    </div>
+    );
 
     return (
         <Layout selectedHeader={EHeader.GiftList} pageTitle={pageTitle}>
@@ -421,11 +523,11 @@ const GiftPage = ({
 
                 <Suspense fallback="loading...">
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                        <SortableContext items={localGifts}>
+                        <SortableContext items={mainGifts}>
                             <div
                                 className={viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 gap-3' : 'flex flex-col gap-2'}
                             >
-                                {displayGifts
+                                {mainGifts
                                     .filter((gift) => !filteringTakenGifts || !gift.takenUserId)
                                     .map((gift, idx) => (
                                         <SortableItem
@@ -435,64 +537,7 @@ const GiftPage = ({
                                             canReorder={userCanAddGift}
                                             viewMode={viewMode}
                                         >
-                                            <div
-                                                className={`w-full cursor-pointer rounded-lg flex items-start gap-3 ${
-                                                    viewMode === 'grid'
-                                                        ? 'flex-wrap p-1 sm:p-3'
-                                                        : 'flex-wrap sm:flex-nowrap gap-y-2 p-1.5 sm:p-3 justify-between'
-                                                }`}
-                                                onClick={() => setSelectedGiftId(gift.id)}
-                                            >
-                                                <span
-                                                    className={`font-medium ${viewMode === 'grid' ? `w-full ${toSafeUrl(gift.url) ? 'pr-7' : ''}` : 'w-full sm:w-auto sm:flex-1 min-w-0'} ${!isOwnList && gift.takenUserId && gift.giftType !== ('UNLIMITED' as GiftType) && gift.giftType !== ('MULTIPLE' as GiftType) ? 'line-through text-fg-subtle' : ''}`}
-                                                >
-                                                    {gift.name}
-                                                </span>
-                                                {viewMode === 'grid' && toSafeUrl(gift.url) && (
-                                                    // Grille : lien dans le coin haut-droit de la carte, la ligne du bas reste aux badges
-                                                    <GiftShopLink
-                                                        url={toSafeUrl(gift.url)!}
-                                                        name={gift.name}
-                                                        className="absolute top-1 right-1 sm:top-2 sm:right-2"
-                                                    />
-                                                )}
-                                                {/* Badges (+ lien en vue liste) : sous le nom en grille et en liste sur mobile (badges à gauche, lien à droite), en bout de ligne sinon */}
-                                                <div
-                                                    className={`flex items-center gap-2 shrink-0 empty:hidden ${viewMode === 'grid' ? 'w-full' : 'w-full sm:w-auto'}`}
-                                                >
-                                                    {gift.giftType === 'MULTIPLE' && (
-                                                        <span className="shrink-0 text-xs bg-info-tint text-info-fg px-2 py-0.5 rounded-full font-medium">
-                                                            🧩 {gift.subGiftsCount ?? 0} élément
-                                                            {(gift.subGiftsCount ?? 0) !== 1 ? 's' : ''}
-                                                        </span>
-                                                    )}
-                                                    {gift.giftType === ('UNLIMITED' as GiftType) && (
-                                                        <span className="shrink-0 text-xs bg-accent-tint text-accent-fg-strong px-2 py-0.5 rounded-full font-medium">
-                                                            {isOwnList
-                                                                ? '🔁 Illimité'
-                                                                : `🔁 ${(gift.takenByList ?? []).length} pris`}
-                                                        </span>
-                                                    )}
-                                                    {!isOwnList && gift.giftType === 'SIMPLE' && (
-                                                        <span
-                                                            className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
-                                                                gift.takenUserId
-                                                                    ? 'bg-danger-tint text-danger-fg'
-                                                                    : 'bg-success-tint text-success-fg-strong'
-                                                            }`}
-                                                        >
-                                                            {gift.takenUserId ? 'Pris' : 'Libre'}
-                                                        </span>
-                                                    )}
-                                                    {viewMode === 'list' && toSafeUrl(gift.url) && (
-                                                        <GiftShopLink
-                                                            url={toSafeUrl(gift.url)!}
-                                                            name={gift.name}
-                                                            className="-my-1 ml-auto"
-                                                        />
-                                                    )}
-                                                </div>
-                                            </div>
+                                            {renderGiftBody(gift)}
                                         </SortableItem>
                                     ))}{' '}
                             </div>
@@ -500,32 +545,25 @@ const GiftPage = ({
                     </DndContext>
                 </Suspense>
 
-                {jointGifts.length > 0 && (
+                {sharedGifts.length > 0 && (
                     <section className="mt-6">
-                        <h2 className="font-semibold text-gray-700 mb-2">Cadeaux communs</h2>
-                        <div className="flex flex-col gap-2">
-                            {jointGifts.map((gift) => (
-                                <div key={`joint_${gift.id}`} className="rounded-lg border p-3">
-                                    <p className="font-medium">{gift.name}</p>
-                                    <p className="text-xs text-gray-500">
-                                        {gift.ownerName} &amp; {gift.coOwnerName}
-                                    </p>
-                                    {!isGiftOwner(gift, connectedUser?.userId) && gift.giftType === 'SIMPLE' && (
-                                        <span
-                                            className={`mt-1 inline-block text-xs px-2 py-0.5 rounded-full font-medium ${
-                                                gift.takenUserId ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'
-                                            }`}
-                                        >
-                                            {gift.takenUserId ? 'Pris' : 'Libre'}
-                                        </span>
-                                    )}
-                                </div>
-                            ))}
+                        <h2 className="font-semibold text-fg-soft mb-2">Cadeaux communs</h2>
+                        <div className={viewMode === 'grid' ? 'grid grid-cols-2 sm:grid-cols-3 gap-3' : 'flex flex-col gap-2'}>
+                            {sharedGifts
+                                .filter((gift) => !filteringTakenGifts || !gift.takenUserId)
+                                .map((gift) => (
+                                    <div
+                                        key={`joint_${gift.id}`}
+                                        className={`item flex ${viewMode === 'grid' ? 'items-start p-2! sm:p-[18px]!' : 'items-center p-2.5! sm:p-[18px]!'}`}
+                                    >
+                                        {renderGiftBody(gift)}
+                                    </div>
+                                ))}
                         </div>
                     </section>
                 )}
 
-                {visibleGiftsCount === 0 && jointGifts.length === 0 && (
+                {visibleGiftsCount === 0 && (
                     <div className="text-center py-12">
                         <p className="text-4xl mb-3">🎁</p>
                         {isOwnList ? (
@@ -581,7 +619,7 @@ const GiftPage = ({
                                     >
                                         ✕
                                     </div>
-                                    {datesOpen && !isCreating && <GiftDates gift={selectedGift!} showTaken={!isOwnList} />}
+                                    {datesOpen && !isCreating && <GiftDates gift={selectedGift!} showTaken={!isGiftMine(selectedGift!)} />}
                                 </div>
                             </div>
 
@@ -597,6 +635,9 @@ const GiftPage = ({
                                         setFormLink={setFormLink}
                                         formType={formType}
                                         setFormType={setFormType}
+                                        partners={getFormPartners(isCreating ? null : selectedGift)}
+                                        formCoOwnerId={formCoOwnerId}
+                                        setFormCoOwnerId={setFormCoOwnerId}
                                         autoFocusName
                                     />
                                 ) : (
@@ -613,7 +654,7 @@ const GiftPage = ({
                                         ) : (
                                             <p className="text-fg-soft italic">Pas de lien</p>
                                         )}
-                                        {!isOwnList &&
+                                        {!isGiftMine(selectedGift!) &&
                                             selectedGift!.takenUserId &&
                                             selectedGift!.takenUserId !== connectedUser?.userId && (
                                                 <div className="p-3 bg-danger-soft border border-danger-line rounded-lg text-sm text-danger-fg-strong flex items-center gap-2">
@@ -652,7 +693,7 @@ const GiftPage = ({
                                                 }}
                                             />
                                         )}
-                                        {selectedGift!.giftType === ('UNLIMITED' as GiftType) && !isOwnList && (
+                                        {selectedGift!.giftType === ('UNLIMITED' as GiftType) && !isGiftMine(selectedGift!) && (
                                             <UnlimitedGiftTakers
                                                 gift={selectedGift!}
                                                 userId={connectedUser?.userId}
@@ -686,7 +727,7 @@ const GiftPage = ({
                                     </CustomButton>
                                 )}
                                 {!isCreating &&
-                                    userCanAddGift &&
+                                    canEditGift(selectedGift!) &&
                                     (isEditing ? (
                                         <>
                                             <CustomButton
@@ -708,7 +749,7 @@ const GiftPage = ({
                                     ))}
                                 {/* Réserver : tout le monde sauf le propriétaire (un admin peut aussi réserver) */}
                                 {!isCreating &&
-                                    !isOwnList &&
+                                    !isGiftMine(selectedGift!) &&
                                     selectedGift!.giftType === 'SIMPLE' &&
                                     selectedGift!.takenUserId === connectedUser?.userId && (
                                         <CustomButton
@@ -719,7 +760,7 @@ const GiftPage = ({
                                         </CustomButton>
                                     )}
                                 {!isCreating &&
-                                    !isOwnList &&
+                                    !isGiftMine(selectedGift!) &&
                                     selectedGift!.giftType === 'SIMPLE' &&
                                     !selectedGift!.takenUserId && (
                                         <CustomButton

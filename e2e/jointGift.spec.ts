@@ -1,5 +1,5 @@
 import { test, expect, BrowserContext, Page } from '@playwright/test';
-import { createGroup, deleteCurrentGroup, gotoUntilVisible, readSession, uniqueName } from './fixtures';
+import { createGroup, deleteCurrentGroup, gotoUntilVisible, readSession, uniqueName, waitForToastGone } from './fixtures';
 
 /** Cadeaux communs : un cadeau partagé entre deux membres du même groupe. */
 test.describe.serial('Cadeaux communs', () => {
@@ -177,5 +177,37 @@ test.describe.serial('Cadeaux communs', () => {
         await gotoUntilVisible(pageB, `/giftList/${bobUserId}`, 'Cadeau de Dan');
         const edit = await pageB.request.patch(`/api/gift/${sharedId}`, { data: { gift: { name: 'Cadeau de Dan, repris' } } });
         expect(edit.status()).toBe(200);
+    });
+
+    test('Alice crée un cadeau commun depuis le formulaire', async () => {
+        await pageA.goto(`/giftList/${aliceUserId}`);
+        await pageA.getByRole('button', { name: 'Ajouter un cadeau' }).first().click();
+        await pageA.locator('#giftFormNameInput').fill('Saut en parachute');
+        await pageA.getByLabel('Cadeau commun avec :').selectOption({ label: 'bob' }); // les prénoms sont stockés en minuscules
+        await pageA.getByRole('button', { name: 'Créer' }).click();
+        await waitForToastGone(pageA);
+
+        await expect(pageA.getByText('Saut en parachute')).toHaveCount(1);
+        await expect(pageA.locator('section', { hasText: 'Cadeaux communs' }).getByText('Saut en parachute')).toBeVisible();
+        await gotoUntilVisible(pageB, `/giftList/${bobUserId}`, 'Saut en parachute');
+        await expect(pageB.locator('section', { hasText: 'Cadeaux communs' }).getByText('Saut en parachute')).toBeVisible();
+    });
+
+    test('Chloé réserve un cadeau commun depuis la section', async () => {
+        await gotoUntilVisible(pageC, `/giftList/${aliceUserId}`, 'Saut en parachute');
+        await pageC.locator('.item', { hasText: 'Saut en parachute' }).click();
+        await pageC.getByRole('button', { name: 'Je prends ce cadeau' }).click();
+        await waitForToastGone(pageC);
+        await expect(pageC.locator('.item', { hasText: 'Saut en parachute' }).getByText('Pris', { exact: true })).toBeVisible();
+    });
+
+    test('le partenaire délie le cadeau depuis le formulaire : il quitte sa page', async () => {
+        await gotoUntilVisible(pageB, `/giftList/${bobUserId}`, 'Saut en parachute');
+        await pageB.locator('.item', { hasText: 'Saut en parachute' }).click();
+        await pageB.getByRole('button', { name: 'Modifier' }).click();
+        await pageB.getByLabel('Cadeau commun avec :').selectOption({ label: 'Personne' });
+        await pageB.getByRole('button', { name: 'Valider' }).click();
+        await waitForToastGone(pageB);
+        await expect(pageB.getByText('Saut en parachute')).toHaveCount(0);
     });
 });

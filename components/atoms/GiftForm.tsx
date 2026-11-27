@@ -8,6 +8,10 @@ interface GiftFormProps {
     formType: 'SIMPLE' | 'MULTIPLE' | 'UNLIMITED';
     setFormType: (v: 'SIMPLE' | 'MULTIPLE' | 'UNLIMITED') => void;
     autoFocusName?: boolean;
+    // Cadeau commun : la liste est vide => le choix du partenaire est masqué
+    partners?: { id: string; name: string }[];
+    formCoOwnerId?: string | null;
+    setFormCoOwnerId?: (v: string | null) => void;
 }
 
 export default function GiftForm({
@@ -19,7 +23,10 @@ export default function GiftForm({
     setFormLink,
     formType,
     setFormType,
-    autoFocusName = false
+    autoFocusName = false,
+    partners = [],
+    formCoOwnerId = null,
+    setFormCoOwnerId
 }: GiftFormProps) {
     return (
         <div className="space-y-3">
@@ -41,6 +48,26 @@ export default function GiftForm({
                 <label className="input-label">Lien:</label>
                 <textarea className="input-field" value={formLink} onChange={(e) => setFormLink(e.target.value)} />
             </div>
+            {partners.length > 0 && setFormCoOwnerId && (
+                <div className="grid">
+                    <label className="input-label" htmlFor="giftFormCoOwnerSelect">
+                        Cadeau commun avec :
+                    </label>
+                    <select
+                        id="giftFormCoOwnerSelect"
+                        className="input-field capitalize"
+                        value={formCoOwnerId ?? ''}
+                        onChange={(e) => setFormCoOwnerId(e.target.value || null)}
+                    >
+                        <option value="">Personne</option>
+                        {partners.map((p) => (
+                            <option key={p.id} value={p.id} className="capitalize">
+                                {p.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
             <div className="space-y-2">
                 <p className="text-sm font-medium text-fg-soft">Type de cadeau :</p>
                 <div className="flex flex-col gap-1.5">
