@@ -4,6 +4,12 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
+## [5.15.0] - 2026-11-27
+
+### Ajouté
+
+- Cadeaux communs : partage un cadeau avec un autre membre, il apparaît dans une section dédiée sur vos deux listes et se réserve une seule fois
+
 ## [5.14.0] - 2026-11-19
 
 ### Ajouté
