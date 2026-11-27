@@ -8,7 +8,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSubGifts, createSubGift, getGiftFromId } from '../../../../lib/db/giftManager';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
-import { isGiftOwner } from '@/lib/giftOwnership';
+import { hideReservationsFromOwner, isGiftOwner } from '@/lib/giftOwnership';
 import { parseBody, subGiftSchema } from '@/lib/api/validation';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -21,9 +21,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // GET - Récupérer les sous-cadeaux
         if (req.method === 'GET') {
-            const subGifts = await getSubGifts(id);
+            const [subGifts, parent] = await Promise.all([getSubGifts(id), getGiftFromId(id)]);
+            const owner = !!parent && isGiftOwner(parent, getSession(req)?.userId);
 
-            return res.status(200).json({ success: true, subGifts });
+            return res.status(200).json({ success: true, subGifts: subGifts.map((g) => hideReservationsFromOwner(g, owner)) });
         }
 
         // POST - Créer un sous-cadeau (propriétaire de la liste, admin ou backoffice)

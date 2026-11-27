@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
 import { parseBody, giftPatchSchema } from '@/lib/api/validation';
 import { assertValidCoOwner, deleteGift, getGiftFromId, InvalidCoOwnerError, updateGift } from '@/lib/db/giftManager';
-import { isGiftOwner } from '@/lib/giftOwnership';
+import { hideReservationsFromOwner, isGiftOwner } from '@/lib/giftOwnership';
 import { Gift } from '@prisma/client';
 
 export type TGiftApiResult = {
@@ -36,7 +36,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const gift = await getGiftFromId(giftId);
 
             if (gift) {
-                res.status(200).json({ success: true, gift });
+                const owner = isGiftOwner(gift, getSession(req)?.userId);
+                res.status(200).json({ success: true, gift: hideReservationsFromOwner(gift, owner) });
             } else {
                 res.status(404).json({ success: false });
             }
@@ -54,7 +55,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const session = getSession(req);
             if ((method === 'PATCH' || method === 'PUT') && body.gift?.coOwnerId && session) {
                 const current = await getGiftFromId(giftId);
-                if (current?.userId) await assertValidCoOwner(current.userId, body.gift.coOwnerId, session.groupId);
+                // Un partenaire inchangé n'est pas revalidé (il peut avoir quitté le groupe courant)
+                if (current?.userId && body.gift.coOwnerId !== current.coOwnerId) {
+                    await assertValidCoOwner(current.userId, body.gift.coOwnerId, session.groupId);
+                }
             }
         }
 

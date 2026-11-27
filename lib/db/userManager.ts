@@ -99,9 +99,9 @@ export const updateUser = async (userId: string, user: PublicUser): Promise<Publ
 };
 
 // Cadeaux communs d'un user supprimé : ils passent à son partenaire, en fin de sa liste principale
-const handOverJointGifts = async (tx: Prisma.TransactionClient, userId: string): Promise<void> => {
+export const handOverJointGifts = async (tx: Prisma.TransactionClient, userIds: string[]): Promise<void> => {
     const joint = await tx.gift.findMany({
-        where: { userId, coOwnerId: { not: null }, parentGiftId: null },
+        where: { userId: { in: userIds }, coOwnerId: { not: null }, parentGiftId: null },
         orderBy: { createdAt: 'asc' },
         select: { id: true, coOwnerId: true }
     });
@@ -115,7 +115,7 @@ const handOverJointGifts = async (tx: Prisma.TransactionClient, userId: string):
 
 export const deleteUser = async (userId: string): Promise<void> => {
     await prisma.$transaction(async (tx) => {
-        await handOverJointGifts(tx, userId);
+        await handOverJointGifts(tx, [userId]);
         await tx.user.deleteMany({ where: { id: userId } });
     });
 };
@@ -128,7 +128,7 @@ export const leaveGroup = async (userId: string, groupId: string): Promise<void>
             (m) => m.groupId
         );
         if (remaining.length === 0) {
-            await handOverJointGifts(tx, userId);
+            await handOverJointGifts(tx, [userId]);
             await tx.user.deleteMany({ where: { id: userId } });
             return;
         }
@@ -173,6 +173,9 @@ export const mergeUsers = async (keepId: string, dropId: string): Promise<void> 
             data: { order: { increment: (maxOrder ?? -1) + 1 } }
         });
         await tx.gift.updateMany({ where: { userId: dropId }, data: { userId: keepId } });
+        // Cadeaux communs : le profil conservé reprend la place du partenaire fusionné
+        await tx.gift.updateMany({ where: { coOwnerId: dropId }, data: { coOwnerId: keepId } });
+        await tx.gift.updateMany({ where: { userId: keepId, coOwnerId: keepId }, data: { coOwnerId: null } });
 
         // Une seule réservation par cadeau (cas UNLIMITED réservé depuis les deux profils)
         const keepTaken = (await tx.userTakenGift.findMany({ where: { userId: keepId }, select: { giftId: true } })).map(

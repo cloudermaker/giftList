@@ -3,6 +3,7 @@ import { assertValidCoOwner, getGiftFromId, InvalidCoOwnerError, updateGifts, up
 import { Gift } from '@prisma/client';
 import { getSession, isBackofficeSession } from '@/lib/auth/session';
 import { parseBody, giftUpsertSchema, giftsReorderSchema } from '@/lib/api/validation';
+import { hideReservationsFromOwner, isGiftOwner } from '@/lib/giftOwnership';
 
 export type TGiftApiResult = {
     success: boolean;
@@ -57,16 +58,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const gift = await getGiftFromId(query.giftId as string);
 
             if (gift) {
-                res.status(200).json({ success: true, gift });
+                const owner = isGiftOwner(gift, getSession(req)?.userId);
+                res.status(200).json({ success: true, gift: hideReservationsFromOwner(gift, owner) });
                 return;
             }
 
             res.status(404).json({ success: false });
         } else if (req.method === 'POST' && body.gift) {
             const session = getSession(req);
+            // Un cadeau existant (id fourni) ne se modifie que par ses propriétaires, un admin ou le backoffice
+            const stored = body.gift.id ? await getGiftFromId(body.gift.id) : null;
+            if (stored && !isBackofficeSession(req) && !(session?.isAdmin || isGiftOwner(stored, session?.userId))) {
+                res.status(403).json({ success: false });
+                return;
+            }
             if (session) {
                 try {
-                    await assertValidCoOwner(body.gift.userId, body.gift.coOwnerId, session.groupId);
+                    // Un partenaire inchangé n'est pas revalidé (il peut avoir quitté le groupe courant)
+                    if (body.gift.coOwnerId !== stored?.coOwnerId) {
+                        await assertValidCoOwner(stored?.userId ?? body.gift.userId, body.gift.coOwnerId, session.groupId);
+                    }
                 } catch (e) {
                     if (e instanceof InvalidCoOwnerError) {
                         res.status(400).json({ success: false, error: e.message });

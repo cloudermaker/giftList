@@ -1,6 +1,7 @@
 import { Group } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import prisma from './dbSingleton';
+import { handOverJointGifts } from './userManager';
 import { hashPassword, isHashed } from '@/lib/auth/password';
 
 export const buildDefaultGroup = () => {
@@ -71,9 +72,14 @@ export const getGroupByName = async (groupName: string): Promise<Group | null> =
 
 // Supprime le groupe ET les profils qui n'appartiennent qu'à lui (cadeaux, réservations et emails partent en cascade)
 export const deleteGroup = async (groupId: string): Promise<boolean> => {
+    const leaving = { groupMemberships: { some: { groupId }, every: { groupId } } };
+    // Cadeaux communs des profils supprimés : ils passent à leur partenaire (resté dans un autre groupe)
+    const leavingIds = (await prisma.user.findMany({ where: leaving, select: { id: true } })).map((u) => u.id);
+    if (leavingIds.length > 0) await prisma.$transaction((tx) => handOverJointGifts(tx, leavingIds));
+
     // Lot court (pas de transaction interactive) : ne bloque pas de connexion pendant les cascades
     const [, deleted] = await prisma.$transaction([
-        prisma.user.deleteMany({ where: { groupMemberships: { some: { groupId }, every: { groupId } } } }),
+        prisma.user.deleteMany({ where: leaving }),
         prisma.group.deleteMany({ where: { id: groupId } })
     ]);
     return deleted.count > 0;

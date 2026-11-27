@@ -1,5 +1,8 @@
 import { test, expect, BrowserContext, Page } from '@playwright/test';
 import { createGroup, deleteCurrentGroup, gotoUntilVisible, readSession, uniqueName, waitForToastGone } from './fixtures';
+import prisma from '../lib/db/dbSingleton';
+import { deleteGroup } from '../lib/db/groupManager';
+import { mergeUsers } from '../lib/db/userManager';
 
 /** Cadeaux communs : un cadeau partagé entre deux membres du même groupe. */
 test.describe.serial('Cadeaux communs', () => {
@@ -209,5 +212,109 @@ test.describe.serial('Cadeaux communs', () => {
         await pageB.getByRole('button', { name: 'Valider' }).click();
         await waitForToastGone(pageB);
         await expect(pageB.getByText('Saut en parachute')).toHaveCount(0);
+    });
+
+    // --- Corrections issues de la revue finale ---
+
+    test("un autre membre ne peut pas se désigner partenaire d'un cadeau commun par un POST avec son id", async () => {
+        const id = await createJoint('Cabane');
+        const hijack = await pageC.request.post('/api/gift', {
+            data: { gift: { id, name: 'x', userId: aliceUserId, coOwnerId: chloeUserId }, userGiftId: aliceUserId }
+        });
+        expect(hijack.status()).toBe(403);
+        const stored = await (await pageA.request.get(`/api/gift/${id}`)).json();
+        expect(stored.gift.coOwnerId).toBe(bobUserId);
+        expect(stored.gift.name).toBe('Cabane');
+    });
+
+    test('ni le créateur ni le partenaire ne reçoivent les réservations par les routes de lecture', async () => {
+        const parentId = await createJoint('Coffret secret', { giftType: 'MULTIPLE' });
+        expect((await pageA.request.post(`/api/gift/${parentId}/subgifts`, { data: { name: 'Planche' } })).status()).toBe(201);
+        expect((await pageC.request.post(`/api/gift/${parentId}/take`)).ok()).toBeTruthy();
+
+        for (const owner of [pageA, pageB]) {
+            const byQuery = (await (await owner.request.get(`/api/gift?giftId=${parentId}`)).json()).gift;
+            expect(byQuery.takenUserId).toBeNull();
+            expect(byQuery.takenByList).toEqual([]);
+            const byId = (await (await owner.request.get(`/api/gift/${parentId}`)).json()).gift;
+            expect(byId.takenUserId).toBeNull();
+            expect(byId.takenByList).toEqual([]);
+            const subs = (await (await owner.request.get(`/api/gift/${parentId}/subgifts`)).json()).subGifts;
+            expect(subs.length).toBe(1);
+            expect(subs.every((s: { takenUserId: string | null }) => s.takenUserId === null)).toBe(true);
+        }
+        const asChloe = (await (await pageC.request.get(`/api/gift?giftId=${parentId}`)).json()).gift;
+        expect(asChloe.takenUserId).toBe(chloeUserId);
+    });
+
+    test('la pastille des deux noms reste après une réservation qui rafraîchit le cadeau', async () => {
+        await createJoint('Escape game', { giftType: 'UNLIMITED' });
+        await gotoUntilVisible(pageC, `/giftList/${aliceUserId}`, 'Escape game');
+        await pageC.locator('.item', { hasText: 'Escape game' }).click();
+        await pageC.getByText('Voir qui a pris ce cadeau').click();
+        await pageC.getByRole('button', { name: 'Je prends ce cadeau' }).click();
+        await expect(pageC.locator('.item', { hasText: 'Escape game' })).toContainText('1 pris');
+        await expect(pageC.locator('.item', { hasText: 'Escape game' })).toContainText(/alice & bob/i);
+    });
+
+    test("modifier le nom d'un cadeau commun reste possible quand le partenaire n'est plus dans le groupe", async () => {
+        const session = (await readSession(pageA))!;
+        const eve = await pageA.request.post('/api/user', { data: { user: { name: 'Eve' }, groupId: session.groupId } });
+        const eveId = (await eve.json()).user.id;
+        const res = await pageA.request.post('/api/gift', {
+            data: { gift: { name: 'Pique-nique', userId: aliceUserId, coOwnerId: eveId }, userGiftId: aliceUserId }
+        });
+        const id = (await res.json()).gift.id;
+        await prisma.userGroupMapping.deleteMany({ where: { userId: eveId } });
+
+        const edit = await pageA.request.patch(`/api/gift/${id}`, { data: { gift: { name: 'Pique-nique chic', coOwnerId: eveId } } });
+        expect(edit.status()).toBe(200);
+    });
+});
+
+test.describe('Cadeaux communs : suppression et fusion de profils', () => {
+    const makeGroup = (label: string) => prisma.group.create({ data: { name: uniqueName(label), adminPassword: 'x' } });
+    const makeMember = async (name: string, groupId: string) => {
+        const user = await prisma.user.create({ data: { name } });
+        await prisma.userGroupMapping.create({ data: { userId: user.id, groupId } });
+        return user.id;
+    };
+
+    test("la fusion d'un profil partenaire reporte le cadeau commun sur le profil conservé", async () => {
+        const g1 = await makeGroup('e2e-merge-joint-1');
+        const g2 = await makeGroup('e2e-merge-joint-2');
+        try {
+            const ownerId = await makeMember('owner', g1.id);
+            const dropId = await makeMember('drop', g1.id);
+            const keepId = await makeMember('keep', g2.id);
+            const gift = await prisma.gift.create({ data: { name: 'Cadeau fusion', userId: ownerId, coOwnerId: dropId } });
+
+            await mergeUsers(keepId, dropId);
+
+            expect((await prisma.gift.findUnique({ where: { id: gift.id } }))?.coOwnerId).toBe(keepId);
+        } finally {
+            await deleteGroup(g1.id);
+            await deleteGroup(g2.id);
+        }
+    });
+
+    test('supprimer un groupe garde le cadeau commun du créateur pour le partenaire resté dans un autre groupe', async () => {
+        const g1 = await makeGroup('e2e-delgroup-joint-1');
+        const g2 = await makeGroup('e2e-delgroup-joint-2');
+        try {
+            const aliceId = await makeMember('alice', g1.id);
+            const bobId = await makeMember('bob', g1.id);
+            await prisma.userGroupMapping.create({ data: { userId: bobId, groupId: g2.id } });
+            const gift = await prisma.gift.create({ data: { name: 'Cadeau groupe', userId: aliceId, coOwnerId: bobId } });
+
+            await deleteGroup(g1.id);
+
+            const kept = await prisma.gift.findUnique({ where: { id: gift.id } });
+            expect(kept?.userId).toBe(bobId);
+            expect(kept?.coOwnerId).toBeNull();
+        } finally {
+            await deleteGroup(g1.id);
+            await deleteGroup(g2.id);
+        }
     });
 });

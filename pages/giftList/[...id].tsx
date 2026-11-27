@@ -353,7 +353,7 @@ const GiftPage = ({
                                 takenUserId: (refreshData.gift as any).takenUserId ?? null
                             };
                             startTransition(() =>
-                                setLocalGifts((prev) => prev.map((g) => (g.id === giftToUpdate.id ? updated : g)))
+                                setLocalGifts((prev) => prev.map((g) => (g.id === giftToUpdate.id ? { ...updated, ownerName: g.ownerName, coOwnerName: g.coOwnerName } : g)))
                             );
                         }
                     }
@@ -686,7 +686,7 @@ const GiftPage = ({
                                                                 takenUserId: (data.gift as any).takenUserId ?? null
                                                             };
                                                             setLocalGifts((prev) =>
-                                                                prev.map((g) => (g.id === selectedGift!.id ? updated : g))
+                                                                prev.map((g) => (g.id === selectedGift!.id ? { ...updated, ownerName: g.ownerName, coOwnerName: g.coOwnerName } : g))
                                                             );
                                                         }
                                                     });
@@ -708,7 +708,7 @@ const GiftPage = ({
                                                                 takenByList: (data.gift as any).takenByList ?? []
                                                             };
                                                             setLocalGifts((prev) =>
-                                                                prev.map((g) => (g.id === selectedGift!.id ? updated : g))
+                                                                prev.map((g) => (g.id === selectedGift!.id ? { ...updated, ownerName: g.ownerName, coOwnerName: g.coOwnerName } : g))
                                                             );
                                                         }
                                                     });
